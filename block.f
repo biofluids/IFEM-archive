@@ -7,10 +7,10 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	implicit none
 	include "global.h"
 
-	integer ien(nen,nec)
-	real* 8 xloc(nsd,nn_loc),floc(nn_loc)
-	real* 8 dloc(ndf,nn_loc),doloc(ndf,nn_loc)
-	real* 8 p(ndf,nn_loc),q(ndf,nn_loc),hk(nec)
+	integer ien(nen,ne)
+	real* 8 xloc(nsd,nn),floc(nn)
+	real* 8 dloc(ndf,nn),doloc(ndf,nn)
+	real* 8 p(ndf,nn),q(ndf,nn),hk(ne)
 	
 	real* 8 x(nsdpad,nenpad),f(nenpad)
 	real* 8 d(ndfpad,nenpad),do(ndfpad,nenpad)
@@ -36,11 +36,11 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 temprefu,temprefv,temprefw
 	real* 8 dtinv,oma,ama
 	integer inl, ie, isd, idf, iq, node
-	real* 8 finv(nsd,nsd,nquad,nec),jac(nquad,nec),jaco(nquad,nec)
-	real* 8 def(nsd,nsd,nquad,nec),tempf(nsd,nsd)
+	real* 8 finv(nsd,nsd,nquad,ne),jac(nquad,ne),jaco(nquad,ne)
+	real* 8 def(nsd,nsd,nquad,ne),tempf(nsd,nsd)
 	real* 8 finv11,finv12,finv13,finv21,finv22,finv23,finv31
 	real* 8 finv32,finv33, rodt
-	real* 8 refvel(nsd,nquad,nec),refvelo(nsd,nquad,nec)
+	real* 8 refvel(nsd,nquad,ne),refvelo(nsd,nquad,ne)
 	real* 8 refv(nsd),refvo(nsd)
 	real* 8 dp1(nsd),dp2(nsd,nsd,nsd),dp3(nsd),dfinv(nsd,nsd,nsd)
 	real* 8 dp(nsd),dpp(nsd)
@@ -51,7 +51,7 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	oma   = 1.0 -alpha
 	ama   = 1.0 - oma
 
-        do ie=1,nec 
+        do ie=1,ne 
 	   do inl=1,nen
 	      node=ien(inl,ie)
 	      do isd=1,nsd

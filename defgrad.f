@@ -7,11 +7,11 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	implicit none
 	include "global.h"
 
-	integer ien(nen,nec)
-	real* 8 xloc(nsd,nn_loc), xrefloc(nsd,nn_loc)
-	real* 8 x(nsdpad,nenpad), f(nsd,nsd,nquad,nec)
-	real* 8 finv(nsd,nsd,nquad,nec)
-	real* 8 eft0,det, jac(nquad,nec), minor(nsd), jacinv(nquad,nec)
+	integer ien(nen,ne)
+	real* 8 xloc(nsd,nn), xrefloc(nsd,nn)
+	real* 8 x(nsdpad,nenpad), f(nsd,nsd,nquad,ne)
+	real* 8 finv(nsd,nsd,nquad,ne)
+	real* 8 eft0,det, jac(nquad,ne), minor(nsd), jacinv(nquad,ne)
 	real* 8 sh(0:nsdpad,nenpad), ph(0:nsdpad,nenpad)
         real* 8 xrefx(nsd), xrefy(nsd), xrefz(nsd)
         real* 8 refxx(nsd), refxy(nsd), refxz(nsd)
@@ -23,7 +23,7 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c.... calculate d(Na)/d(xref)
-	do ie=1,nec
+	do ie=1,ne
 	   do inl=1,nen
 	      do isd=1,nsd
 		 x(isd,inl)=xrefloc(isd,ien(inl,ie))
@@ -110,18 +110,18 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	implicit none
 	include "global.h"
 
-	integer ien(nen,nec)
-	real* 8 xloc(nsd,nn_loc), xrefloc(nsd,nn_loc)
-	real* 8 x(nsdpad,nenpad), finv(nsd,nsd,nec)
+	integer ien(nen,ne)
+	real* 8 xloc(nsd,nn), xrefloc(nsd,nn)
+	real* 8 x(nsdpad,nenpad), finv(nsd,nsd,ne)
 
-	real* 8 eft0,det, jac(nec), jacinv(nec),minor(nsd)
+	real* 8 eft0,det, jac(ne), jacinv(ne),minor(nsd)
 	real* 8 sh(0:nsdpad,nenpad), ph(0:nsdpad,nenpad)
         real* 8 refxx(nsd), refxy(nsd), refxz(nsd)
 	real* 8 xr(nsdpad,nsdpad), cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
 	integer inl, ie, isd, iq, node
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-        do ie=1,nec
+        do ie=1,ne
 c.... calculate d(Na)/d(x)
            do inl=1,nen
               do isd=1,nsd

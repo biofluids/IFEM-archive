@@ -6,15 +6,15 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 	include "global.h"
 
-	real* 8 d(mn,nn_loc), dg(mn,nnc)
-	real* 8 dinc(mn,nn_loc)
-	real* 8 hn(nnc),hm(nn_loc)
+	real* 8 d(mn,nn), dg(mn,nn)
+	real* 8 dinc(mn,nn)
+	real* 8 hn(nn),hm(nn)
 	integer i,j,mn
 	
-	call fclear (dinc,mn*nn_loc)
+	call fclear (dinc,mn*nn)
 	call gather(dinc, dg, mn, hn, hm)
 
-	do i=1,nn_loc
+	do i=1,nn
 	do j=1,mn 
 	d(j,i) = d(j,i) + dinc(j,i)
 	enddo

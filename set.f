@@ -3,10 +3,10 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	include "global.h"
 
-	integer id(mn,nnc)
-	real* 8  d(mn,nnc)
+	integer id(mn,nn)
+	real* 8  d(mn,nn)
 
-	do inc=1,nnc
+	do inc=1,nn
 	do idf=1,mn 
 	if (id(idf,inc).eq.0) d(idf,inc) = 0.0                
 	end do
@@ -19,10 +19,10 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	include "global.h"
 
-	integer id(mn,nnc)
-	real* 8  d(mn,nnc), f(mn,nnc)
+	integer id(mn,nn)
+	real* 8  d(mn,nn), f(mn,nn)
 
-	do inc=1,nnc
+	do inc=1,nn
 	do idf=1,mn
 	if (id(idf,inc).eq.0) d(idf,inc) = f(idf,inc)         
 	end do

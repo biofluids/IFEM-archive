@@ -7,10 +7,10 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	implicit none
 	include "global.h"
 
-	integer ien(nen,nec)
-	real* 8 xloc(nsd,nn_loc), dloc(nsd,nn_loc), eloc(nsd,nn_loc)
+	integer ien(nen,ne)
+	real* 8 xloc(nsd,nn), dloc(nsd,nn), eloc(nsd,nn)
 	real* 8 x(nsdpad,nenpad), d(nsdpad,nenpad), e(nsdpad,nenpad)
-	real* 8 p(nsd,nn_loc)
+	real* 8 p(nsd,nn)
 
 	real* 8 eft0,det,eft1
 	real* 8 sh(0:nsdpad,nenpad),ph(0:nsdpad,nenpad)
@@ -23,13 +23,13 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 erx,ery,erz,ers
 
 c....   stiffness matrix
-	real* 8 w(nsd,nn_loc)  
+	real* 8 w(nsd,nn)  
 	integer inl, ie, isd, iq, node
 
 
 	mu = 1.0
 	la = mu * landa_over_mu
-        do ie=1,nec 
+        do ie=1,ne 
 	   do inl=1,nen
 	      do isd=1,nsd
 c		 e(isd,inl) = eloc(isd,ien(inl,ie))

@@ -1,4 +1,0 @@
-#!/bin/csh -f
-#QSUB -ro -re -l mpp_p=8 -l p_mpp_t=8:00:00
-cd $QSUB_WORKDIR
-/opt/ctl/mpt/mpt/bin/mpirun -np 8 xts-mpi < xts.incylbig

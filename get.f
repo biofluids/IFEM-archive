@@ -4,9 +4,9 @@
 	include "global.h"
 	integer i,j
 
-	real*8 d(ndf,nn_loc),do(ndf,nn_loc),u(nsd,nn_loc)
+	real*8 d(ndf,nn),do(ndf,nn),u(nsd,nn)
 
-	do i=1,nn_loc
+	do i=1,nn
 	do j=1,nsd
 	u(j,i) = alpha*d(j,i)+(1-alpha)*do(j,i)
 	enddo
@@ -20,9 +20,9 @@
 	include "global.h"
 	integer i,j
 
-	real*8 d(nn_loc),do(nn_loc),f(nn_loc)
+	real*8 d(nn),do(nn),f(nn)
 
-	do i=1,nn_loc
+	do i=1,nn
 	f(i) = alpha*d(i)+(1-alpha)*do(i)
 	enddo
 

@@ -7,22 +7,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	implicit none
 	include "global.h"
 
-	real* 8 x(nsd,nn_loc),f(nn_loc)
-	real* 8 d(ndf,nn_loc), do(ndf,nn_loc),hg(nec)
-	real* 8 bg(ndf*nnc), dg(ndf*nnc), w(ndf*nnc)
-	integer id(ndf,nnc),ien(nen,nec)
-	real* 8 hn(nnc),hm(nn_loc)
+	real* 8 x(nsd,nn),f(nn)
+	real* 8 d(ndf,nn), do(ndf,nn),hg(ne)
+	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
+	integer id(ndf,nn),ien(nen,ne)
+	real* 8 hn(nn),hm(nn)
 
 	real* 8 h(inner+1,inner)
 	real* 8 y(inner+1)
 	real* 8 cc(inner), ss(inner)
 	
-	real* 8 finv(nsd,nsd,nquad,nec),jac(nquad,nec),jaco(nquad,nec)
-	real* 8 refvel(nsd,nquad,nec),refvelo(nsd,nquad,nec)
-	real* 8 z(ndf*nnc,inner)
-     	real* 8 v(ndf*nnc,inner+1)
-	real* 8 zg(ndf*nnc), avg(ndf*nnc), sm(ndf*nnc)
-	real* 8 vloc(ndf,nn_loc),avloc(ndf,nn_loc)
+	real* 8 finv(nsd,nsd,nquad,ne),jac(nquad,ne),jaco(nquad,ne)
+	real* 8 refvel(nsd,nquad,ne),refvelo(nsd,nquad,ne)
+	real* 8 z(ndf*nn,inner)
+     	real* 8 v(ndf*nn,inner+1)
+	real* 8 zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
+	real* 8 vloc(ndf,nn),avloc(ndf,nn)
 	logical assemble
 	real* 8 eps, rnorm, rnorm0, order
 	real* 8 gam,hsave,ysave,tmpo
@@ -31,32 +31,32 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	eps = 1.0e-12
 	assemble = .true.
 
-        do iqc=1,ndf*nnc
+        do iqc=1,ndf*nn
 	   sm(iqc) = 1.0
 	enddo
 
         if(iscaling.eq.0) then
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      w(iqc) = 1.0
 	   enddo
         else
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      if (w(iqc).lt.0.0) sm(iqc) = -1.0
 	      w(iqc) = 1.0 / sqrt(abs(w(iqc)))
 	   enddo
         endif
 	
 c  clear arrays
-        call fclear (v,ndf*nnc*(inner+1))
-	call fclear (vloc,ndf*nn_loc)
+        call fclear (v,ndf*nn*(inner+1))
+	call fclear (vloc,ndf*nn)
 	
 c  compute residual as r = W**(-1/2) * (b - A * d)
 	
-	do iqc=1,ndf*nnc 
+	do iqc=1,ndf*nn 
 	   v(iqc,1) = bg(iqc)
 	   v(iqc,1) = w(iqc) * v(iqc,1)
 	enddo
-	call getnorm(v(1,1),v(1,1),ndf*nnc,rnorm0)
+	call getnorm(v(1,1),v(1,1),ndf*nn,rnorm0)
 	rnorm0 = sqrt(rnorm0)
 	
 	if(rnorm0.le.eps) then
@@ -71,12 +71,12 @@ c  outer GMRES loop (igmres)
  10	igmres = igmres + 1
 	
 c  convergence check
-	call getnorm(v(1,1),v(1,1),ndf*nnc,rnorm)
+	call getnorm(v(1,1),v(1,1),ndf*nn,rnorm)
 	rnorm = sqrt(rnorm)
 	if (rnorm.le.eps.or.igmres.gt.outer) goto 700
 	
 c  first krylov vector
-	do iqc=1,ndf*nnc
+	do iqc=1,ndf*nn
 	   v(iqc,1) = v(iqc,1) / rnorm
 	enddo
 	
@@ -84,40 +84,39 @@ c  construct krylov vectors 2:inner and hessenberg matrix
 	do j=1,inner
 	   
 c     insert contribution of preconditioner
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      zg(iqc) = sm(iqc) * v(iqc,j)
 	      z(iqc,j) = zg(iqc)
 	   enddo
 	   
 c     compute A * v_j
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      zg(iqc) = w(iqc) * zg(iqc)
 	   enddo
-	   call gather (vloc, zg, ndf, hn, hm)
-	   call fclear (avloc,ndf*nn_loc)
-c	   call blockgmres(x,d,do,f,vloc,avloc,hg,ien)
-
+	   call equal(zg,vloc,ndf*nn)
+	   call fclear (avloc,ndf*nn)
+	   call equal(avloc,avg,ndf*nn)
 	   call blockgmres(x,d,do,f,vloc,avloc,hg,ien,finv,jac,jaco,
 	1	refvel,refvelo)
-	   call scatter(avloc, avg, ndf, assemble, hn, hm)
+
 	   call setid(avg,id,ndf)
 	   
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      avg(iqc) = w(iqc) * avg(iqc)
 	      v(iqc,j+1) = avg(iqc)
 	   enddo
 	   do i=1,j
-	      call getnorm(v(1,j+1),v(1,i),ndf*nnc,tmpo)
+	      call getnorm(v(1,j+1),v(1,i),ndf*nn,tmpo)
 	      h(i,j) = tmpo
-	      do iqc=1,ndf*nnc
+	      do iqc=1,ndf*nn
 		 v(iqc,j+1) = v(iqc,j+1) - tmpo * v(iqc,i) 
 	      enddo
 	   enddo
 		
-	   call getnorm(v(1,j+1),v(1,j+1),ndf*nnc,tmpo)
+	   call getnorm(v(1,j+1),v(1,j+1),ndf*nn,tmpo)
 	   tmpo = sqrt(tmpo)
 	   h(j+1,j) = tmpo
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      v(iqc,j+1) = v(iqc,j+1) / tmpo
 	   enddo
 	   
@@ -176,7 +175,7 @@ c  compute dg iterate dg = dg + Z_m * y
 	j = inner		!(PVM only fix)
 	do jj=1,j
 	   tmpo = y(jj)
-	   do iqc=1,ndf*nnc
+	   do iqc=1,ndf*nn
 	      dg(iqc) = dg(iqc) + tmpo * z(iqc,jj)
 	   enddo
 	end do
@@ -191,7 +190,7 @@ c  if not done recover residual vector
 	   do jj=1,j+1
 	      tmpo = y(jj)
 	      if (jj.eq.1) tmpo = tmpo - 1.0
-	      do iqc=1,ndf*nnc
+	      do iqc=1,ndf*nn
 		 v(iqc,1) = v(iqc,1) + tmpo*v(iqc,jj)
 	      enddo
 	   end do
@@ -202,13 +201,13 @@ c  if not done recover residual vector
  700	continue
 	
 c  go back to unscaled system
-	do iqc=1,ndf*nnc
+	do iqc=1,ndf*nn
 	   dg(iqc) = w(iqc) * dg(iqc)
 	enddo
 	
 	order = 0.43429448 * log(rnorm0/rnorm)
-	if(myid.eq.0) write(6,101) order
-	if(myid.eq.0) write(7,101) order
+	write(6,101) order
+	write(7,101) order
 	
  101	format('Flow     : convergence order = ', f5.2)
  102	format('Flow     : zero residual')

@@ -3,39 +3,38 @@ c   Lucy Zhang
 c   Calculate mesh velocities for ALE.  7/1/99
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine velocity(xn,xnold,xloc,meshveln,meshvel,refvel,
+      subroutine velocity(xn,xnold,meshvel,refvel,
      +     finv,dloc,ien,hn,hm)
 
       implicit none
       include "global.h"
       
-      integer ien(nen,nec)
-      real* 8 xn(nsd,nnc), xnold(nsd,nnc)
-      real* 8 meshveln(nsd,nnc),dx,refvel(nsd,nquad,nec)
-      real* 8 meshvel(nsd,nn_loc),convel(nsd)
-      real* 8 f(nsd,nsd,nquad,nec),finv(nsd,nsd,nquad,nec)
-      real* 8 d(ndf,nen),mv(nsd,nen),dloc(ndf,nn_loc),diffv(nsd,nen)
+      integer ien(nen,ne)
+      real* 8 xn(nsd,nn), xnold(nsd,nn)
+      real* 8 meshveln(nsd,nn),dx,refvel(nsd,nquad,ne)
+      real* 8 meshvel(nsd,nn),convel(nsd)
+      real* 8 f(nsd,nsd,nquad,ne),finv(nsd,nsd,nquad,ne)
+      real* 8 d(ndf,nen),mv(nsd,nen),dloc(ndf,nn),diffv(nsd,nen)
       integer inn, isd,node,i,j,ie,inl,iq
-      real* 8 hn(nnc),hm(nn_loc),eft0,sh(0:nsdpad,nenpad)
+      real* 8 hn(nn),hm(nn),eft0,sh(0:nsdpad,nenpad)
       real* 8 xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
-      real* 8 x(nsd,nen),xloc(nsd,nn_loc),det
+      real* 8 x(nsd,nen),xloc(nsd,nn),det
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c... calculate mesh velocities, vhat.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call fclear(refvel,nsd*nquad*nec)
-      do inn = 1,nnc
+      call fclear(refvel,nsd*nquad*ne)
+      do inn = 1,nn
          do isd = 1,nsd
             dx = xn(isd,inn) - xnold(isd,inn)
-            meshveln(isd,inn) = dx/dt
+            meshvel(isd,inn) = dx/dt
          enddo
 c        write(*,*) 'meshveln=',meshveln(1,inn),meshveln(2,inn),meshveln(3,inn)
       enddo
-      call gather(meshvel,meshveln,nsd,hn,hm)
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c... calculate referential velocities, w
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      do ie = 1,nec
+      do ie = 1,ne
          do inl=1,nen
             do isd=1,nsd
                d(isd,inl)=dloc(isd,ien(inl,ie))
