@@ -1,0 +1,156 @@
+c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+	subroutine readx(xn)
+
+	include "global.h"
+	real* 8 xn(nsd,nnc)
+	integer lock,ierr,status(MPI_STATUS_SIZE)
+
+	open(unit=15, file='mxyz.dat')
+	open(unit=16, file='mien.dat')
+	open(unit=17, file='mrng.dat')
+ 101    format(f16.8, f16.8 f16.8)
+ 102	format(i9,i9,i9,i9)
+ 103    format(i9,i9,i9,i9,i9,i9)
+
+	
+	maxrecl = nsd*maxnnc*8
+	lock = 1
+	if (myid.gt.0) then
+	   call MPI_RECV(lock,1,MPI_INTEGER,myid-1,101,
+	1	MPI_COMM_WORLD,status,ierr)
+	end if
+	call readmxyz(myid*maxrecl,0,xn,nsd*nnc*8)
+
+	do i=1,nnc
+	write(15,101) xn(1,i),xn(2,i),xn(3,i)
+	enddo
+c	call ewdopen("mxyz",ifp)
+c	call ewdlseek(ifp, myid*maxrecl,0)
+c	call ewdread(ifp, xn, nsd*nnc*8)
+c	call ewdclose(ifp)
+
+	if (myid.lt.numproc-1) then
+	   call MPI_SEND(lock,1,MPI_INTEGER,myid+1,101,
+	1	MPI_COMM_WORLD,ierr)
+	end if
+	return
+	end
+c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+        subroutine readallx(xn)
+
+        include "global.h"
+        real* 8 xn(nsd,nn)
+        integer lock,ierr,status(MPI_STATUS_SIZE)
+
+	call readall(0,0,xn,nsd*nn*8)
+c        call ewd_open("mxyz", ifp)
+c        call ewd_read(ifp, xn, nsd*nn*8)
+c        call ewd_close(ifp)
+
+        return
+        end
+
+c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+	subroutine readien(ien)
+	
+	include "global.h"
+	integer ien(nen,nec)
+	integer lock,ierr,status(MPI_STATUS_SIZE)
+	character*4 ifp
+
+	maxrecl = nen * maxnec * 4
+	lock = 1
+	if (myid.gt.0) then
+	   call MPI_RECV(lock,1,MPI_INTEGER,myid-1,101,
+	1	MPI_COMM_WORLD,status,ierr)
+	end if
+	call readmien(myid*maxrecl,0,ien,nen*nec*4)
+
+        open(unit=16, file='mien.dat')
+ 102    format(i9,i9,i9,i9)
+
+        do i=1,nec
+        write(16,102) ien(1,i),ien(2,i),ien(3,i),ien(4,i)
+        enddo
+
+
+c	call ewdopen("mien",ifp)
+c	call ewdlseek(ifp, myid*maxrecl, 0)
+c	call ewdread(ifp, ien, nen*nec*4)
+c	call ewdclose(ifp)
+
+c	write(*,*) ien(:,1)
+	if (myid.lt.numproc-1) then
+	   call MPI_SEND(lock,1,MPI_INTEGER,myid+1,101,
+	1	MPI_COMM_WORLD,ierr)
+	end if
+	
+	return
+	end
+c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+	subroutine readrng(rngface)
+
+	include "global.h"
+	integer rngface(neface,nec), rngfaceieee(neface,nec/2+1)
+	integer lock,ierr,io,status(MPI_STATUS_SIZE)
+
+	maxrecl = neface * maxnec * 4
+	lock = 1
+	if (myid.gt.0) then
+	   call MPI_RECV(lock,1,MPI_INTEGER,myid-1,101,
+	1	MPI_COMM_WORLD,status,ierr)
+	end if
+
+	call readmrng(myid*maxrecl,0,rngface,neface*nec*4)
+
+        open(unit=17, file='mrng.dat')
+ 103    format(i9,i9,i9,i9,i9,i9)
+
+        do i=1,nec
+        write(17,103) rngface(1,i),rngface(2,i),rngface(3,i),rngface(4,i),
+     +	  rngface(5,i),rngface(6,i)
+        enddo
+
+c	call ewdopen("mrng", ifp)
+c	call ewdlseek(ifp, myid*maxrecl, 0)
+c	call ewdread(ifp, rngface, neface*nec*4)
+c	call ewdclose(ifp)
+c	write(*,*) rngface(:,1)
+
+	if (myid.lt.numproc-1) then
+	   call MPI_SEND(lock,1,MPI_INTEGER,myid+1,101,
+	1	MPI_COMM_WORLD,ierr)
+	end if
+	
+	do ieface=1,neface
+	   do iec=1,nec
+	      if(rngface(ieface,iec).lt.0) rngface(ieface,iec) = 0
+	   enddo
+	enddo
+	
+	mynrng = 0
+	do ieface=1,neface
+	   do iec=1,nec
+	      mynrng = max(mynrng, rngface(ieface,iec))
+	   end do
+	end do
+
+	if (myid.eq.0) then
+	   do io=1,numproc-1
+	      call MPI_RECV(nrng,1,MPI_INTEGER,io,101,
+	1	   MPI_COMM_WORLD,status,ierr)
+	      mynrng = max(mynrng, nrng)
+	   end do
+	   nrng = mynrng
+	   write(6,1000) nrng
+ 1000	   format("mrng: ",i2," boundaries")
+	else
+	   call MPI_SEND(mynrng,1,MPI_INTEGER,0,101,
+	1	MPI_COMM_WORLD,ierr)
+	   
+	end if
+
+        call MPI_BCAST(nrng,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+	
+	return
+	end

@@ -1,11 +1,12 @@
-#include <fortran.h>
+/* modified from CRAY to IEEE, by LUCY ZHANG, 1/21/01 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
 #define NUMSIZE 80
 
-void GETINT (pint)
+void getint_ (pint)
 int *pint;
 {
 
