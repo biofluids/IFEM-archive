@@ -28,9 +28,9 @@
       
    write(7,*)' '
    write(7,'(" Volume of liquid......... = ",e15.8)') liq
-   call length(xref,ien,hg)
-   write(7,'(" Minimum element length... = ",e15.8)') hmin
-   write(7,'(" Maximum element length... = ",e15.8)') hmax
+   call lenght(xref,ien,hg)
+   write(7,'(" Minimum element lenght... = ",e15.8)') hmin
+   write(7,'(" Maximum element lenght... = ",e15.8)') hmax
    write(7,'(" Minimum element volume... = ",e15.8)') vmin
    write(7,'(" Maximum element volume... = ",e15.8)') vmax
 

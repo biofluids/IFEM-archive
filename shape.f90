@@ -67,7 +67,6 @@
 	  implicit none
 
 	  integer iq
-
 	  if (nen==3) then
 		call quad2d3n(iquad, nquad, xq, wq, nsdpad, nquadpad)
 	  else if (nen==4) then
@@ -96,5 +95,6 @@
 
         endif
 	  enddo
+
 	  return
 	  end

@@ -6,7 +6,7 @@ module run_variables
   integer :: its,nts,nts_start
   real(8) :: tt,dt
 
-  integer :: ntsbout
+  integer :: ntsbout,klok
 
   integer :: restart_freq,restart_klok,restart_unit
 

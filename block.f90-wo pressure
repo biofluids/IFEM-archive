@@ -7,7 +7,7 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
+subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids)
   use global_constants
   use run_variables
   use fluid_variables
@@ -31,12 +31,11 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree
   real* 8 res_c,res_a(nsd),res_t(nsd)
-  real* 8 prs_c,prs_t(nsd),p_vec(3),prs_cc(nsd)
+  real* 8 prs_c,prs_t(nsd)
   real* 8 mu,nu,ro,g(nsd)
   real* 8 tempc(ndf),temp
   real* 8 dtinv,oma,ama
   integer inl, ie, isd, iq, node,jsd
-  integer ieface,irng, rngface(neface,ne),inface
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
@@ -71,6 +70,8 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 				include "sh3d8n.h"
 			endif
 		endif
+!		stop
+!	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
 	    eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
 		drs(:) = 0.0
@@ -116,7 +117,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 !....  calculate liquid constant and gravity
 	    mu = vis_liq  ! liquid viscosity
 	    ro = den_liq  ! liquid density
-	    g  = gravity  ! gravatitional force
+		g  = gravity  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -168,7 +169,8 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 	    if(ree.lt.1.0) tauc = tauc*ree
 
 	    taum = taum/ro
-!	    tauc = tauc*ro 
+	    tauc = tauc*ro 
+
 !.....   Density optimization
 
 		ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
@@ -185,27 +187,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
 	    prs_c        = res_c*tauc
-	    prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
-
-!*******************************************
-! Mickael
-! add in pressure driven input
-! Added in a -999 check....Yaling
-
-    do isd = 1,nsd
-        p_vec(isd)=0.0
-     enddo
-     do ieface=1,neface
-        irng = rngface(ieface,ie)
-		if (irng/=0) then
-		  if (bv(ndf,irng)/=-999) then
-			p_vec(xsd)=bv(ndf,irng)*1.0 !for rectangular shape only
-		  endif
-        endif
-     enddo
-
-
-
+	      
 !.... calculate the residual at each degree of freedom
 	    do inl=1,nen ! loop over number of nodes in an element
 		 
@@ -240,23 +222,19 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 
 		! Stablization with Tau_moment
 		   if (nsd==2) then
-		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
-	                                   - ph(ysd,inl)*prs_cc(vdf)
+		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
+	                                 - ph(ysd,inl)*prs_t(vdf)
 	       elseif (nsd==3) then
-		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
-	                                   - ph(ysd,inl)*prs_cc(vdf)  &
-	                                   - ph(zsd,inl)*prs_cc(wdf)
+		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
+	                                 - ph(ysd,inl)*prs_t(vdf)  &
+	                                 - ph(zsd,inl)*prs_t(wdf)
 		   endif
 		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
+	    enddo
 
-!*******************************************
-		p(1:nsd,node)=p(1:nsd,node)+ph(0,inl)*p_vec(1:nsd)
-!*****************************************************************
-        enddo
-!********************************************************
 	      ! Diagonal Preconditioner
-!********************************************************
+
 	    effd = mu*eft0*alpha
 	    effm = taum*eft0
 	    effc = tauc*eft0

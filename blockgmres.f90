@@ -31,8 +31,8 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
   real* 8 qr(nsd,ndf)
   real* 8 u,v,w,pp !,ug
   real* 8 tau(nsd,nsd)
-  real* 8 hg,taum,tauc,vel,ree, taul
-  real* 8 res_c,res_a(nsd),res_t(nsd)
+  real* 8 hg,taum,tauc,vel,ree
+  real* 8 res_c,res_q,res_a(nsd),res_t(nsd)
   real* 8 prs_c,prs_t(nsd),prs_cc(nsd)
   real* 8 mu,nu,ro
   real* 8 tempc(ndf),temp
@@ -172,28 +172,21 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 
 		res_t(1:nsd) = qr(1:nsd,pdf)/alpha + res_a(1:nsd)
 
+!....    calculate the stabilization parameters, taum and tauc
+	    vel  = sqrt(u*u+v*v+w*w)
+	    ree  = vel*hg/mu/12.0
+	    if(steady.or.(.not.taudt)) then
+		   taum = 1.0/sqrt((2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
+	    else
+		   taum = 1.0/sqrt((2.0/dt)**2+(2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
+	    endif
+	    taum = delta(1)* taum
+	    tauc = delta(2)*hg*vel
+	    if(ree.lt.1.0) tauc = tauc*ree
 
-		!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-		! Mickael 02/01/2005 
-		! TAUm, TAUc and TAUl (l for  lsic), See Tezduyar and Sathe, 2003
-            
-        vel  = sqrt(u*u+v*v+w*w)  !magnitude of the velocity
-                           
-        ree  = vel*hg*ro/(2.0*mu)  !Reynolds number
-        if(steady.or.(.not.taudt)) then !stablization, taum
-			taum = 1.0/sqrt((2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
-		else 
-			taum = 1.0/sqrt((2.0/dt)**2+(2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
-        endif
-            tauc = taum/ro
-                                                    
-        if (ree.le.3.0) then
-			taul = hg*vel*ree/6.0
-        else
-            taul = hg*vel/2.0   
-		endif
-		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+!.....   Density optimization
+	    taum = taum/ro
+	    tauc = tauc*ro 
 		ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
 	      
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -207,16 +200,8 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 		enddo
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
-
-		!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-		! Mickael 02/01/2005
-		! TAUl (l for  lsic), See Tezduyar and Sathe, 2003
-
-        prs_c = ro*res_c*taul
-		!
-		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-	    prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
+	    prs_c        = res_c*tauc 
+		prs_cc(1:nsd) = res_t(1:nsd)*tauc
 
 !.... assemble the delta-residuals at nodes
 	    do inl=1,nen
@@ -253,12 +238,12 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 !.....      Stablization with Tau_moment
 		   if (nsd==2) then
 		   	 p(pdf,node) = p(pdf,node) + ph(xsd,inl)*prs_cc(udf)  &
-	                                   + ph(ysd,inl)*prs_cc(vdf)
+	                                 + ph(ysd,inl)*prs_cc(vdf)
 	       elseif (nsd==3) then
 		     p(pdf,node) = p(pdf,node) + ph(xsd,inl)*prs_cc(udf)  &
-	                                   + ph(ysd,inl)*prs_cc(vdf)  &
-	                                   + ph(zsd,inl)*prs_cc(wdf)
-		   endif		! Stablization with Tau_cont 
+	                                 + ph(ysd,inl)*prs_cc(vdf)  &
+	                                 + ph(zsd,inl)*prs_cc(wdf)
+		   endif
 		   p(1:nsd,node) = p(1:nsd,node) + prs_t(1:nsd)*temp + ph(1:nsd,inl)*prs_c
 
 	    enddo

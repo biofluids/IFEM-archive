@@ -6,25 +6,16 @@
 
     !...store the variables from the previous time step,dold=d 
      dold = d
-     convelo = convel
 
     !...apply time dependent boundary conditions to d
-     meshvel = (x - xold)/dt
- !    call formd(d,meshvel,rng,ien)
+
      call formd(d,rng,ien)
      do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
 
-       !...Calculate mesh & referential velocities, vhat & w
- !       call velocity(x,xold,meshvel,refvel,finv,d,ien)
-
- !       convel(1:nsd,1:nn) = d(1:nsd,1:nn) - meshvel(1:nsd,1:nn)
- !       if (its.eq.1) convelo = convel
-
 
         !...calculate residual of each degree of freedom, p and diagonal matrix w
-!	write(*,*) '4: pdf=',pdf
 
          call block(x,d,dold,p,w,hg,ien,f_fluids,rng)
 
@@ -52,5 +43,5 @@
          write(6,102) iit,res_l,del_l
          write(7,102) iit,res_l,del_l
       enddo
-
+	write(*,*) 'maximum pressure=',maxval(d(ndf,:))
       write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1:nsd,:))

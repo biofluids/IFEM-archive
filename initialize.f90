@@ -7,6 +7,7 @@ subroutine initialize
 
   alpha = 1.0
   tt = 0.0
+  klok = 0
   dt = 1.0
   t_start = 0.0
   ref_lgt = 1.0

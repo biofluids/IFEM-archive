@@ -1,27 +1,27 @@
 restart =   0
 restart_freq = 2
-steady =    0
+steady =    1
 stokes =    0
 hg_vol =    1
 taudt =     1
 static =    0
 conserve =  1
 
- nn=        2121
- ne=        2000
+ nn=        3321
+ ne=        2560
 
-nrng =    4
-nen =     4
-ndf =     3
-nsd =     2
+nrng =    6
+nen =     8
+ndf =     4
+nsd =     3
 iquad =   2
 
 nit =      4
 nts =      10
 ntsbout =  1
 idisk =    00 
-inner =    30
-outer =    01
+inner =    40
+outer =    02
 kinner =   30  !ALE algorithm only
 kouter =   02  !ALE algorithm only
 iscaling = 01
@@ -29,21 +29,27 @@ maxconn =  60
 
 dt =      0.01
 t_start = 0.0
-alpha =   1.0
+alpha =   0.5
 
-fix =    1  0.0  0.0  -999  !bottom
-fix =    2  -999  -999  -999   !right
-fix =    3  0.0  0.0  -999  !top
-fix =    4  5.0  0.0  -999	!left
+fix =    1  0.0   0.0   0.0  -999   !bottom
+fix =    2 0.0   0.0   0.0 -999   !front
+fix =    3 -999  -999  -999 0.0   !right
+fix =    4 0.0   0.0   0.0 -999   !back
+fix =    5 -999 -999  -999 10.0   !left
+fix =    6 0.0   0.0   0.0 -999   !top 
 
-fixd =    1   0.0     0.0     !ALE algorithm only
-fixd =    2   0.0     0.0       
-fixd =    3   0.0     0.0       
-fixd =    4   0.0     0.0                
+
+fixd =    1   0.0     0.0     0.0          !ALE algorithm only
+fixd =    2   0.0     0.0     0.0  
+fixd =    3   0.0     0.0     0.0  
+fixd =    4   0.0     0.0     0.0           
+fixd =    5   0.0     0.0     0.0           
+fixd =    6   0.0     0.0     0.0
+
 
 landa_over_mu = 0.01
 
-initial =  +0.0 +0.0 +0.0
+initial =  +0.0 +0.0 +0.0 +0.0
 
 gravity =    0.0    0.0     0.0
 interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0

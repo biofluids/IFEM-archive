@@ -13,7 +13,7 @@ program main
 
  !...read configuration files
   call parseinput_fluid  !...reading fluid.in
-  call parseinput_solid  !...reading coortable.in
+!  call parseinput_solid  !...reading coortable.in
 
   call nondimension
  !...echos input data

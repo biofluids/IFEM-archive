@@ -5,7 +5,7 @@
 subroutine equal(f,d,m)
       	implicit none
       
-      	integer :: m
+      	integer :: i,m
       	real(8) :: f(m),d(m)
 		d = f
       	return
