@@ -90,31 +90,11 @@ LINK32=link.exe
 # Name "main - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\block.f90
-DEP_F90_BLOCK=\
-	".\fluid_variables.mod"\
-	".\global_constants.mod"\
-	".\run_variables.mod"\
-	".\sh2d3n.h"\
-	".\sh2d4n.h"\
-	".\sh3d4n.h"\
-	".\sh3d8n.h"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=.\blockgmres.f90
-# End Source File
-# Begin Source File
-
 SOURCE=.\correct.f90
 # End Source File
 # Begin Source File
 
 SOURCE=.\delta_nonuniform.f90
-DEP_F90_DELTA=\
-	".\fluid_variables.mod"\
-	
 # End Source File
 # Begin Source File
 
@@ -131,10 +111,6 @@ DEP_F90_ENSIG=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\equal.f90
-# End Source File
-# Begin Source File
-
 SOURCE=.\error.f90
 # End Source File
 # Begin Source File
@@ -146,20 +122,7 @@ DEP_F90_FACEM=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\fclear.f90
-# End Source File
-# Begin Source File
-
 SOURCE=.\fluid_variables.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\form.f90
-DEP_F90_FORM_=\
-	".\fluid_variables.mod"\
-	".\global_constants.mod"\
-	".\run_variables.mod"\
-	
 # End Source File
 # Begin Source File
 
@@ -179,28 +142,24 @@ SOURCE=.\global_simulation_parameter.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\gmres.f90
-DEP_F90_GMRES=\
-	".\fluid_variables.mod"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=.\hg.f90
-DEP_F90_HG_F9=\
-	".\fluid_variables.mod"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=.\hydro.f90
-DEP_F90_HYDRO=\
-	".\fluid_variables.mod"\
-	
-# End Source File
-# Begin Source File
-
 SOURCE=.\hypo.f90
+DEP_F90_HYPO_=\
+	".\delta_nonuniform.mod"\
+	".\ensight_output.mod"\
+	".\fluid_variables.mod"\
+	".\global_constants.mod"\
+	".\global_simulation_parameter.mod"\
+	".\hypo_declaration_fluid.fi"\
+	".\hypo_declaration_solid.fi"\
+	".\hypo_prepare_solid.fi"\
+	".\hypo_write_output.fi"\
+	".\meshgen_fluid.mod"\
+	".\meshgen_solid.mod"\
+	".\r_common.mod"\
+	".\run_variables.mod"\
+	".\solid_fem_BC.mod"\
+	".\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -212,27 +171,7 @@ SOURCE=.\hypo_declaration_solid.fi
 # End Source File
 # Begin Source File
 
-SOURCE=.\hypo_fluid_solver.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_prepare_fluid.fi
-# End Source File
-# Begin Source File
-
 SOURCE=.\hypo_prepare_solid.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_file_check.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_read.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_write.fi
 # End Source File
 # Begin Source File
 
@@ -249,17 +188,6 @@ DEP_F90_INITI=\
 # Begin Source File
 
 SOURCE=.\input_solid_BC.in
-# End Source File
-# Begin Source File
-
-SOURCE=.\length.f90
-DEP_F90_LENGT=\
-	".\fluid_variables.mod"\
-	".\sh2d3n.h"\
-	".\sh2d4n.h"\
-	".\sh3d4n.h"\
-	".\sh3d8n.h"\
-	
 # End Source File
 # Begin Source File
 
@@ -288,10 +216,6 @@ SOURCE=.\nondimension.f90
 DEP_F90_NONDI=\
 	".\fluid_variables.mod"\
 	
-# End Source File
-# Begin Source File
-
-SOURCE=.\norm.f90
 # End Source File
 # Begin Source File
 
@@ -515,22 +439,8 @@ SOURCE=.\run_variables.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\set.f90
-DEP_F90_SET_F=\
-	".\fluid_variables.mod"\
-	
-# End Source File
-# Begin Source File
-
 SOURCE=.\shape.f90
 DEP_F90_SHAPE=\
-	".\fluid_variables.mod"\
-	
-# End Source File
-# Begin Source File
-
-SOURCE=.\sharp.f90
-DEP_F90_SHARP=\
 	".\fluid_variables.mod"\
 	
 # End Source File

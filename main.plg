@@ -6,108 +6,86 @@
 --------------------Configuration: main - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Mickael\LOCALS~1\Temp\RSP2DB.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSPE.tmp" with contents
 [
 /browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\fluid_variables.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\delta_nonuniform.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\global_constants.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\global_simulation_parameter.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\meshgen_fluid.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_common.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\run_variables.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\form.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_variables.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\ensight_output.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\meshgen_solid.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\parseinput.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_fem_BC.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\vol.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\update.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_update.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_solver.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\sharp.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\shape.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\set.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\rkpmshape3d.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\rkpmshape2d.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\read.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_timefun.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_stoxc.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_stang.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sstrain.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sstif.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sreadinit.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sprestress.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spress.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spiola_viscous.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spiola_elastic.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spiola.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_smaterj.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_scauchy.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_scal.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sbpress.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sboc.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_nodalf.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_load.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_jacob.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_element.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_bdpd_init.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_bdpd_curr.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad3d8n.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad3d4n.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad2d4n.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad2d3n.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\norm.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\nondimension.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\main.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\length.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\initialize.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\hypo.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\hydro.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\hg.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\gmres.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\gjinv.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\gaussj.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\fclear.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\facemap.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\error.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\equal.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\echoinput.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\correct.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\blockgmres.f90"
-"C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\block.f90"
+"D:\research\ifem\code\ifem-solids only\fluid_variables.f90"
+"D:\research\ifem\code\ifem-solids only\delta_nonuniform.f90"
+"D:\research\ifem\code\ifem-solids only\global_constants.f90"
+"D:\research\ifem\code\ifem-solids only\global_simulation_parameter.f90"
+"D:\research\ifem\code\ifem-solids only\meshgen_fluid.f90"
+"D:\research\ifem\code\ifem-solids only\r_common.f90"
+"D:\research\ifem\code\ifem-solids only\run_variables.f90"
+"D:\research\ifem\code\ifem-solids only\solid_variables.f90"
+"D:\research\ifem\code\ifem-solids only\ensight_output.f90"
+"D:\research\ifem\code\ifem-solids only\meshgen_solid.f90"
+"D:\research\ifem\code\ifem-solids only\parseinput.f90"
+"D:\research\ifem\code\ifem-solids only\solid_fem_BC.f90"
+"D:\research\ifem\code\ifem-solids only\vol.f90"
+"D:\research\ifem\code\ifem-solids only\update.f90"
+"D:\research\ifem\code\ifem-solids only\solid_update.f90"
+"D:\research\ifem\code\ifem-solids only\solid_solver.f90"
+"D:\research\ifem\code\ifem-solids only\shape.f90"
+"D:\research\ifem\code\ifem-solids only\rkpmshape3d.f90"
+"D:\research\ifem\code\ifem-solids only\rkpmshape2d.f90"
+"D:\research\ifem\code\ifem-solids only\read.f90"
+"D:\research\ifem\code\ifem-solids only\r_timefun.f90"
+"D:\research\ifem\code\ifem-solids only\r_stoxc.f90"
+"D:\research\ifem\code\ifem-solids only\r_stang.f90"
+"D:\research\ifem\code\ifem-solids only\r_sstrain.f90"
+"D:\research\ifem\code\ifem-solids only\r_sstif.f90"
+"D:\research\ifem\code\ifem-solids only\r_sreadinit.f90"
+"D:\research\ifem\code\ifem-solids only\r_sprestress.f90"
+"D:\research\ifem\code\ifem-solids only\r_spress.f90"
+"D:\research\ifem\code\ifem-solids only\r_spiola_viscous.f90"
+"D:\research\ifem\code\ifem-solids only\r_spiola_elastic.f90"
+"D:\research\ifem\code\ifem-solids only\r_spiola.f90"
+"D:\research\ifem\code\ifem-solids only\r_smaterj.f90"
+"D:\research\ifem\code\ifem-solids only\r_scauchy.f90"
+"D:\research\ifem\code\ifem-solids only\r_scal.f90"
+"D:\research\ifem\code\ifem-solids only\r_sbpress.f90"
+"D:\research\ifem\code\ifem-solids only\r_sboc.f90"
+"D:\research\ifem\code\ifem-solids only\r_nodalf.f90"
+"D:\research\ifem\code\ifem-solids only\r_load.f90"
+"D:\research\ifem\code\ifem-solids only\r_jacob.f90"
+"D:\research\ifem\code\ifem-solids only\r_element.f90"
+"D:\research\ifem\code\ifem-solids only\r_bdpd_init.f90"
+"D:\research\ifem\code\ifem-solids only\r_bdpd_curr.f90"
+"D:\research\ifem\code\ifem-solids only\quad3d8n.f90"
+"D:\research\ifem\code\ifem-solids only\quad3d4n.f90"
+"D:\research\ifem\code\ifem-solids only\quad2d4n.f90"
+"D:\research\ifem\code\ifem-solids only\quad2d3n.f90"
+"D:\research\ifem\code\ifem-solids only\nondimension.f90"
+"D:\research\ifem\code\ifem-solids only\main.f90"
+"D:\research\ifem\code\ifem-solids only\initialize.f90"
+"D:\research\ifem\code\ifem-solids only\hypo.f90"
+"D:\research\ifem\code\ifem-solids only\gjinv.f90"
+"D:\research\ifem\code\ifem-solids only\gaussj.f90"
+"D:\research\ifem\code\ifem-solids only\facemap.f90"
+"D:\research\ifem\code\ifem-solids only\error.f90"
+"D:\research\ifem\code\ifem-solids only\echoinput.f90"
+"D:\research\ifem\code\ifem-solids only\correct.f90"
 ]
-Creating temporary file "C:\DOCUME~1\Mickael\LOCALS~1\Temp\RSP2DC.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSPF.tmp" with contents
 [
 kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
-".\Debug\block.obj"
-".\Debug\blockgmres.obj"
 ".\Debug\correct.obj"
 ".\Debug\delta_nonuniform.obj"
 ".\Debug\echoinput.obj"
 ".\Debug\ensight_output.obj"
-".\Debug\equal.obj"
 ".\Debug\error.obj"
 ".\Debug\facemap.obj"
-".\Debug\fclear.obj"
 ".\Debug\fluid_variables.obj"
-".\Debug\form.obj"
 ".\Debug\gaussj.obj"
 ".\Debug\gjinv.obj"
 ".\Debug\global_constants.obj"
 ".\Debug\global_simulation_parameter.obj"
-".\Debug\gmres.obj"
-".\Debug\hg.obj"
-".\Debug\hydro.obj"
 ".\Debug\hypo.obj"
 ".\Debug\initialize.obj"
-".\Debug\length.obj"
 ".\Debug\main.obj"
 ".\Debug\meshgen_fluid.obj"
 ".\Debug\meshgen_solid.obj"
 ".\Debug\nondimension.obj"
-".\Debug\norm.obj"
 ".\Debug\parseinput.obj"
 ".\Debug\quad2d3n.obj"
 ".\Debug\quad2d4n.obj"
@@ -140,9 +118,7 @@ kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:n
 ".\Debug\rkpmshape2d.obj"
 ".\Debug\rkpmshape3d.obj"
 ".\Debug\run_variables.obj"
-".\Debug\set.obj"
 ".\Debug\shape.obj"
-".\Debug\sharp.obj"
 ".\Debug\solid_fem_BC.obj"
 ".\Debug\solid_solver.obj"
 ".\Debug\solid_update.obj"
@@ -150,84 +126,174 @@ kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:n
 ".\Debug\update.obj"
 ".\Debug\vol.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\Mickael\LOCALS~1\Temp\RSP2DC.tmp"
+Creating command line "link.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSPF.tmp"
 <h3>Output Window</h3>
 Compiling Fortran...
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\fluid_variables.f90
+D:\research\ifem\code\ifem-solids only\fluid_variables.f90
 df: info: Some interprocedural optimizations may be disabled when compiling into separate object files
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\delta_nonuniform.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\global_constants.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\global_simulation_parameter.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\meshgen_fluid.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_common.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\run_variables.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\form.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_variables.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\ensight_output.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\meshgen_solid.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\parseinput.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_fem_BC.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\vol.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\update.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_update.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\solid_solver.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\sharp.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\shape.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\set.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\rkpmshape3d.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\rkpmshape2d.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\read.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_timefun.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_stoxc.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_stang.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sstrain.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sstif.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sreadinit.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sprestress.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spress.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spiola_viscous.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spiola_elastic.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_spiola.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_smaterj.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_scauchy.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_scal.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sbpress.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_sboc.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_nodalf.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_load.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_jacob.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_element.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_bdpd_init.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\r_bdpd_curr.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad3d8n.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad3d4n.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad2d4n.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\quad2d3n.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\norm.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\nondimension.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\main.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\length.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\initialize.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\hypo.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\hydro.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\hg.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\gmres.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\gjinv.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\gaussj.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\fclear.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\facemap.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\error.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\equal.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\echoinput.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\correct.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\blockgmres.f90
-C:\Documents and Settings\Mickael\Desktop\ifem.v5.pre-stress\block.f90
+D:\research\ifem\code\ifem-solids only\delta_nonuniform.f90
+D:\research\ifem\code\ifem-solids only\global_constants.f90
+D:\research\ifem\code\ifem-solids only\global_simulation_parameter.f90
+D:\research\ifem\code\ifem-solids only\meshgen_fluid.f90
+D:\research\ifem\code\ifem-solids only\r_common.f90
+D:\research\ifem\code\ifem-solids only\run_variables.f90
+D:\research\ifem\code\ifem-solids only\solid_variables.f90
+D:\research\ifem\code\ifem-solids only\ensight_output.f90
+D:\research\ifem\code\ifem-solids only\meshgen_solid.f90
+D:\research\ifem\code\ifem-solids only\parseinput.f90
+D:\research\ifem\code\ifem-solids only\solid_fem_BC.f90
+D:\research\ifem\code\ifem-solids only\vol.f90
+D:\research\ifem\code\ifem-solids only\update.f90
+D:\research\ifem\code\ifem-solids only\solid_update.f90
+D:\research\ifem\code\ifem-solids only\solid_solver.f90
+D:\research\ifem\code\ifem-solids only\shape.f90
+D:\research\ifem\code\ifem-solids only\rkpmshape3d.f90
+D:\research\ifem\code\ifem-solids only\rkpmshape2d.f90
+D:\research\ifem\code\ifem-solids only\read.f90
+D:\research\ifem\code\ifem-solids only\r_timefun.f90
+D:\research\ifem\code\ifem-solids only\r_stoxc.f90
+D:\research\ifem\code\ifem-solids only\r_stang.f90
+D:\research\ifem\code\ifem-solids only\r_sstrain.f90
+D:\research\ifem\code\ifem-solids only\r_sstif.f90
+D:\research\ifem\code\ifem-solids only\r_sreadinit.f90
+D:\research\ifem\code\ifem-solids only\r_sprestress.f90
+D:\research\ifem\code\ifem-solids only\r_spress.f90
+D:\research\ifem\code\ifem-solids only\r_spiola_viscous.f90
+D:\research\ifem\code\ifem-solids only\r_spiola_elastic.f90
+D:\research\ifem\code\ifem-solids only\r_spiola.f90
+D:\research\ifem\code\ifem-solids only\r_smaterj.f90
+D:\research\ifem\code\ifem-solids only\r_scauchy.f90
+D:\research\ifem\code\ifem-solids only\r_scal.f90
+D:\research\ifem\code\ifem-solids only\r_sbpress.f90
+D:\research\ifem\code\ifem-solids only\r_sboc.f90
+D:\research\ifem\code\ifem-solids only\r_nodalf.f90
+D:\research\ifem\code\ifem-solids only\r_load.f90
+D:\research\ifem\code\ifem-solids only\r_jacob.f90
+D:\research\ifem\code\ifem-solids only\r_element.f90
+D:\research\ifem\code\ifem-solids only\r_bdpd_init.f90
+D:\research\ifem\code\ifem-solids only\r_bdpd_curr.f90
+D:\research\ifem\code\ifem-solids only\quad3d8n.f90
+D:\research\ifem\code\ifem-solids only\quad3d4n.f90
+D:\research\ifem\code\ifem-solids only\quad2d4n.f90
+D:\research\ifem\code\ifem-solids only\quad2d3n.f90
+D:\research\ifem\code\ifem-solids only\nondimension.f90
+D:\research\ifem\code\ifem-solids only\main.f90
+D:\research\ifem\code\ifem-solids only\initialize.f90
+D:\research\ifem\code\ifem-solids only\hypo.f90
+D:\research\ifem\code\ifem-solids only\hypo_declaration_solid.fi(2) : Warning: This variable has not been used.   [SOLID_SURFACE]
+  integer,dimension(1:ne_solid,1:nsurface)  :: solid_surface   !...surface element faces
+-----------------------------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(4) : Warning: This variable has not been used.   [RNG]
+    integer :: rng(neface,ne)  !...surface information
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(6) : Warning: This variable has not been used.   [XREF]
+    real(8) :: xref(nsd,nn)    !...initial fluid mesh nodal position   X = chi_0
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(7) : Warning: This variable has not been used.   [DISP]
+    real(8) :: disp(nsd,nn)    !...displacment of fluid mesh nodes u^hat = x - chi
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(9) : Warning: This variable has not been used.   [HG]
+    real(8) :: hg(ne)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(11) : Warning: This variable has not been used.   [ID]
+    integer :: id(ndf,nn)  , kid(nsd,nn)   !...tells whether or not to update a value in the iteration  fluid / mesh
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(11) : Warning: This variable has not been used.   [KID]
+    integer :: id(ndf,nn)  , kid(nsd,nn)   !...tells whether or not to update a value in the iteration  fluid / mesh
+-----------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(12) : Warning: This variable has not been used.   [DOLD]
+    real(8) :: d(ndf,nn),dold(ndf,nn)    !...unknown vector for current and previous time step
+-------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(13) : Warning: This variable has not been used.   [DG]
+    real(8) :: dg(ndf,nn)  !,kdg(nsd,nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(14) : Warning: This variable has not been used.   [P]
+    real(8) :: p(ndf,nn)   !,kp(nsd,nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(15) : Warning: This variable has not been used.   [W]
+    real(8) :: w(ndf,nn)   !,kw(nsd,nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(17) : Warning: This variable has not been used.   [XOLD]
+    real(8) :: xold(nsd,nn)          !...fluid mesh nodal position at previous time step
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(18) : Warning: This variable has not been used.   [MESHVEL]
+    real(8) :: meshvel(nsd,nn)       !...fluid mesh nodal velocity defined in spatial domain
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(19) : Warning: This variable has not been used.   [REFVEL]
+    real(8) :: refvel(nsd,nquad,ne)  !...fluid mesh nodal velocity defined in computational domain
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(21) : Warning: This variable has not been used.   [CONVEL]
+    real(8) :: convel(nsd,nn)        !...fluid mesh nodal velocity defined in computational domain
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(22) : Warning: This variable has not been used.   [CONVELO]
+    real(8) :: convelo(nsd,nn)       !...fluid mesh nodal velocity defined in computational domain,previous time step
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(26) : Warning: This variable has not been used.   [JAC]
+    real(8),dimension(nquad,ne) :: jac !,jacinv,jaco
+-----------------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(31) : Warning: This variable has not been used.   [Z]
+    real(8) :: z(ndf*nn,inner)  !,kz(nsd*nn,kinner)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(32) : Warning: This variable has not been used.   [V]
+    real(8) :: v(ndf*nn,inner+1)  !,kv(nsd*nn,kinner+1)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(33) : Warning: This variable has not been used.   [ZG]
+    real(8) :: zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(33) : Warning: This variable has not been used.   [AVG]
+    real(8) :: zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
+---------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(33) : Warning: This variable has not been used.   [SM]
+    real(8) :: zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
+----------------------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(35) : Warning: This variable has not been used.   [VLOC]
+    real(8) :: vloc(ndf,nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(37) : Warning: This variable has not been used.   [AVLOC]
+    real(8) :: avloc(ndf,nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(40) : Warning: This variable has not been used.   [H_GMRES]
+    real(8) :: h_gmres(inner+1,inner)  !,kh(kinner+1,kinner)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(41) : Warning: This variable has not been used.   [Y_GMRES]
+    real(8) :: y_gmres(inner+1)        !,ky(kinner+1)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(42) : Warning: This variable has not been used.   [CC]
+    real(8) :: cc(inner), ss(inner)    !,kcc(kinner),kss(kinner)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(42) : Warning: This variable has not been used.   [SS]
+    real(8) :: cc(inner), ss(inner)    !,kcc(kinner),kss(kinner)
+--------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(44) : Warning: This variable has not been used.   [DVOLUME]
+    real(8) :: dvolume(nn)
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(47) : Warning: This variable has not been used.   [FLUID_MESH_FORCE]
+    real(8),dimension(1:nsd,1:nn)       :: fluid_mesh_force
+-------------------------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(49) : Warning: This variable has not been used.   [NTS_TEST1]
+    integer :: nts_test1,nts_test2,ios1,ios2
+---------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(49) : Warning: This variable has not been used.   [NTS_TEST2]
+    integer :: nts_test1,nts_test2,ios1,ios2
+-------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(49) : Warning: This variable has not been used.   [IOS1]
+    integer :: nts_test1,nts_test2,ios1,ios2
+-----------------------------------^
+D:\research\ifem\code\ifem-solids only\hypo_declaration_fluid.fi(49) : Warning: This variable has not been used.   [IOS2]
+    integer :: nts_test1,nts_test2,ios1,ios2
+----------------------------------------^
+D:\research\ifem\code\ifem-solids only\gjinv.f90
+D:\research\ifem\code\ifem-solids only\gaussj.f90
+D:\research\ifem\code\ifem-solids only\facemap.f90
+D:\research\ifem\code\ifem-solids only\error.f90
+D:\research\ifem\code\ifem-solids only\echoinput.f90
+D:\research\ifem\code\ifem-solids only\correct.f90
 Linking...
 
 
 
 <h3>Results</h3>
-main.exe - 0 error(s), 0 warning(s)
+main.exe - 0 error(s), 34 warning(s)
 </pre>
 </body>
 </html>
