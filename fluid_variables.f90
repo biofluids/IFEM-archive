@@ -49,8 +49,8 @@ module fluid_variables
   integer :: iit,nit,idisk
 
   integer,parameter :: tri=1,qud=2,tet=3,hex=4,tris=5,quds=6,tets=7,hexs=8
-  integer,parameter :: udf=1,vdf=2,wdf=3,pdf=4
-
+!  integer,parameter :: udf=1,vdf=2,wdf=3,pdf=4
+  integer :: udf,vdf,wdf,pdf
   integer :: ale_mesh_update
 
   real(8),parameter :: epsilon = 1.0e-12

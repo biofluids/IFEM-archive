@@ -169,15 +169,19 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 !-->
  !write structure coordinates
   do i=1, nn_solid
-     write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
+     if (nsd_solid==3) write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
                                solid_coor_curr(2,i),  &
                                solid_coor_curr(3,i)
+	 if (nsd_solid==2) write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
+                               solid_coor_curr(2,i), 0.0
   enddo
 101 format(i8,3e12.5)
 
  !...write fluids coordinates
   do i=1,nn
-     write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),xn(3,i)
+     if (nsd==3) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),xn(3,i)
+     if (nsd==2) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),0.0
+!     write(i_file_unit,101) i+nn_solid,xn(1:nsd,i)
   enddo
 
 
@@ -208,25 +212,57 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
         write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
         stop
      end select
+  elseif (nsd_solid == 2) then
+	  select case (nen_solid)
+	  case (3)
+		 write(i_file_unit, *) ' tria3'  ! element type
+		 write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+		 do i=1, ne_solid
+			write(i_file_unit,'(4i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+		 enddo
+	  case (4)
+		 write(i_file_unit, *) 'quad4'    ! element type
+		 write(i_file_unit, '(I8)')  ne_solid   ! number of elements
+		 do i=1, ne_solid
+			write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+		 enddo
+	  end select
   endif
 
     !write fluids part element connectivity
   write(i_file_unit, *) 'part 2'
   write(i_file_unit, *) ' Fluid Model'
-  select case (nen)
-  case (4)
-     write(i_file_unit, *) ' tetra4'  ! element type
-     write(i_file_unit, '(i8)')  ne   ! number of elements
-     do i=1, ne
-        write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-     enddo
-  case (8)
-     write(i_file_unit, *) 'hexa8'    ! element type
-     write(i_file_unit, '(I8)')  ne   ! number of elements
-     do i=1, ne
-        write(i_file_unit,'(9i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-     enddo
-  end select
+  if (nsd==3) then
+	  select case (nen)
+	  case (4)
+		 write(i_file_unit, *) ' tetra4'  ! element type
+		 write(i_file_unit, '(i8)')  ne   ! number of elements
+		 do i=1, ne
+			write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+		 enddo
+	  case (8)
+		 write(i_file_unit, *) 'hexa8'    ! element type
+		 write(i_file_unit, '(I8)')  ne   ! number of elements
+		 do i=1, ne
+			write(i_file_unit,'(9i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+		 enddo
+	  end select
+  elseif (nsd==2) then
+	  select case (nen)
+	  case (3)
+		 write(i_file_unit, *) ' tria3'  ! element type
+		 write(i_file_unit, '(i8)')  ne   ! number of elements
+		 do i=1, ne
+			write(i_file_unit,'(4i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+		 enddo
+	  case (4)
+		 write(i_file_unit, *) 'quad4'    ! element type
+		 write(i_file_unit, '(I8)')  ne   ! number of elements
+		 do i=1, ne
+			write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+		 enddo
+	  end select
+  endif
 
 
   close(i_file_unit)
@@ -311,7 +347,12 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   write(name_file4,'(A10, A5)')  'fem.strain', fileroot
   write(name_file5,'(A7,  A5)')  'fem.fsi', fileroot
 
+!===========================================================================
+! Output velocity, interaction force, pressure, stress, strain into Ensight format
+!===========================================================================
 
+!=========  3D =====================================
+if (nsd==3) then
  !...Write velocity output in ens_movie.vel*
   write(*,*) 'writing... ', name_file1
   open(ifileunit, file=name_file1, form='formatted')
@@ -356,6 +397,54 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   close(ifileunit)
 
 110 format(6e12.5)
+
+!===================  2D  =======================================
+elseif (nsd==2) then
+  !...Write velocity output in ens_movie.vel*
+  write(*,*) 'writing... ', name_file1
+  open(ifileunit, file=name_file1, form='formatted')
+  write(ifileunit, '(A)')   'structure and fluid field: velocity vector'
+  write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),0.0,in=1,nn_solid), &
+                       (d(1,in),d(2,in),0.0,in=1,nn)
+  close(ifileunit)
+
+ !...Write Interaction force output in ens_movie.fsi*
+  write(*,*) 'writing... ', name_file5
+  open(ifileunit, file=name_file5, form='formatted')
+  write(ifileunit, '(A)')   'structure and fluid field: force_FSI vector'
+  write(ifileunit,110) (solid_force_FSI(1,in),solid_force_FSI(2,in),0.0,in=1,nn_solid), &
+                       (f_fluids(1,in),f_fluids(2,in),0.0,in=1,nn)
+  close(ifileunit)
+
+ !...Write pressure output in ens_movie.pre*
+  write(*,*) 'writing... ', name_file2
+  open(ifileunit, file=name_file2, form='formatted')
+  write(ifileunit, '(A)') 'structure and fluid field: pressure'  
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn)
+  close(ifileunit)
+
+ !...Write stress output in ens_movie.stress*
+  write(*,*) 'writing... ', name_file3
+  open(ifileunit, file=name_file3, form='formatted')
+  write(ifileunit, '(A)') 'structure field: stress'  
+  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),solid_stress(3,in),                 &
+                        0.0, 0.0, solid_stress(6,in),in=1,nn_solid),  &
+                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),                 &
+                        0.0, 0.0,fluid_stress(6,in),in=1,nn)
+  close(ifileunit)
+
+ !...Write strain output in ens_movie.strain*
+  write(*,*) 'writing... ', name_file4
+  open(ifileunit, file=name_file4, form='formatted')
+  write(ifileunit, '(A)') 'structure field: strain'  
+  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),                 &
+                        0.0, 0.0,solid_strain(6,in),in=1,nn_solid),  &
+                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
+                        0.0, 0.0,fluid_strain(6,in),in=1,nn)
+  close(ifileunit)
+
+
+endif
 
   return
 end subroutine zfem_ensFluid

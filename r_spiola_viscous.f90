@@ -7,8 +7,6 @@ subroutine r_spiola_viscous(xot,vel)
   use solid_variables, only: nen_solid,nsd => nsd_solid
   implicit none
 
-  !real(8) :: ocpp
-  !real(8) :: xmj(3),dxmj(3,6)
   real(8),intent(in) :: xot(1:nsd,1:nsd)
   real(8),intent(in) :: vel(1:nsd,1:nen_solid)
 

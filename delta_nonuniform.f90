@@ -26,7 +26,7 @@ public
   integer,allocatable :: cnn(:,:),ncnn(:)  !...connectivity arrays for domain of incluence for each solid node
 
  !...private subroutines
-  private :: getinf,correct3d
+  private :: getinf  !,correct3d
 
 contains
 
@@ -56,11 +56,12 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   real(8) :: adist(nsd,nn)
 
  !...local variables
-  real(8) :: x(3), y(3), a(3)
+  real(8) :: x(nsd), y(nsd), a(nsd)
   real(8) :: xr(nsd,nsd), cf(nsd,nsd) 
-  real(8) :: b(4), bd(3,4)
-  real(8) :: shp, shpd(3), det
-  real(8) :: xmax,ymax,zmax,vol
+  real(8) :: b(4), bd(nsd,4)
+  real(8) :: shp, det
+  real* 8 :: xmax(nsd),vol
+!  real(8) :: xmax,ymax,zmax,vol
   real(8) :: coef,avginf
   integer :: iq
   integer :: maxinf,mininf,totinf
@@ -87,7 +88,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(ncnn(nn_solids)            ,stat=error_id)
 
   !coef = 0.5
-  coef = 0.6d0
+  coef = 0.9d0
   maxinf = 0
   mininf = 9999
   avginf = 0
@@ -108,23 +109,30 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
         enddo
      enddo
 
-     xmax = coef*(maxval(xn(1,1:nen)) - minval(xn(1,1:nen)))
-     ymax = coef*(maxval(xn(2,1:nen)) - minval(xn(2,1:nen)))
-     zmax = coef*(maxval(xn(3,1:nen)) - minval(xn(3,1:nen)))
+	do isd=1,nsd
+		xmax(isd) = coef*(maxval(xn(isd,1:nen)) - minval(xn(isd,1:nen)))
+	enddo
+
+!     xmax = coef*(maxval(xn(1,1:nen)) - minval(xn(1,1:nen)))
+!     ymax = coef*(maxval(xn(2,1:nen)) - minval(xn(2,1:nen)))
+!     zmax = coef*(maxval(xn(3,1:nen)) - minval(xn(3,1:nen)))
 
      do inl = 1,nen
         node = ien(inl,ie) 
-        adist(1,node) = max(adist(1,node),xmax)
-        adist(2,node) = max(adist(2,node),ymax)
-        adist(3,node) = max(adist(3,node),zmax)
+        adist(1:nsd,node) = max(adist(1:nsd,node),xmax(1:nsd))
+!        adist(1,node) = max(adist(1,node),xmax)
+!        adist(2,node) = max(adist(2,node),ymax)
+!        adist(3,node) = max(adist(3,node),zmax)
      enddo
 
  !...Calculate volume
-     if (nen == 4) then
-        include "vol3d4n.fi"
-     else
-        include "vol3d8n.fi"
-     endif
+	if (nsd == 2) then
+	  if (nen == 3) include "vol2d3n.fi"
+	  if (nen == 4) include "vol2d4n.fi"
+	elseif (nsd == 3) then
+      if (nen == 4) include "vol3d4n.fi"
+      if (nen == 8) include "vol3d8n.fi"
+    endif
 
      do inl = 1,nen
         nnum = ien(inl,ie)
@@ -139,6 +147,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
+!	 write(*,*) 'ninf=',ninf, 'inf=',inf(1),inf(ninf)
      cnn(1:ninf,i)=inf(1:ninf)
      ncnn(i)=ninf
 
@@ -146,14 +155,24 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      if (ninf < mininf) mininf = ninf
      totinf = totinf + ninf
 ! calculate the correction function
-     call correct3d(b,bd,x,xna,adist,dwjp,nn,1,inf,ninf,maxconn)
+     if (nsd==2) then 
+		call correct2d(b,bd,x,xna,adist,dwjp,nn,1,inf,ninf,maxconn)
+     elseif (nsd==3) then 
+		call correct3d(b,bd,x,xna,adist,dwjp,nn,1,inf,ninf,maxconn)
+	 endif
+
      do n = 1, ninf
         nnum = inf(n)
         do isd = 1,nsd
            y(isd) = xna(isd,nnum)
            a(isd) = adist(isd,nnum)
         enddo
-        call RKPMshape3d(shp,b,bd,x,y,a,dwjp(nnum))
+
+		 if (nsd==2) then 
+	        call RKPMshape2d(shp,b,bd,x,y,a,dwjp(nnum))
+		 elseif (nsd==3) then 
+			call RKPMshape3d(shp,b,bd,x,y,a,dwjp(nnum))
+		 endif
         shrknode(n,i)=shp
      enddo
   enddo
@@ -173,7 +192,7 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   implicit none
 
   integer :: ninf,nn,nsd,maxconn
-  real(8) x(3), xna(nsd,nn), adist(nsd,nn)
+  real(8) x(nsd), xna(nsd,nn), adist(nsd,nn)
   real(8) r(nsd)
   integer inf(maxconn)
   integer i
@@ -190,10 +209,17 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   ninf = 0
   do i = 1,nn
      r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
-     if ((abs(r(1)).le.2*adist(1,i)).and.(abs(r(2)).le.2*adist(2,i)).and.(abs(r(3)).le.2*adist(3,i))) then
-        ninf = ninf + 1
-        inf(ninf) = i
-     endif
+	 if (nsd==3) then
+		if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i)).and.(abs(r(3))<=2*adist(3,i))) then
+			ninf = ninf + 1
+			inf(ninf) = i
+		endif
+	 elseif (nsd==2) then
+		if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i))) then
+			ninf = ninf + 1
+			inf(ninf) = i
+		endif
+	 endif
   enddo
 
   if (ninf > maxconn) then
@@ -207,28 +233,6 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   return
 end subroutine getinf
 
-!ccccccccccccccccccccccccccccccccccccccccccccccccccc
-!
-!......3-D correct function......
-!
-subroutine correct3d(b,bd,cpt,cjp,dcjp,dwjp,nep,iInter,inf,ninf,maxconn)
-  implicit none
-
-  integer nep,iInter
-  integer maxconn,ninf,inf(maxconn)
-  real(8) b(*),bd(3,*),cpt(3)
-  real(8) cjp(3,nep),dcjp(3,nep),dwjp(nep)
-
-  if (iInter .eq. 1) then
-     call correct3dl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
-  elseif(iInter .eq. 11)  then
-     call correct3dtl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
-  else
-     print *, 'wrong iInter'
-     stop
-  endif
-  return
-end subroutine correct3d
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -247,17 +251,17 @@ end subroutine correct3d
 ! 2. RKPM - cubic spline for uniform spacing
 ! 3. Original delta function for uniform spacing 
 
-subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,ibuf)
+subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,nsd,ibuf)
   implicit none
   integer,intent(in) :: ibuf,ndelta
-
+  integer nsd
  !...solids variables
   integer,intent(in)   :: nn_solids
-  real(8),intent(inout) :: data_solids(3,nn_solids)
+  real(8),intent(inout) :: data_solids(nsd,nn_solids)
 
  !...fluids variables
   integer,intent(in)   :: nn_fluids
-  real(8),intent(inout) :: data_fluids(3,nn_fluids)
+  real(8),intent(inout) :: data_fluids(nsd,nn_fluids)
   real(8),intent(in)    :: dv(nn_fluids)
 
  !...local variables
@@ -279,11 +283,10 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
            vol_inf=0.0d0
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
-              data_solids(1:3,inn) = data_solids(1:3,inn) + data_fluids(1:3,pt) * shrknode(icnn,inn)
+              data_solids(1:nsd,inn) = data_solids(1:nsd,inn) + data_fluids(1:nsd,pt) * shrknode(icnn,inn)
               tot_vel(pt)=data_fluids(1,pt)
               vol_inf = vol_inf + dv(pt)
            enddo
-           !data_solids(1:3,inn)=data_solids(1:3,inn)/vol_inf
         enddo
 !c      tot_vel_solid=sum(data_solids(1,:))
 !c      tot_vel_fluid=sum(tot_vel(:))
@@ -298,7 +301,7 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
         do inn=1,nn_solids
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
-              data_fluids(1:3,pt) = data_fluids(1:3,pt) + data_solids(1:3,inn) * shrknode(icnn,inn)
+              data_fluids(1:nsd,pt) = data_fluids(1:nsd,pt) + data_solids(1:nsd,inn) * shrknode(icnn,inn)
            enddo    
         enddo
         !tot_force_solid=sum(data_solids(1,:))
@@ -308,64 +311,7 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
      endif
   else
 
-!c    if uniform grid
-!c         do inn=1,nn_solids
-!c            if (ndelta .eq.2) then
-!c               call delta_rkpm_uniform(deltaeachaxis,inn,
-!c     +              dlptlocal_number,coord_pt)
-!c            elseif (ndelta .eq.3) then
-!c               call delta_original(deltaeachaxis,inn,
-!c     +              dlptlocal_number,coord_pt)
-!c            endif
-!c
-!c            do k=0,n_c_del_oneaxis-1
-!c               do j=0,n_c_del_oneaxis-1
-!c                  do i=0,n_c_del_oneaxis-1
-!c                     wt_delta(i,j,k) = deltaeachaxis(i,1)
-!c     $                    * deltaeachaxis(j,2)
-!c     $                    * deltaeachaxis(k,3)
-!c                  enddo
-!c               enddo
-!c            enddo
-!c         
-!c            i0=modrealinto( coord_pt(1,ipt), mn_ce1, mx_ce1)
-!c     $           - n_lo_gc_del_oneaxis
-!c            j0=modrealinto( coord_pt(2,ipt), mn_ce2, mx_ce2)
-!c     $           - n_lo_gc_del_oneaxis
-!c            k0=modrealinto( coord_pt(3,ipt), mn_ce3, mx_ce3)
-!c     $           - n_lo_gc_del_oneaxis
-!c         
-!c            if (ibuf .eq. 2) then !force distribution
-!c               do k = 0, n_c_del_oneaxis - 1 
-!c                  do j = 0, n_c_del_oneaxis - 1 
-!c                     do i = 0, n_c_del_oneaxis - 1       
-!c                        do idim = 1,3
-!c                           data_fluids(i0+i,j0+j,k0+k,idim)
-!c     $                          = data_fluids(i0+i,j0+j,k0+k,idim)
-!c     $                          + data_solids(idim,ipt) * wt_delta(i,j,k)
-!c                        
-!c                        enddo
-!c                     enddo
-!c                  enddo
-!c               enddo
-!c            
-!c            elseif (ibuf .eq. 1) then !velocity interpolation
-!c               do k=0,n_c_del_oneaxis - 1 
-!c                  do j=0,n_c_del_oneaxis - 1 
-!c                     do i=0,n_c_del_oneaxis - 1 
-!c                        do idim = 1,3
-!c                           data_solids(idim,ipt)
-!c     $                          = data_solids(idim,ipt)
-!c     $                          + data_fluids(i0+i,j0+j,k0+k, idim)
-!c     $                          * wt_delta(i,j,k)
-!c                        enddo
-!c                     enddo
-!c                  enddo
-!c               enddo
-!c            endif 
-!c
-!c         enddo ! end of loop in nn_solids
-!c
+
   endif ! end of option for delta function
 
 

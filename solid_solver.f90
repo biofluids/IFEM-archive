@@ -1,3 +1,7 @@
+!  Y. Liu, 07/11/2004
+!  Northwestern Univeristy
+!  Revised the subroutine to array (2D,3D)
+!  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
        solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
   use r_common, only: xmg,density_solid,predrf
@@ -16,15 +20,15 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
 
-  real(8),dimension(6,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
-  real(8),dimension(6,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
+  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
 
-  integer :: ipt
+  integer :: ipt,isd
 
   write(*,*) '*** Solving Solids ***'
 
   select case (nsd_solid)
-     case (3)    !...3D structure
+     case (2,3)    !...3D structure
 
      write(*,*) ' --> solving for 3-d structure'
 
@@ -40,11 +44,10 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
      call r_nodalf
 
      do ipt = 1,nn_solid
-        solid_force_FSI(1, ipt) = predrf(ipt           ) !+ drf(ipt           )
-        solid_force_FSI(2, ipt) = predrf(ipt+  nn_solid) !+ drf(ipt+  nn_solid)
-        solid_force_FSI(3, ipt) = predrf(ipt+2*nn_solid) !+ drf(ipt+2*nn_solid)
+		do isd = 1,nsd_solid
+        solid_force_FSI(isd, ipt) = predrf(ipt+(isd-1)*nn_solid)
+		enddo
      enddo
-
 
     !...apply Dirichlet BC in current configuration (penalty stiffness)
      call solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_coor_curr)
@@ -55,11 +58,10 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 
      write(*,*) ' --> solving for a point'
 
-     solid_force_FSI(1,1)=-xmg(1)*density_solid
-     solid_force_FSI(2,1)=-xmg(2)*density_solid
-     solid_force_FSI(3,1)=-xmg(3)*density_solid
+     solid_force_FSI(1:nsd_solid,1)=-xmg(1:nsd_solid)*density_solid
   end select
   
+!	 write(*,*) 'solid_force_FSI(1,4)',solid_force_FSI(1,1:4)
   
   return
 end subroutine solid_solver

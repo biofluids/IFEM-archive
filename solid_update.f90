@@ -17,7 +17,8 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
   integer :: ntem,node
 
   real(8) :: todet,wp,viter,tot_vol
-  real(8) :: avgvel(3),mom(3),rs(3),xj(3,3),xx(3,9)
+  real(8) :: avgvel(nsd_solid),mom(nsd_solid),rs(nsd_solid)
+  real(8) :: xj(nsd_solid,nsd_solid),xx(3,9)
 
 
 ! 2. Update material point displacement u(t+dt) = u(t) + dt*v(t)
@@ -26,29 +27,33 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 
   if (nrigid == 1) then  !...rigid case: create average velocity and apply to all nodes
      do i_solid=1,n_solid
-        mom(1:3) = 0.0   !...momentum
+        mom(1:nsd_solid) = 0.0   !...momentum
         tot_vol  = 0.0   !...total volume
 
         element: do ie=(i_solid-1)*ne_solid_1+1,i_solid*ne_solid_1
            do nos=1,nen_solid
               ntem=solid_fem_con(ie,nos)
-              xx(1:3,nos)=solid_coor_init(1:3,ntem)
+              xx(1:nsd_solid,nos)=solid_coor_init(1:nsd_solid,ntem)
            enddo
            gauss_int: do iq = 1,nquad_solid
-              rs(1:3) = xq_solid(1:3,iq)
+              rs(1:nsd_solid) = xq_solid(1:nsd_solid,iq)
 
              !...calculate determinant
-              do i=1,3
-                 do j=1,3
+              do i=1,nsd_solid
+                 do j=1,nsd_solid
                     xj(i,j)=0.0d0
                     do k=1,nen_solid
                        xj(i,j)=xj(i,j)+r_p(j,k)*xx(i,k)
                     enddo
                  enddo
               enddo
+			  if(nsd_solid==3) then
               todet = xj(1,1) * (xj(2,2)*xj(3,3) - xj(3,2)*xj(2,3))  &
                     - xj(2,1) * (xj(1,2)*xj(3,3) - xj(3,2)*xj(1,3))  &
                     + xj(3,1) * (xj(1,2)*xj(2,3) - xj(2,2)*xj(1,3))
+			  elseif(nsd_solid==2) then
+              todet = xj(1,1) * xj(2,2) - xj(1,2)*xj(2,1)
+			  endif
 
               wp = wq_solid(iq)
 
@@ -56,12 +61,12 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 
               do ni=1,nen_solid
                  node=solid_fem_con(ie,ni)
-                 mom(1:3)=mom(1:3)+wp*todet*density_solid*h(ni)*solid_vel(1:3,node)
+                 mom(1:nsd_solid)=mom(1:nsd_solid)+wp*todet*density_solid*h(ni)*solid_vel(1:nsd_solid,node)
               enddo
            enddo gauss_int
         enddo element
         
-        avgvel(1:3)=mom(1:3)/tot_vol  !calculate average velocity
+        avgvel(1:nsd_solid)=mom(1:nsd_solid)/tot_vol  !calculate average velocity
 
         !du(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
         !du(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
@@ -84,17 +89,24 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   viter=0.0d0
-  do i=1,nn_solid
-     du(1,i)=solid_vel(1,i)*dt
-     du(2,i)=solid_vel(2,i)*dt
-     du(3,i)=solid_vel(3,i)*dt
-  enddo
+  write(*,*) 'maximum solid velocity is =', maxval(solid_vel(1:nsd_solid,:))
+  du(1:nsd_solid,1:nn_solid)=solid_vel(1:nsd_solid,1:nn_solid)*dt
+
+!  do i=1,nn_solid
+!     do j=1,nsd_solid
+!     du(j,i)=solid_vel(j,i)*dt
+!	 enddo
+!  enddo
 
   do i=1,nn_solid
      if (klok .eq. 1) then
-        vnorm = vnorm + du(1,i)**2 + du(2,i)**2 + du(3,i)**2
+	    do j=1,nsd_solid
+        vnorm = vnorm + du(j,i)**2
+		enddo
      else
-        viter = viter + du(1,i)**2 + du(2,i)**2 + du(3,i)**2
+	    do j=1,nsd_solid
+		viter = viter + du(j,i)**2
+		enddo	 
      endif
   enddo
            
@@ -107,15 +119,19 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
   write(*,*) ' norm=',viter
 
  !...update current position
-  solid_coor_curr(1,1:nn_solid) = solid_coor_curr(1,1:nn_solid) + du(1,1:nn_solid)
-  solid_coor_curr(2,1:nn_solid) = solid_coor_curr(2,1:nn_solid) + du(2,1:nn_solid)
-  solid_coor_curr(3,1:nn_solid) = solid_coor_curr(3,1:nn_solid) + du(3,1:nn_solid)
+
+  do j=1,nsd_solid
+  solid_coor_curr(j,1:nn_solid) = solid_coor_curr(j,1:nn_solid) + du(j,1:nn_solid)
+  enddo
 
  !...write to 'vel_time.m' to plot
   write(9500,*) 'vel(',its,')=',solid_vel(1,1),';'
   write(9500,*) 'time(',its,')=',tt,';'
 
   write(*,*) " solid position updated"
+
+!  write(*,*) 'solid_coor_curr',solid_coor_curr(1,1:4)
+!  solid_coor_curr(1,3:4) = solid_coor_curr(1,3:4)+0.01
 
   return
 end subroutine solid_update

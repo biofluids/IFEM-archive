@@ -24,12 +24,20 @@
   !wgt_tetra(:,4) = (/ 0.347854845137454d0 , 0.652145154862546d0 , 0.652145154862546d0 , 0.347854845137454d0 /)
 
 
-  if (nen_solid == 4) then
-     call quad3d4n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
-  else if (nen_solid == 8) then
-     call quad3d8n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
-  end if
 
+  if (nsd_solid==2) then
+	if (nen_solid == 3) then
+        call quad2d3n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
+	elseif (nen_solid == 4) then
+        call quad2d4n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
+	endif
+  elseif (nsd_solid==3) then
+	if (nen_solid == 4) then
+        call quad3d4n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
+	elseif (nen_solid == 8) then
+        call quad3d8n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
+	endif
+  endif
 
 
   allocate(solid_fem_con_1(ne_solid_1,nen_solid),stat=error_id)
@@ -43,25 +51,25 @@
   call readx_solid(coor_1,nn_solid_1,nsd_solid)
 
  !...read surface information (which element surface is part of the structure surface
-  call readrng_solid(solid_surface_1,ne_solid_1,nen_solid)
+ ! Lucy commented it out
+!  call readrng_solid(solid_surface_1,ne_solid_1,nen_solid)
 
   !call read_solid_ale_boundary(solid_ale_boundary)
 
  !...scale structure
-  coor_1(:,1)=coor_1(:,1)*solid_scale(1)
-  coor_1(:,2)=coor_1(:,2)*solid_scale(2)
-  coor_1(:,3)=coor_1(:,3)*solid_scale(3)
-
+  do i=1,nsd_solid
+     coor_1(:,i)=coor_1(:,i)*solid_scale(i)
+  enddo
 
  !...copy the one structure to multiple (n_solid) identical structures
   do i=1,n_solid
-     solid_coor_init(1,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,1) + shift(1,i)
-     solid_coor_init(2,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,2) + shift(2,i)
-     solid_coor_init(3,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,3) + shift(3,i)
+      do j=1,nsd_solid
+	  solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
+	enddo
      solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
-     solid_surface(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_surface_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
+ !    solid_surface(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_surface_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
   enddo
-      
+  
   deallocate(solid_fem_con_1,stat=error_id)
   deallocate(solid_surface_1,stat=error_id)
   deallocate(coor_1,stat=error_id)
@@ -70,12 +78,10 @@
  !...read essential boundary conditions (displacement)
   call solid_fem_BC_read_essential
 
-
-
  !...initialize arrays
-  solid_coor_curr(1:3,1:nn_solid) = solid_coor_init(1:3,1:nn_solid)
-  solid_force_FSI(1:3,1:nn_solid) = 0.0d0
-  solid_prevel(1:3,1:nn_solid)    = 0.0d0
+  solid_coor_curr(1:nsd_solid,1:nn_solid) = solid_coor_init(1:nsd_solid,1:nn_solid)
+  solid_force_FSI(1:nsd_solid,1:nn_solid) = 0.0d0
+  solid_prevel(1:nsd_solid,1:nn_solid)    = 0.0d0
 
   if (ninit .eq. 1) then
      call r_sreadinit(solid_coor_init,solid_coor_curr)

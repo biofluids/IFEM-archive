@@ -68,7 +68,7 @@ subroutine parseinput_solid
   read(1,*) nn_solid_1,ne_solid_1
   read(1,*) nump
   
-  read(1,*) solid_scale(1:nsd_solid)
+  read(1,*) solid_scale(1),solid_scale(2),solid_scale(3)
   
   read(1,*) n_solid
 
@@ -93,7 +93,7 @@ subroutine parseinput_solid
 
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
-     read(1,*) shift(1:nsd_solid,i)
+     read(1,*) shift(1,i),shift(2,i),shift(3,i)
   enddo
 
  !...time step
@@ -102,7 +102,7 @@ subroutine parseinput_solid
  !...pressure force
   read(1,*) numfn,numeb      
   do i=1,numeb
-     read(1,*) nbe(i),nface(i),boup(i,1:nsd_solid)
+     read(1,*) nbe(i),nface(i),boup(i,1),boup(i,2),boup(i,3)
   enddo
 
  !...concentrated force
@@ -131,14 +131,18 @@ subroutine parseinput_solid
   read(1,*) alpha_solid,beta_solid
 
  !...gravity acceleration
-  read(1,*) xmg(1:nsd_solid)  !gravity
+  read(1,*) xmg(1),xmg(2),xmg(3)  !gravity
   write(*,*) 'gravity acceleration'
-  write(*,*) ' xmg   =',xmg(1:nsd_solid)
+  write(*,*) ' xmg(1)   =',xmg(1)
+  write(*,*) ' xmg(2)   =',xmg(2)
+  write(*,*) ' xmg(3)   =',xmg(3)
 
  !...body force
-  read(1,*) fbacc(1:nsd_solid)
+  read(1,*) fbacc(1),fbacc(2),fbacc(3)
   write(*,*) 'body force acceleration - not activated'
-  write(*,*) ' fbacc(1) =',fbacc(1:nsd_solid)
+  write(*,*) ' fbacc(1) =',fbacc(1)
+  write(*,*) ' fbacc(2) =',fbacc(2)
+  write(*,*) ' fbacc(3) =',fbacc(3)
 
   close(1)
 
@@ -222,7 +226,7 @@ subroutine parseinput_fluid
   CALL Read_Int(static_onoff,1)
   if (static_onoff.eq.1) then
      static=.TRUE.
-  elseif (static_onoff.eq.0) then
+  elseif (hg_vol_onoff.eq.0) then
      static=.FALSE.
   endif
 
@@ -239,17 +243,6 @@ subroutine parseinput_fluid
   CALL Read_Int(nen,1)
   CALL Read_Int(ndf,1)
   CALL Read_Int(nsd,1)
-  if (nsd==2) then
-    udf=1
-	vdf=2
-	pdf=3
-  elseif (nsd==3) then
-    udf=1
-	vdf=2
-	wdf=3
-	pdf=4
-  endif
-
   CALL Read_Int(iquad,1)
   CALL Read_Int(nit,1)
   CALL Read_Int(nts,1)
@@ -268,20 +261,19 @@ subroutine parseinput_fluid
   CALL Read_Real(alpha,1)
 
   do i=1,nrng
-     CALL Read_Real(fix,ndf+1)
+     CALL Read_Real(fix,5)
      ibc=int(fix(1))
      do idf=1,ndf
         bv(idf,ibc) = fix(idf+1)
         if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
      enddo
   enddo
-
   !amp = 0.4
   !spring = 11.302
   !damper = 2.0
   !mass = 35
   do i=1,nrng
-     CALL Read_Real(fixd,nsd+1)
+     CALL Read_Real(fixd,4)
      ibc=int(fixd(1))
      do isd=1,nsd
         bvd(isd,ibc)=fixd(isd+1)
@@ -291,10 +283,11 @@ subroutine parseinput_fluid
 
 
   CALL Read_Real(landa_over_mu,1)
+
   CALL Read_Real(ic,ndf)
 
-  CALL Read_Real(gravity,nsd)
-  CALL Read_Real(interface,nsd)
+  CALL Read_Real(gravity,3)
+  CALL Read_Real(interface,3)
 
   CALL Read_Int(surf,2)
   CALL Read_Int(hydro,1)
@@ -342,18 +335,10 @@ subroutine parseinput_fluid
   if (ntsbout.eq.0) ntsbout = nts + 1
   if (steady) alpha = 1.0
 
-  if      (nen.eq.3) then
-     etype = tri
-     neface = 3
-     nnface = 2
-  else if ((nen.eq.4).and.(nsd.eq.3)) then
+  if      (nen.eq.4) then
      etype = tet
      neface = 4
      nnface = 3
-  else if ((nen.eq.4).and.(nsd.eq.2)) then
-     etype = qud
-     neface = 4
-     nnface = 2
   else if (nen.eq.8) then
      etype = hex
      neface = 6
@@ -374,12 +359,8 @@ subroutine parseinput_fluid
 
   CLOSE(5)
 
-  if(nsd.eq.3) then
-	call shape
-  elseif(nsd.eq.2) then
-	call shape2d
-  endif
-
+  call shape
+  !call shape2d
   write(*,*) ne,nquad
 
   return

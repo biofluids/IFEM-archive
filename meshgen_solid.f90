@@ -15,8 +15,9 @@ subroutine readx_solid(xyz,nn,nsd)
   open(file, FILE="mxyz_solid.in", STATUS="old",action="read")
 
   do inn=1,nn
-     read(file,*) idummy,xyz(inn,1:nsd),idummy
+     read(file,*) idummy,xyz(inn,1:nsd)
   enddo
+
   close(file)
 
   return
@@ -33,6 +34,7 @@ subroutine readien_solid(solid_con,ne,nen)
 
   file=21
   open(file, FILE="mien_solid.in", STATUS="old",action="read")
+
   do ine=1,ne
      read(file,*) idummy,solid_con(ine,1:nen),idummy
   enddo
@@ -42,30 +44,33 @@ subroutine readien_solid(solid_con,ne,nen)
 end subroutine readien_solid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine readrng_solid(rngface,ne,neface)
-  implicit none
+!******************
+! Lucy commented this out, because we are not using it.
+!******************
+!subroutine readrng_solid(rngface,ne,neface)
+!  implicit none
 
-  integer,intent(in) :: ne,neface
-  integer :: rngface(ne,neface)
+!  integer,intent(in) :: ne,neface
+!  integer :: rngface(ne,neface)
 
-  integer :: file,i,ieface,iec
+!  integer :: file,i,ieface,iec
 
-  file=21
-  open(file, FILE="mrng_solid.in", STATUS="old",action="read")
-  do i=1,ne
-     read(file,*) rngface(i,:)
-  enddo
+!  file=21
+!  open(file, FILE="mrng_solid.in", STATUS="old",action="read")
+!  do i=1,ne
+!     read(file,*) rngface(i,:)
+!  enddo
 
-  do ieface=1,neface
-     do iec=1,ne
-        if(rngface(iec,ieface).lt.0) rngface(iec,ieface) = 0
-     enddo
-  enddo
+!  do ieface=1,neface
+!     do iec=1,ne
+!        if(rngface(iec,ieface).lt.0) rngface(iec,ieface) = 0
+!     enddo
+!  enddo
 
-  close(file)
+!  close(file)
 
-  return
-end subroutine readrng_solid
+!  return
+!end subroutine readrng_solid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine read_solid_ale_boundary(solid_ale_boundary)

@@ -1235,9 +1235,321 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
          end do
       end do
 
+      return
+      end
+
+!************************************************************************
+      subroutine correct2dl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
+!************************************************************************
+!
+!     This subroutine is to calculate the b vector and its
+!     derivatives,for the moving least square reproducing kernel 
+!     interpolation shape function.
+!
+!     This code is only offering b vector and its 1st derivatives
+!     for the 2-D case (RGT1a).
+!
+!     The interpolation function is choosen as
+!     
+!     p = (1 , x , y )
+!
+!     Date: June, 1994
+!
+!     -arguments:
+!
+!  i      nep: the numbers of particles, therefore, the numbers
+!              of elements too.
+!
+!  i      cjp(2,nep):  the particle's global coordinations;
+!                      such as x(nep):= cjp(1,nep)
+!                              y(nep):= cjp(2,nep)
+!
+!  i      dcjp(2,nep): the array that stores all the dilation
+!                     vectors of the particles .
+!                     The dilation parameter at X direction: dcjp(1,nep)
+!                     The dilation parameter at Y direction: dcjp(2,nep)
+!
+!  i      dwjp(nep): the integration weight at each particle point
+!
+!
+!  i      cpt(2): the point at where the shape function is
+!                     evaluated.;
+!                 xp:= cpt(1)
+!                 yp:= cpt(2)
+!
+!    
+!   l     ha1 : dilation parameter; scalar;
+!
+!   l     ha2 : dilation parameter; scalar;
+!
+!               we input the adjust constants ax, ay, and we construct
+!               the dilation parameter in such a way: 
+!               (for non-uniform mesh )
+!
+!                 ha1 = dcjp(1,j)
+!                 ha2 = dcjp(2,j)
+!
+!    l   gm(3,3) : the basi! moment matrix;
+!
+!    l   gminv(3,3): the inverse of the gm, i.e. gm^{-1}
+!
+!    l   gmdx(3,3): the derivatives of gm: gm_x;
+!
+!    l   gmdy(3,3): the derivatives of gm: gm_y;
+!
+!    l   adx(3,3):  M^(-1) M_x
+!
+!    l   ady(3,3):  M^(-1) M_y
+!
+!
+!  o     b(3)   :   the b vector, also the first row of gminv
+!
+!  o     bd(2,3):   the 1st derivatives of the b vector
+!
+!                   bd(1,3) :=  b_x
+!                   bd(2,3) :=  b_y
+!
+!     The subroutine is only designed to generate 2-D
+!     moving least square shape function based on linear polynomial,
+!
+!    l   p(3) := (1,x,y);
+!
+!     The mathematical formulation is as follows
+!
+!     b   = (1/det)* [ a11, - a12, a13 ];
+!
+!     b_x = - M^{-1} M_x b;
+!
+!     b_y = - M^{-1} M_y b;
+!
+!
+!    There two different subroutines could be called by this subroutine:
+!
+!    cubic2d.f ----- the cubi! spline window function;
+!  
+!    quintw2.f ----- the fifth order spline window function.
+!
+!**************************************************************
+!      implicit double precision (a-h,o-z)
+!      include 'parameter.h'
+!
+!      integer n_support
+!      dimension Lmap(mnsch)
 
 
-!  999 continue
+	  real* 8 am00,am10,am01,am20,am11,am02
+	  real* 8 am00dx,am10dx,am01dx,am20dx,am11dx,am02dx
+	  real* 8 am00dy,am10dy,am01dy,am20dy,am11dy,am02dy
+	  real* 8 xp,yp,ha1,ha2,dsj,xj,yj,dx,dy
+	  real* 8 r10,r01,r20,r11,r02
+	  real* 8 xx,yy,aw
+	  real* 8 awdx,awdy
+	  real* 8 a11,a12,a21,a13,a31,a22,a23,a32,a33,det,cdet
+
+      real* 8 b(3),bd(2,3),cpt(2)
+      real* 8 cjp(2,nep),dcjp(2,nep),dwjp(nep)
+      real* 8 gminv(3,3),gmdx(3,3),gmdy(3,3)
+      real* 8 adx(3,3),ady(3,3)
+	  integer jpt
+	  integer ninf, maxconn, inf(maxconn)
+!
+!.....set the initial value for moment and its derivatives:
+!
+      zero = 0.00
+
+      am00 = 0.00
+      am10 = 0.00
+      am01 = 0.00
+      am20 = 0.00
+      am11 = 0.00
+      am02 = 0.00
+
+      am00dx = 0.00
+      am10dx = 0.00
+      am01dx = 0.00
+      am20dx = 0.00
+      am11dx = 0.00
+      am02dx = 0.00
+
+      am00dy = 0.00
+      am10dy = 0.00
+      am01dy = 0.00
+      am20dy = 0.00
+      am11dy = 0.00
+      am02dy = 0.00
+
+!.....set the initial value for all array: 
+
+      do i = 1, 3
+		 do  j = 1, 3
+		    gminv(i,j)  = 0.00
+			gmdx(i,j)   = 0.00
+			gmdy(i,j)   = 0.00
+         end do
+		b(i)    = 0.00
+		bd(1,i) = 0.00
+		bd(2,i) = 0.00
+      end do  
+
+!.....input the value cpt 
+
+      xp = cpt(1)
+      yp = cpt(2)
+
+!.....main loop: calculate moment by Trapezodial rule
+
+      do 30 j = 1, ninf
+	  jpt = inf(j)
+
+!........define intermediate variable
+
+!........ha1 and ha2
+
+	 ha1 =  dcjp(1,jpt)
+	 ha2 =  dcjp(2,jpt)
+
+	 dsj = dwjp(jpt)
+
+	 xj  = cjp(1,jpt)
+	 yj  = cjp(2,jpt)
+     dx  = -1.0/ha1
+	 dy  = -1.0/ha2
+
+	 r10 = (xj - xp)/ha1
+	 r01 = (yj - yp)/ha2
+	 r20 = r10*r10
+     r11 = r10*r01
+     r02 = r01*r01
+
+     xx = dabs(r10)
+	 yy = dabs(r01)
+	 if((xx.ge.2.0) .or. (yy.ge.2.0)) go to 30
+
+     call window(aw,awdx,awdy,awdxx,awdxy,awdyy,xp,yp,xj,yj,ha1,ha2)
+
+     aw   = aw*dsj
+
+     am00 = am00  +  aw
+         am10 = am10  +  r10*aw
+         am01 = am01  +  r01*aw
+         am20 = am20  +  r20*aw
+         am11 = am11  +  r11*aw
+         am02 = am02  +  r02*aw
+
+	 awdx = awdx*dsj
+	 awdy = awdy*dsj
+
+     am00dx  = am00dx  + awdx
+	 am10dx  = am10dx  + dx*aw + r10*awdx
+	 am01dx  = am01dx  + r01*awdx
+	 am20dx  = am20dx  + 2.0*dx*r10*aw + r20*awdx
+	 am11dx  = am11dx  + dx*r01*aw + r11*awdx
+	 am02dx  = am02dx  + r02*awdx
+
+     am00dy  = am00dy  + awdy
+	 am10dy  = am10dy  + r10*awdy
+	 am01dy  = am01dy  + dy*aw + r01*awdy
+	 am20dy  = am20dy  + r20*awdy
+	 am11dy  = am11dy  + r10*dy*aw + r11*awdy
+	 am02dy  = am02dy  + 2.0*dy*r01*aw + r02*awdy
+
+  30  continue
+
+
+!.....end of the main loop
+
+!.....assemble the cofactor matrices ( a(i,j))
+
+      a11 =  am20*am02  - am11*am11
+      a12 =  am10*am02  - am11*am01
+      a21 =  a12
+      a13 =  am10*am11  - am20*am01
+      a31 =  a13
+      a22 =  am00*am02  - am01*am01
+      a23 =  am00*am11  - am10*am01
+      a32 =  a23
+      a33 =  am00*am20  - am10*am10
+
+!.....calculate the determinat det
+
+      det = am00*a11 - am10*a12 + am01*a13 
+
+!.....test convergence criteria
+
+      zero = 0.0d0
+      if(det .le. zero) then
+		print *, 'det =', det
+		print *, 'STOP! the determinat det < 0 '
+		print *, am00, am10, am01 
+		print *, am10, am20, am11 
+		print *, am01, am11, am02 
+		stop
+      end if
+
+!.....assemble the gminv(i,j)
+
+      cdet = 1.0/det
+      gminv(1,1) =  a11*cdet
+      gminv(1,2) = -a12*cdet
+      gminv(2,1) = -a12*cdet
+      gminv(1,3) =  a13*cdet
+      gminv(3,1) =  a13*cdet
+      gminv(2,2) =  a22*cdet
+      gminv(2,3) = -a23*cdet
+      gminv(3,2) = -a23*cdet
+      gminv(3,3) =  a33*cdet
+
+!.....calculate the derivative of gm
+
+      gmdx(1,1)  = am00dx
+      gmdx(1,2)  = am10dx
+      gmdx(2,1)  = am10dx
+      gmdx(1,3)  = am01dx
+      gmdx(3,1)  = am01dx
+      gmdx(2,2)  = am20dx
+      gmdx(2,3)  = am11dx
+      gmdx(3,2)  = am11dx
+      gmdx(3,3)  = am02dx
+
+      gmdy(1,1)  = am00dy
+      gmdy(1,2)  = am10dy
+      gmdy(2,1)  = am10dy
+      gmdy(1,3)  = am01dy
+      gmdy(3,1)  = am01dy
+      gmdy(2,2)  = am20dy
+      gmdy(2,3)  = am11dy
+      gmdy(3,2)  = am11dy
+      gmdy(3,3)  = am02dy
+
+!.....assign the value for b vector
+
+      b(1) = gminv(1,1)
+      b(2) = gminv(1,2)
+      b(3) = gminv(1,3)
+
+!.....Find the value for bd(2,3)
+
+!.....compute M^(-1)dM/dx and M^(-1)dM/dy
+
+      do i = 1,3
+		 do j = 1,3
+			adx(i,j) = 0.0d0    
+			ady(i,j) = 0.0d0    
+			do k = 1,3
+			 adx(i,j) = adx(i,j) + gminv(i,k)*gmdx(k,j)
+			 ady(i,j) = ady(i,j) + gminv(i,k)*gmdy(k,j)
+            enddo
+         enddo
+      enddo
+!
+      do i = 1,3
+         do j = 1,3
+			bd(1,i) = bd(1,i) - adx(i,j)*b(j)
+			bd(2,i) = bd(2,i) - ady(i,j)*b(j)
+         enddo
+      enddo
+
+  999 continue
 
       return
       end

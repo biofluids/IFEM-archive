@@ -17,17 +17,17 @@ subroutine hypo
   use meshgen_solid
   use solid_fem_BC
   use form
-  use formm
-  use gmres_fluid_mesh
-  use gmres_fluid_ale
-  use deformation_gradient
+!  use formm
+!  use gmres_fluid_mesh
+!  use gmres_fluid_ale
+!  use deformation_gradient
   use ensight_output
   implicit none
 
-!ccccccccccccccccccccccccccccc	  
+!==============================	  
 ! Definition of variables
 
-  integer :: klok
+  integer :: klok,j
 
   !integer :: naxx1,naxx2
 
@@ -35,14 +35,12 @@ subroutine hypo
   !external time
 
 
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!============================
 ! Define local variables
 
   include "hypo_declaration_solid.fi"
   include "hypo_declaration_fluid.fi"
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================
 ! Prepare for calculation, read in inputs or restart information
 
   include "hypo_restart_file_check.fi"
@@ -58,9 +56,9 @@ subroutine hypo
 
   !naxx1=time()
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!! time loop !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
+!						 time loop	
+!=================================================================
   time_loop: do its = nts_start,nts !.....count from 1 or restart-timestep to number of timesteps
 
      write (6,*) ' '
@@ -70,7 +68,7 @@ subroutine hypo
      write (7,*) 'TIME STEP = ', its
      write (7,*) ' '
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! Write restart information in binary file
 
      include "hypo_restart_write.fi"
@@ -81,51 +79,42 @@ subroutine hypo
      write (6,'("  physical time = ",f7.3," s")') tt
      write (7,'("  physical time = ",f7.3," s")') tt
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! ALE mesh update
-
-     !solid_coor_curr(1,1:nn_solid) = solid_coor_init(1,1:nn_solid) + 1.0*sin(2*pi*(its)/256)
-     !solid_coor_curr(2,1:nn_solid) = solid_coor_init(2,1:nn_solid) + 1.0*cos(2*pi*(its)/256) -1
-
-     include "hypo_fluid_solver_mesh.fi"
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! Construction of the dirac deltafunctions at actual solid and fluid node positions
 
-     call delta_initialize(nn_solid,solid_coor_curr,x,ien,dvolume)
+!     call delta_initialize(nn_solid,solid_coor_curr,x,ien,dvolume)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! Solid solver
 
-     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
-                       solid_pave,solid_stress,solid_strain,solid_force_FSI)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
+!                       solid_pave,solid_stress,solid_strain,solid_force_FSI)
+  
+!=================================================================
 ! Distribution of the solid forces to the fluid domain
 !   f^fsi(t)  ->  f(t)
 
-     call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,  &
-                         delta_exchange_solid_to_fluid)
+!     call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,nsd,  &
+!                         delta_exchange_solid_to_fluid)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
 
      include "hypo_fluid_solver.fi"
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! Interpolation fluid velocity -> immersed material points
 !     v^f(t+dt)  ->  v^s(t+dt)
 
-     call delta_exchange(solid_vel,nn_solid,d(1:3,:),nn,ndelta,dvolume,delta_exchange_fluid_to_solid)
+!    call delta_exchange(solid_vel,nn_solid,d(1:nsd,:),nn,ndelta,dvolume,nsd, &
+!					  delta_exchange_fluid_to_solid)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! Update solid domain
+!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
+!                      solid_vel,solid_prevel,solid_accel)
 
-     call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-                       solid_vel,solid_prevel,solid_accel)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!=================================================================
 ! Write output file every ntsbout steps
 
      include "hypo_write_output.fi"

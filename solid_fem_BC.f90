@@ -37,19 +37,19 @@ subroutine solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_co
 
   integer :: innBC
 
-  real(8),dimension(1:3) :: xx,yy,dist,force_BC
+  real(8),dimension(1:nsd_solid) :: xx,yy,dist,force_BC
 
   write(*,*) " apply essential BC "
 
   do innBC = 1,nn_solid_BC_ess
-     xx(1:3) = solid_coor_init(1:3,solid_BC_ess(innBC))
-     yy(1:3) = solid_coor_curr(1:3,solid_BC_ess(innBC))
+     xx(1:nsd_solid) = solid_coor_init(1:nsd_solid,solid_BC_ess(innBC))
+     yy(1:nsd_solid) = solid_coor_curr(1:nsd_solid,solid_BC_ess(innBC))
 
-     dist(1:3)         = yy(1:3) - xx(1:3)
+     dist(1:nsd_solid)         = yy(1:nsd_solid) - xx(1:nsd_solid)
 ! Lucy changed it for testing solids
 !     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC)
-	 force_BC(1:3)=solid_BC_ess_value(1:3,innBC)*0.5
-     solid_force_FSI(1:3,solid_BC_ess(innBC)) = solid_force_FSI(1:3,solid_BC_ess(innBC)) - force_BC(1:3)
+	 force_BC(1:nsd_solid)=solid_BC_ess_value(1:nsd_solid,innBC)*0.5
+     solid_force_FSI(1:nsd_solid,solid_BC_ess(innBC)) = solid_force_FSI(1:nsd_solid,solid_BC_ess(innBC)) - force_BC(1:nsd_solid)
   enddo
 
 end subroutine solid_fem_BC_apply_essential
@@ -70,7 +70,7 @@ subroutine solid_fem_BC_read_essential
   call read_BC_ess_types
 
   test_node_BC_id(:) = 0
-  test_node_BC_value(1:3,1:nn_solid) = 0.0d0
+  test_node_BC_value(1:nsd_solid,1:nn_solid) = 0.0d0
 
   open(unit = ifileunit,file = "input_solid_BC.in",status="old",action="read")
 
@@ -92,7 +92,7 @@ subroutine solid_fem_BC_read_essential
         read(ifileunit,*) n_test_node
         write(*,*) "node:",n_test_node
         test_node_BC_id(n_test_node) = 1
-        test_node_BC_value(1:3,n_test_node) = test_node_BC_value(1:3,n_test_node) + BC_ess_type(1:3,BC_ess_type_pos)
+        test_node_BC_value(1:nsd_solid,n_test_node) = test_node_BC_value(1:nsd_solid,n_test_node) + BC_ess_type(1:nsd_solid,BC_ess_type_pos)
      enddo
   enddo 
 
@@ -102,14 +102,14 @@ subroutine solid_fem_BC_read_essential
   nn_solid_BC_ess = sum(test_node_BC_id(:))  !...number of nodes that have a BC applied
 
   allocate(solid_BC_ess(1:nn_solid_BC_ess))            !...contains node number
-  allocate(solid_BC_ess_value(1:3,1:nn_solid_BC_ess))  !...contains three penalty parameter for force calculation
+  allocate(solid_BC_ess_value(1:nsd_solid,1:nn_solid_BC_ess))  !...contains three penalty parameter for force calculation
 
   counter_solid_BC_node = 0
   do inn = 1,nn_solid
      if (test_node_BC_id(inn) == 1) then  !...if BC applied
         counter_solid_BC_node = counter_solid_BC_node + 1
         solid_BC_ess(counter_solid_BC_node) = inn
-        solid_BC_ess_value(1:3,counter_solid_BC_node) = test_node_BC_value(1:3,inn)
+        solid_BC_ess_value(1:nsd_solid,counter_solid_BC_node) = test_node_BC_value(1:nsd_solid,inn)
      endif
   enddo
 
@@ -120,6 +120,7 @@ end subroutine solid_fem_BC_read_essential
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine read_BC_ess_types
+  use solid_variables, only: nsd_solid
   implicit none
 
   integer :: i
@@ -130,10 +131,10 @@ subroutine read_BC_ess_types
   write(*,*) "number of boundary types defined",nBC_ess_type_id
 
   allocate(BC_ess_type_id( 1:nBC_ess_type_id))
-  allocate(BC_ess_type(1:3,1:nBC_ess_type_id))
+  allocate(BC_ess_type(1:nsd_solid,1:nBC_ess_type_id))
 
   do i = 1,nBC_ess_type_id
-     read(typefile_unit,*) BC_ess_type_id(i) , BC_ess_type(1:3,i)
+     read(typefile_unit,*) BC_ess_type_id(i) , BC_ess_type(1:nsd_solid,i)
   enddo
 
   !write(*,*) BC_ess_type

@@ -175,7 +175,7 @@
       return
       end
 
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!***********************************************************
       subroutine window3d(aw,awdx,awdy,awdz,  &
                           awdxx,awdyy,awdzz,  &
                           awdxy,awdyz,awdzx,  &
