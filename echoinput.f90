@@ -28,12 +28,12 @@
       write(io,'(" Scaling..................(iscaling) = ",i5)') iscaling
       write(io,'(" Inner GMRES iterations......(inner) = ",i5)') inner 
       write(io,'(" Outer GMRES iterations......(outer) = ",i5)') outer 
-      write(io,'(" Restart...................(restart) = ",a5)') restart
+      write(io,'(" Restart...................(restart) = ",i5)') restart
       write(io,'(" Stokes.....................(stokes) = ",a5)') yon(stokes)
       write(io,'(" Steady.....................(steady) = ",a5)') yon(steady)
       write(io,'(" Mass conservation........(conserve) = ",a5)') yon(conserve)
       write(io,'(" Static Problem.............(static) = ",a5)') yon(static)
-      write(io,'(" Lenght based on volume.....(hg_vol) = ",a5)') yon(hg_vol)
+      write(io,'(" Length based on volume.....(hg_vol) = ",a5)') yon(hg_vol)
       write(io,'(" Dt in tau...................(taudt) = ",a5)') yon(taudt)
       write(io,'(" 2D computation...............(twod) = ",a5)') yon(twod)
       write(io,'(" Time step.................= ",e15.8)') dt

@@ -9,6 +9,7 @@ subroutine formd(ds,rngface,ien)
   use global_constants
   use run_variables, only: tt
   use fluid_variables, only: nn,ne,ndf,nsd,nen,neface,nrng,nnface,mapping,bc,bv,etype,ic,static,udf,vdf,wdf
+  use solid_variables, only: nn_solid
 
   implicit none
 
@@ -16,8 +17,8 @@ subroutine formd(ds,rngface,ien)
   real(8) :: ds(ndf,nn) !meshvel(nsd,nn)
   integer :: idf, inl, iec, irng, ieface, inface, inn
   real(8) :: eps1,eps2 !,tt_ramp
-  real(8) :: hs(nrng,nn), h(nrng,nn)
-
+  real(8) :: hs(nrng+1,nn), h(nrng+1,nn)
+  integer :: T0, k
 
   eps1 = -1000000.0 
   eps2 = -10000.0 
@@ -26,6 +27,7 @@ subroutine formd(ds,rngface,ien)
 
   ds(:,:) = eps1
   
+
 
   do ieface=1,neface
      do inface=1,nnface
@@ -37,13 +39,22 @@ subroutine formd(ds,rngface,ien)
      enddo
   enddo
 
+
   hs = h
- ! tt_ramp = -0.5
-  !if ((tt >= 0).and.(tt <= tt_ramp)) then
-  !     bv(wdf,8) = 5.0  * tt/tt_ramp
-  !elseif (tt >= tt_ramp) then
-  !     bv(wdf,8) = 5.0
-  !endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Mickael 04/13/2005
+! 2 D Example, leaflet
+
+  T0=1.0
+
+!   bv(vdf,1) = 0.5*(tt**2)/(sqrt((0.04-(tt**2))**2+((0.1*tt)**2)))
+
+  !bv(vdf,1)= 1.0*sin(2.0*Pi*tt+Pi/2)
+  !bv(vdf,3)= 1.0*sin(2.0*Pi*tt+Pi/2)
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
   do irng=1,nrng
@@ -52,17 +63,26 @@ subroutine formd(ds,rngface,ien)
            if (hs(irng,inn).gt.1.0e-8) then
               if (bc(idf,irng) .gt. 0) then
                 ds(idf,inn) = bv(idf,irng)
-              endif
+			  endif
            endif
         enddo
      enddo
   enddo
 
+
+
+
+
   do inn=1,nn
      do idf=1,ndf
-        if(ds(idf,inn).lt.eps2) ds(idf,inn) = ic(idf)
+        if(ds(idf,inn).lt.eps2) then
+			ds(idf,inn) = ic(idf)
+		endif
      enddo
   enddo
+
+
+
 
   if(static) ds(:,:)=0.0
 
@@ -73,10 +93,12 @@ end subroutine formd
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine formid(ids, rngface, ien)
   use fluid_variables
+  use solid_variables, only: nn_solid
+
   implicit none
 
   integer :: ids(ndf,nn),rngface(neface,ne),ien(nen,ne)
-  integer :: idf, inl, iec, irng, ieface, inface, inn
+  integer :: idf, inl, iec, irng, ieface, inface, inn,k
 
   real(8) :: epsr,epsl
 
@@ -94,15 +116,23 @@ subroutine formid(ids, rngface, ien)
            irng = rngface(ieface,iec)
            if(irng.ne.0) then
               do idf = 1,ndf
-                 if(d(idf,ien(inl,iec)).lt.epsr) d(idf,ien(inl,iec)) = bc(idf,irng)+epsl
+                 if(d(idf,ien(inl,iec)).lt.epsr) then
+					d(idf,ien(inl,iec)) = bc(idf,irng)+epsl
+					
+				  endif
               enddo
            endif
         enddo
      enddo
   enddo
 
+
+
+
   ds = d
   ids = ds
+
+
 
   if(static) ids(:,:) = 1
 

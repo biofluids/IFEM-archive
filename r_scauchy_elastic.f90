@@ -4,7 +4,7 @@ subroutine r_spiola_elastic1(ge,cstr_element)
   implicit none 
 
   real(8),intent(in) :: det,todet
-  real(8) xto(3,3)
+  real xto(3,3)
   real(8) :: cstr_element(6),ge(nsd_solid*2,ne_solid,nquadpad_solid)  !...Cauchy stress
   
   !real(8) :: ssb(3,3)

@@ -1,7 +1,7 @@
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !  S. Aliabadi                                                          c
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine lenght(xloc,ien,hg) 
+subroutine length(xloc,ien,hg) 
   use fluid_variables
   implicit none
 
@@ -56,9 +56,12 @@ subroutine lenght(xloc,ien,hg)
      vmax = max(vmax,evol)
 
      if(hg_vol) then
-        hg(ie) = evol**(1.0/3.0)
-        if(twod) hg(ie) = sqrt(evol)
-        if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
+        if (nsd==3) then
+			hg(ie) = evol**(1.0/3.0)
+			if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
+		elseif (nsd==2) then
+		    hg(ie) = sqrt(evol)
+		endif
      else
         call get_hg(x, hg(ie))
      endif
@@ -132,4 +135,4 @@ subroutine lenght(xloc,ien,hg)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
   return
-end subroutine lenght
+end subroutine length

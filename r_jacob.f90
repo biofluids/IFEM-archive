@@ -23,7 +23,6 @@ subroutine r_jacob(x,xj,xji,det)
         xj(i,j) = dum
      enddo
   enddo
-
  !...compute the determinant of the jacobian matrix
 
   threedim: if (nsd_solid .eq. 3) then 

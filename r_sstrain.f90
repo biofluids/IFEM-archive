@@ -66,10 +66,13 @@ subroutine r_sstrain(toc,xto,iq,ne,ge)
   twodim: if (nsd_solid==2) then
 
   do i=1,2
-     ge(i,ne,iq) = 0.5d0*(toc(i,i)-1.0d0)
+     ge(i,ne,iq) = 0.5d0*(1.0d0*toc(i,i)-1.0d0)
+	 
   enddo
   ge(3,ne,iq) = toc(1,2)
   ge(4,ne,iq) = toc(2,1)
+
+  
  !...for 2-D only
   do i=1,nsd_solid*2
      do k=1,nen_solid

@@ -54,13 +54,13 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 
   integer :: nos,ntem         !...counter
   integer :: isd,iq  !...counter
-  integer :: ine,in,nu1,mu1,ip,jp   !...counter
+  integer :: ine,in,nu1,mu1,ip,jp  !...counter
 
   write(*,*) " calculate internal + inertial forces (r_stang)"
 
 
 
-  predrf(1:3*nn_solid) = 0.0d0
+  predrf(1:nsd_solid*nn_solid) = 0.0d0
 
   tot_vol_init = 0.0d0
   tot_vol_curr = 0.0d0
@@ -69,9 +69,9 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
   element: do ine=1,ne_solid
 
      xfp(1:nump,ine)=0.0d0
-     xkup(1:3*nen_solid,1:nump,ine)=0.0d0
+     xkup(1:nsd_solid*nen_solid,1:nump,ine)=0.0d0
      xkpp(1:nump,1:nump,ine)=0.0d0
-        
+        cstr_element(:)=0.0
      do nos=1,nen_solid
         ntem=solid_fem_con(ine,nos) !...connectivity
         x(1:nsd_solid,nos)   = solid_coor_init(1:nsd_solid,ntem)
@@ -79,6 +79,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         vel(1:nsd_solid,nos) = solid_vel(1:nsd_solid,ntem)
         acc(1:nsd_solid,nos) = solid_accel(1:nsd_solid,ntem)
      enddo
+
     !...gauss integration
     !...update 06.03.2003, Axel G.: can handle tetrahedral elements as well
     !...       07.07.2003, Axel G.: integration and shape function the same as fluid
@@ -90,13 +91,21 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         call r_element(rs)
 !     y-(r,s)
         call r_jacob(y,xj,xji,det)
+		
 !     x-(r,s)
         call r_jacob(x,toxj,toxji,todet)
+
 !     derivative about ox and x
         call r_bdpd_curr(xji)
         call r_bdpd_init(toxji)
 !     deformation gradient
-        call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc)
+        call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc,ine)
+		
+		!if (ine==1) then
+		!	write(*,*), xto(1,1), xto(1,2), xto(2,2)
+		!	endif
+
+
 !================================================
 ! Hyperelastic Material --> Option material_type=1
 	if (material_type==1) then
@@ -125,14 +134,16 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 	elseif (material_type==2) then
 !     strain
         call r_sstrain(toc,xto,iq,ine,ge)
+		
 !	  Calculate cauchy stress then transform to 1st PK stress
 		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
 !     correction for viscous fluid stress
         call r_spiola_viscous(xot,vel)  
 !     assemble cauchy stress for output
       if (mod(its,ntsbout) == 0) then
+	  
         cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
-      endif
+		endif
 	endif
 !===========================================================
 
@@ -143,10 +154,18 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         tot_vol_init = tot_vol_init + w_init
         tot_vol_curr = tot_vol_curr + w_curr
 !     internal force and stiffness matrix
-        call r_sstif(ocpp,ocup,xkup,xkpp,xfp,ine,w_init,vel,acc,solid_fem_con)
 
+
+	     call r_sstif(ocpp,ocup,xkup,xkpp,xfp,ine,w_init,vel,acc,solid_fem_con)
+	
 
      enddo gauss_int  
+
+		!		if ((ine==90).or.(ine==91)) then
+		!		write(*,*), cstr_element(1),ine
+		!	endif
+
+
   enddo element
 
   write(*,'("  total solid volume (init) = ",f12.6)') tot_vol_init
@@ -209,20 +228,36 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
               if (solid_fem_con(ine,nos) == in) then
                  ntem = ntem + 1
                  solid_pave(in) = solid_pave(in) + pre(1,ine)
-                 
-                 solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + cstr(1:nsd_solid*2,ine,1) !...constant stress and strain in element
-                 solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + ge(1:nsd_solid*2,ine,1)
-                 
+               
+			 	 do iq = 1,nquad_solid
+
+				              
+				   solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + wq_solid(iq)*cstr(1:nsd_solid*2,ine,iq) !...constant stress and strain in element
+                   solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + wq_solid(iq)*ge(1:nsd_solid*2,ine,iq)
+               
+			  	 enddo
+				
                  goto 541
               endif
+					
+			
+
            enddo
  541    enddo
 
+
         solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in)/ntem
         solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in)/ntem
+		
+
 
         solid_pave(in) = solid_pave(in)/ntem
+		
+			
      endif
+
+	
+
 
    enddo
 

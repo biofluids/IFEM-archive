@@ -51,7 +51,7 @@ module r_common
 !ccccccccccccccccccccccccc
   real(8) :: fnodo(mno,3),boupo(mno,3)
   integer :: ntfun
-  integer :: ninit,npr,npdis,ntprint
+  integer :: ninit,npr,npdis,ntprint,nprestress
   integer :: nfuns(10)
   integer :: nchkread
   real(8) :: prec(nup*nel),density_solid
@@ -63,7 +63,7 @@ module r_common
 
   real(8) :: dge(6,3,9),ddge(6,3,3,9,9)
 
-  real(8) :: young_mod,rc1,rc2,rk  !...rubber material parameters
+  real(8) :: young_mod, Poisson,rc1,rc2,rk  !...rubber material parameters
   integer :: material_type
 end module r_common
 

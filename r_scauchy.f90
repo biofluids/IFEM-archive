@@ -56,7 +56,6 @@ subroutine r_scauchy(det,todet,xto,cstr_element)
         cstr_element(2)=cstr_element(2) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
         cstr_element(3)=cstr_element(3) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
         cstr_element(4)=cstr_element(4) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
-		write(*,*) 'here we are',todet,det,xto(1,isd),ss(isd,jsd),xto(1,jsd)
      enddo
   enddo
 

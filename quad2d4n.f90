@@ -36,7 +36,6 @@
 		WEI(3)= 1.0
 		WEI(4)= 1.0
 
-
 		RETURN
       ENDIF
 

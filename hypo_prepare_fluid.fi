@@ -21,6 +21,7 @@
    call formid(id,rng,ien)
 !   call formd(d,meshvel,rng,ien)
    call formd(d,rng,ien)
+	
 
    call error("mesh information",-999,.false.)
    !call vol(x,ien)
@@ -28,9 +29,9 @@
       
    write(7,*)' '
    write(7,'(" Volume of liquid......... = ",e15.8)') liq
-   call lenght(xref,ien,hg)
-   write(7,'(" Minimum element lenght... = ",e15.8)') hmin
-   write(7,'(" Maximum element lenght... = ",e15.8)') hmax
+   call length(xref,ien,hg)
+   write(7,'(" Minimum element length... = ",e15.8)') hmin
+   write(7,'(" Maximum element length... = ",e15.8)') hmax
    write(7,'(" Minimum element volume... = ",e15.8)') vmin
    write(7,'(" Maximum element volume... = ",e15.8)') vmax
 
