@@ -1,4 +1,4 @@
- 0 1     /ninit=0/1 no/yes apply bc;initdir=1/2=initial disp/velocity
+ 1 1     /ninit=0/1 no/yes apply bc;initdir=1/2=initial disp/velocity
 
  2 4     /iquad_solid,nen_solid
  2       /nsd_solid = number of dimensions in the solid domain
@@ -8,7 +8,7 @@
 
  1       /ndelta, 1=RKPM(nonuniform)->the only option for now
 
-  224  200  /nnd,numel
+  2048  1792  /nnd,numel
  1       /nump
  
  1.0  1.0     /solid_scale(1:nsd_solid)  !!!!
@@ -21,8 +21,8 @@
  0  0  /numfn,numeb
   
  2  /material type, 1=hyperelastic material, 2=linear elastic material
- 190d10 /Young's Modulus: steel=190d9N/m^2=190d10g/cm.s^2
- 30d10 30d10 6.25d-12 0.0d0      / rc1,rc2,rk,density diff s-f
+ 7.0d5 /Young's Modulus
+ 3000.0d3 3000.0d3 1.0d-9 1.7d0      / rc1,rc2,rk,density diff s-f
   
  0.0d0  /xviss
   

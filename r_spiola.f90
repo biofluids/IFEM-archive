@@ -1,11 +1,10 @@
 !     
 !     bar 2nd piola-kichhoff
 !     
-subroutine r_spiola(ocpp,xmj,dxmj,xto)
+subroutine r_spiola(xmj,dxmj,xto)
   use r_common
   implicit none
 
-  real(8) :: ocpp
   real(8) :: xto(3,3)
 
   real(8) :: PK2str_tens(3,3)

@@ -26,3 +26,4 @@ if (igau=1) then gau(1:3,1)=-1 is changed to gau(1:2,1)=0.00
 6.  In parseinput.f90
  when call read_int(static_onoff,1)..... elseif (static_off=0) then...
 Before it was elseif(hg_vol_onoff=0)
+7. Cleaned all the warnings - unused variables.

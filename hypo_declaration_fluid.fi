@@ -21,9 +21,9 @@
     real(8) :: convel(nsd,nn)        !...fluid mesh nodal velocity defined in computational domain
     real(8) :: convelo(nsd,nn)       !...fluid mesh nodal velocity defined in computational domain,previous time step
 
-    real(8) :: f(nsd,nsd,nquad,ne)
-    real(8) :: finv(nsd,nsd,nquad,ne)
-    real(8),dimension(nquad,ne) :: jac,jacinv,jaco
+!    real(8) :: f(nsd,nsd,nquad,ne)
+!    real(8) :: finv(nsd,nsd,nquad,ne)
+    real(8),dimension(nquad,ne) :: jac !,jacinv,jaco
 
 
     real(8) :: f_fluids(nsd,nn)   !...interaction force as fluid body force

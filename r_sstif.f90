@@ -1,16 +1,16 @@
 !
 !     element tangent stiffness matrix assemblage
 !
-subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,cstr_element)
+subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
   use r_common
   use solid_variables
   implicit none
 
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con    !...connectivity for solid FEM mesh
-  real(8) :: cstr_element(1:nsd_solid*2)  !...Cauchy stress
+!  real(8) :: cstr_element(1:nsd_solid*2)  !...Cauchy stress
 
   real(8) :: ocpp
-  real(8) :: ocuu(nsd_solid*2,nsd_solid*2),ocup(nsd_solid*2)
+  real(8) :: ocup(nsd_solid*2)
   real(8) :: xkup(3*nen_solid,nup,ne_solid)
   real(8) :: xkpp(nup,nup,ne_solid)
   real(8) :: xfp(nup,ne_solid)
@@ -18,7 +18,7 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
   real(8) :: vel(nsd_solid,nen_solid)  !...element nodes velocity
   real(8) :: acc(nsd_solid,nen_solid)  !...element nodes acceleration
   real(8) :: w
-  real(8) :: toxj(nsd_solid,nsd_solid)
+!  real(8) :: toxj(nsd_solid,nsd_solid)
   
   real(8) :: sdensit
   integer :: ni,isd,ip,jp,k,nu1,nv1,nw1,mu1,nk

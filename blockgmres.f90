@@ -32,7 +32,7 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
   real* 8 u,v,w,pp !,ug
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree
-  real* 8 res_c,res_q,res_a(nsd),res_t(nsd)
+  real* 8 res_c,res_a(nsd),res_t(nsd)
   real* 8 prs_c,prs_t(nsd),prs_cc(nsd)
   real* 8 mu,nu,ro
   real* 8 tempc(ndf),temp

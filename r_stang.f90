@@ -111,7 +111,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !     strain
         call r_sstrain(toc,xto,iq,ine,ge)
 !     First Piola-Kirchoff stress - P
-        call r_spiola(ocpp,xmj,dxmj,xto) !hyperelastic material
+        call r_spiola(xmj,dxmj,xto) !hyperelastic material
 !     correction for viscous fluid stress
         call r_spiola_viscous(xot,vel)  
 !     calculate cauchy stress for output
@@ -143,7 +143,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         tot_vol_init = tot_vol_init + w_init
         tot_vol_curr = tot_vol_curr + w_curr
 !     internal force and stiffness matrix
-        call r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ine,w_init,toxj,vel,acc,solid_fem_con,cstr_element)
+        call r_sstif(ocpp,ocup,xkup,xkpp,xfp,ine,w_init,vel,acc,solid_fem_con)
 
 
      enddo gauss_int  

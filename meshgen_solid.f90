@@ -79,7 +79,7 @@ subroutine read_solid_ale_boundary(solid_ale_boundary)
 
   integer,intent(out) :: solid_ale_boundary(nn_solid)
 
-  integer :: file,innBC,n_ale_boundary_types,n_test_node,n_ale_boundary
+  integer :: file,innBC,n_test_node,n_ale_boundary
 
   file=21
   open(file, FILE="input_solid_ale_boundary.in", STATUS="old",action="read")

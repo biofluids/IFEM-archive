@@ -36,7 +36,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
   real* 8 tempc(ndf),temp
   real* 8 dtinv,oma,ama
   integer inl, ie, isd, iq, node,jsd
-  integer ieface,irng, rngface(neface,ne),inface
+  integer ieface,irng, rngface(neface,ne) !,inface
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
