@@ -1,0 +1,155 @@
+! 2. Update material point displacement u(t+dt) = u(t) + dt*v(t)
+            
+  write(*,*) 'updating the variables for the structure'
+  
+  if (nrigid .eq.1) then  !...rigid case: create average velocity and apply to all nodes
+     do i_solid=1,n_solid
+		mom(1:3)=0.0   ! momentum
+		tot_vol=0.0    ! total volume
+
+		do ie=(i_solid-1)*ne_solid_1+1,i_solid*ne_solid_1
+           do nos=1,nis
+              ntem=nea(ie,nos)
+              do noj=1,3
+                 xx(noj,nos)=solid_coor_init(noj,ntem)
+		      enddo
+	       enddo
+		   do lx=1,nint
+	          select case (nis)
+	          case (8); rs(1)=xg(lx,nint)
+	          case (4); rs(1)=xg_tetra(lx,nint)
+	          end select
+              !rs(1)=xg(lx,nint)
+			  do ly=1,nint
+		         select case (nis)
+	             case (8); rs(2)=xg(ly,nint)
+	             case (4); rs(2)=xg_tetra(ly,nint)
+	             end select
+			     !rs(2)=xg(ly,nint)
+			     do lz=1,nint
+		            select case (nis)
+	                case (8); rs(3)=xg(lz,nint)
+	                case (4); rs(3)=xg_tetra(lz,nint)
+	                end select
+				    !rs(3)=xg(lz,nint)
+				   !...calculate determinant
+				    do i=1,3
+				       do j=1,3
+					      dum=0.0d0
+					      do k=1,nis
+						     dum=dum+r_p(j,k)*xx(i,k)
+					      enddo
+					      xj(i,j)=dum
+				       enddo
+				    enddo
+		            todet = xj(1,1) * (xj(2,2)*xj(3,3) - xj(3,2)*xj(2,3))  &
+      			          - xj(2,1) * (xj(1,2)*xj(3,3) - xj(3,2)*xj(1,3))  &
+      		              + xj(3,1) * (xj(1,2)*xj(2,3) - xj(2,2)*xj(1,3))
+	            
+				    select case (nis)
+	                case (8); wp = wgt(lx,nint)*wgt(ly,nint)*wgt(lz,nint)
+	                case (4); wp = wgt_tetra(lx,nint)*wgt_tetra(ly,nint)*wgt_tetra(lz,nint)
+	                end select
+
+				    tot_vol = tot_vol+wp*todet*density_solid
+      			    do ni=1,nis
+				        node=nea(ie,ni)
+			            mom(1:3)=mom(1:3)+wp*todet*density_solid*h(ni)*solid_vel(1:3,node)
+				    enddo
+			     enddo
+			  enddo
+		   enddo
+		enddo
+
+		avgvel(1:3)=mom(1:3)/tot_vol  !calculate average velocity
+
+		du(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
+		du(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
+		du(3,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(3)
+
+		solid_vel(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
+		solid_vel(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
+		solid_vel(3,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(3)
+     enddo
+  endif
+
+
+      !...old
+!      call calcaccel(klok,mn_pt_alloc,mx_pt_alloc,dnext_pt,        &
+!                 dlptlocal_number,dlptlocal_head,dlptlocal_tail,   &
+!                 vel_pt,prevel_pt,accel_pt,dt)
+      !...new
+ !...acceleration
+  solid_accel(1:nsd_solid,1:nn_solid) = (solid_vel(1:nsd_solid,1:nn_solid) - solid_prevel(1:nsd_solid,1:nn_solid))/dt     
+
+ !...save velocity from previous timestep
+  solid_prevel(1:nsd_solid,1:nn_solid) = solid_vel(1:nsd_solid,1:nn_solid)
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  viter=0.0d0
+  do i=1,nn_solid
+!          if (fix_con(i) .eq. -1) then
+!             du(1,i)= 0.0d0
+!             du(2,i)= 0.0d0
+!		   du(3,i)= 0.0d0
+!          else
+     du(1,i)=solid_vel(1,i)*dt
+     du(2,i)=solid_vel(2,i)*dt
+     du(3,i)=solid_vel(3,i)*dt
+!     acm(1,i)=solid_accel(1,i)
+!     acm(2,i)=solid_accel(2,i)
+!     acm(3,i)=solid_accel(3,i)
+
+!          endif
+  enddo
+
+  do i=1,nn_solid
+
+
+
+     if (klok .eq. 1) then
+        vnorm=vnorm+du(1,i)**2+du(2,i)**2+du(3,i)**2
+     else
+        viter=viter+du(1,i)**2+du(2,i)**2+du(3,i)**2
+     endif
+  enddo
+           
+  if (klok .eq. 1) then
+     vnorm=sqrt(vnorm)
+     viter=1.0d0
+  else
+     viter=sqrt(viter)/vnorm
+  endif
+  write(*,*) 'norm=',viter
+!            do i=1,nnd
+!                 predrf(i)=predrf2(i)
+!                 predrf(i+nnd)=predrf2(i+nnd)
+!			   predrf(i+2*nnd)=predrf2(i+2*nnd)
+!                 drf(i)=drf2(i)
+!                 drf(i+nnd)=drf2(i+nnd)
+!			   drf(i+2*nnd)=drf2(i+2*nnd)
+!                 vel_pt(1,i)=0.0d0
+!                 vel_pt(2,i)=0.0d0
+!			   vel_pt(3,i)=0.0d0
+!			enddo
+ ! endif
+
+
+ !...move the lagrangian things
+     solid_coor_curr(1:3,1:nn_solid) = solid_coor_curr(1:3,1:nn_solid) + du(1:3,1:nn_solid)
+    ! solid_coor_curr(2,i) = solid_coor_curr(2,i) + du(2,i)
+    ! solid_coor_curr(3,i) = solid_coor_curr(3,i) + du(3,i)
+
+ ! write to 'vel_time.m' to plot
+  write(9500,*) 'vel(',its,')=',solid_vel(1,1),';'
+  write(9500,*) 'time(',its,')=',tt,';'
+            !...related to source and sinks of pressure
+!            call interpssbpressure(dilocaldomain,dmnac1, dmxac1,
+!     $           dmnac2, dmxac2, dmnac3, dmxac3,pressure_ss, 
+!     $           wt_delss,ice1_delss, ice2_delss, ice3_delss, 
+!     $           pressure_bal,dbanybc, dmnbce1, dmxbce1, dmnbce2, 
+!     $           dmxbce2,dmnbce3, dmxbce3, pressure_fluid)
+
+  write(*,*) " solid position updated"

@@ -82,7 +82,7 @@
  1   /nfuns(3)
  1.0d0 0  /thic, nreact
   
- 0.293d4 0.177d4 1410.0d-9 1.0d0      / rc1,rc2,rk,density diff s-f
+ 0.293d3 0.177d3 1410.0d-9 2.0d0      / rc1,rc2,rk,density diff s-f
   
  2.d4 0.0001d0 0.0001d0 0.0d0 0.0d0  /xk,xtedis,xstretch,xvisc,xviss
   

@@ -6,12 +6,13 @@
 --------------------Configuration: main - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA1.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3A.tmp" with contents
 [
 /browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:nofileopt /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
-"C:\lucy\research\ifem\code\ifem_final_cleaned\hypo.f90"
+"C:\lucy\research\ifem\code\ifem_final_cleaned\r_stang.f90"
+"C:\lucy\research\ifem\code\ifem_final_cleaned\r_jacob.f90"
 ]
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA2.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3B.tmp" with contents
 [
 kernel32.lib /nologo /stack:0x5f5e100 /subsystem:console /incremental:yes /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
 .\Debug\block.obj
@@ -82,12 +83,13 @@ kernel32.lib /nologo /stack:0x5f5e100 /subsystem:console /incremental:yes /pdb:"
 .\Debug\update.obj
 .\Debug\vol.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA2.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3B.tmp"
 <h3>Output Window</h3>
 Compiling Fortran...
-C:\lucy\research\ifem\code\ifem_final_cleaned\hypo.f90
+C:\lucy\research\ifem\code\ifem_final_cleaned\r_stang.f90
+C:\lucy\research\ifem\code\ifem_final_cleaned\r_jacob.f90
 Linking...
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA3.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3C.tmp" with contents
 [
 /nologo /o"Debug/main.bsc" 
 .\Debug\block.sbr
@@ -157,7 +159,7 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA3.tmp" with cont
 .\Debug\solid_variables.sbr
 .\Debug\update.sbr
 .\Debug\vol.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA3.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP3C.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

@@ -1,3 +1,9 @@
+This folder has the IFEM programs in 3D.
+new feature: restart program
+
+
+
+
 usage:
 compile&link: make
 run: mpirun -np 4 xts-mpi<xts.in(input)

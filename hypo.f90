@@ -54,7 +54,7 @@ subroutine hypo
 !================================================================
 !                time loop  
 !================================================================
-  time_loop: do its=nrestart+1,nts !.....count from 1 to number of timesteps
+  time_loop: do its=nrestart+1,nrestart+nts !.....count from 1 to number of timesteps
 
 	 tt = tt + dt    !....update real time
 	 klok = klok + 1 !....update counter for output

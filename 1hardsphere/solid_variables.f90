@@ -2,7 +2,7 @@ module solid_variables
   implicit none
   save
   
-  real*8,parameter :: solid_scale = 0.5d0  !...scale the size of the structure
+  real*8,parameter :: solid_scale = 2.0d0  !...scale the size of the structure
   integer,parameter :: nsurface = 4
 
   integer :: nn_solid  ,ne_solid
@@ -11,25 +11,25 @@ module solid_variables
   integer :: n_solid !...number of solids ( x times the solid, which is read in coortable
   integer :: nis   !...number of nodes per element
 
-  integer,dimension(:,:),allocatable,save :: solid_fem_con   !...connectivity for solid FEM mesh
-  integer,dimension(:,:),allocatable,save :: solid_surface   !...surface element faces
+  integer,dimension(:,:),allocatable :: solid_fem_con   !...connectivity for solid FEM mesh
+  integer,dimension(:,:),allocatable :: solid_surface   !...surface element faces
 
-  real*8,dimension(:,:),allocatable,save :: solid_force_FSI   !...fluid structure interaction force
-  real*8,dimension(:,:),allocatable,save :: solid_coor_init   !...node position initial
-  real*8,dimension(:,:),allocatable,save :: solid_coor_curr   !...node position current
-  real*8,dimension(:,:),allocatable,save :: solid_vel         !...velocity
-  real*8,dimension(:,:),allocatable,save :: solid_prevel      !...velocity - previous timestep
-  real*8,dimension(:,:),allocatable,save :: solid_accel       !...acceleration
+  real*8,dimension(:,:),allocatable :: solid_force_FSI   !...fluid structure interaction force
+  real*8,dimension(:,:),allocatable :: solid_coor_init   !...node position initial
+  real*8,dimension(:,:),allocatable :: solid_coor_curr   !...node position current
+  real*8,dimension(:,:),allocatable :: solid_vel         !...velocity
+  real*8,dimension(:,:),allocatable :: solid_prevel      !...velocity - previous timestep
+  real*8,dimension(:,:),allocatable :: solid_accel       !...acceleration
 
 
-  real*8,dimension(:)  ,allocatable,save :: pave(:)  !...averaged solid pressure (from mixed formulation -> ???)
+  real*8,dimension(:)  ,allocatable :: pave(:)  !...averaged solid pressure (from mixed formulation -> ???)
 
-  real*8,dimension(:,:),allocatable,save :: solid_stress  !...solid stress (Voigt notation)
-  real*8,dimension(:,:),allocatable,save :: solid_strain  !...solid strain (Voigt notation)
+  real*8,dimension(:,:),allocatable :: solid_stress  !...solid stress (Voigt notation)
+  real*8,dimension(:,:),allocatable :: solid_strain  !...solid strain (Voigt notation)
 
   integer :: n_solid_ess_BC !...number of nodes with essential BC (displacement)
 
-  real*8,dimension(:,:),allocatable,save :: solid_ess_BC
+  real*8,dimension(:,:),allocatable :: solid_ess_BC
 
   integer :: mapping_solid(6,8,8)
 
