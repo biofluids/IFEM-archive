@@ -1343,7 +1343,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 	  real* 8 xp,yp,ha1,ha2,dsj,xj,yj,dx,dy
 	  real* 8 r10,r01,r20,r11,r02
 	  real* 8 xx,yy,aw
-	  real* 8 awdx,awdy
+	  real* 8 awdx,awdy,awdxy,awdxx,awdyy
 	  real* 8 a11,a12,a21,a13,a31,a22,a23,a32,a33,det,cdet
 
       real* 8 b(3),bd(2,3),cpt(2)

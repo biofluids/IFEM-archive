@@ -127,11 +127,17 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 
  !...Calculate volume
 	if (nsd == 2) then
-	  if (nen == 3) include "vol2d3n.fi"
-	  if (nen == 4) include "vol2d4n.fi"
+	  if (nen == 3)then 
+		include "vol2d3n.fi"
+	  elseif (nen == 4) then 
+		include "vol2d4n.fi"
+	  endif
 	elseif (nsd == 3) then
-      if (nen == 4) include "vol3d4n.fi"
-      if (nen == 8) include "vol3d8n.fi"
+          if (nen == 4) then
+		include "vol3d4n.fi"
+          elseif (nen == 8) then 
+		include "vol3d8n.fi"
+	endif
     endif
 
      do inl = 1,nen

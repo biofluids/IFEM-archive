@@ -2,6 +2,7 @@
 !     bar 2nd piola-kichhoff
 !     
 subroutine r_spiola(ocpp,xmj,dxmj,xto)
+  use solid_variables, only: nsd_solid
   use r_common
   implicit none
 
@@ -13,11 +14,16 @@ subroutine r_spiola(ocpp,xmj,dxmj,xto)
   integer :: i,isd,jsd,ksd
 
   real(8) :: xmj(3),dxmj(3,6)
+
+
   do i=1,6
      bPK2str(i) = rc1*dxmj(1,i) + rc2*dxmj(2,i) + rk*(xmj(3)-1.0d0)*dxmj(3,i)
       PK2str(i) = bPK2str(i) !+ ocpp*(bpre-cpre)*dbpre(i)
   enddo
   
+
+  threedim: if (nsd_solid .eq. 3) then	
+
   PK2str_tens(1,1) = PK2str(1)
   PK2str_tens(1,2) = PK2str(6)
   PK2str_tens(1,3) = PK2str(5)
@@ -37,6 +43,26 @@ subroutine r_spiola(ocpp,xmj,dxmj,xto)
         enddo
      enddo
   enddo
+  endif threedim
+  
+  twodim: if (nsd_solid .eq. 2) then
+  
+  PK2str_tens(1,1) = PK2str(1)
+  PK2str_tens(1,2) = PK2str(3)
+  PK2str_tens(2,1) = PK2str(3)
+  PK2str_tens(2,2) = PK2str(2)
+
+
+   do isd = 1,2
+     do jsd = 1,2
+        PK1str_tens(isd,jsd) = 0.0d0
+        do ksd = 1,2
+           PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) + PK2str_tens(isd,ksd)*xto(jsd,ksd)
+        enddo
+     enddo
+  enddo
+  endif twodim
+
 
   return
 end subroutine r_spiola

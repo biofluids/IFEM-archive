@@ -56,12 +56,9 @@ subroutine lenght(xloc,ien,hg)
      vmax = max(vmax,evol)
 
      if(hg_vol) then
-        if (nsd==3) then
-			hg(ie) = evol**(1.0/3.0)
-			if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
-		elseif (nsd==2) then
-		    hg(ie) = sqrt(evol)
-		endif
+        hg(ie) = evol**(1.0/3.0)
+        if(twod) hg(ie) = sqrt(evol)
+        if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
      else
         call get_hg(x, hg(ie))
      endif

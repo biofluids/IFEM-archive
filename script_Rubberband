@@ -1,0 +1,17 @@
+#!/bin/tcsh
+#PBS -l arch=irix6
+#PBS -l cput=72:00:00
+#PBS -l mem=400mb
+#PBS -l ncpus=1
+#PBS -o outfile
+#PBS -e errfile
+#PBS -c c
+#PBS -k oe
+
+echo Start Job
+cd /u01/ltzhang/Rubberband
+date
+pwd
+limit stacksize unlimited
+./IFEM
+echo End Job

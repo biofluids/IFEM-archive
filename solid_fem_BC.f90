@@ -92,7 +92,8 @@ subroutine solid_fem_BC_read_essential
         read(ifileunit,*) n_test_node
         write(*,*) "node:",n_test_node
         test_node_BC_id(n_test_node) = 1
-        test_node_BC_value(1:nsd_solid,n_test_node) = test_node_BC_value(1:nsd_solid,n_test_node) + BC_ess_type(1:nsd_solid,BC_ess_type_pos)
+        test_node_BC_value(1:nsd_solid,n_test_node) = test_node_BC_value(1:nsd_solid,n_test_node) + & 
+		BC_ess_type(1:nsd_solid,BC_ess_type_pos)
      enddo
   enddo 
 

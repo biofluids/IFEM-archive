@@ -7,14 +7,14 @@
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine gmres(x,d,dold,id,w,bg,dg,hg,ien, &
 	    z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss,fext)
-      use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,iscaling
+      use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,iscaling,neface
 	implicit none
 
 
 	real* 8 x(nsd,nn)
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
-	integer id(ndf,nn),ien(nen,ne)
+	integer id(ndf,nn),ien(nen,ne),rng(neface,ne)
 
 	real* 8 h(inner+1,inner)
 	real* 8 y(inner+1)

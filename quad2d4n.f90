@@ -12,8 +12,9 @@
 !  
       IF(IGAU.EQ.1) THEN
 		NGAU = 1
-		GAU(1,1) = 0.0
-		GAU(2,1) = 0.0
+		GAU(1,1) = -1.0
+		GAU(2,1) = -1.0
+		GAU(3,1) = -1.0
 
 		WEI(1) = 4.0
 		RETURN  

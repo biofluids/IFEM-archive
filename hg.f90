@@ -42,16 +42,6 @@ subroutine get_hg(x, hg)
           sqrt((x(1,6)-x(1,4))**2   &
              + (x(2,6)-x(2,4))**2   &
              + (x(3,6)-x(3,4))**2))
-  else if (etype.eq.qud)then
-     hg = max(        &
-          sqrt((x(1,1)-x(1,2))**2   &
-             + (x(2,1)-x(2,2))**2), &
-          sqrt((x(1,2)-x(1,3))**2   &
-             + (x(2,2)-x(2,3))**2), &
-          sqrt((x(1,3)-x(1,4))**2   &
-             + (x(2,3)-x(2,4))**2), &
-          sqrt((x(1,1)-x(1,4))**2   &
-             + (x(2,1)-x(2,4))**2))
   else
      call error("get_hg: unsupported element type", -999, .true.)
   end if

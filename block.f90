@@ -71,8 +71,6 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 				include "sh3d8n.h"
 			endif
 		endif
-!		stop
-!	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
 	    eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
 		drs(:) = 0.0
@@ -170,8 +168,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 	    if(ree.lt.1.0) tauc = tauc*ree
 
 	    taum = taum/ro
-	    tauc = tauc*ro 
-
+!	    tauc = tauc*ro 
 !.....   Density optimization
 
 		ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
@@ -187,8 +184,37 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		enddo
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
-	    prs_c        = res_c*tauc
-	    prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
+	    	prs_c        = res_c*tauc
+	    	prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
+
+!*******************************************
+! Mickael
+! add in pressure driven input
+! Added in a -999 check....Yaling
+
+               do isd = 1,nsd
+                       p_vec(isd)=0.0
+               enddo
+            
+               do ieface=1,neface
+                       irng = rngface(ieface,ie)
+            
+                       if (irng == 4) then
+				if (bv(3,irng) /= -999) then
+                               		p_vec(xsd)=bv(3,irng)*1.0 
+                               		p_vec(ysd)=bv(3,irng)*0.0 
+				endif
+                       elseif (irng == 2) then
+				if (bv(3,irng) /= -999) then
+                                	p_vec(xsd)=-bv(3,irng)*1.0 
+					p_vec(ysd)=bv(3,irng)*0.0 
+				endif
+                       endif
+               enddo
+
+
+
+
 !.... calculate the residual at each degree of freedom
 	    do inl=1,nen ! loop over number of nodes in an element
 		 
@@ -229,31 +255,21 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)  &
 	                                   - ph(zsd,inl)*prs_cc(wdf)
-		   endif		! Stablization with Tau_cont    
+		   endif
+		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
-	 enddo
-!*******************************************
-! Mickael
-! add in pressure driven input
-! Added in a -999 check....Yaling
-     do isd = 1,nsd
-        p_vec(isd)=0.0
-     enddo
-     do ieface=1,neface
-        irng = rngface(ieface,ie)
-		if (irng/=0) then
-		  if (bv(ndf,irng)/=-999) then
-			p_vec(xsd)=bv(ndf,irng)*1.0 ! only for rectangle shapes
-		  endif
-        endif
-     enddo
-!*****************************************************************
-	 do inl=1,nen ! loop over number of nodes in an element
-        node=ien(inl,ie)
-		p(1:nsd,node)=p(1:nsd,node)+ph(0,inl)*p_vec(1:nsd)
-     enddo
-!***************** End of pressure implementation ****************
 
+!*******************************************
+!
+               p(udf,node) = p(udf,node)+ph(0,inl)*p_vec(xsd)
+               p(vdf,node) = p(vdf,node)+ph(0,inl)*p_vec(ysd)
+!*****************************************************************
+                   
+                         
+                enddo
+               
+
+	
 !********************************************************
 	      ! Diagonal Preconditioner
 !********************************************************

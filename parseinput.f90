@@ -222,7 +222,7 @@ subroutine parseinput_fluid
   CALL Read_Int(static_onoff,1)
   if (static_onoff.eq.1) then
      static=.TRUE.
-  elseif (static_onoff.eq.0) then
+  elseif (hg_vol_onoff.eq.0) then
      static=.FALSE.
   endif
 
