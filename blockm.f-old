@@ -20,7 +20,7 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 ttt,txx,txy,txz,tyx,tyy,tyz,tzx,tzy,tzz
 
 	real* 8 mu,la
-	real* 8 erx,ery,erz,ers
+	real* 8 erx,ery,erz
 
 c....   stiffness matrix
 	real* 8 w(nsd,nn_loc)  
@@ -48,7 +48,7 @@ c		 e(isd,inl) = eloc(isd,ien(inl,ie))
 	      eft0 = abs(det) * wq(iq)
 
 c.... no jacobian
-c	      eft0 = wq(iq)   
+	      eft1 = wq(iq)   
 c	      write(*,*) 'eft0,eft1=',eft0,eft1
 c............ Calculate local Stiffness Matrix k (kd=f)
 	      do inl=1,nen
@@ -100,7 +100,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		 ph(2,inl) = sh(2,inl)*eft0
 		 ph(3,inl) = sh(3,inl)*eft0
 	      enddo
-
+c	      do inl=1,nen
+c		 ph(1,inl) = sh(1,inl)*eft1/100.0
+c		 ph(2,inl) = sh(2,inl)*eft1/100.0
+c		 ph(3,inl) = sh(3,inl)*eft1/100.0
+c	      enddo
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c.....Galerkin Terms (Look at notes)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

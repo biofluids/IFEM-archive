@@ -17,7 +17,7 @@ nsd      3
 iquad    1
 
 nit       05
-nts      10 
+nts      150 
 ntsbout   2
 idisk     00 
 idiskmsh  00
@@ -47,7 +47,7 @@ fix    13 -999 -999  0.0 -999   0.0
 fix    14 -999 -999 -999 -999   0.0
 fix    15 -999 -999 -999 -999   0.0
 initial   0.76 +0.0 +0.0 +0.0 0.0
-amp  2.0 !! perct. of amp. of the periodic wave to diameter
+amp  0.4 !! perct. of amp. of the periodic wave to diameter
 spring 11.302
 damper 2.0
 mass 35

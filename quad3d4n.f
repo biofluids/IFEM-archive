@@ -13,7 +13,7 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	if ((iquad.eq.1).or.(iquad.eq.313131)) then
 
-c		1 point quadrature - code 3.1,3.1,3.1 - old code 1 - precision 2
+c	1 point quadrature - code 3.1,3.1,3.1 - old code 1 - precision 2
 		nquad = 1
 
 		xquad(1,1) = + 0.250000000000000

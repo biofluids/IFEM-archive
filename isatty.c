@@ -1,7 +1,7 @@
-/* #include <fortran.h> */
+#include <fortran.h>
 
 /* isatty(3C) wrapper */
 int ISATTY(int *fd)
 {
-	return(isatty(*fd));
+	return(_btol(isatty(*fd)));
 }

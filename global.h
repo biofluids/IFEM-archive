@@ -50,7 +50,7 @@
       integer nn,ne,nqd,nq,nqf,nen,ndf,nsd,nrng,neface,nnface,maxconn
       common  nn,ne,nqd,nq,nqf,nen,ndf,nsd,nrng,neface,nnface,maxconn
       
-      real*8 amp,spring,damper,mass
+      real amp,spring,damper,mass
       common amp,spring,damper,mass
 
       integer its,iit,nts,nit,ntsbout,idisk,idiskmsh

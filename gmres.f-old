@@ -18,7 +18,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 cc(inner), ss(inner)
 	
 	real* 8 finv(nsd,nsd,nquad,nec),jac(nquad,nec),jaco(nquad,nec)
-	real* 8 refvel(nsd,nquad,nec),refvelo(nsd,nquad,nec)
+	real* 8 refvel(nsd,nn_loc),refvelo(nsd,nn_loc)
 	real* 8 z(ndf*nnc,inner)
      	real* 8 v(ndf*nnc,inner+1)
 	real* 8 zg(ndf*nnc), avg(ndf*nnc), sm(ndf*nnc)

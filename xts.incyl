@@ -47,12 +47,12 @@ fix    13 -999 -999  0.0 -999   0.0
 fix    14 -999 -999 -999 -999   0.0
 fix    15 -999 -999 -999 -999   0.0
 initial   0.76 +0.0 +0.0 +0.0 0.0
-amp  0.4
+amp  0.4 !! perct. of amp. of the periodic wave to diameter
 spring 11.302
 damper 2.0
 mass 35
 
-calcforce 	off
+calcforce 	on
 fsurf	6
 fsurf	7
 fsurf	8
@@ -81,6 +81,11 @@ interface   1.0    1.0     1.0  !! if less than this set fi to 1.0
 
 surf  1  6
 hydro 5
+
+!vis_liq 1.82e-4   !! water 1.3e-3
+!vis_gas 1.82e-4   !! gas   1.5e-5
+!den_liq 1.18e-3
+!den_gas 1.18e-3
 
 vis_liq 1.139e-5   !! water 1.3e-3
 vis_gas 1.139e-5   !! gas   1.5e-5

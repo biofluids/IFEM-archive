@@ -25,8 +25,8 @@
       real* 8 xref(nsd,nn_loc),xrefold(nsd,nn_loc)
       real* 8 xnold(nsd,nnc),meshvel(nsd,nn_loc)
       real* 8 meshveln(nsd,nnc)
-      real* 8 refvel(nsd,nquad,nec)
-      real* 8 refvelo(nsd,nquad,nec)
+      real* 8 refvel(nsd,nn_loc),refveln(nsd,nnc)
+      real* 8 refvelo(nsd,nn_loc)
 
       pointer (dispptr,disp),(dispnptr,dispn),(kdgptr,kdg)
       pointer (kpptr,kp), (kwptr,kw), (kidptr,kid)
@@ -35,7 +35,7 @@
       pointer (xrefptr,xref),(xnoldptr,xnold)
       pointer (xrefoldptr,xrefold)
       pointer (meshvelnptr,meshveln), (meshvelptr,meshvel)
-      pointer (refvelptr,refvel)
+      pointer (refvelptr,refvel), (refvelnptr,refveln)
       pointer (refveloptr,refvelo)
 
       real* 8 f(nsd,nsd,nquad,nec), finv(nsd,nsd,nquad,nec)
@@ -56,11 +56,11 @@
       real* 8 dd(ndf+4,nnc),hn(nnc),hm(nn_loc)
       pointer (ddptr,dd),(hnptr,hn),(hmptr,hm)
 
-      real* 8 z(ndf*nnc,inner),kz(ndf*nnc,kinner)
-      real* 8 v(ndf*nnc,inner+1),kv(ndf*nnc,kinner+1)
+      real* 8 z(ndf*nnc,inner)
+      real* 8 v(ndf*nnc,inner+1)
       real* 8 zg(ndf*nnc), avg(ndf*nnc), sm(ndf*nnc)
       real* 8 vloc(ndf,nn_loc),avloc(ndf,nn_loc)
-      pointer (zptr,z),(vptr,v),(kzptr,kz),(kvptr,kv)
+      pointer (zptr,z),(vptr,v)
       pointer (avgptr,avg),(zgptr,zg),(smptr,sm)
       pointer (vlocptr,vloc),(avlocptr,avloc)
 
@@ -72,16 +72,14 @@
       pointer (avgfptr,avgf),(zgfptr,zgf),(smfptr,smf)
       pointer (vlocfptr,vlocf),(avlocfptr,avlocf)
 
-      real* 8 h(inner+1,inner),kh(kinner,kinner)
-      real* 8 y(inner+1),ky(kinner)
-      real* 8 cc(inner), ss(inner),kcc(kinner),kss(kinner)
+      real* 8 h(inner+1,inner)
+      real* 8 y(inner+1)
+      real* 8 cc(inner), ss(inner)
       pointer (hptr,h),(yptr,y),(ccptr,cc),(ssptr,ss)
-      pointer (khptr,kh),(kyptr,ky),(kccptr,kcc),(kssptr,kss)
 
       logical assemble
-      integer ierr,nqdf
-      real* 8 diameter
-      real* 8 fdrag(nsdpad)
+      integer ierr
+      real* 8 length(nsd)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("initialization",-999,.false.)
       tt = t_start
@@ -89,7 +87,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("read ien",-999,.false.)
       ienptr = malloc(nen*nec*isize)
       call readien(ien)
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("communications",-999,.false.)
       call commsetup(ien)
@@ -143,8 +140,9 @@ c  call nodesetup (cnn,mn) !!!!change me
       xrefoldptr = malloc(nn_loc*nsd*fsize)
       meshvelptr = malloc(nn_loc*nsd*fsize)
       meshvelnptr = malloc(nnc*nsd*fsize)
-      refvelptr = malloc(nquad*nec*nsd*fsize)
-      refveloptr = malloc(nquad*nec*nsd*fsize)
+      refvelptr = malloc(nn_loc*nsd*fsize)
+      refvelnptr = malloc(nnc*nsd*fsize)
+      refveloptr = malloc(nn_loc*nsd*fsize)
       fptr = malloc(nsd*nsd*nquad*nec*fsize)
       finvptr = malloc(nsd*nsd*nquad*nec*fsize)
 
@@ -160,13 +158,6 @@ c  call nodesetup (cnn,mn) !!!!change me
       yptr = malloc((inner+1)*fsize)
       ccptr = malloc(inner*fsize)
       ssptr = malloc(inner*fsize)
-
-      khptr = malloc((kinner+1)*kinner*fsize)
-      kyptr = malloc((kinner+1)*fsize)
-      kccptr = malloc(kinner*fsize)
-      kssptr = malloc(kinner*fsize)
-      kzptr = malloc(ndf*nnc*kinner*fsize)
-      kvptr = malloc(ndf*nnc*(kinner+1)*fsize)
 
       zptr = malloc(ndf*nnc*inner*fsize)
       vptr = malloc(ndf*nnc*(inner+1)*fsize)
@@ -184,20 +175,16 @@ c  call nodesetup (cnn,mn) !!!!change me
       vlocfptr = malloc(nn_loc*fsize)
       avlocfptr = malloc(nn_loc*fsize)
 
-      diameter=1.5
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("read x and rng",-999,.false.)
       call readx(xrefn)
       call readrng(rng)
-c      if (calcforce) then
-c        call getnqdf(rng)
-c      else
-c        nqdf = 1
-c      end if
-c      if (nqdf.eq.0) nqdf=1
       call error("diskout",-999,.false.)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call readallx(xna)
+      do isd=1,nsd
+         length(isd)=maxval(xna(isd,1:nn))
+      enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call fclear(dispn,nsd*nnc)
       call error("form d and id",-999,.false.)
@@ -215,12 +202,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call sharp(anf,nnc,1)
       call error("diskout",-999,.false.)
       call diskout(dispn,dn,anf,dd)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      if ((calcforce).and.(tt.eq.0.0)) then
-        fdrag(:) = 0
-        call fdragout(tt,fdrag,1,2)
-      end if
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("local shape functions",-999,.false.)
       call shape
@@ -248,8 +229,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (myid.eq.0) write (7,101) nq,nqf
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call equal(xrefn,xn,nsd*nnc)
-      call fclear(refvel,nsd*nquad*nec)  !not sure about this
-
+c      call fclear(refvel,nsd*nn_loc)  !not sure about this
+      do ie=1,nec
+         do inl=1,nen
+            node=ien(inl,ie)
+            do isd=1,nsd
+               refvel(isd,node)=d(isd,node)
+            enddo
+         enddo
+      enddo
       do ie=1,nec
          do iq=1,nquad
             jac(iq,ie)=1.0
@@ -267,7 +255,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          call equal(d,do,ndf*nn_loc)
          call equal(df,dof,nn_loc)
          call equal(xn,xnold,nsd*nnc)     
-         call equal(refvel,refvelo,nsd*nquad*nec)
+         call equal(refvel,refvelo,nsd*nn_loc)
          call equal(jac,jaco,nquad*nec)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -275,16 +263,21 @@ c   Starts Mesh Update Iteration Loop
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          call error("form dd and kid",-999,.false.)
          call formidm(kid,rng,ien,hn,hm)
-         call formdm (xrefn,dispn,rng,ien,hn,hm,diameter)   
+         call formdm (xrefn,dispn,rng,ien,hn,hm,length)   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          call error("localization",-999,.false.)
          call gather (xref,xrefn,nsd,hn,hm)
          call gather (disp,dispn,nsd,hn,hm)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c   call fclear(kp,nsd*nn_loc)
+c   call lump(x,ien,kp)
+c   call scatter(kp,kzg,nsd,assemble,hn,hm)
+c   call solerror (x,e,kbg,kp,ien,kzg,kwg)
          
-         do iit=1,40            !change if necessary
+         do iit=1,10            !change if necessary
             call fclear(kp,nsd*nn_loc)
             call fclear(kw,nsd*nn_loc)
+            
             call blockm(xref,e,disp,kw,kp,ien)
             assemble=.true.
             call scatter(kp,kbg,nsd,assemble,hn,hm)
@@ -294,8 +287,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
             res_l= sqrt(res_l/nq)
             if (res_l.lt.epsilon) goto 200
             call fclear(kdg,nsd*nnc)
-            call gmresm(xref,kid,kwg,kbg,kdg,ien,hn,hm,kz,kv,kzg,
-     &           avg,sm, avloc,kh,ky,kcc,kss)
+            call gmresm(xref,kid,kwg,kbg,kdg,ien,hn,hm,z,v,kzg,
+     &           avg,sm, avloc,h,y,cc,ss)
             call getnorm(kdg,kdg,nsd*nnc,del_l)
             del_l = sqrt(del_l/nq)
             call update(kp, disp, kdg, nsd,hn,hm)
@@ -313,6 +306,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          
          do iit=1,nit
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c            call equal(dof,df,nn_loc)
+c            call fclear(pf,nn_loc)
+c            call fclear(wf,nn_loc)
+c            call getu(d,do,u)
+c            call blockf(xref,df,dof,u,pf,wf,hg,ien)
+c            assemble=.true.
+c            call scatter(pf,bgf,1,assemble,hn,hm)
+c            call scatter(wf,wgf,1,assemble,hn,hm)
+c            call setid(bgf,idf,1)
+c            call getnorm(bgf,bgf,nnc,res_g)
+c            res_g = sqrt(res_g/nqf)
+
+c            call fclear(dgf,nnc)
+c            call gmresf(xref,u,idf,wgf,bgf,dgf,hg,ien,hn,hm,
+c     &           zf,vf,zgf,avgf,smf,vlocf,avlocf,h,y,cc,ss)
+c            call getnorm(dgf,dgf,nnc,del_g)
+c            del_g = sqrt(del_g/nqf)
+c            call update(pf, df, dgf, 1,hn,hm)
+c            call cut(df)
+c            call locate(xref,ien,df)
+c            call sharp(df,nn_loc,0)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             call fclear(p,ndf*nn_loc)
             call fclear(w,ndf*nn_loc)
             call getfi(df,dof,af)
@@ -320,8 +335,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if(hydro.gt.0) call hydrostatic(xref,af,p,rng,ien)
 c.... Calculate mesh & referential velocities, vhat & w
             call velocity(xn,xnold,x,meshveln,meshvel,refvel,
-     +           finv,d,ien,hn,hm)
-            call block(xref,d,do,af,p,w,hg,ien,f,finv,jac,jaco,
+     +           refveln,f,finv,d,ien,hn,hm)
+            call block(xref,d,do,af,p,w,hg,ien,finv,jac,jaco,
      +           refvel,refvelo)
             assemble=.true.
             call scatter(p,bg,ndf,assemble,hn,hm)
@@ -329,6 +344,7 @@ c.... Calculate mesh & referential velocities, vhat & w
             call setid(bg,id,ndf)
             call getnorm(bg,bg,ndf*nnc,res_l)
             res_l= sqrt(res_l/nq)
+c            if (res_l.lt.epsilon) goto 300
             call fclear(dg,ndf*nnc)
             call gmres(xref,d,do,id,af,wg,bg,dg,hg,ien,hn,hm,z,v,zg,avg,
      &           sm,vloc,avloc,h,y,cc,ss,finv,jac,jaco,refvel,refvelo)
@@ -340,11 +356,7 @@ c.... Calculate mesh & referential velocities, vhat & w
             if (myid.eq.0) write(7,102)iit,res_l,del_l,res_g,del_g
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          enddo
-        if (calcforce) then
-          call getfdrag(fdrag,dn,d,x,ien,rng,hn,hm,finv)
-          call fdragout(tt,fdrag,1,2)
-        end if
-
+c 300     continue
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c..... Writing Output
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -1,12 +1,11 @@
-/* modified from CRAY to IEEE, by LUCY ZHANG, 1/21/01 */
-
+#include <fortran.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
 #define NUMSIZE 80
 
-void getreal_ (pdouble)
+void GETREAL (pdouble)
 double *pdouble;
 {
 	int istat,myid,numproc,ierr;

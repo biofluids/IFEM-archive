@@ -51,9 +51,9 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	include "global.h"
 	integer ien(nen,nec), ienieee(nen,nec/2+1)
       integer lock,ierr,status(MPI_STATUS_SIZE)
-
-	maxrecl = nen * maxnec * 4
-c	maxrecl = nen* maxnec*8
+c.... comment out by Lucy
+c	maxrecl = nen * maxnec * 4
+	maxrecl = nen* maxnec*8
       lock = 1
 	if (myid.gt.0) then
       call MPI_RECV(lock,1,MPI_INTEGER,myid-1,101,
@@ -61,15 +61,17 @@ c	maxrecl = nen* maxnec*8
 	end if
 	call ewd_open("mien", ifp)
 	call ewd_lseek(ifp, myid*maxrecl, 0)
-c	call ewd_read(ifp,ien,nen*nec*8)
-	call ewd_read(ifp, ienieee, nen*nec*4)
+c..comment out by Lucy
+	call ewd_read(ifp,ien,nen*nec*8)
+c	call ewd_read(ifp, ienieee, nen*nec*4)
 	call ewd_close(ifp)
 	if (myid.lt.numproc-1) then
       call MPI_SEND(lock,1,MPI_INTEGER,myid+1,101,
      &                MPI_COMM_WORLD,ierr)
 	end if
 
-       call iei2cray(ienieee,ien,nen*nec)
+c....modified on 2/16/99, put it back if read mien without sort
+c      call iei2cray(ienieee,ien,nen*nec)
 
 	return
 	end
@@ -79,9 +81,9 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	include "global.h"
 	integer rngface(neface,nec), rngfaceieee(neface,nec/2+1)
       integer lock,ierr,io,status(MPI_STATUS_SIZE)
-
-	maxrecl = neface * maxnec * 4
-c	maxrecl = neface * maxnec*8
+c....comment out by Lucy
+c	maxrecl = neface * maxnec * 4
+	maxrecl = neface * maxnec*8
       lock = 1
 	if (myid.gt.0) then
       call MPI_RECV(lock,1,MPI_INTEGER,myid-1,101,
@@ -89,16 +91,17 @@ c	maxrecl = neface * maxnec*8
 	end if
 	call ewd_open("mrng", ifp)
 	call ewd_lseek(ifp, myid*maxrecl, 0)
+c..comment out by Lucy
 
-c	call ewd_read(ifp,rngface,neface*nec*8)
-	call ewd_read(ifp, rngfaceieee, neface*nec*4)
+	call ewd_read(ifp,rngface,neface*nec*8)
+c	call ewd_read(ifp, rngfaceieee, neface*nec*4)
 	call ewd_close(ifp)
       if (myid.lt.numproc-1) then
       call MPI_SEND(lock,1,MPI_INTEGER,myid+1,101,
      &                MPI_COMM_WORLD,ierr)
 	end if
-
-       call iei2cray(rngfaceieee,rngface,neface*nec)
+c  put it back if run without sort
+c      call iei2cray(rngfaceieee,rngface,neface*nec)
 
 	do ieface=1,neface
 	do iec=1,nec
@@ -132,5 +135,3 @@ c	call ewd_read(ifp,rngface,neface*nec*8)
 
 	return
 	end
-
-

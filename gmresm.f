@@ -5,11 +5,11 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	implicit none
 	include "global.h"
 
-	real* 8 x(nsd,nn)
-	real* 8 d(nsd,nn)
-	real* 8 bg(nsd*nn), dg(nsd*nn), w(nsd*nn)
-	integer id(nsd,nn),ien(nen,ne)
-	real* 8 hn(nn),hm(nn)
+	real* 8 x(nsd,nn_loc)
+	real* 8 d(nsd,nn_loc)
+	real* 8 bg(nsd*nnc), dg(nsd*nnc), w(nsd*nnc)
+	integer id(nsd,nnc),ien(nen,nec)
+	real* 8 hn(nnc),hm(nn_loc)
 
 	real* 8 h(kinner+1,kinner)
 	real* 8 y(kinner+1)
@@ -17,10 +17,10 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 ss(kinner)
 c	real* 8 c(kinner),s(kinner)
 	
-	real* 8 z(nsd*nn,kinner)
-     	real* 8 v(nsd*nn,kinner+1)
-	real* 8 zg(nsd*nn), avg(nsd*nn),sm(nsd*nn)
-	real* 8 vloc(nsd,nn),avloc(nsd,nn)
+	real* 8 z(nsd*nnc,kinner)
+     	real* 8 v(nsd*nnc,kinner+1)
+	real* 8 zg(nsd*nnc), avg(nsd*nnc),sm(nsd*nnc)
+	real* 8 vloc(nsd,nn_loc),avloc(nsd,nn_loc)
 	logical assemble
 	real* 8 eps, rnorm, rnorm0, order
 	real* 8 gam,hsave,ysave,tmpo
@@ -29,25 +29,25 @@ c	real* 8 c(kinner),s(kinner)
 	eps = 1.0e-12
 	assemble = .true.
 
-        do iqc=1,nsd*nn
+        do iqc=1,nsd*nnc
 	   sm(iqc) = 1.0
 	enddo
 
-	do iqc=1,nsd*nn
+	do iqc=1,nsd*nnc
 	   if (w(iqc).lt.1e-6) w(iqc) = 1.0
 	   w(iqc) = 1.0 / sqrt(abs(w(iqc)))
 	enddo
 
 c  clear arrays
-        call fclear (v,nsd*nn*(kinner+1))
+        call fclear (v,nsd*nnc*(kinner+1))
 
 c  compute residual as r = W**(-1/2) * (b - A * d)
 
-	do iqc=1,nsd*nn 
+	do iqc=1,nsd*nnc 
 	   v(iqc,1) = bg(iqc)
 	   v(iqc,1) = w(iqc) * v(iqc,1)
 	enddo
-	call getnorm(v(1,1),v(1,1),nsd*nn,rnorm0)
+	call getnorm(v(1,1),v(1,1),nsd*nnc,rnorm0)
 	rnorm0 = sqrt(rnorm0)
 
 	if(rnorm0.le.eps) then
@@ -62,12 +62,12 @@ c	outer GMRES loop (igmres)
  10	igmres = igmres + 1
 
 c     convergence check
-	call getnorm(v(1,1),v(1,1),nsd*nn,rnorm)
+	call getnorm(v(1,1),v(1,1),nsd*nnc,rnorm)
 	rnorm = sqrt(rnorm)
 	if (rnorm.le.eps.or.igmres.gt.kouter) goto 700
 
 c	first krylov vector
-	do iqc=1,nsd*nn
+	do iqc=1,nsd*nnc
 	   v(iqc,1) = v(iqc,1) / rnorm
 	enddo
 
@@ -75,34 +75,34 @@ c	construct krylov vectors 2:inner and hessenberg matrix
 	do j=1,kinner
 
 c	insert contribution of preconditioner
-	   do iqc=1,nsd*nn
+	   do iqc=1,nsd*nnc
 	      zg(iqc) = sm(iqc) * v(iqc,j)
 	      z(iqc,j) = zg(iqc)
 	      zg(iqc) = w(iqc) * zg(iqc)
 	   enddo
-	   call equal(zg,vloc,ndf*nn)
-	   call fclear (avloc,nsd*nn)
+	   call gather(vloc,zg,nsd,hn,hm)
+	   call fclear (avloc,nsd*nn_loc)
 	   call blockgmresm(x,vloc,avloc,ien)
-	   call equal(avloc,avg,ndf*nn)
+	   call scatter(avloc, avg, nsd, assemble, hn, hm)
 	   call setid(avg,id,nsd)
 
-	   do iqc=1,nsd*nn
+	   do iqc=1,nsd*nnc
 	      avg(iqc) = w(iqc) * avg(iqc)
 	      v(iqc,j+1) = avg(iqc)
 	   enddo
 
 	   do i=1,j
-	      call getnorm(v(1,j+1),v(1,i),nsd*nn,tmpo)
+	      call getnorm(v(1,j+1),v(1,i),nsd*nnc,tmpo)
 	      h(i,j) = tmpo
-	      do iqc=1,nsd*nn
+	      do iqc=1,nsd*nnc
 		 v(iqc,j+1) = v(iqc,j+1) - tmpo * v(iqc,i) 
 	      enddo
 	   enddo
 
-	   call getnorm(v(1,j+1),v(1,j+1),nsd*nn,tmpo)
+	   call getnorm(v(1,j+1),v(1,j+1),nsd*nnc,tmpo)
 	   tmpo = sqrt(tmpo)
 	   h(j+1,j) = tmpo
-	   do iqc=1,nsd*nn
+	   do iqc=1,nsd*nnc
 	      v(iqc,j+1) = v(iqc,j+1) / tmpo
 	   enddo
 
@@ -158,7 +158,7 @@ c	compute dg iterate dg = dg + Z_m * y
 	j = kinner		!(PVM only fix)
 	do jj=1,j
 	   tmpo = y(jj)
-	   do iqc=1,nsd*nn
+	   do iqc=1,nsd*nnc
 	      dg(iqc) = dg(iqc) + tmpo * z(iqc,jj)
 	   enddo
 	end do
@@ -172,7 +172,7 @@ c  if not done recover residual vector
 	   do jj=1,j+1
 	      tmpo = y(jj)
 	      if (jj.eq.1) tmpo = tmpo - 1.0
-	      do iqc=1,nsd*nn
+	      do iqc=1,nsd*nnc
 		 v(iqc,1) = v(iqc,1) + tmpo*v(iqc,jj)
 	      enddo
 	   end do
@@ -183,13 +183,13 @@ c  if not done recover residual vector
  700	continue
 
 c  go back to unscaled system
-	do iqc=1,nsd*nn
+	do iqc=1,nsd*nnc
 	   dg(iqc) = w(iqc) * dg(iqc)
 	enddo
 
 	order = 0.43429448 * log(rnorm0/rnorm)
-	write(6,101) order
-	write(7,101) order
+	if(myid.eq.0) write(6,101) order
+	if(myid.eq.0) write(7,101) order
 
  101	format('Mesh     : convergence order = ', f5.2)
  102	format('Mesh     : zero residual')

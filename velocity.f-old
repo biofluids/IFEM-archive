@@ -4,17 +4,17 @@ c   Calculate mesh velocities for ALE.  7/1/99
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine velocity(xn,xnold,xloc,meshveln,meshvel,refvel,
-     +     finv,dloc,ien,hn,hm)
+     +     refveln,f,finv,dloc,ien,hn,hm)
 
       implicit none
       include "global.h"
       
       integer ien(nen,nec)
       real* 8 xn(nsd,nnc), xnold(nsd,nnc)
-      real* 8 meshveln(nsd,nnc),dx,refvel(nsd,nquad,nec)
-      real* 8 meshvel(nsd,nn_loc),convel(nsd)
+      real* 8 meshveln(nsd,nnc),dx,refvel(nsd,nn_loc)
+      real* 8 meshvel(nsd,nn_loc),refveln(nsd,nnc)
       real* 8 f(nsd,nsd,nquad,nec),finv(nsd,nsd,nquad,nec)
-      real* 8 d(ndf,nen),mv(nsd,nen),dloc(ndf,nn_loc),diffv(nsd,nen)
+      real* 8 d(ndf,nen),mv(nsd,nen),dloc(ndf,nn_loc)
       integer inn, isd,node,i,j,ie,inl,iq
       real* 8 hn(nnc),hm(nn_loc),eft0,sh(0:nsdpad,nenpad)
       real* 8 xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
@@ -22,12 +22,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c... calculate mesh velocities, vhat.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call fclear(refvel,nsd*nquad*nec)
+      call fclear(refvel,nsd*nn_loc)
       do inn = 1,nnc
          do isd = 1,nsd
             dx = xn(isd,inn) - xnold(isd,inn)
             meshveln(isd,inn) = dx/dt
          enddo
+c        write(*,*) 'meshveln=',meshveln(1,inn),meshveln(2,inn),meshveln(3,inn)
       enddo
       call gather(meshvel,meshveln,nsd,hn,hm)
 
@@ -40,7 +41,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                d(isd,inl)=dloc(isd,ien(inl,ie))
                x(isd,inl)=xloc(isd,ien(inl,ie))
                mv(isd,inl)=meshvel(isd,ien(inl,ie))
-               diffv(isd,inl)=d(isd,inl)-mv(isd,inl)
             enddo
          enddo
          do iq=1,nquad
@@ -51,21 +51,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif
             eft0=abs(det)*wq(iq)
 
-            do isd=1,nsd
-               convel(isd)=0.0
-            enddo
-
             do inl=1,nen
-               convel(xsd)=convel(xsd)+sh(0,inl)*diffv(xsd,inl)
-               convel(ysd)=convel(ysd)+sh(0,inl)*diffv(ysd,inl)
-               convel(zsd)=convel(zsd)+sh(0,inl)*diffv(zsd,inl)
-            enddo
-
-            refvel(isd,iq,ie)=0
-        
-            do i = 1,nsd
-               do j = 1,nsd
-                  refvel(i,iq,ie)=refvel(i,iq,ie)+finv(i,j,iq,ie)*convel(j)
+               node=ien(inl,ie)
+               do isd=1,nsd
+                  refvel(isd,node)=0
+               enddo
+               do i = 1,nsd
+                  do j = 1,nsd
+             refvel(i,node)=refvel(i,node)+finv(i,j,iq,ie)*(d(j,inl)-mv(j,inl))
+                  enddo
                enddo
             enddo
          enddo

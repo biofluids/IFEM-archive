@@ -42,9 +42,7 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 finv32,finv33, rodt
 	real* 8 refvel(nsd,nquad,nec),refvelo(nsd,nquad,nec)
 	real* 8 refv(nsd),refvo(nsd)
-	real* 8 dp1(nsd),dp2(nsd,nsd,nsd),dp3(nsd),dfinv(nsd,nsd,nsd)
-	real* 8 dp(nsd),dpp(nsd)
-	integer i,j,k,l
+	integer i,j,k
 
 	dtinv = 1.0/dt
 	if(steady) dtinv = 0.0
@@ -78,7 +76,6 @@ c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	      do isd=1,nsd
 		 refv(isd)=refvel(isd,iq,ie)
 		 refvo(isd)=refvelo(isd,iq,ie)
-		 if (its.eq.1) refvo(isd)=refv(isd)
 	      enddo
 
 	      do idf = 1,ndf
@@ -158,22 +155,18 @@ cccccccccccccc
 	      res_c=0
 
 	      do inl=1,nen
+		 node=ien(inl,ie)
 c		 res_c = res_c+sh(xsd,inl)*d(udf,inl)
 c	1	      +sh(ysd,inl)*d(vdf,inl)
 c	2	      +sh(zsd,inl)*d(wdf,inl)
 		 do i=1,nsd
 		    do j=1,nsd
-		       res_c = res_c + sh(i,inl)*(ro*d(j,inl))*finv(i,j,iq,ie)
-c		       res_c = res_c + sh(i,inl)*(d(j,inl))*finv(i,j,iq,ie)
-		       res_c = res_c + 2*sh(i,inl)*jac(iq,ie)*d(j,inl)
-	1		    *finv(i,j,iq,ie)
+		       tempf(i,j)=def(i,j,iq,ie)
+		       res_c = res_c + sh(i,inl)*(ro*tempf(i,j)*d(j,inl)) 
 		    enddo
 		 enddo
 	      enddo
-c		 if (ie.eq.10) then
-c		    write(*,*) res_c
-c		    stop
-c		 endif
+
 	      if(stokes) then
 		 u = 0.0
 		 v = 0.0
@@ -185,11 +178,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		 res_a(isd) = ro*(drt(isd)+wx*drx(isd)+
 	1	      wy*dry(isd)+wz*drz(isd)-g(isd))
 	      enddo
-c		 if (ie.eq.10) then
-c		    write(*,*) wx,wy,wz
-c		    write(*,*) res_a(1),res_a(2),res_a(3)
-c		    stop
-c		 endif
 
 	      finv11 = finv(1,1,iq,ie)
 	      finv12 = finv(1,2,iq,ie)
@@ -201,55 +189,9 @@ c		 endif
 	      finv32 = finv(3,2,iq,ie)
 	      finv33 = finv(3,3,iq,ie)
 
-	      dpp(1)=drx(pdf)
-	      dpp(2)=dry(pdf)
-	      dpp(3)=drz(pdf)
-
-	      dtemp(1,1) = drx(udf)
-	      dtemp(2,1) = drx(vdf)
-	      dtemp(3,1) = drx(wdf)
-	      dtemp(1,2) = dry(udf)
-	      dtemp(2,2) = dry(vdf)
-	      dtemp(3,2) = dry(wdf)
-	      dtemp(1,3) = drz(udf)
-	      dtemp(2,3) = drz(vdf)
-	      dtemp(3,3) = drz(wdf)
-
-	      do isd=1,nsd
-		do i=1,nsd
-		  do j=1,nsd
-		    dfinv(i,j,isd)=0
-		    do inl=1,nen
-		      dfinv(i,j,isd)=dfinv(i,j,isd)+sh(isd,inl)*finv(i,j,iq,ie)
-		    enddo
-		   enddo
-	         enddo
-	      enddo
-
-	      do i = 1,nsd
-		 dp1(i) = 0
-		 dp3(i) = 0
-		 do j = 1,nsd
-		    dp1(i) = dp1(i) + dpp(j)*jac(iq,ie)*finv(j,i,iq,ie)
-c		    do k = 1,nsd
-c		       dp2(k,i,j) = 0
-c		       do l = 1,nsd		  
-c			  dp2(k,i,j) = dp2(k,i,j) + dtemp(k,l)*dfinv(l,i,j)
-c	1		        +dtemp(i,l)*dfinv(l,k,j)
-c		       enddo
-c		       dp3(i)=dp3(i)+mu*jac(iq,ie)*finv(j,k,iq,ie)*dp2(k,i,j)
-c		    enddo
-		 enddo
-		 dp(i) = dp1(i) - dp3(i)
-	      enddo
-
-	      res_t(xsd) = dp(1) + res_a(xsd) 
-	      res_t(ysd) = dp(2) + res_a(ysd) 
-	      res_t(zsd) = dp(3) + res_a(zsd)
-
-c	      res_t(xsd) = drx(pdf) + res_a(xsd) 
-c	      res_t(ysd) = dry(pdf) + res_a(ysd) 
-c	      res_t(zsd) = drz(pdf) + res_a(zsd)
+	      res_t(xsd) = drx(pdf) + res_a(xsd) 
+	      res_t(ysd) = dry(pdf) + res_a(ysd) 
+	      res_t(zsd) = drz(pdf) + res_a(zsd)
 
 	      vel  = sqrt(u*u+v*v+w*w)
 	      ree  = vel*hg/mu/12.0
@@ -276,7 +218,15 @@ c.....   Density optimization
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c.....   Galerkin Terms (Look at notes)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+	      dtemp(1,1) = drx(udf)
+	      dtemp(2,1) = drx(vdf)
+	      dtemp(3,1) = drx(wdf)
+	      dtemp(1,2) = dry(udf)
+	      dtemp(2,2) = dry(vdf)
+	      dtemp(3,2) = dry(wdf)
+	      dtemp(1,3) = drz(udf)
+	      dtemp(2,3) = drz(vdf)
+	      dtemp(3,3) = drz(wdf)
 	      do i = 1,nsd
 		 do j = 1,nsd
 		    t(i,j) = 0
@@ -322,11 +272,6 @@ c.....      Momentum Equation (Euler Residual)
 		 p(udf,node) = p(udf,node)-ph(0,inl)*res_a(udf)
 		 p(vdf,node) = p(vdf,node)-ph(0,inl)*res_a(vdf)
 		 p(wdf,node) = p(wdf,node)-ph(0,inl)*res_a(wdf)
-c		 if (node.eq.10) then
-c		    write(*,*) res_a(1),res_a(2),res_a(3)
-c		    write(*,*) p(1,node),p(2,node),p(3,node)
-c		    stop
-c		 endif
 c.....      Momentum Equation (C: Diffusion terms)
 c.... Piola Kirchoff Stress
 		 p(udf,node) = p(udf,node) +
@@ -359,7 +304,7 @@ c.....      Stablization with Tau_cont
 		 p(vdf,node) = p(vdf,node) - ph(ysd,inl)*prs_c
 		 p(wdf,node) = p(wdf,node) - ph(zsd,inl)*prs_c
 	      enddo
-c	if (node.eq.10) write(*,*) p(1,node),p(2,node),p(3,node),p(4,node)  
+	      
 
 c.....   Diagonal Preconditioner
 	      

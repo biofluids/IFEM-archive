@@ -38,6 +38,7 @@ fix     6 -999 -999 +0.0 -999   0.0
 
 amp     0.1	!! percentage of amplitude of the periodic wave to the total length
 
+
 fixd     1 -999    -999    -999          
 fixd     2 +0.0 0.78539816  0.0     !! the input is the frequency,omega
 fixd     3 -999    -999    -999     !! the periodic wave=amp*sin(omega*t) 
