@@ -12,7 +12,7 @@
       real(8) n1,n2,n3,c1,c2,c3,h
       integer inl,ie,isd,ieface,inface,node
       logical yes
-c     integer ierr,io,status(MPI_STATUS_SIZE)
+!     integer ierr,io,status(MPI_STATUS_SIZE)
 
       yes = .false.
       if(interface(1)+999.gt.0.00001) then
@@ -32,7 +32,7 @@ c     integer ierr,io,status(MPI_STATUS_SIZE)
       endif
       if(.not.yes) return
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do ie=1,ne
          do ieface = 1,neface
             if(rng(ieface,ie).eq.hydro) then
@@ -61,7 +61,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
            ro = ((1.0-g)*den_gas+g*den_liq)
 
-cccccccc    since gravity is negative, then (-)(-) = +
+!ccccccc    since gravity is negative, then (-)(-) = +
            if(interface(1)+999.gt.0.00001) pp = ro*gr*(c1-h)
            if(interface(2)+999.gt.0.00001) pp = ro*gr*(c2-h)
            if(interface(3)+999.gt.0.00001) pp = ro*gr*(c3-h)

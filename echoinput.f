@@ -1,17 +1,20 @@
-c     cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!     cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine echoinput
       use run_variables
+	use restart_lib, only: restart
       use fluid_variables
       implicit none
 
       !character*8 date
       character(len=3) :: yon
-      integer :: io,idelta,i
+      integer :: idelta,i
 
-c     if (myid.ne.0) return
+	integer,parameter :: io = 7
 
-      io = 7
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!     if (myid.ne.0) return
+      
+
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(io,'(/"Control information")')
       write(io,'( "-------------------"/)')
       write(io,'(" Nodes........................(nn) = ",i7)') nn
@@ -92,11 +95,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(io,16) ic(1),ic(2),ic(3),ic(4) !,icf
  16   format (' Initial value : ',5f9.3)
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-      return
+      
       end
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       function yon(switch)
 
       character(len=3) :: yon

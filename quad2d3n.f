@@ -4,9 +4,9 @@
       real(8) gau(maxnsd,maxnquad), wei(maxnquad)
 
       GO TO (1,2),IGAU
-C
-C     1-POINT GAUSS
-C
+!
+!     1-POINT GAUSS
+!
  1    CONTINUE
       NGAU = 1
       GAU(1,1)=0.333333333333333d0
@@ -31,7 +31,7 @@ C
  
       RETURN
  
-C     2-POINT GAUSS
+!     2-POINT GAUSS
  
  2    CONTINUE
       NGAU = 3

@@ -11,15 +11,14 @@ subroutine readx_solid(xyz,nn,nsd)
   real(8) :: xyz(nn,nsd)
   integer :: idummy,inn,file
 
-  file=23
-  open(file, FILE="mxyz_solid.in", STATUS="old",action="read")
+  file=21
+  open(file, FILE="mxyz_solid.in", STATUS="old",readonly)
 
   do inn=1,nn
      read(file,*) idummy,xyz(inn,1:nsd),idummy
   enddo
   close(file)
 
-  return
 end subroutine readx_solid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -32,13 +31,12 @@ subroutine readien_solid(solid_con,ne,nen)
   integer :: file,ine,idummy
 
   file=21
-  open(file, FILE="mien_solid.in", STATUS="old",action="read")
+  open(file, FILE="mien_solid.in", STATUS="old",readonly)
   do ine=1,ne
-     read(file,*) idummy,solid_con(ine,1:nen),idummy
+     read(file,*) idummy,solid_con(ine,1:nen)
   enddo
   close(file)
 
-  return
 end subroutine readien_solid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -51,7 +49,7 @@ subroutine readrng_solid(rngface,ne,neface)
   integer :: file,i,ieface,iec
 
   file=21
-  open(file, FILE="mrng_solid.in", STATUS="old",action="read")
+  open(file, FILE="mrng_solid.in", STATUS="old",readonly)
   do i=1,ne
      read(file,*) rngface(i,:)
   enddo
@@ -64,7 +62,6 @@ subroutine readrng_solid(rngface,ne,neface)
 
   close(file)
 
-  return
 end subroutine readrng_solid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -77,7 +74,7 @@ subroutine read_solid_ale_boundary(solid_ale_boundary)
   integer :: file,innBC,n_ale_boundary_types,n_test_node,n_ale_boundary
 
   file=21
-  open(file, FILE="input_solid_ale_boundary.in", STATUS="old",action="read")
+  open(file, FILE="input_solid_ale_boundary.in", STATUS="old",readonly)
 
   solid_ale_boundary = 0
 
@@ -90,7 +87,6 @@ subroutine read_solid_ale_boundary(solid_ale_boundary)
 
   close(file)
 
-  return
 end subroutine read_solid_ale_boundary
 
 

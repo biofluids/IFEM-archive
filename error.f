@@ -3,11 +3,11 @@
       character string*(*)
       integer :: param, strlen
       logical :: fatal
-c        integer myid,comm,ierr
+!        integer myid,comm,ierr
 
-c        call MPI_COMM_RANK( MPI_COMM_WORLD, myid, ierr)
+!        call MPI_COMM_RANK( MPI_COMM_WORLD, myid, ierr)
 
-c     if (myid.eq.0) then
+!     if (myid.eq.0) then
          if (string.ne.' ') then
             strlen = len(string)
             do while (string(strlen:strlen).eq.' ')
@@ -21,9 +21,9 @@ c     if (myid.eq.0) then
                write(unit=0, fmt='(a)') string(1:strlen)
             end if
          end if
-c     end if
+!     end if
 
-      if (fatal) call exit(1)
+      if (fatal) stop
 
       return
       end

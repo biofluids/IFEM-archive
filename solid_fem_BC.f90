@@ -3,14 +3,15 @@ module solid_fem_BC
   save
 
   integer,private :: nBC_ess_type_id
-  integer,dimension(:)  ,allocatable,private :: BC_ess_type_id
-  real(8),dimension(:,:),allocatable,private :: BC_ess_type
+  integer,private,parameter :: nBC_ess_type_id_alloc = 20
+  integer,private,dimension(    1:nBC_ess_type_id_alloc) :: BC_ess_type_id
+  real(8),private,dimension(1:3,1:nBC_ess_type_id_alloc) :: BC_ess_type
 
   integer,private :: nn_solid_BC_ess
-  integer,dimension(:)  ,allocatable,private :: solid_BC_ess
-  integer,dimension(:,:),allocatable,private :: solid_BC_ess_value
+  integer,private,dimension(:)  ,allocatable :: solid_BC_ess
+  integer,private,dimension(:,:),allocatable :: solid_BC_ess_value
 
-  integer,parameter,private :: typefile_unit = 20
+  integer,parameter,private           :: typefile_unit = 20
   character(len=27),parameter,private :: typefile = "input_solid_BC_ess_types.in"
 
 
@@ -46,9 +47,9 @@ subroutine solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_co
      yy(1:3) = solid_coor_curr(1:3,solid_BC_ess(innBC))
 
      dist(1:3)         = yy(1:3) - xx(1:3)
-! Lucy changed it for testing solids
-!     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC)
-	 force_BC(1:3)=solid_BC_ess_value(1:3,innBC)*0.5
+
+     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC)
+
      solid_force_FSI(1:3,solid_BC_ess(innBC)) = solid_force_FSI(1:3,solid_BC_ess(innBC)) - force_BC(1:3)
   enddo
 
@@ -62,7 +63,7 @@ subroutine solid_fem_BC_read_essential
   integer :: test_node_BC_id(1:nn_solid)
   real(8) :: test_node_BC_value(1:3,1:nn_solid)
 
-  integer,parameter :: ifileunit=20
+  integer,parameter :: ifileunit=21
 
   integer :: numgb,i,j,inn,innBC,test_node_BC_type,nodes_per_BC_type,n_test_node
   integer :: counter_solid_BC_node,BC_ess_type_pos
@@ -72,7 +73,7 @@ subroutine solid_fem_BC_read_essential
   test_node_BC_id(:) = 0
   test_node_BC_value(1:3,1:nn_solid) = 0.0d0
 
-  open(unit = ifileunit,file = "input_solid_BC.in",status="old",action="read")
+  open(unit = ifileunit,file = "input_solid_BC.in",status="old",readonly)
 
   read(ifileunit,*) numgb
   write(*,*) "number of different BC types defined = ",numgb
@@ -80,17 +81,16 @@ subroutine solid_fem_BC_read_essential
   do i=1,numgb  
      read(ifileunit,*) test_node_BC_type   !...ndirgb (old)
      write(*,*) i,". BC:  ",test_node_BC_type
+
      do j = 1,nBC_ess_type_id  
         if (BC_ess_type_id(j) == test_node_BC_type)  BC_ess_type_pos = j !...find vector index for BC_type
-        !write(*,*) BC_ess_type_pos
      enddo
 
      read(ifileunit,*) nodes_per_BC_type   !...numdir (old)
-     write(*,*)   "  ",nodes_per_BC_type
 
      do innBC = 1,nodes_per_BC_type
         read(ifileunit,*) n_test_node
-        write(*,*) "node:",n_test_node
+
         test_node_BC_id(n_test_node) = 1
         test_node_BC_value(1:3,n_test_node) = test_node_BC_value(1:3,n_test_node) + BC_ess_type(1:3,BC_ess_type_pos)
      enddo
@@ -124,19 +124,20 @@ subroutine read_BC_ess_types
 
   integer :: i
 
-  open(unit=typefile_unit,file=typefile,status="old",action="read")
+  open(unit=typefile_unit,file=typefile,status="old",readonly)
 
   read(typefile_unit,*) nBC_ess_type_id
-  write(*,*) "number of boundary types defined",nBC_ess_type_id
-
-  allocate(BC_ess_type_id( 1:nBC_ess_type_id))
-  allocate(BC_ess_type(1:3,1:nBC_ess_type_id))
+  if (nBC_ess_type_id > nBC_ess_type_id_alloc) then
+     write(*,*) "To many boundary condition types!"
+     write(*,*) "Increase array size in <solid_fem_BC.f90>"
+     stop
+  else
+     write(*,*) "number of boundary types defined",nBC_ess_type_id
+  endif
 
   do i = 1,nBC_ess_type_id
      read(typefile_unit,*) BC_ess_type_id(i) , BC_ess_type(1:3,i)
   enddo
-
-  !write(*,*) BC_ess_type
 
   close(typefile_unit)
 

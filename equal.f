@@ -1,7 +1,7 @@
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c equal.f
-c let d=f, same dimensions
-ccccccccccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!c equal.f
+!c let d=f, same dimensions
+!ccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine equal(f,d,m)
       implicit none
       

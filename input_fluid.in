@@ -7,45 +7,68 @@ taudt =     1
 static =    0
 conserve =  1
 
- nn=        3321
- ne=        2560
+nn=        5840
+ne=        17181
 
-nrng =    6
-nen =     8
+nrng =    8
+nen =     4
 ndf =     4
 nsd =     3
-iquad =   2
+iquad =   1
 
 nit =      4
-nts =      1000
+nts =      2
 ntsbout =  10
 idisk =    00 
 inner =    40
-outer =    01
+outer =    02
 kinner =   30
 kouter =   02
 iscaling = 01
 maxconn =  60
 
-dt =      0.01
+dt =      0.001
 t_start = 0.0
 alpha =   1.0
 
-fix =    1 -999  -999   0.0 -999   !bottom
-fix =    2 -999   0.0  -999 -999   !front
-fix =    3 -999  -999  -999 -999   !right
-fix =    4 -999   0.0  -999 -999   !back
-fix =    5  0.0   0.0   0.0 -999   !left
-fix =    6 -999  -999   0.0 -999   !top 
+!fix =    1 -999  0.0 -999 -999   !front
+!fix =    2 10.0  0.0  2.0 -999   !top
+!fix =    3 -999  0.0 -999 -999   !back
+!fix =    4 10.0  0.0  2.0 -999   !bottom
+!fix =    5 -999  0.0 -999 -999   !right
+!fix =    6 10.0  0.0  2.0 -999   !left 
+  
+fix =    1 -999 -999  0.0 -999
+fix =    2 -999 -999  0.0 -999
+fix =    3  1.0  0.0  0.0 -999
+fix =    4  0.0  0.0 -999 -999
+fix =    5 -999 -999 -999 -999
+fix =    6 -999  0.0 -999 -999
+fix =    7  0.0  0.0 -999 -999
+fix =    8 -999 -999 -999 -999
 
+!fix =    1  1.0  0.0 -999 -999   !front
+!fix =    2  2.0  0.0 -999 -999   !top
+!fix =    3  3.0  0.0 -999 -999   !back
+!fix =    4  4.0  0.0 -999 -999   !bottom
+!fix =    5  5.0  0.0 -999 -999   !right
+!fix =    6  6.0  0.0 -999 -999   !left 
 
-fixd =    1   0.0     0.0     0.0          
-fixd =    2   0.0     0.0     0.0  
-fixd =    3   0.0     0.0     0.0  
-fixd =    4   0.0     0.0     0.0           
-fixd =    5   0.0     0.0     0.0           
+!fixd =    1   0.0     0.0     0.0          
+!fixd =    2  -999    -999     0.0  
+!fixd =    3   0.0     0.0     0.0  
+!fixd =    4  -999    -999     0.0           
+!fixd =    5   0.0     0.0     0.0           
+!fixd =    6   0.0     0.0     0.0
+
+fixd =    1   0.0     0.0     0.0
+fixd =    2   0.0     0.0     0.0
+fixd =    3   0.0     0.0     0.0
+fixd =    4   0.0     0.0     0.0
+fixd =    5   0.0     0.0     0.0
 fixd =    6   0.0     0.0     0.0
-
+fixd =    7   0.0     0.0     0.0
+fixd =    8   0.0     0.0     0.0
 
 landa_over_mu = 0.01
 
@@ -57,7 +80,7 @@ interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 surf = 1  6
 hydro = 5
 
-vis_liq = 0.01   !! water 1.3e-3
+vis_liq = 1.0   !! water 1.3e-3
 vis_gas = 1.0   !! gas   1.5e-5
 den_liq = 1.0
 den_gas = 1.0

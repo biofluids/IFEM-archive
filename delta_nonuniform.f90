@@ -18,12 +18,13 @@ public
   integer,parameter :: delta_exchange_fluid_to_solid = 1
   integer,parameter :: delta_exchange_solid_to_fluid = 2  
 
+  !...use these parameters to control the search algorithm
+  integer,parameter :: delta_init_fixed_influence_domain = 1
+  integer,parameter :: delta_init_variable_influence_domain = 2
+
   integer :: maxconn !...used to define connectivity matrix size
 
   integer :: ndelta !...defines type of delta function used -> right now, only "1" (RKPM) is available
-
-  real(8),allocatable :: shrknode(:,:)      !...shape function for each node, contains the weights
-  integer,allocatable :: cnn(:,:),ncnn(:)  !...connectivity arrays for domain of incluence for each solid node
 
  !...private subroutines
   private :: getinf,correct3d
@@ -31,27 +32,30 @@ public
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
+subroutine delta_initialize(nn_solids,x_solids,nn,ne,xna,ien,dwjp,cnn,ncnn,shrknode)
 ! Subroutine rkpm_delta
 ! Lucy Zhang
 ! 11/06/02
 ! Northwestern University
 
 ! This subroutine calculate the delta function using RKPM which is used for both
-! ninterpolation and distribution of the velocities and forces respectively
+! interpolation and distribution of the velocities and forces respectively
 ! between fluids and solids domain.
-  use fluid_variables
+  use fluid_variables, only: nsd,nen,nquad,sq,wq
   implicit none
 
  !...solids variables
   integer,intent(in)  :: nn_solids
-
   real(8),intent(in)  :: x_solids(nsd,nn_solids)
 
  !...fluids variables
+  integer :: nn,ne
   real(8) :: xna(nsd,nn),xn(nsd,nen)
   integer,intent(in)  :: ien(nen,ne)
   real(8),intent(out) :: dwjp(nn)
+
+  real(8) :: shrknode(maxconn,nn_solids)     
+  integer :: cnn(maxconn,nn_solids),ncnn(nn_solids)
 
   real(8) :: adist(nsd,nn)
 
@@ -66,27 +70,12 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   integer :: maxinf,mininf,totinf
   integer :: ie,inl,isd,nnum,node
   integer :: inf(maxconn),ninf
-  integer :: i,n,error_id
+  integer :: i,n
 
   
   write(*,*) "*** Calculating RKPM delta function ***"
 
-  if (allocated(shrknode)) then
-     deallocate(shrknode)
-  end if
-  if (allocated(cnn)) then
-     deallocate(cnn)
-  end if
-  if (allocated(ncnn)) then
-     deallocate(ncnn)
-  end if
-
-
-  allocate(shrknode(maxconn,nn_solids),stat=error_id)
-  allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
-  allocate(ncnn(nn_solids)            ,stat=error_id)
-
-  !coef = 0.5
+  !coef = 0.50d0
   coef = 0.6d0
   maxinf = 0
   mininf = 9999
@@ -173,10 +162,10 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   implicit none
 
   integer :: ninf,nn,nsd,maxconn
-  real(8) x(3), xna(nsd,nn), adist(nsd,nn)
-  real(8) r(nsd)
-  integer inf(maxconn)
-  integer i
+  real(8) :: x(nsd), xna(nsd,nn), adist(nsd,nn)
+  real(8) :: r(nsd)
+  integer :: inf(maxconn)
+  integer :: i
 
 !cccccccccccccccccc
 !   x = the coordinate of the point to be calculated for
@@ -247,43 +236,48 @@ end subroutine correct3d
 ! 2. RKPM - cubic spline for uniform spacing
 ! 3. Original delta function for uniform spacing 
 
-subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,ibuf)
+subroutine delta_exchange(ndf,data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,cnn,ncnn,shrknode,ibuf)
   implicit none
-  integer,intent(in) :: ibuf,ndelta
+
+  integer,intent(in)    :: ndf,ibuf,ndelta
 
  !...solids variables
-  integer,intent(in)   :: nn_solids
-  real(8),intent(inout) :: data_solids(3,nn_solids)
+  integer,intent(in)    :: nn_solids
+  real(8),intent(inout) :: data_solids(1:ndf,nn_solids)
 
  !...fluids variables
-  integer,intent(in)   :: nn_fluids
-  real(8),intent(inout) :: data_fluids(3,nn_fluids)
+  integer,intent(in)    :: nn_fluids
+  real(8),intent(inout) :: data_fluids(1:ndf,nn_fluids)
   real(8),intent(in)    :: dv(nn_fluids)
+
+  real(8) :: shrknode(maxconn,nn_solids)     
+  integer :: cnn(maxconn,nn_solids),ncnn(nn_solids)
 
  !...local variables
   integer :: inn,icnn,pt
-  real(8)  :: tot_vel(nn_fluids),tot_vel_fluid,vol_inf 
-  !real(8)  :: tot_force_solid,tot_force_fluid
+  !real(8) :: tot_vel(nn_fluids),tot_vel_fluid,
+  real(8) :: vol_inf
+  !real(8) :: tot_force_solid,tot_force_fluid
 
 
-  tot_vel_fluid = 0
-  tot_vel(1:nn_fluids)=0.0
+  !tot_vel_fluid = 0.0d0
+  !tot_vel(1:nn_fluids)=0.0d0
   if (ndelta == 1) then                  !c    If non-uniform grid 
 
      if (ibuf == delta_exchange_fluid_to_solid) then  !velocity interpolation
 
         write(*,*) '*** Interpolating Velocity onto Solid ***'
 
-        data_solids(:,:)=0
+        data_solids(:,:)=0.0d0
         do inn=1,nn_solids
-           vol_inf=0.0d0
+           !vol_inf=0.0d0
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
-              data_solids(1:3,inn) = data_solids(1:3,inn) + data_fluids(1:3,pt) * shrknode(icnn,inn)
-              tot_vel(pt)=data_fluids(1,pt)
+              data_solids(1:ndf,inn) = data_solids(1:ndf,inn) + data_fluids(1:ndf,pt) * shrknode(icnn,inn)
+              !tot_vel(pt)=data_fluids(1,pt)
               vol_inf = vol_inf + dv(pt)
            enddo
-           !data_solids(1:3,inn)=data_solids(1:3,inn)/vol_inf
+           !data_solids(1:ndf,inn)=data_solids(1:ndf,inn)/vol_inf
         enddo
 !c      tot_vel_solid=sum(data_solids(1,:))
 !c      tot_vel_fluid=sum(tot_vel(:))
@@ -294,17 +288,17 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
      elseif (ibuf == delta_exchange_solid_to_fluid) then !force distribution
 
         write(*,*) '*** Distributing Forces onto Fluid ***'
-        data_fluids(:,:)=0
+        data_fluids(:,:)=0.0d0
         do inn=1,nn_solids
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
-              data_fluids(1:3,pt) = data_fluids(1:3,pt) + data_solids(1:3,inn) * shrknode(icnn,inn)
-           enddo    
+              data_fluids(1:ndf,pt) = data_fluids(1:ndf,pt) + data_solids(1:ndf,inn) * shrknode(icnn,inn)
+           enddo
         enddo
         !tot_force_solid=sum(data_solids(1,:))
         !tot_force_fluid=sum(data_fluids(1,:))
         !write(*,*) 'total force in solid=',tot_force_solid
-        !write(*,*) ' total force in fluid=',tot_force_fluid
+        !write(*,*) 'total force in fluid=',tot_force_fluid
      endif
   else
 
@@ -327,7 +321,7 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
 !c                  enddo
 !c               enddo
 !c            enddo
-!c         
+
 !c            i0=modrealinto( coord_pt(1,ipt), mn_ce1, mx_ce1)
 !c     $           - n_lo_gc_del_oneaxis
 !c            j0=modrealinto( coord_pt(2,ipt), mn_ce2, mx_ce2)
@@ -343,12 +337,10 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
 !c                           data_fluids(i0+i,j0+j,k0+k,idim)
 !c     $                          = data_fluids(i0+i,j0+j,k0+k,idim)
 !c     $                          + data_solids(idim,ipt) * wt_delta(i,j,k)
-!c                        
 !c                        enddo
 !c                     enddo
 !c                  enddo
 !c               enddo
-!c            
 !c            elseif (ibuf .eq. 1) then !velocity interpolation
 !c               do k=0,n_c_del_oneaxis - 1 
 !c                  do j=0,n_c_del_oneaxis - 1 
@@ -363,7 +355,7 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
 !c                  enddo
 !c               enddo
 !c            endif 
-!c
+
 !c         enddo ! end of loop in nn_solids
 !c
   endif ! end of option for delta function

@@ -11,7 +11,7 @@ module fluid_variables
   real(8) :: xq2d(nsdpad,nquadpad*6),wq2d(nquadpad*6)
 
 
-  real(8) :: t_start,alpha,res_g,del_g,res_l,del_l,turb_kappa
+  real(8) :: alpha,res_g,del_g,res_l,del_l,turb_kappa
 
   real(8) :: ref_lgt,ref_vel,ref_den,vis_liq,vis_gas,den_liq,den_gas
 
@@ -37,7 +37,6 @@ module fluid_variables
   integer :: hydro,etype,inner,outer,iscaling,kinner,kouter
 
   logical :: hg_vol,static,taudt,stokes,steady,conserve
-  integer :: restart
 
   logical :: twod
 
@@ -45,6 +44,8 @@ module fluid_variables
   !integer fsurf(0:21),nfsurf
 
   integer :: nn,ne,nq,nen,ndf,nsd,nrng,neface,nnface
+  integer :: ne_surf
+  integer :: nen_surf
 
   integer :: iit,nit,idisk
 
@@ -53,7 +54,10 @@ module fluid_variables
 
   integer :: ale_mesh_update
 
-  real(8),parameter :: epsilon = 1.0e-12
+  real(8),parameter :: epsilon = 1.0e-13
   !real(8),parameter :: epsilon = 1.0e-6
+
+  integer,parameter :: fluid_mesh_filename_length = 15
+  character(len = fluid_mesh_filename_length),parameter :: fluid_mesh_filename = "input_fluid.msh"
 
 end module fluid_variables

@@ -1,5 +1,16 @@
-module ensight_output
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+!  Module: output_ensight.f90
+!
+!  Lucy Zhang, Axel Gerstenberger, NWU, Feb. 2003
+!
+!  provides subroutines to write output in the Ensight7 post-processing format
+!  for more information on the output format see the Ensight documentation
+!
+
+module output_ensight
   implicit none
+  save
 
 contains
 
@@ -93,7 +104,6 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
 
   close(20)
 
-  return
 end subroutine zfem_ensCase
 
 
@@ -117,7 +127,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   character(len =  5) :: fileroot
   character(len = 12) :: file_name
 
-  integer,parameter :: i_file_unit = 15
+  integer,parameter :: i_file_unit = 21
 
 !%%%%%%%%%%%%%%%%%%%%%%
 ! used for ensight
@@ -148,7 +158,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
      write(fileroot, 205)   ''  ,klok
   else
      write(0,*) 'klok >= 100000: modify subroutine createfileroot'
-     call exit(1)
+     stop
   endif
 
 
@@ -228,10 +238,8 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
      enddo
   end select
 
-
   close(i_file_unit)
 
-  return
 end subroutine zfem_ensGeo
 
 
@@ -242,7 +250,7 @@ end subroutine zfem_ensGeo
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
-  use solid_variables
+  use solid_variables, only: nn_solid,nsd_solid
   use fluid_variables, only: nn,ndf,nsd
   use run_variables, only: its
   implicit none
@@ -281,7 +289,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   character(len=15) :: name_file4
   character(len=12) :: name_file5
 
-  integer,parameter :: ifileunit = 15
+  integer,parameter :: ifileunit = 21
 
 
   fluid_stress(1:6,1:nn)=0.0
@@ -302,7 +310,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
      write(fileroot, '(i5)')   ''  ,klok
   else
      write(0,*) 'klok >= 100000: modify subroutine createfileroot'
-     call exit(1)
+     stop
   endif
 
   write(name_file1,'(A7,  A5)')  'fem.vel', fileroot
@@ -357,8 +365,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
 
 110 format(6e12.5)
 
-  return
 end subroutine zfem_ensFluid
 
 
-end module ensight_output
+end module output_ensight

@@ -40,6 +40,12 @@
 
           endif
 
+
+          !call write_background_mesh(nn,x,ne,nen,ien,ne_surf,nen_surf,ien_surf,d(1:3,:))
+          !write(*,*) "backgroundmesh written!!!"
+
+
+
        endif
 
 

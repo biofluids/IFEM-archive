@@ -7,7 +7,7 @@ module gmres_fluid_mesh
 contains
 
 !   cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine gmresm(x,id,w,bg,dg,ien)
+subroutine gmresm(x,id,w,bg,dg,ien,z,v,zg,avg,sm,avloc,h,y,cc,ss)
   use fluid_variables, only: nsd,nn,ne,nen,kinner,kouter
   implicit none
 

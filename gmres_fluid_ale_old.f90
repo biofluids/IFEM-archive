@@ -6,7 +6,7 @@ contains
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c  modified by L. Zhang for Total ALE formulation, 7/21/99
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine gmres_ale(x,d,do,id,w,bg,dg,hg,ien,fext,finv,jac,jaco,convel,convelo)
+subroutine gmres_ale(x,d,do,id,w,bg,dg,hg,ien,z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss,fext,finv,jac,jaco,convel,convelo)
   use fluid_variables
   implicit none
 

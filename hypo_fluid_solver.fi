@@ -10,9 +10,44 @@
 
     !...apply time dependent boundary conditions to d
      meshvel(:,:) = (x(:,:) - xold(:,:))/dt
-     call formd(d,meshvel,rng,ien)
 
-     do iit=1,nit
+
+     !tt_ramp = 0.3
+     !if ((tt >= 0).and.(tt <= tt_ramp)) then
+     !   !bv(udf,2) = 10.0d0 * tt/tt_ramp
+     !   bv(wdf,2) =  2.0d0 * tt/tt_ramp
+     !
+     !   bv(udf,4) = 10.0d0 * tt/tt_ramp
+     !   bv(wdf,4) =  2.0d0 * tt/tt_ramp
+
+     !   !bv(udf,5) = 10.0d0 * tt/tt_ramp
+
+     !   bv(udf,6) = 10.0d0 * tt/tt_ramp
+     !   bv(wdf,6) =  2.0d0 * tt/tt_ramp
+
+     !elseif (tt > tt_ramp) then
+        !bv(udf,2) = 10.00d0
+     !   bv(wdf,2) =  2.00d0
+
+     !   bv(udf,4) = 10.00d0
+     !   bv(wdf,4) =  2.00d0
+        
+        !bv(udf,5) = 10.00d0
+
+     !   bv(udf,6) = 10.00d0
+     !   bv(wdf,6) =  2.00d0
+        
+     !endif
+
+     !write(*,'("  boundary 6 (inflow) x-velocity: ",f12.7," cm/s")') bv(udf,6)
+     !write(*,'("  boundary 6 (inflow) z-velocity: ",f12.7," cm/s")') bv(wdf,6)
+
+
+     !call formd(d,meshvel,rng,ien)
+     call formid_gmsh(id,ien_surf,bid)
+     call formd_gmsh(d,meshvel,ien_surf,bid)
+
+     iter_flow: do iit=1,nit
         p(1:ndf,1:nn) = 0.0d0
         w(1:ndf,1:nn) = 0.0d0
 
@@ -34,14 +69,16 @@
         !...calculate the normalized error, res_l
          call getnorm(p,p,ndf*nn,res_l)
          res_l= sqrt(res_l/nq)
+         !if (res_l < epsilon) exit iter_flow
 
         !...calculate the increment(delta_d) for each degree of freedom, dg
          dg(1:ndf,1:nn) = 0.0d0
          !call gmres(   x,d,dold,id,w,p,dg,hg,ien,    &
          !       z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids)
-         call gmres_ale(x,d,dold,id,w,p,dg,hg,ien,                        &
-                z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids,  &
-                finv,jac,jaco,convel,convelo)
+         !call gmres_ale(x,d,dold,id,w,p,dg,hg,ien,                        &
+         !       z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids,  &
+         !       finv,jac,jaco,convel,convelo)
+	   call gmres_ale(x,d,dold,id,w,p,dg,hg,ien,f_fluids,finv,jac,jaco,convel,convelo)
 
         !...calculate the normalized increment, del_l
          call getnorm(dg,dg,ndf*nn,del_l)
@@ -53,6 +90,6 @@
         !...output the errors in each iteration
          write(6,102) iit,res_l,del_l
          write(7,102) iit,res_l,del_l
-      enddo
+      enddo iter_flow
 
-      write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1:3,:))
+      write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1,:))

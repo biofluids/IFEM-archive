@@ -1,5 +1,6 @@
 subroutine initialize
   use run_variables
+  use restart_lib, only: restart
   use fluid_variables
   implicit none
 
@@ -70,7 +71,6 @@ subroutine initialize
 
   !mass = 1.0
  
-  return
 end subroutine initialize
 
 

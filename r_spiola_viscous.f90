@@ -43,5 +43,4 @@ subroutine r_spiola_viscous(xot,vel)
      enddo
   enddo
 
-  return
 end subroutine r_spiola_viscous

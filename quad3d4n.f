@@ -78,7 +78,7 @@
           return
 
       else if ((iquad == 4).or.(iquad == 222222)) then
-c     4 point Lobatto quadrature - element corners - code 2.2,2.2,2.2 - old 4
+!     4 point Lobatto quadrature - element corners - code 2.2,2.2,2.2 - old 4
           nquad = 4
 
           xquad(1,1) = + 0.0d0

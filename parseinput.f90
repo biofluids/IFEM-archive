@@ -20,28 +20,29 @@ subroutine parseinput_solid
 
   integer :: n_ibmfem,i,error_id
   integer :: nbe(nel)
+  integer,parameter :: fileunit = 21
 
+  nsurface = 4
 
-  open(1,file='input_solid.in',status='old',action='read')
+  open(fileunit,file='input_solid.in',status='old',readonly)
   write(*,*) 'reading input_solid.in'
 
-
-  read(1,*) ninit,initdir
+  read(fileunit,*) ninit,initdir
   if (ninit.eq.1)   write(*,*) 'apply initial condition' 
   if (initdir.eq.1) write(*,*) 'apply initial displacement'
   if (initdir.eq.2) write(*,*) 'apply initial velocity'
 
  !...Gauss integration point
-  read(1,*) iquad_solid,nen_solid
+  read(fileunit,*) iquad_solid,nen_solid
   write(*,*) 'gauss integration type     : ',iquad_solid
   write(*,*) 'number of nodes per element: ',nen_solid
 
  !...number of dimensions in the solid domain
-  read(1,*) nsd_solid
+  read(fileunit,*) nsd_solid
   write(*,*) 'number of space dimensions in solid domain: ',nsd_solid
 
  !...rigid body or not
-  read(1,*) nrigid
+  read(fileunit,*) nrigid
   if (nrigid.eq.1) then
      write(*,*) 'treating the solid as a RIGID BODY'
   else
@@ -50,10 +51,10 @@ subroutine parseinput_solid
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !cccccc from the original main_dat
-  read(1,*) n_ibmfem, n_tec_ens
+  read(fileunit,*) n_ibmfem, n_tec_ens
 
 
-  read(1,*) ndelta
+  read(fileunit,*) ndelta
   if (ndelta /= 1) then
      write(*,*) " currently, only 1 deltafunction type is implemented ..."
      stop
@@ -65,12 +66,12 @@ subroutine parseinput_solid
 !
 !     use ibm information
 !
-  read(1,*) nn_solid_1,ne_solid_1
-  read(1,*) nump
+  read(fileunit,*) nn_solid_1,ne_solid_1
+  read(fileunit,*) nump
   
-  read(1,*) solid_scale(1),solid_scale(2),solid_scale(3)
+  read(fileunit,*) solid_scale(1),solid_scale(2),solid_scale(3)
   
-  read(1,*) n_solid
+  read(fileunit,*) n_solid
 
   !if (n_solid .gt. n_solid_max) then
   !   write(*,*) 'BOOST n_solid_max in r_common'
@@ -81,7 +82,7 @@ subroutine parseinput_solid
   ne_solid = ne_solid_1 * n_solid
 
   if (mno .lt. nn_solid) then !...see r_common.f90
-     write(*,*) 'boost mno in r_common.f'
+     write(*,*) 'boost maxnn_solids in hypo.f and delta_nonuniform'
      stop
   endif
 
@@ -93,62 +94,58 @@ subroutine parseinput_solid
 
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
-     read(1,*) shift(1,i),shift(2,i),shift(3,i)
+     read(fileunit,*) shift(1,i),shift(2,i),shift(3,i)
   enddo
 
  !...time step
-  read(1,*) ntfun
+  read(fileunit,*) ntfun
 
  !...pressure force
-  read(1,*) numfn,numeb      
+  read(fileunit,*) numfn,numeb      
   do i=1,numeb
-     read(1,*) nbe(i),nface(i),boup(i,1),boup(i,2),boup(i,3)
+     read(fileunit,*) nbe(i),nface(i),boup(i,1),boup(i,2),boup(i,3)
   enddo
 
  !...concentrated force
   do i=1,numfn
-     read(1,*) nodefn(i),ndirfn(i),ftemp
+     read(fileunit,*) nodefn(i),ndirfn(i),ftemp
      fnod(nodefn(i),ndirfn(i)) = ftemp*1.0d5
   enddo
 
-  read(1,*) material_type !1=hyperelastic material, 2=linear elastic material  
-  read(1,*) young_mod  ! young's modulus
-  read(1,*) rc1,rc2,rk,density_solid
-  if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
-  if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
-  write(*,*) 'Youngs modulus=', young_mod
+
+
+  read(fileunit,*) rc1,rc2,rk,density_solid
   write(*,*) 'C1      = ',rc1
   write(*,*) 'C2      = ',rc2
   write(*,*) 'kappa   = ',rk
   write(*,*) 'density = ',density_solid
 
-  read(1,*) xviss
+  read(fileunit,*) xviss
   write(*,*) 'xviss  = ',xviss
 
   vnorm = 0.0d0
 
-  read(1,*) vnorm,fnorm,vtol,ftol
-  read(1,*) alpha_solid,beta_solid
+  read(fileunit,*) vnorm,fnorm,vtol,ftol
+  read(fileunit,*) alpha_solid,beta_solid
 
  !...gravity acceleration
-  read(1,*) xmg(1),xmg(2),xmg(3)  !gravity
+  read(fileunit,*) xmg(1),xmg(2),xmg(3)  !gravity
   write(*,*) 'gravity acceleration'
   write(*,*) ' xmg(1)   =',xmg(1)
   write(*,*) ' xmg(2)   =',xmg(2)
   write(*,*) ' xmg(3)   =',xmg(3)
 
  !...body force
-  read(1,*) fbacc(1),fbacc(2),fbacc(3)
+  read(fileunit,*) fbacc(1),fbacc(2),fbacc(3)
   write(*,*) 'body force acceleration - not activated'
   write(*,*) ' fbacc(1) =',fbacc(1)
   write(*,*) ' fbacc(2) =',fbacc(2)
   write(*,*) ' fbacc(3) =',fbacc(3)
 
-  close(1)
+  close(fileunit)
 
   prec(1:nump*ne_solid)=0.0d0
 
-  return
 end subroutine parseinput_solid
 
 
@@ -163,6 +160,9 @@ subroutine parseinput_fluid
   use run_variables
   use fluid_variables
   use delta_nonuniform, only: maxconn
+  use meshgen_gmsh
+  use adaptive_meshing
+  use restart_lib
   implicit none
 
   !character*32 key, keyaux
@@ -178,6 +178,8 @@ subroutine parseinput_fluid
   common /filename/file_in,echo_out
 
   integer,parameter :: one = 1
+
+  nen_surf = 3
 
   file_in=5
   echo_out=7
@@ -239,6 +241,14 @@ subroutine parseinput_fluid
 
   CALL Read_Int(nn,1)
   CALL Read_Int(ne,1)
+
+  if (gmsh_input == 1) then 
+     call read_gmsh_node_elem_numbers(nn,ne,ne_surf,fluid_mesh_filename_length,fluid_mesh_filename)  !...get node and element numbers from Gmsh input
+     if (adapt_mesh == 1) then
+        call read_gmsh_node_elem_numbers(nn_bg,ne_bg,ne_surf_bg,bgmesh_filename_length,bgmesh_filename)
+     endif
+  endif
+
   CALL Read_Int(nrng,1)
   CALL Read_Int(nen,1)
   CALL Read_Int(ndf,1)
@@ -268,6 +278,7 @@ subroutine parseinput_fluid
         if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
      enddo
   enddo
+
   !amp = 0.4
   !spring = 11.302
   !damper = 2.0
@@ -330,7 +341,6 @@ subroutine parseinput_fluid
 
   CALL Read_Real(turb_kappa,1)
 
-
 !       further defaults
   if (ntsbout.eq.0) ntsbout = nts + 1
   if (steady) alpha = 1.0
@@ -357,13 +367,12 @@ subroutine parseinput_fluid
 
 
 
-  CLOSE(5)
+  close(file_in)
+  close(echo_out)
 
   call shape
   !call shape2d
-  write(*,*) ne,nquad
 
-  return
 end subroutine parseinput_fluid
 
 
