@@ -1,4 +1,5 @@
-subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain)
+subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel, &
+		solid_pave,solid_stress,solid_strain)
   use run_variables, only: ntsbout,its
   use solid_variables, only: nsd_solid,ne_solid,nn_solid,nen_solid,nsurface,nquad_solid,xq_solid,wq_solid,nquadpad_solid
   use r_common
@@ -76,7 +77,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         ntem=solid_fem_con(ine,nos) !...connectivity
         x(1:nsd_solid,nos)   = solid_coor_init(1:nsd_solid,ntem)
         y(1:nsd_solid,nos)   = solid_coor_curr(1:nsd_solid,ntem)
-        vel(1:nsd_solid,nos) = solid_vel(1:nsd_solid,ntem)
+	    vel(1:nsd_solid,nos) = solid_vel(1:nsd_solid,ntem)
         acc(1:nsd_solid,nos) = solid_accel(1:nsd_solid,ntem)
      enddo
     !...gauss integration
@@ -85,6 +86,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
      gauss_int: do iq = 1,nquad_solid
 
         rs(1:nsd_solid) = xq_solid(1:nsd_solid,iq)
+
 !     isoparametric interpolation
         call r_element(rs)
 !     y-(r,s)
@@ -126,17 +128,13 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         call r_sstrain(toc,xto,iq,ine,ge)
 !	  Calculate cauchy stress then transform to 1st PK stress
 		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
-		
 !     correction for viscous fluid stress
         call r_spiola_viscous(xot,vel)  
 !     assemble cauchy stress for output
       if (mod(its,ntsbout) == 0) then
         cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
-
       endif
-
 	endif
-
 !===========================================================
 
 !     gauss weight and volume
@@ -200,7 +198,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 
    write(*,*) "  calculate stress and strain for output"
    do in=1,nn_solid
- 
+    
      solid_stress(1:nsd_solid*2,in)=0.0d0
      solid_strain(1:nsd_solid*2,in)=0.0d0
 
@@ -213,8 +211,8 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
                  ntem = ntem + 1
                  solid_pave(in) = solid_pave(in) + pre(1,ine)
                  
-                 solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + cstr(1:nsd_solid*2,ine,nquad_solid) !...constant stress and strain in element
-                 solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + ge(1:nsd_solid*2,ine,nquad_solid)
+                 solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + cstr(1:nsd_solid*2,ine,1) !...constant stress and strain in element
+                 solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + ge(1:nsd_solid*2,ine,1)
                  
                  goto 541
               endif
@@ -223,7 +221,6 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 
         solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in)/ntem
         solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in)/ntem
-
 
         solid_pave(in) = solid_pave(in)/ntem
      endif

@@ -1,0 +1,25 @@
+#!/bin/sh
+#BSUB -L /bin/sh
+#BSUB -J Leaflet12
+#BSUB -q fsi_short
+#BSUB -W 24:00
+#BSUB -o %J.out
+#BSUB -e %J.err
+#BSUB -n 2
+#BSUB -u mgay@tulane.edu
+
+echo Start Job
+date
+pwd
+
+cd Run1/
+bpsh $NODES ./IFEM &
+
+cd ../
+
+cd Run2/
+bpsh  $NODES ./IFEM &
+
+wait
+
+echo End Job

@@ -47,15 +47,15 @@ subroutine solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_co
 
      dist(1:nsd_solid)         = yy(1:nsd_solid) - xx(1:nsd_solid)
 ! Lucy changed it for testing solids
-!     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC)
-	 force_BC(1:nsd_solid)=solid_BC_ess_value(1:nsd_solid,innBC)*0.5
+     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC) * 10000.0
+!	 force_BC(1:nsd_solid)=solid_BC_ess_value(1:nsd_solid,innBC)*0.5
      solid_force_FSI(1:nsd_solid,solid_BC_ess(innBC)) = solid_force_FSI(1:nsd_solid,solid_BC_ess(innBC)) - force_BC(1:nsd_solid)
   enddo
 
 end subroutine solid_fem_BC_apply_essential
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine solid_fem_BC_read_essential
+subroutine solid_fem_BC_read_essential(nodes_BC_solid)
   use solid_variables
   implicit none
 
@@ -66,6 +66,8 @@ subroutine solid_fem_BC_read_essential
 
   integer :: numgb,i,j,inn,innBC,test_node_BC_type,nodes_per_BC_type,n_test_node
   integer :: counter_solid_BC_node,BC_ess_type_pos
+  integer :: nodes_BC_solid(1:nn_solid) 
+
 
   call read_BC_ess_types
 
@@ -90,9 +92,10 @@ subroutine solid_fem_BC_read_essential
 
      do innBC = 1,nodes_per_BC_type
         read(ifileunit,*) n_test_node
-        write(*,*) "node:",n_test_node
+!        write(*,*) "node:",n_test_node
         test_node_BC_id(n_test_node) = 1
-        test_node_BC_value(1:nsd_solid,n_test_node) = test_node_BC_value(1:nsd_solid,n_test_node) + BC_ess_type(1:nsd_solid,BC_ess_type_pos)
+        test_node_BC_value(1:nsd_solid,n_test_node) = test_node_BC_value(1:nsd_solid,n_test_node) + &
+ 			BC_ess_type(1:nsd_solid,BC_ess_type_pos)
      enddo
   enddo 
 
@@ -110,12 +113,15 @@ subroutine solid_fem_BC_read_essential
         counter_solid_BC_node = counter_solid_BC_node + 1
         solid_BC_ess(counter_solid_BC_node) = inn
         solid_BC_ess_value(1:nsd_solid,counter_solid_BC_node) = test_node_BC_value(1:nsd_solid,inn)
-     endif
+    
+		nodes_BC_solid(counter_solid_BC_node) = inn
+	
+	 endif
   enddo
 
   write(*,*) "BC for ",nn_solid_BC_ess," nodes sucessfully read..."
-
-end subroutine solid_fem_BC_read_essential
+ 
+ end subroutine solid_fem_BC_read_essential
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

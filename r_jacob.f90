@@ -65,7 +65,7 @@ subroutine r_jacob(x,xj,xji,det)
 
   twodim: if (nsd_solid .eq. 2) then 
  !...2-D determinant
-  det = abs( xj(1,1) * xj(2,2) - &
+  det = ( xj(1,1) * xj(2,2) - &
          xj(1,2) * xj(2,1) )
 
   if (det .lt. 1.0d-15) then

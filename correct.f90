@@ -15,7 +15,7 @@ subroutine correct3d(b,bd,cpt,cjp,dcjp,dwjp,nep,iInter,inf,ninf,maxconn)
 
 ! Lucy commented it out, don't know what iInter=11 is.
 !  elseif(iInter .eq. 11)  then
-!     call correct3dtl(b,bd,cpt,cjp,dcjp,dwjp,nep)
+!     call correct3dtl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
 
   else
      print *, 'wrong iInter'
@@ -440,7 +440,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine correct3dtl(b,bd,cpt,cjp,anode,dwjp,nep)
+      subroutine correct3dtl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
 !     This subroutine is to calculate the b vector and its
 !     derivatives,for the moving least square reproducing kernel 
@@ -545,7 +545,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
       implicit none
 !
-      integer nep
+      integer nep,maxconn,inf(maxconn),ninf
       real(8) cjp(3,nep),anode(3,nep),dwjp(nep)
       real(8) gm(7,7),gminv(7,7)
       real(8) gmdx(7,7),gmdy(7,7),gmdz(7,7)
@@ -1343,7 +1343,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 	  real* 8 xp,yp,ha1,ha2,dsj,xj,yj,dx,dy
 	  real* 8 r10,r01,r20,r11,r02
 	  real* 8 xx,yy,aw
-	  real* 8 awdx,awdy
+	  real* 8 awdx,awdy,awdxy,awdxx,awdyy
 	  real* 8 a11,a12,a21,a13,a31,a22,a23,a32,a33,det,cdet
 
       real* 8 b(3),bd(2,3),cpt(2)

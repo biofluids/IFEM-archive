@@ -1,0 +1,1351 @@
+   2500  4
+ reading input_solid.in
+ apply initial displacement
+ gauss integration type     :   2
+ number of nodes per element:   4
+ number of space dimensions in solid domain:   2
+ treating the solid as a DEFORMABLE BODY
+ ndelta=  1
+ number of nodes    (for one object)  =   575
+ number of elements (for one object)  =   456
+ number of multiple defined solids    =   1
+ number of nodes    (all objects)     =   575
+ number of elements (all objects)     =   456
+ The solid is LINEAR ELASTIC material
+ Youngs modulus=  10000000.0000000
+ C1      =   3000000.00000000
+ C2      =   3000000.00000000
+ kappa   =   1.000000000000000E-009
+ density =   8.00000000000000
+ xviss  =   0.000000000000000
+ gravity acceleration
+  xmg   =  0.000000000000000  0.000000000000000
+ body force acceleration - not activated
+  fbacc(1) =  0.000000000000000  0.000000000000000
+ number of boundary types defined  3
+ number of different BC types defined =   1
+   1 . BC:    999111
+     575
+ BC for   575  nodes sucessfully read...
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ generating the output
+ writing... fem.geo00000
+ writing... fem.vel00000
+ writing... fem.fsi00000
+ writing... fem.pre00000
+ writing... fem.stress00000
+ writing... fem.strain00000
+ generate ensight case file
+  
+ TIME STEP =   1
+  
+  physical time =   0.050 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.016960
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -8.523305434522621E-033
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.70 0.2964140E+01 0.5959485E-01
+Iteration  1:   0.2113574E-01 0.5845575E+01
+Flow     : convergence order =  1.58 0.1493369E+00 0.3894631E-02
+Iteration  2:   0.1057218E-02 0.2965797E+00
+Flow     : convergence order =  1.09 0.4208603E-02 0.3413864E-03
+Iteration  3:   0.4062627E-04 0.1811457E-01
+Flow     : convergence order =  1.41 0.3417333E-03 0.1336645E-04
+Iteration  4:   0.3242603E-05 0.7211719E-03
+Flow     : convergence order =  1.66 0.1384112E-04 0.3007275E-06
+Iteration  5:   0.9677503E-07 0.1596177E-04
+  maximum fluid velocity (x dir) =  1.02589
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.478871631047087
+  norm=  1.00000000000000
+  solid position updated
+  
+ TIME STEP =   2
+  
+  restart file <restart1.bin> written...
+  physical time =   0.100 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.012554
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.164794152367487
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.90 0.5768732E+01 0.7255870E-01
+Iteration  1:   0.4367569E-01 0.6735111E+01
+Flow     : convergence order =  1.74 0.5011596E+00 0.9110387E-02
+Iteration  2:   0.3577708E-02 0.5946964E+00
+Flow     : convergence order =  1.24 0.9952817E-02 0.5769450E-03
+Iteration  3:   0.9275615E-04 0.3027536E-01
+Flow     : convergence order =  1.32 0.5848634E-03 0.2802030E-04
+Iteration  4:   0.4847494E-05 0.5980015E-03
+Flow     : convergence order =  1.28 0.2895543E-04 0.1532117E-05
+Iteration  5:   0.1782701E-06 0.1373271E-03
+  maximum fluid velocity (x dir) =  1.98484
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.20959222562572
+  norm=  1.07229085283410
+  solid position updated
+  
+ TIME STEP =   3
+  
+  physical time =   0.150 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.006196
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.239678085711485
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.98 0.8108967E+01 0.8525505E-01
+Iteration  1:   0.6329028E-01 0.7080895E+01
+Flow     : convergence order =  1.69 0.9565967E+00 0.1955775E-01
+Iteration  2:   0.6966871E-02 0.1070329E+01
+Flow     : convergence order =  1.20 0.2094280E-01 0.1329311E-02
+Iteration  3:   0.1901141E-03 0.5646844E-01
+Flow     : convergence order =  1.33 0.1479015E-02 0.6891575E-04
+Iteration  4:   0.1240052E-04 0.1952322E-02
+Flow     : convergence order =  1.18 0.7765068E-04 0.5160897E-05
+Iteration  5:   0.4624436E-06 0.4962222E-03
+  maximum fluid velocity (x dir) =  2.78071
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.51905525897605
+  norm=  1.39247169217072
+  solid position updated
+  
+ TIME STEP =   4
+  
+  restart file <restart2.bin> written...
+  physical time =   0.200 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   11.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.002158
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.316981589179043
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.00 0.9697936E+01 0.9717554E-01
+Iteration  1:   0.7724963E-01 0.6541953E+01
+Flow     : convergence order =  1.59 0.1325664E+01 0.3393660E-01
+Iteration  2:   0.9739187E-02 0.1641691E+01
+Flow     : convergence order =  1.24 0.3647498E-01 0.2102171E-02
+Iteration  3:   0.3242112E-03 0.1049353E+00
+Flow     : convergence order =  1.27 0.2570909E-02 0.1377188E-03
+Iteration  4:   0.2384257E-04 0.2943508E-02
+Flow     : convergence order =  1.27 0.1555791E-03 0.8362304E-05
+Iteration  5:   0.9914981E-06 0.8753607E-03
+  maximum fluid velocity (x dir) =  3.28399
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.62322738658845
+  norm=  1.44451236615125
+  solid position updated
+  
+ TIME STEP =   5
+  
+  physical time =   0.250 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000952
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.143871755840455
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.87 0.1034039E+02 0.1410154E+00
+Iteration  1:   0.8364219E-01 0.5189435E+01
+Flow     : convergence order =  1.53 0.1468233E+01 0.4328290E-01
+Iteration  2:   0.1078710E-01 0.2166055E+01
+Flow     : convergence order =  1.22 0.4678016E-01 0.2805559E-02
+Iteration  3:   0.4332084E-03 0.1350082E+00
+Flow     : convergence order =  1.18 0.3140037E-02 0.2077923E-03
+Iteration  4:   0.2825183E-04 0.6989826E-02
+Flow     : convergence order =  1.43 0.2247497E-03 0.8339780E-05
+Iteration  5:   0.1744543E-05 0.5410613E-03
+  maximum fluid velocity (x dir) =  3.55496
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.50437621560673
+  norm=  1.30088366947049
+  solid position updated
+ generating the output
+ writing... fem.geo00005
+ writing... fem.vel00005
+ writing... fem.fsi00005
+ writing... fem.pre00005
+ writing... fem.stress00005
+ writing... fem.strain00005
+ generate ensight case file
+  
+ TIME STEP =   6
+  
+  restart file <restart1.bin> written...
+  physical time =   0.300 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =    9.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000564
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -2.690019568185320E-002
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.72 0.9953692E+01 0.1912150E+00
+Iteration  1:   0.8150100E-01 0.3381595E+01
+Flow     : convergence order =  1.51 0.1340406E+01 0.4127801E-01
+Iteration  2:   0.9817757E-02 0.2315326E+01
+Flow     : convergence order =  1.22 0.4465465E-01 0.2715029E-02
+Iteration  3:   0.4228530E-03 0.1348819E+00
+Flow     : convergence order =  1.25 0.3214279E-02 0.1791664E-03
+Iteration  4:   0.2907698E-04 0.8956155E-02
+Flow     : convergence order =  1.34 0.2102139E-03 0.9610461E-05
+Iteration  5:   0.1869110E-05 0.2473540E-03
+  maximum fluid velocity (x dir) =  3.45818
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.38892623631397
+  norm=  1.13171931404344
+  solid position updated
+  
+ TIME STEP =   7
+  
+  physical time =   0.350 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =    9.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000412
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  2.632279462802423E-003
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.59 0.8591144E+01 0.2199630E+00
+Iteration  1:   0.7127658E-01 0.1579715E+01
+Flow     : convergence order =  1.53 0.9835298E+00 0.2906817E-01
+Iteration  2:   0.7109389E-02 0.1958448E+01
+Flow     : convergence order =  1.22 0.2951151E-01 0.1782548E-02
+Iteration  3:   0.2646500E-03 0.8922707E-01
+Flow     : convergence order =  1.28 0.1956245E-02 0.1022835E-03
+Iteration  4:   0.1700423E-04 0.6526471E-02
+Flow     : convergence order =  1.31 0.1147410E-03 0.5589398E-05
+Iteration  5:   0.1058015E-05 0.1577396E-03
+  maximum fluid velocity (x dir) =  3.03710
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.17589650046470
+  norm=  0.991776704085713
+  solid position updated
+  
+ TIME STEP =   8
+  
+  restart file <restart2.bin> written...
+  physical time =   0.400 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000347
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  4.369935338596298E-002
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.49 0.6432624E+01 0.2098126E+00
+Iteration  1:   0.5451100E-01 0.2519927E+01
+Flow     : convergence order =  1.61 0.5514901E+00 0.1369233E-01
+Iteration  2:   0.4005923E-02 0.1135956E+01
+Flow     : convergence order =  1.31 0.1393962E-01 0.6807074E-03
+Iteration  3:   0.1186023E-03 0.3547860E-01
+Flow     : convergence order =  1.34 0.7093156E-03 0.3269245E-04
+Iteration  4:   0.5668283E-05 0.2709741E-02
+Flow     : convergence order =  1.31 0.3537202E-04 0.1727139E-05
+Iteration  5:   0.3243823E-06 0.6574772E-04
+  maximum fluid velocity (x dir) =  2.33704
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.08868702714093
+  norm=  0.856767245601247
+  solid position updated
+  
+ TIME STEP =   9
+  
+  physical time =   0.450 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =    9.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000324
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.108202814043480
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.42 0.3777587E+01 0.1440157E+00
+Iteration  1:   0.3390983E-01 0.4948878E+01
+Flow     : convergence order =  1.87 0.2225953E+00 0.3015003E-02
+Iteration  2:   0.1905667E-02 0.2628267E+00
+Flow     : convergence order =  1.11 0.3782031E-02 0.2942869E-03
+Iteration  3:   0.3109598E-04 0.3107438E-01
+Flow     : convergence order =  1.64 0.3007210E-03 0.6888790E-05
+Iteration  4:   0.2172736E-05 0.7237528E-03
+Flow     : convergence order =  1.21 0.8715748E-05 0.5385644E-06
+Iteration  5:   0.8205105E-07 0.3033844E-04
+  maximum fluid velocity (x dir) =  1.65232
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.968419236849822
+  norm=  0.722379643212222
+  solid position updated
+  
+ TIME STEP =   10
+  
+  restart file <restart1.bin> written...
+  physical time =   0.500 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =    9.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000330
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.146938224616678
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.15 0.1547228E+01 0.1094585E+00
+Iteration  1:   0.1612659E-01 0.6432739E+01
+Flow     : convergence order =  1.36 0.1351187E+00 0.5852828E-02
+Iteration  2:   0.1212064E-02 0.9482077E-01
+Flow     : convergence order =  1.54 0.7846047E-02 0.2284042E-03
+Iteration  3:   0.6230332E-04 0.4730368E-01
+Flow     : convergence order =  1.31 0.4368627E-03 0.2161410E-04
+Iteration  4:   0.4249203E-05 0.1904521E-02
+Flow     : convergence order =  1.55 0.2341830E-04 0.6536858E-06
+Iteration  5:   0.1996927E-06 0.2302874E-04
+  maximum fluid velocity (x dir) =  1.17780
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.815222093920615
+  norm=  0.560251804108687
+  solid position updated
+ generating the output
+ writing... fem.geo00010
+ writing... fem.vel00010
+ writing... fem.fsi00010
+ writing... fem.pre00010
+ writing... fem.stress00010
+ writing... fem.strain00010
+ generate ensight case file
+  
+ TIME STEP =   11
+  
+  physical time =   0.550 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =    9.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000365
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.237798944327209
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.58 0.3149873E+01 0.8211916E-01
+Iteration  1:   0.2334720E-01 0.7374404E+01
+Flow     : convergence order =  1.82 0.1693924E+00 0.2584642E-02
+Iteration  2:   0.1283525E-02 0.1770641E+00
+Flow     : convergence order =  1.77 0.4929332E-02 0.8432025E-04
+Iteration  3:   0.4712389E-04 0.1799261E-01
+Flow     : convergence order =  1.68 0.2344687E-03 0.4900713E-05
+Iteration  4:   0.2440875E-05 0.3106836E-03
+Flow     : convergence order =  1.40 0.5022503E-05 0.2010444E-06
+Iteration  5:   0.3338028E-07 0.2450362E-04
+  maximum fluid velocity (x dir) =  0.86556
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.714691330683288
+  norm=  0.449558907102204
+  solid position updated
+  
+ TIME STEP =   12
+  
+  restart file <restart2.bin> written...
+  physical time =   0.600 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =    9.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000439
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.253545015842636
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.88 0.5842933E+01 0.7628477E-01
+Iteration  1:   0.4280420E-01 0.7448109E+01
+Flow     : convergence order =  1.81 0.4724689E+00 0.7280246E-02
+Iteration  2:   0.3232456E-02 0.4417277E+00
+Flow     : convergence order =  1.63 0.8906333E-02 0.2094078E-03
+Iteration  3:   0.8174373E-04 0.9632966E-02
+Flow     : convergence order =  1.48 0.5630939E-03 0.1856013E-04
+Iteration  4:   0.5581709E-05 0.2008105E-02
+Flow     : convergence order =  1.75 0.2702151E-04 0.4795097E-06
+Iteration  5:   0.2556124E-06 0.3525679E-04
+  maximum fluid velocity (x dir) =  0.75400
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.630348236778884
+  norm=  0.392270496164531
+  solid position updated
+  
+ TIME STEP =   13
+  
+  physical time =   0.650 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000573
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.250400676881034
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.12 0.8132911E+01 0.6148199E-01
+Iteration  1:   0.6010617E-01 0.7249692E+01
+Flow     : convergence order =  1.79 0.8633340E+00 0.1395952E-01
+Iteration  2:   0.5799691E-02 0.5180260E+00
+Flow     : convergence order =  1.66 0.2123629E-01 0.4637858E-03
+Iteration  3:   0.1879161E-03 0.8836721E-01
+Flow     : convergence order =  1.66 0.1744857E-02 0.3780218E-04
+Iteration  4:   0.1812950E-04 0.1586828E-02
+Flow     : convergence order =  1.51 0.4048380E-04 0.1257188E-05
+Iteration  5:   0.2918492E-06 0.1480448E-03
+  maximum fluid velocity (x dir) =  0.70217
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.539687170415896
+  norm=  0.395660283329541
+  solid position updated
+  
+ TIME STEP =   14
+  
+  restart file <restart1.bin> written...
+  physical time =   0.700 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000790
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.242402998947920
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.09 0.9675598E+01 0.7903806E-01
+Iteration  1:   0.7219453E-01 0.6627409E+01
+Flow     : convergence order =  1.95 0.1186019E+01 0.1319378E-01
+Iteration  2:   0.7987673E-02 0.5741637E+00
+Flow     : convergence order =  1.52 0.3317549E-01 0.9986261E-03
+Iteration  3:   0.3182096E-03 0.1325036E+00
+Flow     : convergence order =  1.65 0.2013197E-02 0.4545662E-04
+Iteration  4:   0.2034312E-04 0.2322013E-02
+Flow     : convergence order =  1.38 0.5925881E-04 0.2484265E-05
+Iteration  5:   0.4694885E-06 0.3509834E-03
+  maximum fluid velocity (x dir) =  0.78310
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.455704133018743
+  norm=  0.455040099676214
+  solid position updated
+  
+ TIME STEP =   15
+  
+  physical time =   0.750 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.001143
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.218091690097758
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.92 0.1027445E+02 0.1222675E+00
+Iteration  1:   0.7758698E-01 0.5506789E+01
+Flow     : convergence order =  2.12 0.1321675E+01 0.1006732E-01
+Iteration  2:   0.8982993E-02 0.7249353E+00
+Flow     : convergence order =  1.61 0.4028137E-01 0.9823383E-03
+Iteration  3:   0.4021508E-03 0.9588771E-01
+Flow     : convergence order =  1.45 0.1482071E-02 0.5310228E-04
+Iteration  4:   0.1432356E-04 0.2215813E-02
+Flow     : convergence order =  1.33 0.6386934E-04 0.2995320E-05
+Iteration  5:   0.4773413E-06 0.3751235E-03
+  maximum fluid velocity (x dir) =  0.90346
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.385938653074203
+  norm=  0.564374603088490
+  solid position updated
+ generating the output
+ writing... fem.geo00015
+ writing... fem.vel00015
+ writing... fem.fsi00015
+ writing... fem.pre00015
+ writing... fem.stress00015
+ writing... fem.strain00015
+ generate ensight case file
+  
+ TIME STEP =   16
+  
+  restart file <restart2.bin> written...
+  physical time =   0.800 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.001732
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.204733861955915
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.77 0.9856436E+01 0.1655191E+00
+Iteration  1:   0.7567037E-01 0.3867239E+01
+Flow     : convergence order =  2.10 0.1222560E+01 0.9757873E-02
+Iteration  2:   0.8412986E-02 0.9332032E+00
+Flow     : convergence order =  1.65 0.3828514E-01 0.8594191E-03
+Iteration  3:   0.3835060E-03 0.4941549E-01
+Flow     : convergence order =  1.61 0.1138809E-02 0.2777942E-04
+Iteration  4:   0.1037213E-04 0.1752256E-02
+Flow     : convergence order =  1.28 0.5344810E-04 0.2801068E-05
+Iteration  5:   0.4905741E-06 0.2208919E-03
+  maximum fluid velocity (x dir) =  0.93588
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.278927189443912
+  norm=  0.682150620467400
+  solid position updated
+  
+ TIME STEP =   17
+  
+  physical time =   0.850 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.002590
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.188741776658787
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.63 0.8476014E+01 0.1972167E+00
+Iteration  1:   0.6668198E-01 0.1838752E+01
+Flow     : convergence order =  2.02 0.9073206E+00 0.8663334E-02
+Iteration  2:   0.6218826E-02 0.1032494E+01
+Flow     : convergence order =  1.62 0.2547556E-01 0.6154223E-03
+Iteration  3:   0.2568136E-03 0.3397415E-01
+Flow     : convergence order =  1.46 0.7567324E-03 0.2629354E-04
+Iteration  4:   0.6647875E-05 0.6510740E-03
+Flow     : convergence order =  1.29 0.3327266E-04 0.1703886E-05
+Iteration  5:   0.2510054E-06 0.1871694E-03
+  maximum fluid velocity (x dir) =  0.89488
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.216777914394947
+  norm=  0.767873855786681
+  solid position updated
+  
+ TIME STEP =   18
+  
+  restart file <restart1.bin> written...
+  physical time =   0.900 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.003614
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.106793107843923
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.53 0.6302574E+01 0.1851477E+00
+Iteration  1:   0.5144145E-01 0.2149221E+01
+Flow     : convergence order =  2.01 0.5030856E+00 0.4876934E-02
+Iteration  2:   0.3454659E-02 0.7033878E+00
+Flow     : convergence order =  1.43 0.1000844E-01 0.3702141E-03
+Iteration  3:   0.9759265E-04 0.3789909E-01
+Flow     : convergence order =  1.42 0.3884587E-03 0.1469078E-04
+Iteration  4:   0.2886860E-05 0.4655674E-03
+Flow     : convergence order =  1.36 0.1604695E-04 0.6929464E-06
+Iteration  5:   0.1018067E-06 0.1008201E-03
+  maximum fluid velocity (x dir) =  0.77209
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.183316756382999
+  norm=  0.765606459958432
+  solid position updated
+  
+ TIME STEP =   19
+  
+  physical time =   0.950 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.004504
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  4.145058304594329E-003
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.51 0.3609184E+01 0.1107210E+00
+Iteration  1:   0.3169262E-01 0.4413419E+01
+Flow     : convergence order =  1.77 0.1723796E+00 0.2936435E-02
+Iteration  2:   0.1338467E-02 0.1855706E+00
+Flow     : convergence order =  1.48 0.3366467E-02 0.1106820E-03
+Iteration  3:   0.2319544E-04 0.2454655E-01
+Flow     : convergence order =  1.10 0.1191253E-03 0.9525063E-05
+Iteration  4:   0.9980414E-06 0.4203243E-03
+Flow     : convergence order =  1.48 0.9564131E-05 0.3185187E-06
+Iteration  5:   0.6910879E-07 0.3761701E-04
+  maximum fluid velocity (x dir) =  0.58990
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.126320801055908
+  norm=  0.608572838899487
+  solid position updated
+  
+ TIME STEP =   20
+  
+  restart file <restart2.bin> written...
+  physical time =   1.000 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.004743
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.173148661686326
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.06 0.1192247E+01 0.1049182E+00
+Iteration  1:   0.1248949E-01 0.5736655E+01
+Flow     : convergence order =  1.42 0.1079031E+00 0.4057394E-02
+Iteration  2:   0.9557326E-03 0.1006612E+00
+Flow     : convergence order =  1.53 0.4983927E-02 0.1464986E-03
+Iteration  3:   0.3709682E-04 0.2958898E-01
+Flow     : convergence order =  1.30 0.2210653E-03 0.1103749E-04
+Iteration  4:   0.1958713E-05 0.1453036E-02
+Flow     : convergence order =  1.55 0.1214817E-04 0.3445091E-06
+Iteration  5:   0.9875098E-07 0.1331441E-04
+  maximum fluid velocity (x dir) =  0.73610
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.252413685519773
+  norm=  0.355127581826462
+  solid position updated
+ generating the output
+ writing... fem.geo00020
+ writing... fem.vel00020
+ writing... fem.fsi00020
+ writing... fem.pre00020
+ writing... fem.stress00020
+ writing... fem.strain00020
+ generate ensight case file
+  
+ TIME STEP =   21
+  
+  physical time =   1.050 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.004205
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.341958059082678
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.65 0.3005370E+01 0.6675165E-01
+Iteration  1:   0.2201484E-01 0.6820922E+01
+Flow     : convergence order =  1.57 0.1685895E+00 0.4537807E-02
+Iteration  2:   0.1346614E-02 0.2646455E+00
+Flow     : convergence order =  1.75 0.4915673E-02 0.8658184E-04
+Iteration  3:   0.4432155E-04 0.7049206E-02
+Flow     : convergence order =  1.45 0.1506779E-03 0.5376604E-05
+Iteration  4:   0.1377446E-05 0.8735448E-03
+Flow     : convergence order =  1.46 0.7089885E-05 0.2445487E-06
+Iteration  5:   0.6615393E-07 0.9153392E-05
+  maximum fluid velocity (x dir) =  1.57365
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.963341214189952
+  norm=  0.468601942451995
+  solid position updated
+  
+ TIME STEP =   22
+  
+  restart file <restart1.bin> written...
+  physical time =   1.100 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.003100
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.429464293289090
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.94 0.5777407E+01 0.6607197E-01
+Iteration  1:   0.4429142E-01 0.7116857E+01
+Flow     : convergence order =  1.67 0.4983026E+00 0.1069471E-01
+Iteration  2:   0.3597517E-02 0.4129494E+00
+Flow     : convergence order =  1.80 0.1220330E-01 0.1955275E-03
+Iteration  3:   0.1086849E-03 0.2272536E-01
+Flow     : convergence order =  1.41 0.5349424E-03 0.2088449E-04
+Iteration  4:   0.5449634E-05 0.1797308E-02
+Flow     : convergence order =  1.38 0.2238297E-04 0.9437035E-06
+Iteration  5:   0.1937608E-06 0.1927129E-04
+  maximum fluid velocity (x dir) =  2.30780
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.55085722640890
+  norm=  0.868495743185027
+  solid position updated
+  
+ TIME STEP =   23
+  
+  physical time =   1.150 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.002089
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.444152486783954
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.12 0.8118585E+01 0.6101909E-01
+Iteration  1:   0.6406470E-01 0.7002148E+01
+Flow     : convergence order =  1.62 0.9325111E+00 0.2217958E-01
+Iteration  2:   0.6700866E-02 0.9180337E+00
+Flow     : convergence order =  1.58 0.2653825E-01 0.7027275E-03
+Iteration  3:   0.2474165E-03 0.3328116E-01
+Flow     : convergence order =  1.52 0.1437316E-02 0.4291664E-04
+Iteration  4:   0.1357771E-04 0.6637415E-02
+Flow     : convergence order =  1.38 0.6267160E-04 0.2622267E-05
+Iteration  5:   0.6263530E-06 0.8881262E-04
+  maximum fluid velocity (x dir) =  2.89310
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.81771297603825
+  norm=  1.13151730532191
+  solid position updated
+  
+ TIME STEP =   24
+  
+  restart file <restart2.bin> written...
+  physical time =   1.200 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.001438
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.374994983505645
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.02 0.9715098E+01 0.9242272E-01
+Iteration  1:   0.7814382E-01 0.6152138E+01
+Flow     : convergence order =  1.59 0.1294490E+01 0.3349093E-01
+Iteration  2:   0.9350074E-02 0.1609176E+01
+Flow     : convergence order =  1.34 0.4124247E-01 0.1906794E-02
+Iteration  3:   0.3994828E-03 0.4109632E-01
+Flow     : convergence order =  1.55 0.2801799E-02 0.7893914E-04
+Iteration  4:   0.2442493E-04 0.1377252E-01
+Flow     : convergence order =  1.42 0.1541973E-03 0.5873549E-05
+Iteration  5:   0.1551361E-05 0.3944136E-03
+  maximum fluid velocity (x dir) =  3.33193
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.66666242280775
+  norm=  1.16947609902588
+  solid position updated
+  
+ TIME STEP =   25
+  
+  physical time =   1.250 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.001087
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.243115339247245
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.84 0.1036121E+02 0.1491480E+00
+Iteration  1:   0.8445275E-01 0.4873108E+01
+Flow     : convergence order =  1.57 0.1441646E+01 0.3887681E-01
+Iteration  2:   0.1042520E-01 0.2101312E+01
+Flow     : convergence order =  1.26 0.4665413E-01 0.2543162E-02
+Iteration  3:   0.4518115E-03 0.6613860E-01
+Flow     : convergence order =  1.61 0.3439379E-02 0.8511809E-04
+Iteration  4:   0.3016368E-04 0.1471160E-01
+Flow     : convergence order =  1.43 0.1787105E-03 0.6625207E-05
+Iteration  5:   0.1806504E-05 0.3876863E-03
+  maximum fluid velocity (x dir) =  3.50828
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.46085298845710
+  norm=  1.13629242537358
+  solid position updated
+ generating the output
+ writing... fem.geo00025
+ writing... fem.vel00025
+ writing... fem.fsi00025
+ writing... fem.pre00025
+ writing... fem.stress00025
+ writing... fem.strain00025
+ generate ensight case file
+  
+ TIME STEP =   26
+  
+  restart file <restart1.bin> written...
+  physical time =   1.300 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000874
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) = -0.113228564117598
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.70 0.9978112E+01 0.1992977E+00
+Iteration  1:   0.8226609E-01 0.3123301E+01
+Flow     : convergence order =  1.58 0.1314585E+01 0.3462447E-01
+Iteration  2:   0.9441834E-02 0.2205706E+01
+Flow     : convergence order =  1.22 0.3833447E-01 0.2294165E-02
+Iteration  3:   0.3559314E-03 0.6674674E-01
+Flow     : convergence order =  1.64 0.2811621E-02 0.6412503E-04
+Iteration  4:   0.2351748E-04 0.1259309E-01
+Flow     : convergence order =  1.26 0.1272054E-03 0.6965670E-05
+Iteration  5:   0.1277480E-05 0.3998401E-03
+  maximum fluid velocity (x dir) =  3.38888
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  1.20788935762337
+  norm=  1.02434075808820
+  solid position updated
+  
+ TIME STEP =   27
+  
+  physical time =   1.350 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000747
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  6.747946586131093E-002
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.58 0.8620417E+01 0.2260385E+00
+Iteration  1:   0.7201988E-01 0.1448672E+01
+Flow     : convergence order =  1.62 0.9665194E+00 0.2320400E-01
+Iteration  2:   0.6849193E-02 0.1834631E+01
+Flow     : convergence order =  1.28 0.2432495E-01 0.1285589E-02
+Iteration  3:   0.2092078E-03 0.4070421E-01
+Flow     : convergence order =  1.57 0.1411414E-02 0.3829225E-04
+Iteration  4:   0.1016104E-04 0.7838463E-02
+Flow     : convergence order =  1.11 0.5273645E-04 0.4104835E-05
+Iteration  5:   0.4746166E-06 0.3015850E-03
+  maximum fluid velocity (x dir) =  2.97083
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.986910452974181
+  norm=  0.899262374945729
+  solid position updated
+  
+ TIME STEP =   28
+  
+  restart file <restart2.bin> written...
+  physical time =   1.400 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000687
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.152631340452530
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.48 0.6467797E+01 0.2143984E+00
+Iteration  1:   0.5528055E-01 0.2727171E+01
+Flow     : convergence order =  1.70 0.5464450E+00 0.1096188E-01
+Iteration  2:   0.3923126E-02 0.1028262E+01
+Flow     : convergence order =  1.37 0.1182237E-01 0.5074360E-03
+Iteration  3:   0.1002269E-03 0.1852192E-01
+Flow     : convergence order =  1.48 0.5196362E-03 0.1736189E-04
+Iteration  4:   0.3100521E-05 0.3469032E-02
+Flow     : convergence order =  1.00 0.1944767E-04 0.1965658E-05
+Iteration  5:   0.1621611E-06 0.1190471E-03
+  maximum fluid velocity (x dir) =  2.31821
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.834749555054266
+  norm=  0.786831566031709
+  solid position updated
+  
+ TIME STEP =   29
+  
+  physical time =   1.450 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000676
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.142354574600830
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.41 0.3824178E+01 0.1482726E+00
+Iteration  1:   0.3474182E-01 0.5223407E+01
+Flow     : convergence order =  1.59 0.2391037E+00 0.6143676E-02
+Iteration  2:   0.2112251E-02 0.2004934E+00
+Flow     : convergence order =  1.48 0.7034486E-02 0.2337879E-03
+Iteration  3:   0.4371554E-04 0.6088498E-01
+Flow     : convergence order =  1.13 0.3482712E-03 0.2611475E-04
+Iteration  4:   0.3343299E-05 0.1459784E-02
+Flow     : convergence order =  1.54 0.2634734E-04 0.7526963E-06
+Iteration  5:   0.2100190E-06 0.5924117E-04
+  maximum fluid velocity (x dir) =  1.79778
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.705921976479317
+  norm=  0.686880381120278
+  solid position updated
+  
+ TIME STEP =   30
+  
+  restart file <restart1.bin> written...
+  physical time =   1.500 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000706
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.158982815845832
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.16 0.1615208E+01 0.1116723E+00
+Iteration  1:   0.1699328E-01 0.6738782E+01
+Flow     : convergence order =  1.35 0.1657937E+00 0.7426462E-02
+Iteration  2:   0.1589854E-02 0.1345511E+00
+Flow     : convergence order =  1.58 0.9917213E-02 0.2584045E-03
+Iteration  3:   0.8729089E-04 0.4220606E-01
+Flow     : convergence order =  1.55 0.5200175E-03 0.1464154E-04
+Iteration  4:   0.5329877E-05 0.4313593E-03
+Flow     : convergence order =  1.42 0.1526590E-04 0.5837926E-06
+Iteration  5:   0.1151391E-06 0.7592162E-04
+  maximum fluid velocity (x dir) =  1.40166
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.619569741579633
+  norm=  0.590149839844613
+  solid position updated
+ generating the output
+ writing... fem.geo00030
+ writing... fem.vel00030
+ writing... fem.fsi00030
+ writing... fem.pre00030
+ writing... fem.stress00030
+ writing... fem.strain00030
+ generate ensight case file
+  
+ TIME STEP =   31
+  
+  physical time =   1.550 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000784
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.162344204658837
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.58 0.3160682E+01 0.8397907E-01
+Iteration  1:   0.2369469E-01 0.7651674E+01
+Flow     : convergence order =  1.61 0.1932005E+00 0.4760866E-02
+Iteration  2:   0.1614358E-02 0.2029911E+00
+Flow     : convergence order =  1.79 0.6581413E-02 0.1065237E-03
+Iteration  3:   0.5981152E-04 0.1783270E-01
+Flow     : convergence order =  1.71 0.3572976E-03 0.6902627E-05
+Iteration  4:   0.3754442E-05 0.2554031E-03
+Flow     : convergence order =  1.48 0.7689163E-05 0.2519945E-06
+Iteration  5:   0.6213853E-07 0.3231928E-04
+  maximum fluid velocity (x dir) =  0.98696
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.608047605901870
+  norm=  0.505057927294786
+  solid position updated
+  
+ TIME STEP =   32
+  
+  restart file <restart2.bin> written...
+  physical time =   1.600 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.000931
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.167541895718841
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.87 0.5839608E+01 0.7828068E-01
+Iteration  1:   0.4307345E-01 0.7644934E+01
+Flow     : convergence order =  1.85 0.4886951E+00 0.6933489E-02
+Iteration  2:   0.3502273E-02 0.4090573E+00
+Flow     : convergence order =  1.73 0.9189145E-02 0.1709220E-03
+Iteration  3:   0.8548801E-04 0.9643659E-02
+Flow     : convergence order =  1.64 0.5680798E-03 0.1305863E-04
+Iteration  4:   0.5790257E-05 0.1802424E-02
+Flow     : convergence order =  1.82 0.2464993E-04 0.3727755E-06
+Iteration  5:   0.2504908E-06 0.2346506E-04
+  maximum fluid velocity (x dir) =  0.70830
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.580798320089416
+  norm=  0.434537532797399
+  solid position updated
+  
+ TIME STEP =   33
+  
+  physical time =   1.650 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.001181
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.164668879770261
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.12 0.8127626E+01 0.6108517E-01
+Iteration  1:   0.6046184E-01 0.7386510E+01
+Flow     : convergence order =  1.79 0.8761818E+00 0.1408723E-01
+Iteration  2:   0.6048999E-02 0.5225530E+00
+Flow     : convergence order =  1.82 0.2176110E-01 0.3268155E-03
+Iteration  3:   0.1939973E-03 0.9011051E-01
+Flow     : convergence order =  1.82 0.1876403E-02 0.2845103E-04
+Iteration  4:   0.1968068E-04 0.2368198E-02
+Flow     : convergence order =  1.30 0.3531839E-04 0.1772954E-05
+Iteration  5:   0.3389207E-06 0.8700349E-04
+  maximum fluid velocity (x dir) =  0.64858
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.552947714075480
+  norm=  0.389561031256129
+  solid position updated
+  
+ TIME STEP =   34
+  
+  restart file <restart1.bin> written...
+  physical time =   1.700 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.001596
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.143528203722639
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  2.13 0.9671996E+01 0.7179562E-01
+Iteration  1:   0.7266285E-01 0.6840126E+01
+Flow     : convergence order =  1.94 0.1194499E+01 0.1385867E-01
+Iteration  2:   0.8191616E-02 0.6020652E+00
+Flow     : convergence order =  1.56 0.3207729E-01 0.8802117E-03
+Iteration  3:   0.3061168E-03 0.1389605E+00
+Flow     : convergence order =  1.69 0.2259318E-02 0.4625527E-04
+Iteration  4:   0.2345823E-04 0.1336688E-02
+Flow     : convergence order =  1.52 0.5283020E-04 0.1600545E-05
+Iteration  5:   0.3399063E-06 0.3967868E-03
+  maximum fluid velocity (x dir) =  0.78798
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.516963128695315
+  norm=  0.369574889733220
+  solid position updated
+  
+ TIME STEP =   35
+  
+  physical time =   1.750 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.002261
+   calculate stress and strain for output
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.127625233515502
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.95 0.1027659E+02 0.1145795E+00
+Iteration  1:   0.7816931E-01 0.5625583E+01
+Flow     : convergence order =  2.15 0.1325666E+01 0.9363788E-02
+Iteration  2:   0.9124172E-02 0.7444901E+00
+Flow     : convergence order =  1.68 0.3866128E-01 0.8132293E-03
+Iteration  3:   0.3907259E-03 0.8895997E-01
+Flow     : convergence order =  1.50 0.1456611E-02 0.4651792E-04
+Iteration  4:   0.1496362E-04 0.1822389E-02
+Flow     : convergence order =  1.49 0.4859317E-04 0.1588428E-05
+Iteration  5:   0.3518443E-06 0.2065955E-03
+  maximum fluid velocity (x dir) =  0.91283
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.474541841282100
+  norm=  0.377540050099534
+  solid position updated
+ generating the output
+ writing... fem.geo00035
+ writing... fem.vel00035
+ writing... fem.fsi00035
+ writing... fem.pre00035
+ writing... fem.stress00035
+ writing... fem.strain00035
+ generate ensight case file
+  
+ TIME STEP =   36
+  
+  restart file <restart2.bin> written...
+  physical time =   1.800 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.003443
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  0.113160908305781
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.78 0.9864275E+01 0.1635970E+00
+Iteration  1:   0.7632182E-01 0.3856730E+01
+Flow     : convergence order =  2.12 0.1219571E+01 0.9299206E-02
+Iteration  2:   0.8436308E-02 0.9859625E+00
+Flow     : convergence order =  1.69 0.3605486E-01 0.7435309E-03
+Iteration  3:   0.3649783E-03 0.3955749E-01
+Flow     : convergence order =  1.41 0.1075657E-02 0.4141763E-04
+Iteration  4:   0.1080688E-04 0.1036149E-02
+Flow     : convergence order =  1.34 0.5578564E-04 0.2539914E-05
+Iteration  5:   0.4349551E-06 0.3961739E-03
+  maximum fluid velocity (x dir) =  0.94673
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.445452094118653
+  norm=  0.415954591904570
+  solid position updated
+  
+ TIME STEP =   37
+  
+  physical time =   1.850 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.005448
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  9.905518900455945E-002
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.63 0.8499587E+01 0.1999694E+00
+Iteration  1:   0.6745925E-01 0.1666530E+01
+Flow     : convergence order =  2.06 0.9084450E+00 0.7947673E-02
+Iteration  2:   0.6278185E-02 0.1061182E+01
+Flow     : convergence order =  1.64 0.2258951E-01 0.5191368E-03
+Iteration  3:   0.2304460E-03 0.3498031E-01
+Flow     : convergence order =  1.35 0.6925107E-03 0.3102339E-04
+Iteration  4:   0.6668647E-05 0.1279469E-02
+Flow     : convergence order =  1.48 0.3306470E-04 0.1094010E-05
+Iteration  5:   0.2583517E-06 0.1005069E-03
+  maximum fluid velocity (x dir) =  0.91173
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.399804210758738
+  norm=  0.460915183842071
+  solid position updated
+  
+ TIME STEP =   38
+  
+  restart file <restart1.bin> written...
+  physical time =   1.900 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+  total solid volume (init) =     0.016960
+  total solid volume (curr) =     0.008332
+  done                                 (r_stang)
+  netto interaction force in solid (x-dir) =  8.268638468325662E-002
+ *** Distributing Forces onto Fluid ***
+ *** Solving Fluids: calculate fluid field ***
+Flow     : convergence order =  1.58 0.6819865E+01 0.1781849E+00
+Iteration  1:   0.5872989E-01 0.2431544E+01
+Flow     : convergence order =  2.29 0.9557063E+00 0.4875080E-02
+Iteration  2:   0.9454117E-02 0.6320757E+00
+Flow     : convergence order =  2.18 0.4372657E-01 0.2911216E-03
+Iteration  3:   0.4674420E-03 0.3510744E-01
+Flow     : convergence order =  1.91 0.1216368E-02 0.1493562E-04
+Iteration  4:   0.1302251E-04 0.9245929E-03
+Flow     : convergence order =  2.13 0.4091780E-04 0.3009690E-06
+Iteration  5:   0.4319860E-06 0.1937576E-04
+  maximum fluid velocity (x dir) =  0.79301
+ *** Interpolating Velocity onto Solid ***
+ maximum solid velocity is =  0.364614999540864
+  norm=  0.563472778004016
+  solid position updated
+  
+ TIME STEP =   39
+  
+  physical time =   1.950 s
+ *** Calculating RKPM delta function ***
+  Maximum Influence Nodes =      16
+  Minimum Influence Nodes =       6
+  Average Influence Nodes =   10.00
+ *** Solving Solids ***
+  --> solving for 3-d structure
+  calculate internal + inertial forces (r_stang)
+      error, zero or negative jacobian determinant

@@ -19,7 +19,7 @@ subroutine r_load
 
  !...concentrated load
   do i=1,numfn
-     fnodo(nodefn(i),ndirfn(i))=fnod(nodefn(i),ndirfn(i))*xtime
+     fnodo(nodefn(i),ndirfn(i))=fnod(nodefn(i),ndirfn(i))*xtime*10.0
   enddo
 
   return

@@ -4,7 +4,7 @@
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
        solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
-  use r_common, only: xmg,density_solid,predrf
+  use r_common, only: xmg,density_solid,predrf,ninit
   use solid_variables, only: nn_solid,ne_solid,nen_solid,nsd_solid,nsurface
   use solid_fem_BC
   implicit none
@@ -26,15 +26,19 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
   integer :: ipt,isd
 
   write(*,*) '*** Solving Solids ***'
-
   select case (nsd_solid)
      case (2,3)    !...3D structure
 
      write(*,*) ' --> solving for 3-d structure'
 
+    
+
     !...calculate internal + inertial forces + gravity/bouyancy forces   (initial configuration)  
      call r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel, &
                   solid_pave,solid_stress,solid_strain)
+
+   
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
     !...calculate timefunction
@@ -44,11 +48,16 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
     !...apply concentrated force                (initial configuration)
      call r_nodalf
 
+    if (ninit .eq. 1) then
+      call r_sreadinit(solid_coor_init,solid_coor_curr)
+    endif
+
      do ipt = 1,nn_solid
 		do isd = 1,nsd_solid
         solid_force_FSI(isd, ipt) = predrf(ipt+(isd-1)*nn_solid)
 		enddo
      enddo
+
 
     !...apply Dirichlet BC in current configuration (penalty stiffness)
      call solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_coor_curr)
@@ -61,8 +70,7 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 
      solid_force_FSI(1:nsd_solid,1)=-xmg(1:nsd_solid)*density_solid
   end select
-
-
+  
 !	 write(*,*) 'solid_force_FSI(1,4)',solid_force_FSI(1,1:4)
   
   return

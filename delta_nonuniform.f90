@@ -18,7 +18,7 @@ public
   integer,parameter :: delta_exchange_fluid_to_solid = 1
   integer,parameter :: delta_exchange_solid_to_fluid = 2  
 
-  integer :: maxconn !...used to define connectivity matrix size
+  !integer :: maxconn !...used to define connectivity matrix size
 
   integer :: ndelta !...defines type of delta function used -> right now, only "1" (RKPM) is available
 
@@ -31,7 +31,7 @@ public
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
+subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp,nodes_BC_solid,nodes_BC_fluid)
 ! Subroutine rkpm_delta
 ! Lucy Zhang
 ! 11/06/02
@@ -47,6 +47,8 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   integer,intent(in)  :: nn_solids
 
   real(8),intent(in)  :: x_solids(nsd,nn_solids)
+  integer :: nodes_BC_solid(1:nn_solids)
+  integer :: nodes_BC_fluid(1:nn_solids,1:maxconn)
 
  !...fluids variables
   real(8) :: xna(nsd,nn),xn(nsd,nen)
@@ -67,7 +69,8 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   integer :: maxinf,mininf,totinf
   integer :: ie,inl,isd,nnum,node
   integer :: inf(maxconn),ninf
-  integer :: i,n,error_id
+  integer :: i,n,error_id,j,k
+
 
   
   write(*,*) "*** Calculating RKPM delta function ***"
@@ -127,11 +130,19 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 
  !...Calculate volume
 	if (nsd == 2) then
-	  if (nen == 3) include "vol2d3n.fi"
-	  if (nen == 4) include "vol2d4n.fi"
+	  if (nen == 3) then
+		 include "vol2d3n.fi"
+	  endif
+	  if (nen == 4) then
+ 		 include "vol2d4n.fi"
+ 	  endif
 	elseif (nsd == 3) then
-      if (nen == 4) include "vol3d4n.fi"
-      if (nen == 8) include "vol3d8n.fi"
+      		if (nen == 4) then
+			 include "vol3d4n.fi"
+		endif
+!      		if (nen == 8) then
+!			 include "vol3d8n.fi"
+!		endif
     endif
 
      do inl = 1,nen
@@ -147,6 +158,31 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Mickael
+!02/24/2005
+       do k=1,nn_solids
+         if ((nodes_BC_solid(k)) == i) then
+             do j = 1, ninf
+                nodes_BC_fluid(k,j)=inf(j)
+              enddo
+          endif
+       enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Mickael 
+!02/22/2005
+	! if (nodes_BC_solid(i) /= 0 ) then
+	!	do j = 1, ninf
+	!		nodes_BC_fluid(i,j)=inf(j)
+	!	enddo
+	 ! endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
 !	 write(*,*) 'ninf=',ninf, 'inf=',inf(1),inf(ninf)
      cnn(1:ninf,i)=inf(1:ninf)
      ncnn(i)=ninf
@@ -189,6 +225,7 @@ end subroutine delta_initialize
 !c This subroutine finds the influence points of point x
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
+  use solid_variables, only:nn_solid
   implicit none
 
   integer :: ninf,nn,nsd,maxconn
@@ -205,6 +242,7 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
 !   ninf = total number of influence points
 !   adist = the radial distance of the influence domain
 !cccccccccccccccccc
+
 
   ninf = 0
   do i = 1,nn
@@ -270,6 +308,7 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
   !real(8)  :: tot_force_solid,tot_force_fluid
 
 
+
   tot_vel_fluid = 0
   tot_vel(1:nn_fluids)=0.0
   if (ndelta == 1) then                  !c    If non-uniform grid 
@@ -286,7 +325,7 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
               data_solids(1:nsd,inn) = data_solids(1:nsd,inn) + data_fluids(1:nsd,pt) * shrknode(icnn,inn)
               tot_vel(pt)=data_fluids(1,pt)
               vol_inf = vol_inf + dv(pt)
-           enddo
+			enddo
         enddo
 !c      tot_vel_solid=sum(data_solids(1,:))
 !c      tot_vel_fluid=sum(tot_vel(:))
