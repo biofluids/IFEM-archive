@@ -26,7 +26,7 @@
         !...calculate residual of each degree of freedom, p and diagonal matrix w
 !	write(*,*) '4: pdf=',pdf
 
-         call block(x,d,dold,p,w,hg,ien,f_fluids,rng)
+         call block(x,d,dold,p,w,hg,ien,f_fluids)
 
         !...apply boundary conditions, calculate residual with corrected BC
         !...i.e. where id=0 -> p=0

@@ -88,7 +88,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(ncnn(nn_solids)            ,stat=error_id)
 
   !coef = 0.5
-  coef = 0.9d0
+  coef = 0.6d0
   maxinf = 0
   mininf = 9999
   avginf = 0
@@ -147,7 +147,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
-!	 write(*,*) 'ninf=',ninf, 'inf=',inf(1),inf(ninf)
      cnn(1:ninf,i)=inf(1:ninf)
      ncnn(i)=ninf
 

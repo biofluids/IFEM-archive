@@ -33,7 +33,7 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree
   real* 8 res_c,res_q,res_a(nsd),res_t(nsd)
-  real* 8 prs_c,prs_t(nsd),prs_cc(nsd)
+  real* 8 prs_c,prs_t(nsd)
   real* 8 mu,nu,ro
   real* 8 tempc(ndf),temp
   real* 8 dtinv,oma,ama
@@ -151,12 +151,12 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 	    res_c = 0.0
 		if (nsd==2) then
 		  do inl=1,nen
-		   	 res_c = res_c+(sh(xsd,inl)*q(udf,inl) &
+		   	 res_c = (res_c+sh(xsd,inl)*q(udf,inl) &
 	                    +sh(ysd,inl)*q(vdf,inl))/alpha
 		  enddo
 		elseif (nsd==3) then
 		  do inl=1,nen
-		     res_c = res_c+(sh(xsd,inl)*q(udf,inl) &
+		     res_c = (res_c+sh(xsd,inl)*q(udf,inl) &
 	                    +sh(ysd,inl)*q(vdf,inl) &
 	                    +sh(zsd,inl)*q(wdf,inl))/alpha
 		  enddo
@@ -202,7 +202,6 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
 	    prs_c        = res_c*tauc 
-	    prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
 
 !.... assemble the delta-residuals at nodes
 	    do inl=1,nen
@@ -238,13 +237,13 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 
 !.....      Stablization with Tau_moment
 		   if (nsd==2) then
-		   	 p(pdf,node) = p(pdf,node) + ph(xsd,inl)*prs_cc(udf)  &
-	                                   + ph(ysd,inl)*prs_cc(vdf)
+		   	 p(pdf,node) = p(pdf,node) + ph(xsd,inl)*prs_t(udf)  &
+	                                 + ph(ysd,inl)*prs_t(vdf)
 	       elseif (nsd==3) then
-		     p(pdf,node) = p(pdf,node) + ph(xsd,inl)*prs_cc(udf)  &
-	                                   + ph(ysd,inl)*prs_cc(vdf)  &
-	                                   + ph(zsd,inl)*prs_cc(wdf)
-		   endif		! Stablization with Tau_cont 
+		     p(pdf,node) = p(pdf,node) + ph(xsd,inl)*prs_t(udf)  &
+	                                 + ph(ysd,inl)*prs_t(vdf)  &
+	                                 + ph(zsd,inl)*prs_t(wdf)
+		   endif
 		   p(1:nsd,node) = p(1:nsd,node) + prs_t(1:nsd)*temp + ph(1:nsd,inl)*prs_c
 
 	    enddo

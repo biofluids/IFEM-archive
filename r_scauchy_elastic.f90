@@ -1,11 +1,11 @@
-subroutine r_spiola_elastic1(ge,cstr_element)
-  use solid_variables, only: nsd_solid,nen_solid,ne_solid,nquadpad_solid
+subroutine r_spiola_elastic(ge,cstr_element)
+  use solid_variables, only: nen_solid,ne_solid,nquadpad_solid
   use r_common
   implicit none 
 
   real(8),intent(in) :: det,todet
   real(8) xto(3,3)
-  real(8) :: cstr_element(6),ge(nsd_solid*2,ne_solid,nquadpad_solid)  !...Cauchy stress
+  real(8) :: cstr_element(6),ge(6,ne_solid,nquadpad_solid)  !...Cauchy stress
   
   !real(8) :: ssb(3,3)
   real(8) :: ss(3,3)

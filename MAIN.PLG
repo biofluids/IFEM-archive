@@ -1,0 +1,185 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: main - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP43.tmp" with contents
+[
+/browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
+"D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo.f90"
+]
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP44.tmp" with contents
+[
+kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
+".\Debug\block.obj"
+".\Debug\blockgmres.obj"
+".\Debug\correct.obj"
+".\Debug\delta_nonuniform.obj"
+".\Debug\echoinput.obj"
+".\Debug\ensight_output.obj"
+".\Debug\equal.obj"
+".\Debug\error.obj"
+".\Debug\facemap.obj"
+".\Debug\fclear.obj"
+".\Debug\fluid_variables.obj"
+".\Debug\form.obj"
+".\Debug\gaussj.obj"
+".\Debug\gjinv.obj"
+".\Debug\global_constants.obj"
+".\Debug\global_simulation_parameter.obj"
+".\Debug\gmres.obj"
+".\Debug\hg.obj"
+".\Debug\hydro.obj"
+".\Debug\hypo.obj"
+".\Debug\initialize.obj"
+".\Debug\lenght.obj"
+".\Debug\main.obj"
+".\Debug\meshgen_fluid.obj"
+".\Debug\meshgen_solid.obj"
+".\Debug\nondimension.obj"
+".\Debug\norm.obj"
+".\Debug\parseinput.obj"
+".\Debug\quad2d3n.obj"
+".\Debug\quad2d4n.obj"
+".\Debug\quad3d4n.obj"
+".\Debug\quad3d8n.obj"
+".\Debug\r_bdpd_curr.obj"
+".\Debug\r_bdpd_init.obj"
+".\Debug\r_common.obj"
+".\Debug\r_element.obj"
+".\Debug\r_jacob.obj"
+".\Debug\r_load.obj"
+".\Debug\r_nodalf.obj"
+".\Debug\r_sboc.obj"
+".\Debug\r_sbpress.obj"
+".\Debug\r_scal.obj"
+".\Debug\r_scauchy.obj"
+".\Debug\r_smaterj.obj"
+".\Debug\r_spiola.obj"
+".\Debug\r_spiola_elastic.obj"
+".\Debug\r_spiola_viscous.obj"
+".\Debug\r_spress.obj"
+".\Debug\r_sreadinit.obj"
+".\Debug\r_sstif.obj"
+".\Debug\r_sstrain.obj"
+".\Debug\r_stang.obj"
+".\Debug\r_stoxc.obj"
+".\Debug\r_timefun.obj"
+".\Debug\read.obj"
+".\Debug\rkpmshape2d.obj"
+".\Debug\rkpmshape3d.obj"
+".\Debug\run_variables.obj"
+".\Debug\set.obj"
+".\Debug\shape.obj"
+".\Debug\sharp.obj"
+".\Debug\solid_fem_BC.obj"
+".\Debug\solid_solver.obj"
+".\Debug\solid_update.obj"
+".\Debug\solid_variables.obj"
+".\Debug\update.obj"
+".\Debug\vol.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP44.tmp"
+<h3>Output Window</h3>
+Compiling Fortran...
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo.f90
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo_declaration_fluid.fi(24) : Warning: This variable has not been used.   [F]
+    real(8) :: f(nsd,nsd,nquad,ne)
+---------------^
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo_declaration_fluid.fi(25) : Warning: This variable has not been used.   [FINV]
+    real(8) :: finv(nsd,nsd,nquad,ne)
+---------------^
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo_declaration_fluid.fi(26) : Warning: This variable has not been used.   [JACINV]
+    real(8),dimension(nquad,ne) :: jac,jacinv,jaco
+---------------------------------------^
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo_declaration_fluid.fi(26) : Warning: This variable has not been used.   [JACO]
+    real(8),dimension(nquad,ne) :: jac,jacinv,jaco
+----------------------------------------------^
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\hypo_declaration_fluid.fi(44) : Warning: This variable has not been used.   [DVOLUME]
+    real(8) :: dvolume(nn)
+---------------^
+Linking...
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP46.tmp" with contents
+[
+/nologo /o"Debug/main.bsc" 
+".\Debug\block.sbr"
+".\Debug\blockgmres.sbr"
+".\Debug\correct.sbr"
+".\Debug\delta_nonuniform.sbr"
+".\Debug\echoinput.sbr"
+".\Debug\ensight_output.sbr"
+".\Debug\equal.sbr"
+".\Debug\error.sbr"
+".\Debug\facemap.sbr"
+".\Debug\fclear.sbr"
+".\Debug\fluid_variables.sbr"
+".\Debug\form.sbr"
+".\Debug\gaussj.sbr"
+".\Debug\gjinv.sbr"
+".\Debug\global_constants.sbr"
+".\Debug\global_simulation_parameter.sbr"
+".\Debug\gmres.sbr"
+".\Debug\hg.sbr"
+".\Debug\hydro.sbr"
+".\Debug\hypo.sbr"
+".\Debug\initialize.sbr"
+".\Debug\lenght.sbr"
+".\Debug\main.sbr"
+".\Debug\meshgen_fluid.sbr"
+".\Debug\meshgen_solid.sbr"
+".\Debug\nondimension.sbr"
+".\Debug\norm.sbr"
+".\Debug\parseinput.sbr"
+".\Debug\quad2d3n.sbr"
+".\Debug\quad2d4n.sbr"
+".\Debug\quad3d4n.sbr"
+".\Debug\quad3d8n.sbr"
+".\Debug\r_bdpd_curr.sbr"
+".\Debug\r_bdpd_init.sbr"
+".\Debug\r_common.sbr"
+".\Debug\r_element.sbr"
+".\Debug\r_jacob.sbr"
+".\Debug\r_load.sbr"
+".\Debug\r_nodalf.sbr"
+".\Debug\r_sboc.sbr"
+".\Debug\r_sbpress.sbr"
+".\Debug\r_scal.sbr"
+".\Debug\r_scauchy.sbr"
+".\Debug\r_smaterj.sbr"
+".\Debug\r_spiola.sbr"
+".\Debug\r_spiola_elastic.sbr"
+".\Debug\r_spiola_viscous.sbr"
+".\Debug\r_spress.sbr"
+".\Debug\r_sreadinit.sbr"
+".\Debug\r_sstif.sbr"
+".\Debug\r_sstrain.sbr"
+".\Debug\r_stang.sbr"
+".\Debug\r_stoxc.sbr"
+".\Debug\r_timefun.sbr"
+".\Debug\read.sbr"
+".\Debug\rkpmshape2d.sbr"
+".\Debug\rkpmshape3d.sbr"
+".\Debug\run_variables.sbr"
+".\Debug\set.sbr"
+".\Debug\shape.sbr"
+".\Debug\sharp.sbr"
+".\Debug\solid_fem_BC.sbr"
+".\Debug\solid_solver.sbr"
+".\Debug\solid_update.sbr"
+".\Debug\solid_variables.sbr"
+".\Debug\update.sbr"
+".\Debug\vol.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP46.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+main.exe - 0 error(s), 5 warning(s)
+</pre>
+</body>
+</html>

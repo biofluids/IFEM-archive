@@ -1,0 +1,12 @@
+1. shape.f    --> call only one time, directly after parseinput
+
+2. solids part can now handle both hyperelastic material and linear elastic material
+option 1 --> hyperelastic material
+option 2 --> linear elastic material
+
+3. fixed one bug in the /ifem_before_rkem -> doesn't take initial conditions
+uncomment ds(1:ndf,1:nn) = eps1 in subroutine formd in form.f90
+
+4. fixed one bug in r_stiff.f90 subroutine
+	predrf(nu1)=predrf(nu1)+fu*w
+	it was '-' before, but according to the equation, it should be '+'

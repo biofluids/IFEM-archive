@@ -169,11 +169,9 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 !-->
  !write structure coordinates
   do i=1, nn_solid
-     if (nsd_solid==3) write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
+     write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
                                solid_coor_curr(2,i),  &
                                solid_coor_curr(3,i)
-	 if (nsd_solid==2) write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
-                               solid_coor_curr(2,i), 0.0
   enddo
 101 format(i8,3e12.5)
 
@@ -212,21 +210,6 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
         write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
         stop
      end select
-  elseif (nsd_solid == 2) then
-	  select case (nen_solid)
-	  case (3)
-		 write(i_file_unit, *) ' tria3'  ! element type
-		 write(i_file_unit, '(i8)')  ne_solid   ! number of elements
-		 do i=1, ne_solid
-			write(i_file_unit,'(4i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-		 enddo
-	  case (4)
-		 write(i_file_unit, *) 'quad4'    ! element type
-		 write(i_file_unit, '(I8)')  ne_solid   ! number of elements
-		 do i=1, ne_solid
-			write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-		 enddo
-	  end select
   endif
 
     !write fluids part element connectivity
@@ -259,7 +242,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 		 write(i_file_unit, *) 'quad4'    ! element type
 		 write(i_file_unit, '(I8)')  ne   ! number of elements
 		 do i=1, ne
-			write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+			write(i_file_unit,'(9i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
 		 enddo
 	  end select
   endif
@@ -412,7 +395,7 @@ elseif (nsd==2) then
   write(*,*) 'writing... ', name_file5
   open(ifileunit, file=name_file5, form='formatted')
   write(ifileunit, '(A)')   'structure and fluid field: force_FSI vector'
-  write(ifileunit,110) (solid_force_FSI(1,in),solid_force_FSI(2,in),0.0,in=1,nn_solid), &
+  write(ifileunit,110) (solid_force_FSI(1,in),solid_force_FSI(2,in),solid_force_FSI(3,in),in=1,nn_solid), &
                        (f_fluids(1,in),f_fluids(2,in),0.0,in=1,nn)
   close(ifileunit)
 
