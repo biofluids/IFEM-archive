@@ -51,7 +51,7 @@ subroutine formd(ds,rngface,ien)
         do idf=1,ndf
            if (hs(irng,inn).gt.1.0e-8) then
               if (bc(idf,irng) .gt. 0) then
-                ds(idf,inn) = bv(idf,irng)
+                 ds(idf,inn) = bv(idf,irng)
               endif
            endif
         enddo

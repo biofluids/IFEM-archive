@@ -11,10 +11,11 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
 
+
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
 
-  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
-  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+  real(8),dimension(6,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
+  real(8),dimension(6,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
 
   !...ox means X
   !... x means x
@@ -37,9 +38,9 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
   real(8) :: xkpp(nup,nup,ne_solid)
   real(8) :: xfp(nup,ne_solid)
 
-  real(8) :: ge(1:nsd_solid*2,ne_solid,nquadpad_solid)    !...Green strain
-  real(8) :: cstr(1:nsd_solid*2,ne_solid,nquadpad_solid)  !...Cauchy stress
-  real(8) :: cstr_element(1:nsd_solid*2)   !...Cauchy stress in element
+  real(8) :: ge(6,ne_solid,nquadpad_solid)    !...Green strain
+  real(8) :: cstr(6,ne_solid,nquadpad_solid)  !...Cauchy stress
+  real(8) :: cstr_element(6)   !...Cauchy stress in element
   real(8) :: pre(nup,ne_solid) !...pressure in solid (only used for almost compressible material)
 
 
@@ -84,7 +85,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
     !...       07.07.2003, Axel G.: integration and shape function the same as fluid
      gauss_int: do iq = 1,nquad_solid
 
-        rs(1:nsd_solid) = xq_solid(1:nsd_solid,iq)
+        rs(1:3) = xq_solid(1:3,iq)
 
 !     isoparametric interpolation
         call r_element(rs)
@@ -97,6 +98,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         call r_bdpd_init(toxji)
 !     deformation gradient
         call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc)
+
 !================================================
 ! Hyperelastic Material --> Option material_type=1
 	if (material_type==1) then
@@ -118,7 +120,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !     ! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
       if (mod(its,ntsbout) == 0) then
         call r_scauchy(det,todet,xto,cstr_element)
-        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
+        cstr(1:6,ine,iq) = cstr_element(1:6)
       endif
 !==========================================================
 ! Linear elastic Cauchy stress - sigma
@@ -131,7 +133,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         call r_spiola_viscous(xot,vel)  
 !     assemble cauchy stress for output
       if (mod(its,ntsbout) == 0) then
-        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
+        cstr(1:6,ine,iq) = cstr_element(1:6)
       endif
 	endif
 !===========================================================
@@ -163,12 +165,12 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
      tem(1:nump) = xfp(1:nump,ine)
      xfrtem(1:nump,1:nump) = xkpp(1:nump,1:nump,ine)
 
-     call gaussj(xfrtem,nump,nsd_solid*2,tem,1,1)
+     call gaussj(xfrtem,nump,6,tem,1,1)
 
      do ip=1,nump
         ttm(ip)=0.0d0
         do nos=1,nen_solid
-           do isd=1,nsd_solid
+           do isd=1,3
               nu1 = (isd-1)*nn_solid + solid_fem_con(ine,nos)
               mu1 = (isd-1)*nen_solid + nos
               ttm(ip) = ttm(ip) + xkup(mu1,ip,ine)*du(isd,solid_fem_con(ine,nos))
@@ -198,8 +200,8 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
    write(*,*) "  calculate stress and strain for output"
    do in=1,nn_solid
     
-     solid_stress(1:nsd_solid*2,in)=0.0d0
-     solid_strain(1:nsd_solid*2,in)=0.0d0
+     solid_stress(1:6,in)=0.0d0
+     solid_strain(1:6,in)=0.0d0
 
      ntem=0
      solid_pave(in)=0
@@ -210,16 +212,16 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
                  ntem = ntem + 1
                  solid_pave(in) = solid_pave(in) + pre(1,ine)
                  
-                 solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + cstr(1:nsd_solid*2,ine,1) !...constant stress and strain in element
-                 solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + ge(1:nsd_solid*2,ine,1)
+                 solid_stress(1:6,in) = solid_stress(1:6,in) + cstr(1:6,ine,1) !...constant stress and strain in element
+                 solid_strain(1:6,in) = solid_strain(1:6,in) + ge(1:6,ine,1)
                  
                  goto 541
               endif
            enddo
  541    enddo
 
-        solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in)/ntem
-        solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in)/ntem
+        solid_stress(1:6,in) = solid_stress(1:6,in)/ntem
+        solid_strain(1:6,in) = solid_strain(1:6,in)/ntem
 
         solid_pave(in) = solid_pave(in)/ntem
      endif

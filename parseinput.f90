@@ -68,7 +68,7 @@ subroutine parseinput_solid
   read(1,*) nn_solid_1,ne_solid_1
   read(1,*) nump
   
-  read(1,*) solid_scale(1:nsd_solid)
+  read(1,*) solid_scale(1),solid_scale(2),solid_scale(3)
   
   read(1,*) n_solid
 
@@ -102,7 +102,7 @@ subroutine parseinput_solid
  !...pressure force
   read(1,*) numfn,numeb      
   do i=1,numeb
-     read(1,*) nbe(i),nface(i),boup(i,1:nsd_solid)
+     read(1,*) nbe(i),nface(i),boup(i,1),boup(i,2),boup(i,3)
   enddo
 
  !...concentrated force
@@ -131,14 +131,18 @@ subroutine parseinput_solid
   read(1,*) alpha_solid,beta_solid
 
  !...gravity acceleration
-  read(1,*) xmg(1:nsd_solid)  !gravity
+  read(1,*) xmg(1),xmg(2),xmg(3)  !gravity
   write(*,*) 'gravity acceleration'
-  write(*,*) ' xmg   =',xmg(1:nsd_solid)
+  write(*,*) ' xmg(1)   =',xmg(1)
+  write(*,*) ' xmg(2)   =',xmg(2)
+  write(*,*) ' xmg(3)   =',xmg(3)
 
  !...body force
-  read(1,*) fbacc(1:nsd_solid)
+  read(1,*) fbacc(1),fbacc(2),fbacc(3)
   write(*,*) 'body force acceleration - not activated'
-  write(*,*) ' fbacc(1) =',fbacc(1:nsd_solid)
+  write(*,*) ' fbacc(1) =',fbacc(1)
+  write(*,*) ' fbacc(2) =',fbacc(2)
+  write(*,*) ' fbacc(3) =',fbacc(3)
 
   close(1)
 
@@ -222,7 +226,7 @@ subroutine parseinput_fluid
   CALL Read_Int(static_onoff,1)
   if (static_onoff.eq.1) then
      static=.TRUE.
-  elseif (static_onoff.eq.0) then
+  elseif (hg_vol_onoff.eq.0) then
      static=.FALSE.
   endif
 

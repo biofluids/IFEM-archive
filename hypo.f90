@@ -27,7 +27,7 @@ subroutine hypo
 !==============================	  
 ! Definition of variables
 
-  integer :: klok,j
+  integer :: klok
 
   !integer :: naxx1,naxx2
 
@@ -89,7 +89,7 @@ subroutine hypo
 
 !     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
 !                       solid_pave,solid_stress,solid_strain,solid_force_FSI)
-  
+
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
 !   f^fsi(t)  ->  f(t)
@@ -101,18 +101,18 @@ subroutine hypo
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
 
      include "hypo_fluid_solver.fi"
-
 !=================================================================
 ! Interpolation fluid velocity -> immersed material points
 !     v^f(t+dt)  ->  v^s(t+dt)
 
-!    call delta_exchange(solid_vel,nn_solid,d(1:nsd,:),nn,ndelta,dvolume,nsd, &
-!					  delta_exchange_fluid_to_solid)
+!     call delta_exchange(solid_vel,nn_solid,d(1:nsd,:),nn,ndelta,dvolume,nsd, &
+!						  delta_exchange_fluid_to_solid)
 
 !=================================================================
 ! Update solid domain
-!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-!                      solid_vel,solid_prevel,solid_accel)
+
+!     call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
+!                       solid_vel,solid_prevel,solid_accel)
 
 !=================================================================
 ! Write output file every ntsbout steps

@@ -6,12 +6,12 @@
 --------------------Configuration: main - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP44.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP64.tmp" with contents
 [
 /browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
-"D:\research\ifem\code\ifem-v4-testing\blockgmres.f90"
+"D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\block.f90"
 ]
-Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP45.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP65.tmp" with contents
 [
 kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
 ".\Debug\block.obj"
@@ -82,19 +82,89 @@ kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:n
 ".\Debug\update.obj"
 ".\Debug\vol.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP45.tmp"
+Creating command line "link.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP65.tmp"
 <h3>Output Window</h3>
 Compiling Fortran...
-D:\research\ifem\code\ifem-v4-testing\blockgmres.f90
-D:\research\ifem\code\ifem-v4-testing\blockgmres.f90(35) : Warning: This variable has not been used.   [RES_Q]
-  real* 8 res_c,res_q,res_a(nsd),res_t(nsd)
-----------------^
+D:\research\ifem\code\ifem-v4.2004\testing steps\2-D fluids 3-D solids -test fluids alone\block.f90
 Linking...
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP67.tmp" with contents
+[
+/nologo /o"Debug/main.bsc" 
+".\Debug\block.sbr"
+".\Debug\blockgmres.sbr"
+".\Debug\correct.sbr"
+".\Debug\delta_nonuniform.sbr"
+".\Debug\echoinput.sbr"
+".\Debug\ensight_output.sbr"
+".\Debug\equal.sbr"
+".\Debug\error.sbr"
+".\Debug\facemap.sbr"
+".\Debug\fclear.sbr"
+".\Debug\fluid_variables.sbr"
+".\Debug\form.sbr"
+".\Debug\gaussj.sbr"
+".\Debug\gjinv.sbr"
+".\Debug\global_constants.sbr"
+".\Debug\global_simulation_parameter.sbr"
+".\Debug\gmres.sbr"
+".\Debug\hg.sbr"
+".\Debug\hydro.sbr"
+".\Debug\hypo.sbr"
+".\Debug\initialize.sbr"
+".\Debug\lenght.sbr"
+".\Debug\main.sbr"
+".\Debug\meshgen_fluid.sbr"
+".\Debug\meshgen_solid.sbr"
+".\Debug\nondimension.sbr"
+".\Debug\norm.sbr"
+".\Debug\parseinput.sbr"
+".\Debug\quad2d3n.sbr"
+".\Debug\quad2d4n.sbr"
+".\Debug\quad3d4n.sbr"
+".\Debug\quad3d8n.sbr"
+".\Debug\r_bdpd_curr.sbr"
+".\Debug\r_bdpd_init.sbr"
+".\Debug\r_common.sbr"
+".\Debug\r_element.sbr"
+".\Debug\r_jacob.sbr"
+".\Debug\r_load.sbr"
+".\Debug\r_nodalf.sbr"
+".\Debug\r_sboc.sbr"
+".\Debug\r_sbpress.sbr"
+".\Debug\r_scal.sbr"
+".\Debug\r_scauchy.sbr"
+".\Debug\r_smaterj.sbr"
+".\Debug\r_spiola.sbr"
+".\Debug\r_spiola_elastic.sbr"
+".\Debug\r_spiola_viscous.sbr"
+".\Debug\r_spress.sbr"
+".\Debug\r_sreadinit.sbr"
+".\Debug\r_sstif.sbr"
+".\Debug\r_sstrain.sbr"
+".\Debug\r_stang.sbr"
+".\Debug\r_stoxc.sbr"
+".\Debug\r_timefun.sbr"
+".\Debug\read.sbr"
+".\Debug\rkpmshape2d.sbr"
+".\Debug\rkpmshape3d.sbr"
+".\Debug\run_variables.sbr"
+".\Debug\set.sbr"
+".\Debug\shape.sbr"
+".\Debug\sharp.sbr"
+".\Debug\solid_fem_BC.sbr"
+".\Debug\solid_solver.sbr"
+".\Debug\solid_update.sbr"
+".\Debug\solid_variables.sbr"
+".\Debug\update.sbr"
+".\Debug\vol.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP67.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-main.exe - 0 error(s), 1 warning(s)
+main.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

@@ -13,14 +13,13 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
   use fluid_variables
   implicit none
 
-  integer ien(nen,ne)
+  integer ien(nen,ne),rngface(neface,ne)
   real* 8 xloc(nsd,nn)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)
-  real* 8 p(ndf,nn),q(ndf,nn),hk(ne)
+  real* 8 p(ndf,nn),q(ndf,nn),hk(ne),p_vec(3)
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
-
   real* 8 eft0,det,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
@@ -31,12 +30,11 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree
   real* 8 res_c,res_a(nsd),res_t(nsd)
-  real* 8 prs_c,prs_t(nsd),p_vec(3),prs_cc(nsd)
+  real* 8 prs_c,prs_t(nsd)
   real* 8 mu,nu,ro,g(nsd)
   real* 8 tempc(ndf),temp
   real* 8 dtinv,oma,ama
-  integer inl, ie, isd, iq, node,jsd
-  integer ieface,irng, rngface(neface,ne),inface
+  integer inl, ie, isd, iq, node,jsd,ieface,irng
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
@@ -188,7 +186,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
 	    prs_c        = res_c*tauc
-	    prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
+	      
 !.... calculate the residual at each degree of freedom
 	    do inl=1,nen ! loop over number of nodes in an element
 		 
@@ -223,40 +221,19 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 
 		! Stablization with Tau_moment
 		   if (nsd==2) then
-		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
-	                                   - ph(ysd,inl)*prs_cc(vdf)
+		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
+	                                 - ph(ysd,inl)*prs_t(vdf)
 	       elseif (nsd==3) then
-		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
-	                                   - ph(ysd,inl)*prs_cc(vdf)  &
-	                                   - ph(zsd,inl)*prs_cc(wdf)
-		   endif		! Stablization with Tau_cont    
+		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
+	                                 - ph(ysd,inl)*prs_t(vdf)  &
+	                                 - ph(zsd,inl)*prs_t(wdf)
+		   endif
+		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
-	 enddo
-!*******************************************
-! Mickael
-! add in pressure driven input
-! Added in a -999 check....Yaling
-     do isd = 1,nsd
-        p_vec(isd)=0.0
-     enddo
-     do ieface=1,neface
-        irng = rngface(ieface,ie)
-		if (irng/=0) then
-		  if (bv(ndf,irng)/=-999) then
-			p_vec(xsd)=bv(ndf,irng)*1.0 ! only for rectangle shapes
-		  endif
-        endif
-     enddo
-!*****************************************************************
-	 do inl=1,nen ! loop over number of nodes in an element
-        node=ien(inl,ie)
-		p(1:nsd,node)=p(1:nsd,node)+ph(0,inl)*p_vec(1:nsd)
-     enddo
-!***************** End of pressure implementation ****************
+	    enddo
 
-!********************************************************
 	      ! Diagonal Preconditioner
-!********************************************************
+
 	    effd = mu*eft0*alpha
 	    effm = taum*eft0
 	    effc = tauc*eft0
@@ -289,6 +266,31 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 	    enddo
 
 	 enddo ! end of qudrature pts loop
+!*******************************************
+! Mickael
+! add in pressure driven input
+     do isd = 1,nsd
+        p_vec(isd)=0.0
+     enddo
+     do ieface=1,neface
+        irng = rngface(ieface,ie)
+		if (irng/=0) then
+		  if (bv(ndf,irng)/=-999) then
+			p_vec(xsd)=bv(ndf,irng)*1.0 ! only for rectangle shapes
+!			p_vec(xsd)=bv(4,irng)*1.0 !normal(1)
+!			p_vec(ysd)=bv(4,irng)*0.0 !normal(2)
+!			p_vec(zsd)=bv(4,irng)*0.0 !normal(3)
+!       write(*,*) p_vec(xsd), p_vec(ysd), p_vec(zsd)
+		  endif
+        endif
+     enddo
+!*****************************************************************
+	 do inl=1,nen ! loop over number of nodes in an element
+        node=ien(inl,ie)
+		p(1:nsd,node)=p(1:nsd,node)+ph(0,inl)*p_vec(1:nsd)
+
+     enddo
+!***************** End of pressure implementation ****************
   enddo ! end of element loop
 
   return

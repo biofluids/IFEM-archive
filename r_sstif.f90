@@ -7,10 +7,10 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
   implicit none
 
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con    !...connectivity for solid FEM mesh
-  real(8) :: cstr_element(1:nsd_solid*2)  !...Cauchy stress
+  real(8) :: cstr_element(6)  !...Cauchy stress
 
   real(8) :: ocpp
-  real(8) :: ocuu(nsd_solid*2,nsd_solid*2),ocup(nsd_solid*2)
+  real(8) :: ocuu(6,6),ocup(6)
   real(8) :: xkup(3*nen_solid,nup,ne_solid)
   real(8) :: xkpp(nup,nup,ne_solid)
   real(8) :: xfp(nup,ne_solid)
@@ -18,12 +18,13 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
   real(8) :: vel(nsd_solid,nen_solid)  !...element nodes velocity
   real(8) :: acc(nsd_solid,nen_solid)  !...element nodes acceleration
   real(8) :: w
-  real(8) :: toxj(nsd_solid,nsd_solid)
+  real(8) :: toxj(3,3)
   
   real(8) :: sdensit
   integer :: ni,isd,ip,jp,k,nu1,nv1,nw1,mu1,nk
   real(8) :: xac(1:nsd_solid),xve(1:nsd_solid)
   real(8) :: fu,fkup,fp,fkpp,totalh
+
 
 
   sdensit=density_solid
@@ -33,7 +34,7 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
 !ccccccccccc
 
   do ni=1,nen_solid
-     do isd=1,nsd_solid
+     do isd=1,3
         nu1 = (isd-1)*nn_solid+solid_fem_con(ne,ni)
         mu1 = (isd-1)*nen_solid+ni
 !ccccccccccc
@@ -60,7 +61,7 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
 !cccccccccccccccccccccccccc
 !     inertia forces
 !cccccccccccccccccccccccccc
-  do isd=1,nsd_solid
+  do isd=1,3
      xac(isd)=0.0d0
      xve(isd)=0.0d0
      do k=1,nen_solid
@@ -69,24 +70,18 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
      enddo
   enddo
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  xac(1:nsd_solid) = xac(1:nsd_solid) + xmg(1:nsd_solid)
-
+  xac(1) = xac(1) + xmg(1)
+  xac(2) = xac(2) + xmg(2)
+  xac(3) = xac(3) + xmg(3)
   totalh=0
   do ni=1,nen_solid
-  	if(nsd_solid == 3) then
      nu1=             solid_fem_con(ne,ni)
      nv1=  nn_solid + solid_fem_con(ne,ni)
      nw1=2*nn_solid + solid_fem_con(ne,ni)
+
      predrf(nu1) = predrf(nu1) - w*sdensit*h(ni)*xac(1) - w*xviss*h(ni)*xve(1)
      predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
      predrf(nw1) = predrf(nw1) - w*sdensit*h(ni)*xac(3) - w*xviss*h(ni)*xve(3)
-	elseif(nsd_solid == 2) then
-     nu1=             solid_fem_con(ne,ni)
-     nv1=  nn_solid + solid_fem_con(ne,ni)
-     predrf(nu1) = predrf(nu1) - w*sdensit*h(ni)*xac(1) - w*xviss*h(ni)*xve(1)
-     predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
-
-	endif
 !   totalh=totalh+h(ni)
 
   enddo

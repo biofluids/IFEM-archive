@@ -1346,10 +1346,10 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 	  real* 8 awdx,awdy
 	  real* 8 a11,a12,a21,a13,a31,a22,a23,a32,a33,det,cdet
 
-      real* 8 b(3),bd(2,3),cpt(2)
-      real* 8 cjp(2,nep),dcjp(2,nep),dwjp(nep)
-      real* 8 gminv(3,3),gmdx(3,3),gmdy(3,3)
-      real* 8 adx(3,3),ady(3,3)
+      dimension b(3),bd(2,3),cpt(2)
+      dimension cjp(2,nep),dcjp(2,nep),dwjp(nep)
+      dimension gminv(3,3),gmdx(3,3),gmdy(3,3)
+      dimension adx(3,3),ady(3,3)
 	  integer jpt
 	  integer ninf, maxconn, inf(maxconn)
 !
@@ -1423,6 +1423,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 
      xx = dabs(r10)
 	 yy = dabs(r01)
+
 	 if((xx.ge.2.0) .or. (yy.ge.2.0)) go to 30
 
      call window(aw,awdx,awdy,awdxx,awdxy,awdyy,xp,yp,xj,yj,ha1,ha2)

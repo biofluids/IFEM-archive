@@ -18,7 +18,6 @@ end subroutine r_scalfp
 !     
 subroutine r_scalfu(fu,isd,ni)
   use r_common
-  use solid_variables, only : nsd_solid
   implicit none
 
   real(8) :: fu
@@ -32,7 +31,7 @@ subroutine r_scalfu(fu,isd,ni)
   !   fu=fu+PK2str(m)*dge(m,isd,ni)
   !enddo
 
-  do ksd = 1,nsd_solid
+  do ksd = 1,3
     fu = fu + bd(ksd,ni)*PK1str_tens(ksd,isd)
   enddo
 
@@ -45,12 +44,11 @@ end subroutine r_scalfu
 !     
 subroutine r_scalfu_curr(fu,i,ni,cstr_element)
   use r_common
-  use solid_variables, only : nsd_solid
   implicit none
 
   real(8) :: fu
   integer :: i,ni
-  real(8),intent(in) :: cstr_element(2*nsd_solid)  !...Cauchy stress
+  real(8),intent(in) :: cstr_element(6)  !...Cauchy stress
 
   !integer :: m
 
@@ -81,7 +79,6 @@ end subroutine r_scalfu_curr
 !     
 subroutine r_scalkpp(fkpp,ocpp,k,m)
   use r_common
-  use solid_variables, only : nsd_solid
   implicit none
 
   real(8) :: fkpp,ocpp
@@ -98,16 +95,15 @@ end subroutine r_scalkpp
 !     
 subroutine r_scalkup(fkup,ocup,i,k,ni)
   use r_common
-  use solid_variables, only : nsd_solid
   implicit none
   
-  real(8) :: fkup,ocup(2*nsd_solid)
+  real(8) :: fkup,ocup(6)
   integer :: i,k,ni
 
   integer :: m
 
   fkup=0.0d0
-  do m=1,2*nsd_solid
+  do m=1,6
      fkup=fkup+ocup(m)*dge(m,i,ni)*hp(k)
   enddo
 

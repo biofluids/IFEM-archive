@@ -31,43 +31,36 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids)
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree
   real* 8 res_c,res_a(nsd),res_t(nsd)
-  real* 8 prs_c,prs_t(nsd), p_vec(3)
+  real* 8 prs_c,prs_t(nsd)
   real* 8 mu,nu,ro,g(nsd)
   real* 8 tempc(ndf),temp
   real* 8 dtinv,oma,ama
   integer inl, ie, isd, iq, node,jsd
-  integer ieface,irng, rngface(neface,ne),inface
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
-
-
 
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
 
-
-	
   do ie=1,ne		! loop over elements
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
-	
-		
 	 enddo
-	
+
 	 hg = hk(ie)
 
 	 do iq=1,nquad  ! loop over the quadrature points in each element 
 !...  calculate the shape function and the weight at quad point
 		if (nsd==2) then
-		    if (nen.eq.4) then !calculate shape function at quad point
+		    if (nen.eq.3) then !calculate shape function at quad point
 			   include "sh2d3n.h"
-			elseif (nen.eq.8) then
+			elseif (nen.eq.4) then
 				include "sh2d4n.h"
 			endif
 		elseif (nsd==3) then
@@ -77,7 +70,8 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids)
 				include "sh3d8n.h"
 			endif
 		endif
-
+!		stop
+!	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
 	    eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
 		drs(:) = 0.0
@@ -231,34 +225,13 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids)
 		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
 	                                 - ph(ysd,inl)*prs_t(vdf)
 	       elseif (nsd==3) then
-			   p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
-										 - ph(ysd,inl)*prs_t(vdf)  &
-										 - ph(zsd,inl)*prs_t(wdf)
+		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_t(udf)  &
+	                                 - ph(ysd,inl)*prs_t(vdf)  &
+	                                 - ph(zsd,inl)*prs_t(wdf)
 		   endif
 		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Mickael
-			do isd = 1,nsd
-				p_vec(isd)=0.0
-			enddo
-				
-			do ieface=1,neface
-				irng = rngface(ieface,ie)
-				if ((irng == 4)) then
-					p_vec(xsd)=bv(3,irng)*1.0
-					p_vec(ysd)=bv(3,irng)*0.0
-					p_vec(zsd)=bv(3,irng)*0.0
-				endif
-			enddo
-			
-			p(udf,node) = p(udf,node)-ph(0,inl)*p_vec(xsd) 
-			p(vdf,node) = p(vdf,node)-ph(0,inl)*p_vec(ysd) 
-			p(wdf,node) = p(wdf,node)-ph(0,inl)*p_vec(zsd) 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		enddo
-
+	    enddo
 
 	      ! Diagonal Preconditioner
 
@@ -269,7 +242,11 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids)
 	    do inl=1,nen
 
 		   node=ien(inl,ie)
-		   ug = ro*(u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
+		   if (nsd==2) then
+			 ug = ro*(u*sh(1,inl)+v*sh(2,inl))
+		   elseif (nsd==3) then
+		     ug = ro*(u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
+		   endif
 		   temp = alpha*ug + sh(0,inl)*dtinv*ro
 		 
 		   do isd=1,nsd
