@@ -1,40 +1,40 @@
-!========================
-!	hypo.f90									
-!========================
+!	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!	hypo.f90															 c
+!	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !   *.fi files are used to shorten hypo.f (keeping the overview)
 !   the include command reads these files and replaces the include line
 !   with the content of these files
 
-!=======================================
 subroutine hypo
-
-
-!ccccccccccccccccccccccccccccc	  
-! Definition of variables
   use global_simulation_parameter
   use run_variables
   use delta_nonuniform
   use solid_variables
   use fluid_variables
   use r_common, only: xg,wgt,xg_tetra,wgt_tetra,du
+  use meshgen_solid
+  use solid_fem_BC
   use form
   use ensight_output
   implicit none
+
+!ccccccccccccccccccccccccccccc	  
+! Definition of variables
+
   !include "malloc.fi" !.......memory needed to allocate pointers FEM fluid solver
 
   integer :: klok
 
   integer :: time_start,time_stop
-
   integer time
   external time
 
 
 
-!===================================
+!========================================
 ! Define local variables
 
-  !include "hypo_declaration_solid.fi"
+  include "hypo_declaration_solid.fi"
   include "hypo_declaration_fluid.fi"	
 
 !============================================			
@@ -46,14 +46,14 @@ subroutine hypo
 ! Write output for initial configuration
   its = 0
   klok = nrestart
-  include 'hypo_write_output.fi'
-
-
+  if (nrestart==0) then
+     include 'hypo_write_output.fi'
+  endif
   time_start=time()
 
-!================================================================
-!                time loop  
-!================================================================
+!==================================================================
+!                time loop 
+!==================================================================
   time_loop: do its=nrestart+1,nrestart+nts !.....count from 1 to number of timesteps
 
 	 tt = tt + dt    !....update real time
@@ -65,40 +65,40 @@ subroutine hypo
 	 write (7,*) ' '
 	 write (7,*) 'TIME STEP = ', its
 	 write (7,'("  physical time = ",f7.3," s")') tt
-
-!==================================================================
+!=================================================================
 ! Construction of the dirac deltafunctions for nonuniform spacing
 
      call delta_initialize(nn_solid,solid_coor_curr,xn,ien,dvolume)
 
-!==================================================================
+!=======================
 !   2.  Solid solver
 
-     call solid_solver
+     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,&
+	 solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
 
-!======================================================
+!=======================================================
 ! Distribution of the solid forces to the fluid domain
 !	f^fsi(t + dt)  ->  f(t + dt)
 			
 	 call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,delta_exchange_solid_to_fluid)
 
-!===============================================================
+!================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
 
 	 include "hypo_fluid_solver.fi"
 	 
-!===========================================================
+!==========================================================
 ! Interpolation fluid velocity -> immersed material points
 !	   v^f(t+dt)  ->  v^s(t+dt) 	 
 
      call delta_exchange(solid_vel,nn_solid,d(1:3,:),nn,ndelta,dvolume,delta_exchange_fluid_to_solid)
 
-!==================================
+!=========================
 ! Update solid domain
 	 
-	 call solid_update(klok)
+	 call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_prevel,solid_accel)
 
-!=========================================
+!==========================================
 ! Write output file every ntsbout steps
 
      include "hypo_write_output.fi"
@@ -107,8 +107,8 @@ subroutine hypo
   enddo	time_loop
 
 	
-!...stops time counting and write output to screen
-  time_stop=time()
-  write(*,*) time_start,time_stop,time_stop-time_start
+ !...stops time counting and write output to screen
+ time_stop=time()
+ write(*,*) 'total computational time=',time_stop-time_start
 	
 end subroutine hypo

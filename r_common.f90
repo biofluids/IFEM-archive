@@ -32,7 +32,7 @@ module r_common
   real*8  :: xg_tetra(4,4),wgt_tetra(4,4)
   integer :: nump,nrigid
   integer :: nbouc,numgb,numeb,numfn
-  integer :: nint
+
 !  integer :: iti
   real*8  :: tfun(10)
 !  real*8  :: xkup(3*nnis,nup,nel)
@@ -40,7 +40,8 @@ module r_common
 !  real*8  :: shift(3,n_solid_max)
 !  real*8  :: ge(6,nel,3,3,3),cstr(6,nel,3,3,3)  !...Cauchy stress
 !   real*8 :: tstress(6,mno),tstrain(6,mno)
-  real*8  :: PK2str(6),bPK2str(6),PK1str(6)
+  real*8  :: PK2str(6),bPK2str(6)
+  real*8  :: PK1str_tens(3,3)
   real*8  :: cpre,bpre
   real*8  :: h(9),hp(6),dbpre(6),ddbpre(6,6),r_p(3,9)
   real*8  :: bd(3,9),bd_curr(3,9)
@@ -104,25 +105,26 @@ module r_common
   real*8,allocatable,save :: xkpp(:,:,:)
   real*8,allocatable,save :: xfp(:,:)
 
-  real*8,allocatable,save :: ge(:,:,:,:,:)    !...Green strain
-  real*8,allocatable,save :: cstr(:,:,:,:,:)  !...Cauchy stress
+  real*8,allocatable,save :: ge(:,:,:)    !...Green strain
+  real*8,allocatable,save :: cstr(:,:,:)  !...Cauchy stress
   real*8,allocatable,save :: pre(:,:)
 
   real*8  :: rc1,rc2,rk  !...rubber material parameters
 
 contains
 
-subroutine r_common_allocate(nel,nup,nis)
+subroutine r_common_allocate(nel,nup,nen_solid)
+  use solid_variables, only: nquadpad_solid
 
-  integer :: nel,nup,nis
+  integer :: nel,nup,nen_solid
 
 
-  allocate(xkup(3*nis,nup,nel))
+  allocate(xkup(3*nen_solid,nup,nel))
   allocate(xkpp(nup,nup,nel))
   allocate(xfp(nup,nel))
 
-  allocate(ge(6,nel,3,3,3))
-  allocate(cstr(6,nel,3,3,3))    
+  allocate(ge(6,nel,nquadpad_solid))
+  allocate(cstr(6,nel,nquadpad_solid))    
 
   allocate(pre(nup,nel))
 

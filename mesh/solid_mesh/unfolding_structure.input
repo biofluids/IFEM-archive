@@ -1,0 +1,73 @@
+/title,Cube
+!/filnam,cube  
+
+/prep7
+
+ET,1,SOLID45
+
+a = 2.5
+b = 2
+d = 0.1
+e = 1.2
+f = 0.9
+
+h = 0.1
+
+esize,0.04
+
+RECTNG,0,b,0,a,
+RECTNG,0,e,f+d,a 
+ASBA,       1,       2  ,
+RECTNG,0,b-d,0,f
+ASBA,       3,       1  ,
+RECTNG,e+d,b-d,0,a-d
+ASBA,       2,       1  ,
+numc,area
+
+
+VOFFST,1,h,
+
+
+
+!block,0,a,-b/2,b/2,-c/2,c/2
+
+!..meshing options
+MOPT,AMESH,DEFA 
+MOPT,QMESH,DEFA 
+MOPT,VMESH,MAIN 
+MOPT,TIMP,4 
+MOPT,PYRA,OFF   
+MOPT,SPLIT,2
+MSHKEY,0
+MSHMID,0
+MSHPATTERN,0
+KEYW,ACCEPT,0   
+MSHAPE,1,2D 
+MSHAPE,1,3D 
+
+MOPT,EXPND,0.98
+esize,0.04
+vmesh,1
+
+
+
+NUMM,all
+NUMC,all
+alls
+
+NSEL,S,LOC,Y,-1000,f+d+0.001
+NSEL,u,LOC,X,e-d+0.001,1000
+ESLN,S,1
+MPCHG,2,all,
+
+/SOLU
+
+D,all,,0,,,,all
+
+alls
+EPLOT
+
+
+
+
+

@@ -1,0 +1,57 @@
+/title,Membrane 100x50x
+/filnam,cube  
+
+/prep7
+
+ET,1,SOLID45
+
+a = 4
+b = 50
+c = 100
+
+BLOCK,-a/2,a/2,-b/2,b/2,-c/2,c/2,
+
+
+MOPT,AMESH,DEFA 
+MOPT,QMESH,DEFA 
+MOPT,VMESH,MAIN 
+MOPT,TIMP,4 
+MOPT,PYRA,OFF   
+MOPT,SPLIT,2
+MSHKEY,0
+MSHMID,0
+MSHPATTERN,0
+KEYW,ACCEPT,0   
+MSHAPE,1,2D 
+MSHAPE,1,3D 
+
+MOPT,EXPND,1.1
+ESIZE,4
+VMESH,all
+
+NUMM,all
+NUMC,all
+
+LSEL,S,LINE,,1,8,7
+!LSEL,S,LOC,X,-1,0.001
+!LSEL,R,Loc,Y,0.4,0.6
+!NSLL,S,1
+!ASEL,S,area,,6
+!LSLA,S
+NSLL,S,1
+
+/SOLU
+
+D,all,,0,,,,all
+
+alls
+
+!NSEL,S,LOC,X,-1,0
+!ESLN,S
+
+alls
+EPLOT
+
+
+
+

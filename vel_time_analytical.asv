@@ -1,17 +1,38 @@
-mu=10; %viscosity (g/cm.s)
-dia=0.2; %diameter (cm)
-volume=pi/6*dia^3;  %volume (cm^3)
-rho_s=3.0; %density of solid (g/cm^3)
-rho_f=1.0; %density of fluid
-mass=rho_s*volume; %mass (g)
-gravity=980; %gravity
+% This program calculates the terminal settling velocity of flow past a
+% rigid sphere. Terminal velocity is calculated when drag on the sphere is
+% equal to its net weight. The net weight is the weight minus the buoyancy
+% force on the sphere. 
+% Ref. "Bubbles, Drops and Particles" by Clift, Grace and Weber, New York, 1978
 
-%Assume Stoke's flow
-u_t=dia^2*(rho_s-rho_f)*gravity/(18*mu);
-reynold=dia*u_t*rho_f/mu;
-if reynold>0.2
-    'PARTICLE REYNOLDS NUMBER >0.2, NOT VALID FOR STOKE''S FLOW'
+% Re=d V rho/mu (d=diameter of the sphere, v is the velocity, in this case,
+% the terminal velocity, rho=density of the fluid, mu=viscosity of the
+% fluid);
+% Cd=8D/(pi rho d^2 V^2) (Cd=drag coefficient, d=drag force)
+
+clear all; format long;
+mu=0.01; %viscosity (g/cm.s)
+dia=0.4; %diameter (cm)
+rho_s=1.02; %density of solid (g/cm^3)
+rho_f=1.0; %density of fluid
+drho=rho_s-rho_f; %density difference
+g=9.80;  %gravity
+Nd=4.0*rho_f*drho*g*dia^3/(3*mu^2)  % "Best number"
+
+% Calculate the terminal Reynolds number
+if Nd<=73
+    Re=Nd/24 - 1.7569d-4*Nd^2 + 6.9252d-7*Nd^3 - 2.3027d-10*Nd^4
+elseif Nd<=580
+    W=log10(Nd);
+    Re=10^(-1.7095 + 1.33438*W - 0.11591*W^2)
+elseif Nd<=1.55d7
+    W=log10(Nd);
+    Re=10^(-1.81391+1.34671*W-0.12427*W^2+0.006344*W^3)
+else
+    'Reynolds number out of range!!'
 end
-t=1:20; %time (s)
-u=-u_t*(exp(-3*pi*mu*dia*t/mass)-1);
-plot(t,u)
+
+% Calculate the terminal velocity from the Reynolds number
+%vel=Re*mu/(rho_f*dia)
+%log10(Nd^(1/3))
+logNd13=log10(Nd^(1/3))
+Nu=10^(logNd13

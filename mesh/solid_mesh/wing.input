@@ -1,0 +1,114 @@
+/title,Wing 1x1x0.1
+/filnam,cube  
+
+/prep7
+
+ET,1,SOLID45
+
+L1 = 4
+L2 = 0.75*L1
+L3 = 0.5*L1
+L4 = 0.3*L1
+L5 = 0.15*L1
+L6 = 0.0*L1
+h = L1 / 16
+h1 = 0.0*h
+h2 = 0.2*h
+h3 = 0.7*h
+h4 = 0.95*h
+h5 = 1.0*h
+h6 = 0.0*h
+c = 0.1
+
+center = L4
+
+K,1,L1,0,h1 
+K,2,L2,0,h2
+K,3,L3,0,h3
+K,4,L4,0,h4
+K,5,L5,0,h5
+K,6,L6,0,h6
+
+K,7,L5,0,-h5
+K,8,L4,0,-h4
+K,9,L3,0,-h3
+K,10,L2,0,-h2
+
+BSPLIN,1,2,3,4, 5,6,2*L1,0,-0.3*L1,0   ,0,-1    
+BSPLIN,6,7,8,9,10,1,0   ,0,1      ,2*L1,0,0.3*L1
+
+L,1,6
+L,4,8
+
+alls
+LSBL,1,4,,,keep 
+LSBL,2,4,,,keep
+LSBL,3,4,,,keep
+LSBL,4,8,,,keep
+
+alls
+AL,7,9,8
+AL,1,2,9
+AL,2,5,3
+AL,8,3,6
+
+KMODIF,11,L4,0,0
+
+ASEL,S,AREA,,1,4,1
+VOFFST,1, c/2, ,
+VOFFST,2, c/2, ,
+VOFFST,3, c/2, ,
+VOFFST,4, c/2, ,
+VOFFST,1,-c/2, ,
+VOFFST,2,-c/2, ,
+VOFFST,3,-c/2, ,
+VOFFST,4,-c/2, ,
+alls
+VGLUE,all
+
+nummrg,all
+numcmp,all
+
+
+MOPT,AMESH,DEFA 
+MOPT,QMESH,DEFA 
+MOPT,VMESH,MAIN 
+MOPT,TIMP,4 
+MOPT,PYRA,OFF   
+MOPT,SPLIT,2
+MSHKEY,0
+MSHMID,0
+MSHPATTERN,0
+KEYW,ACCEPT,0   
+MSHAPE,1,2D 
+MSHAPE,1,3D 
+
+LSEL,S,LOC,x,L1-0.1,L1+0.1
+LESIZE,all,0.14
+alls
+
+VSEL,S,LOC,X,-1,L1/2
+MOPT,EXPND,0.99
+ESIZE,0.07
+VMESH,all
+
+VSEL,INVE
+MOPT,EXPND,0.99
+ESIZE,0.06
+VMESH,all
+
+
+NUMM,all
+NUMC,all
+
+NSEL,S,LOC,X,-1,3
+
+/SOLU
+
+D,all,,0,,,,all
+
+alls
+EPLOT
+
+
+

@@ -1,0 +1,26 @@
+/FILNAM,zylinder,1
+/TITLE,Zylinder
+
+/PREP7  
+
+ET,1,SOLID45 
+
+a = 1
+b = 1
+c = 2
+
+Block,-a/2,a/2,-b/2,b/2,-c/2,c/2
+
+esize,1
+vmesh,all
+
+
+
+
+NUMMRG,all
+NUMCMP,all
+
+/VIEW,1,1,1,1   
+/VUP,1,Y
+
+eplot

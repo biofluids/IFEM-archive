@@ -4,7 +4,7 @@ module fluid_variables
 
   integer nec,nnc,nqdc,nqdf,maxnec,maxnnc,maxnqdc,numproc,myid
 
-  integer,parameter :: ndfpad=5,nsdpad=3,nenpad=8,nquadpad=8
+  integer,parameter :: ndfpad=5,nsdpad=3,nenpad=8,nquadpad=12
 
   integer iquad, nquad, nquad2d      
   real* 8 sq(0:nsdpad,nenpad,nquadpad)

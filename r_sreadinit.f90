@@ -1,7 +1,10 @@
-subroutine r_sreadinit
+subroutine r_sreadinit(solid_coor_init,solid_coor_curr)
   use r_common
   use solid_variables
   implicit none
+
+  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
+  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
 
   integer :: ndum,ndumtest
   real*8 :: x1,y1,z1

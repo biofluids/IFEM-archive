@@ -7,7 +7,6 @@
 	! store the variables from the previous time step,dold=d 
 	  dold(1:ndf,1:nn) = d(1:ndf,1:nn)
 
-	  
 	! apply time dependent boundary conditions to d
 	  call formbc(d,rng,ien)
 	  	   
@@ -46,4 +45,5 @@
  101	format(/"Number of equations for Flow.........(nq) = ",i10)
  102	format("Iteration",i3,':  ',4e14.7)
 
-      write(*,'("  maximum fluid velocity (x dir) = ",f8.5)'),maxval(d(1,:))
+	write(*,103) maxval(d(1,:))
+103	format('maximum fluid velocity in x-dir = ',f8.5)

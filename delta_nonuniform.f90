@@ -40,7 +40,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 ! This subroutine calculate the delta function using RKPM which is used for both
 ! ninterpolation and distribution of the velocities and forces respectively
 ! between fluids and solids domain.
-  use error_memory
   use fluid_variables
   implicit none
 
@@ -65,7 +64,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   integer :: maxinf,mininf,totinf
   integer :: ie,inl,isd,nnum,node
   integer :: inf(maxconn),ninf
-  integer :: i,n
+  integer :: i,n,error_id
 
   
   write(*,*) "*** Calculating RKPM delta function ***"
@@ -81,9 +80,9 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   end if
 
 
-  allocate(shrknode(maxconn,nn_solids),stat=error_id); call alloc_error("shrknode","delta_initialize",error_id)
-  allocate(cnn(maxconn,nn_solids)     ,stat=error_id); call alloc_error("cnn",     "delta_initialize",error_id)
-  allocate(ncnn(nn_solids)            ,stat=error_id); call alloc_error("ncnn",    "delta_initialize",error_id)
+  allocate(shrknode(maxconn,nn_solids),stat=error_id)
+  allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
+  allocate(ncnn(nn_solids)            ,stat=error_id)
 
 
 
@@ -95,9 +94,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   cnn(:,:)=0
   ncnn(:)=0
   shrknode(:,:)=0.0d0
-
- !...Calculate element coordinates
-  call shape
 
  !...Calculate nodal weights
   dwjp(:) = 0.0

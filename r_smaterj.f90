@@ -145,7 +145,7 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
      do j=1,6
         ddxmj(1,i,j) = -x13*xmi4*(dli(1,i)*dli(3,j) + dli(1,j)*dli(3,i) + ddli(3,i,j)*xmi(1)) + x49*dli(3,j)*dli(3,i)*xmi7*xmi(1)
         ddxmj(2,i,j) = ddli(2,i,j)*xmi2 - xmi5*x23*(dli(2,i)*dli(3,j) + dli(2,j)*dli(3,i) + ddli(3,i,j)*xmi(2)) &
-					 + dli(3,j)*dli(3,i)*xmi8*xmi(2)*x109
+		              + dli(3,j)*dli(3,i)*xmi8*xmi(2)*x109
         ddxmj(3,i,j) = -0.25d0*dli(3,i)*dli(3,j)/xmi(3)/dsqrt(xmi(3)) + 0.5d0*ddli(3,i,j)/dsqrt(xmi(3))
 	 enddo
   enddo

@@ -209,14 +209,14 @@ subroutine formbc(ds,rngface,ien)
 	hs(:,:) = h(:,:)
 
 
-    tt_ramp = 0.05
-    if ((tt >= 0).and.(tt <= tt_ramp)) then
-         bv(udf,2) = 0.5  * tt/tt_ramp
-		 bv(udf,4) =-0.5  * tt/tt_ramp  !...inlet (6) velocity in direction #degree of freedom#
-	elseif ((tt >= tt_ramp).and.(tt <= (2*tt_ramp))) then
-         bv(udf,2) = 0.5
-		 bv(udf,4) =-0.5
-    endif
+    !tt_ramp = 0.05
+    !if ((tt >= 0).and.(tt <= tt_ramp)) then
+    !     bv(udf,2) = 0.5  * tt/tt_ramp
+	!	 bv(udf,4) =-0.5  * tt/tt_ramp  !...inlet (6) velocity in direction #degree of freedom#
+	!elseif ((tt >= tt_ramp).and.(tt <= (2*tt_ramp))) then
+    !     bv(udf,2) = 0.5
+	!	bv(udf,4) =-0.5
+    !endif
 
 	!write(*,'("boundary 6 (inflow) x-velocity: ",f7.4," cm/s")')bv(udf,6)
 	!write(*,'("boundary 6 (inflow) z-velocity: ",f6.3," cm/s")')bv(wdf,6)

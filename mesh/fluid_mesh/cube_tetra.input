@@ -1,0 +1,108 @@
+/title,Cube
+/filnam,cube  
+
+/prep7
+
+ET,1,SOLID45
+
+a = 4
+b = 1
+h = 10
+
+BLOCK,0-1,h+1,a/2-b,a/2+b,a/2-b,a/2+b,
+BLOCK,0,h,0,a,0,a
+VSBV,2,1
+BLOCK,0,h,a/2-b,a/2+b,a/2-b,a/2+b,
+
+alls
+VGLUE,all
+NUMMRG,all
+NUMCMP,all
+
+MOPT,AMESH,DEFA 
+MOPT,QMESH,DEFA 
+MOPT,VMESH,MAIN 
+MOPT,TIMP,4 
+MOPT,PYRA,OFF   
+MOPT,SPLIT,2
+MSHKEY,0
+MSHMID,0
+MSHPATTERN,0
+KEYW,ACCEPT,0   
+MSHAPE,1,2D 
+MSHAPE,1,3D 
+
+MOPT,EXPND,0.8
+ESIZE,0.23
+VMESH,1
+
+MOPT,EXPND,1.3
+!MOPT,EXPND,1.4
+ESIZE,0.28
+VMESH,2
+
+NUMM,all
+NUMC,all
+
+\fini
+\solu
+
+! wall boundary --> pressure = 1
+ASEL,S,LOC,Y,-0.01    ,0.01
+SFA,all,1,pres,1  
+
+! wall boundary --> pressure = 2
+ASEL,S,LOC,Z,a-0.01 ,a+0.01 
+SFA,all,1,pres,2
+
+! wall boundary --> pressure = 3
+ASEL,S,LOC,Y,a-0.01,a+0.01 
+SFA,all,1,pres,3
+
+! wall boundary --> pressure = 4
+ASEL,S,LOC,Z,-0.01,0.01 
+SFA,all,1,pres,4
+
+
+! inflow (upside)    --> pressure = 5
+ASEL,S,LOC,X,h-0.01,h+0.01 
+SFA,all,1,pres,5
+
+! outflow (downside) --> pressure = 6
+ASEL,S,LOC,X,-0.01,0.01 
+SFA,all,1,pres,6
+
+
+alls
+
+
+SFTRAN
+
+/AUTO,1
+
+!/PSF,PRES,NORM,3,0.E+00,1   
+/PBF,DEFA, ,1   
+/PIC,DEFA, ,1   
+/PSYMB,CS,0.E+00
+/PSYMB,NDIR,0.E+00  
+/PSYMB,ESYS,0.E+00  
+/PSYMB,LDIV,0.E+00  
+/PSYMB,LDIR,0.E+00  
+/PSYMB,ADIR,0.E+00  
+/PSYMB,ECON,0.E+00  
+/PSYMB,XNODE,0.E+00 
+/PSYMB,DOT,1
+/PSYMB,PCONV,   
+/PSYMB,LAYR,0   
+/PSYMB,FBCS,0.E+00  
+  
+/PBC,ALL, ,1
+  
+NSEL,S,LOC,X,1,5
+ESLN,S
+
+EPLOT
+
+
+
+

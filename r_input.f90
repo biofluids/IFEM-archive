@@ -13,12 +13,10 @@ subroutine r_input
   implicit none
      
   
-  real*8,allocatable :: coor_1(:,:)
-  integer,allocatable :: solid_fem_con_1(:,:)
-  integer,allocatable :: solid_surface_1(:,:)
 
 
-  real*8,allocatable :: shift(:,:)
+
+
 
   real*8 :: ftemp
   !integer :: idummy
@@ -72,19 +70,19 @@ subroutine r_input
  !...nbouc -- boundary change influence the distributed forces
   read(1,*) nbouc,nchkread
  !...Gauss integration point
-  read(1,*) nint,nis
-  write(*,*) 'number of gauss integration point=',nint
-  write(*,*) 'number of nodes per element=',nis
+  read(1,*) iquad_solid,nen_solid
+  write(*,*) 'gauss integration type     : ',iquad_solid
+  write(*,*) 'number of nodes per element: ',nen_solid
 
  !...number of dimensions in the solid domain
   read(1,*) nsd_solid
-  write(*,*) 'number of dimensions in the solid domain=',nsd_solid
+  write(*,*) 'number of space dimensions in solid domain: ',nsd_solid
  !...rigid body or not
   read(1,*) nrigid
   if (nrigid.eq.1) then
      write(*,*) 'treating the solid as a RIGID BODY'
   else
-     write(*,*) 'treating the solid as a NON-RIGID BODY'
+     write(*,*) 'treating the solid as a DEFORMABLE BODY'
   endif
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -142,65 +140,15 @@ subroutine r_input
   write(*,*) 'number of nodes    (all objects)     = ',nn_solid
   write(*,*) 'number of elements (all objects)     = ',ne_solid
 
-  call solid_variables_initialize
+
 
   allocate(shift(nsd_solid,n_solid),stat=error_id); call alloc_error("shift","r_input",error_id)
   do i=1,n_solid
      read(1,*) shift(1,i),shift(2,i),shift(3,i)
   enddo
 
-
-  allocate(solid_fem_con_1(ne_solid_1,nis),stat=error_id); call alloc_error("solid_fem_con_1","r_input",error_id)
-  allocate(solid_surface_1(ne_solid_1,nis),stat=error_id); call alloc_error("solid_surface_1","r_input",error_id)
-  allocate(coor_1(nn_solid_1,nsd_solid),stat=error_id);    call alloc_error("coor_1","r_input",error_id)
-
-  !do i=1,ne_solid_1
-  !   read(1,*) idummy,(solid_fem_con_1(i,k),k=1,nis)
-  !enddo
-  call readien_solid(solid_fem_con_1,ne_solid_1,nis)
-
- !...read coordinates for one structure
-  !do j=1,nn_solid_1
-  !   read(1,*) idummy,(coor_1(j,i),i=1,3), idummy
-  !enddo
-  call readx_solid(coor_1,nn_solid_1,nsd_solid)
-
-  !...read surface information (which element surface is part of the structure surface
-! Lucy commented this out
-!  call readrng_solid(solid_surface_1,ne_solid_1,nis)
-
-
-
- !...scale structure
-  coor_1(:,1:3)=coor_1(:,1:3)*solid_scale
-
-
-  do i=1,n_solid
-     solid_coor_init(1,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,1) + shift(1,i)
-     solid_coor_init(2,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,2) + shift(2,i)
-     solid_coor_init(3,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,3) + shift(3,i)
-     solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nis) = solid_fem_con_1(1:ne_solid_1,1:nis) + (i-1)*nn_solid_1
-! Lucy commented this out
-!	 solid_surface(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nis) = solid_surface_1(1:ne_solid_1,1:nis) + (i-1)*nn_solid_1
-  enddo
-      
-  deallocate(solid_fem_con_1,stat=error_id);  call dealloc_error("solid_fem_con_1","r_input",error_id)
-! Lucy commented this out
-!  deallocate(solid_surface_1,stat=error_id);  call dealloc_error("solid_surface_1","r_input",error_id)
-  deallocate(coor_1,stat=error_id); call dealloc_error("coor_1","r_input",error_id)
-  deallocate(shift,stat=error_id);  call dealloc_error("shift","r_input",error_id)
-
-
-
-
-
-  !nnd=nnd*n_solid
-  !numel=numel*n_solid
-
   read(1,*) numskew,numgb,intnum,numct
   write(*,*) 'numgb=',numgb
-
-  call solid_fem_BC_read_essential
 
 !  ntether=0
   do j=1,numgb

@@ -5,7 +5,7 @@ subroutine readx(xn)
 
   real* 8 xn(nsd,nn)
 !	integer lock,ierr,status(MPI_STATUS_SIZE)
-  integer file,offset,endset,i
+  integer file,i
 !	real* 8 x_temp(nsd,nn),xn_temp(nsd,nn)
 
   file=23

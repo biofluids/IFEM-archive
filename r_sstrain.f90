@@ -7,26 +7,26 @@
 !    ddge(i,j,m,k,n)  -- i -- strain, j,m -- dir, k,n -- node
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-subroutine r_sstrain(toc,xto,lx,ly,lz,ne)
-  use solid_variables, only: nis
+subroutine r_sstrain(toc,xto,iq,ne)
+  use solid_variables, only: nen_solid
   use r_common
   implicit none
 
   real*8 :: toc(3,3),xto(3,3)
-  integer,intent(in) :: lx,ly,lz,ne
+  integer,intent(in) :: iq,ne
 
   integer :: i,j,k,m,n
 
   do i=1,3
-     ge(i,ne,lx,ly,lz) = 0.5d0*(toc(i,i)-1.0d0)
+     ge(i,ne,iq) = 0.5d0*(toc(i,i)-1.0d0)
   enddo
-  ge(4,ne,lx,ly,lz) = toc(2,3)
-  ge(5,ne,lx,ly,lz) = toc(1,3)
-  ge(6,ne,lx,ly,lz) = toc(1,2)
+  ge(4,ne,iq) = toc(2,3)
+  ge(5,ne,iq) = toc(1,3)
+  ge(6,ne,iq) = toc(1,2)
  
  !...for 3-D only
   do i=1,6
-     do k=1,nis
+     do k=1,nen_solid
 	    do j=1,3
            if (i == 4) then
               dge(i,j,k)=xto(2,j)*bd(3,k)+xto(3,j)*bd(2,k)
@@ -39,7 +39,7 @@ subroutine r_sstrain(toc,xto,lx,ly,lz,ne)
            endif
 
 		   do m=1,3
-			  do n=1,nis
+			  do n=1,nen_solid
 			     if (m == j) then
                     if (i == 4) then
 	                   ddge(i,j,m,k,n)=bd(2,n)*bd(3,k)+bd(3,n)*bd(2,k)

@@ -103,7 +103,7 @@ end subroutine zfem_ensCase
 ! This subroutine generates Ensight6 geometry file
 ! Lucy Zhang
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensGeo(klok,ien,xn)
+subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   use solid_variables
   use fluid_variables
   implicit none
@@ -111,6 +111,8 @@ subroutine zfem_ensGeo(klok,ien,xn)
   integer :: klok
   integer :: ien(nen,ne)
   real*8  :: xn(nsd,nn)
+  integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
+  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr  !...node position current
 
   character(len =  5) :: fileroot
   character(len = 12) :: file_name
@@ -163,7 +165,8 @@ subroutine zfem_ensGeo(klok,ien,xn)
   write(i_file_unit, *) 'coordinates'
   write(i_file_unit, '(I8)') nn_solid + nn
   
-!--> node id, x, y, z
+!--> node id, x, y, x
+!-->
  !write structure coordinates
   do i=1, nn_solid
      write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
@@ -188,21 +191,21 @@ subroutine zfem_ensGeo(klok,ien,xn)
 		write(i_file_unit,'(2i8)') i,i
 	 enddo
   elseif (nsd_solid == 3) then
-     select case (nis)
+     select case (nen_solid)
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
 	    write(i_file_unit, '(i8)')  ne_solid   ! number of elements
         do i=1, ne_solid
-	       write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nis) !element connectivity
+	       write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
 	    enddo	  
      case (4)
 	    write(i_file_unit,'(a7)') ' tetra4'    ! element type
 	    write(i_file_unit, '(i8)')  ne_solid   ! number of elements
         do i=1, ne_solid
-           write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nis) !element connectivity
+           write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
 		enddo
 	 case default
-	    write(*,*) "zfem_ens: no ensight output defined for nis = ",nis
+	    write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
 		stop
 	 end select
   endif
@@ -228,6 +231,12 @@ subroutine zfem_ensGeo(klok,ien,xn)
 
   close(i_file_unit)
 
+111 format(4e20.10)
+
+  open (unit=211, file = 'output_pos.dat', status='unknown')
+  write(211,111) (solid_coor_curr(1,i),solid_coor_curr(2,i),solid_coor_curr(3,i),i=1,nn_solid), &
+                 (xn(1,i),xn(2,i),xn(3,i),i=1,nn)
+  close(211)
   return
 end subroutine zfem_ensGeo
 
@@ -238,7 +247,7 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(d,f_fluids,klok)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,klok)
   use solid_variables
   use fluid_variables, only: nn,ndf,nsd
   use run_variables, only: its
@@ -246,6 +255,16 @@ subroutine zfem_ensFluid(d,f_fluids,klok)
 
   real*8 :: d(ndf,nn)
   real*8 :: f_fluids(nsd,nn)
+
+  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
+  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
+  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
+
+
+  real*8,dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
+
+  real*8,dimension(6,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
+  real*8,dimension(6,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
   integer :: klok
   
   real*8 :: fluid_stress(6,nn),fluid_strain(6,nn)              !...fluid stress and strain (not used) empty matrix needed for Ensight input format
@@ -314,7 +333,7 @@ subroutine zfem_ensFluid(d,f_fluids,klok)
   write(*,*) 'writing... ', name_file2
   open(ifileunit, file=name_file2, form='formatted')
   write(ifileunit, '(A)') 'structure and fluid field: pressure'  
-  write(ifileunit,110) (pave(in),in=1,nn_solid),(d(4,in),in=1,nn)
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(4,in),in=1,nn)
   close(ifileunit)
 
  !...Write stress output in ens_movie.stress*
@@ -338,12 +357,18 @@ subroutine zfem_ensFluid(d,f_fluids,klok)
   close(ifileunit)
 
 110	format(6e12.5)
+111 format(4e20.10)
 
-  open (unit=211, file = 'accel.dat', status='unknown')
-  write(211,110) (solid_accel(1,i),solid_accel(2,i),solid_accel(3,i),i=1,nn_solid)
+  open (unit=211, file = 'output_acc.dat', status='unknown')
+  write(211,111) (solid_accel(1,i),solid_accel(2,i),solid_accel(3,i),i=1,nn_solid)
   close(211)
-
-
+  open (unit=211, file = 'output_vel.dat', status='unknown')
+  write(211,111) (solid_vel(1,in),solid_vel(2,in),solid_vel(3,in),in=1,nn_solid), &
+                       (d(1,in),d(2,in),d(3,in),in=1,nn)
+  close(211)
+  open (unit=211, file = 'output_pre.dat', status='unknown')
+  write(211,111) (d(4,in),in=1,nn)
+  close(211)
   return
 end subroutine zfem_ensFluid
 

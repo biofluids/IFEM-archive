@@ -2,7 +2,7 @@
 !     jacobian calculation
 !     
 subroutine r_jacob(x,xj,xji,det)
-  use solid_variables, only:nis
+  use solid_variables, only:nen_solid
   use r_common
   implicit none
 
@@ -17,7 +17,7 @@ subroutine r_jacob(x,xj,xji,det)
   do i=1,3
      do j=1,3
         dum = 0.0d0
-        do k=1,nis
+        do k=1,nen_solid
            dum = dum + r_p(j,k)*x(i,k)
         enddo
 		xj(i,j) = dum

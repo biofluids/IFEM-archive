@@ -15,8 +15,7 @@
       call error("form d and id",-999,.false.)
       call formid(id,rng,ien)
       call formd (xn,fn,rng,ien)
-      !call equal(fn ,dn ,ndf*nn)
-	dn(:,:) = fn(:,:)
+	dn= fn
       if(nrestart>0) then
         call error("restart",-999,.false.)
 	  call read_vel(nrestart,solid_vel,dn,solid_accel)
@@ -24,16 +23,13 @@
       call setd(dn ,fn ,id ,ndf)
       call error("diskout",-999,.false.)
 
-!      call diskout(dn,dd)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("local shape functions",-999,.false.)
       call shape
       call shape2d
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      !call equal(xn,x,nsd*nn)
-	x(:,:) = xn(:,:)
-      !call equal(dn,d,ndf*nn)
-	d(:,:) = dn(:,:)
+	x=xn
+	d=dn
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("mesh information",-999,.false.)
       call vol(x,ien)

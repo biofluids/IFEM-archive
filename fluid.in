@@ -6,18 +6,18 @@ taudt =     1
 static =    0
 conserve =  1
 
-nn=       13551
-ne=       70237
+nn=        4987
+ne=       26030
 
 nrng =    6
 nen =     4
 ndf =     4
 nsd =     3
-iquad =   1
+iquad =   2
 
 nit =      3
-nts =      1500 
-ntsbout =  20
+nts =      1
+ntsbout =  1
 idisk =    00 
 inner =    40
 outer =    01
@@ -28,12 +28,12 @@ dt =      0.005
 t_start = 0.0
 alpha =   0.5
 
-fix =    1 0.0  0.0  0.0 -999   !front
-fix =    2 -999 -999 0.0 -999   !top
-fix =    3  0.0  0.0  0.0  -999	 !back
-fix =    4 -999 -999 0.0 -999	 !bottom
-fix =    5  0.0  0.0  0.0  -999	 !right
-fix =    6  0.0  0.0  0.0  -999   !left
+fix =    1 -999 -999 -999 -999   !front
+fix =    2 -999 -999 -999 -999   !top
+fix =    3 -999  -999 -999 -999	 !back
+fix =    4 -999 -999 -999 -999	 !bottom
+fix =    5 -999 -999 -999 -999	 !right
+fix =    6 -999 -999 -999 -999 	 !left
 
 initial =  +0.0 0.0 0.0 0.0
 
@@ -43,8 +43,8 @@ interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 surf = 1  6
 hydro = 5
 
-vis_liq = 0.01   !! water 1.3e-3
-vis_gas = 0.01   !! gas   1.5e-5
+vis_liq = 0.20   !! water 1.3e-3
+vis_gas = 0.20   !! gas   1.5e-5
 den_liq = 1.0
 den_gas = 1.0
 

@@ -1,0 +1,96 @@
+/title,Cube
+/filnam,cube  
+
+/prep7
+
+ET,1,SOLID45
+
+a = 1
+b = 0.4
+c = 0.4
+
+esize,0.51
+
+block,0,a,-b/2,b/2,-c/2,c/2
+
+!..meshing options
+MOPT,AMESH,DEFA 
+MOPT,QMESH,DEFA 
+MOPT,VMESH,MAIN 
+MOPT,TIMP,4 
+MOPT,PYRA,OFF   
+MOPT,SPLIT,2
+MSHKEY,0
+MSHMID,0
+MSHPATTERN,0
+KEYW,ACCEPT,0   
+MSHAPE,1,2D 
+MSHAPE,1,3D 
+
+MOPT,EXPND,0.95
+vmesh,all
+
+NUMM,all
+NUMC,all
+
+!\fini
+!\solu
+
+!..apply boundary conditions on physical domain
+\solu
+
+! wall boundary --> pressure = 1
+ASEL,S,LOC,Y,-b/2 - 0.01    ,-b/2 + 0.01
+SFA,all,1,pres,1  
+
+! wall boundary --> pressure = 2
+ASEL,S,LOC,Z,c/2 - 0.01,c/2 + 0.01 
+SFA,all,1,pres,2
+
+! wall boundary --> pressure = 3
+ASEL,S,LOC,Y,b/2 - 0.01,b/2 + 0.01 
+SFA,all,1,pres,3
+
+! wall boundary --> pressure = 4
+ASEL,S,LOC,Z,-c/2 - 0.01,-c/2 + 0.01 
+SFA,all,1,pres,4
+
+
+! outflow (downside)    --> pressure = 5
+ASEL,S,LOC,X,a - 0.1,a + 0.1
+SFA,all,1,pres,5
+
+! inflow (upside)  --> pressure = 6
+ASEL,S,LOC,X, - 0.1, + 0.1
+SFA,all,1,pres,6
+
+
+alls
+
+
+SFTRAN
+
+/AUTO,1
+
+/PSF,PRES,NORM,3,0.E+00,1   
+/PBF,DEFA, ,1   
+/PIC,DEFA, ,1   
+/PSYMB,CS,0.E+00
+/PSYMB,NDIR,0.E+00  
+/PSYMB,ESYS,0.E+00  
+/PSYMB,LDIV,0.E+00  
+/PSYMB,LDIR,0.E+00  
+/PSYMB,ADIR,0.E+00  
+/PSYMB,ECON,0.E+00  
+/PSYMB,XNODE,0.E+00 
+/PSYMB,DOT,1
+/PSYMB,PCONV,   
+/PSYMB,LAYR,0   
+/PSYMB,FBCS,0.E+00  
+!*  
+/PBC,ALL, ,1
+!*  
+
+
+EPLOT
+

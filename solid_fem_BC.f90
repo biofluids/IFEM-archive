@@ -22,14 +22,18 @@ contains
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine solid_fem_BC_apply_essential
+subroutine solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_coor_curr)
 !
 ! Axel Gerstenberger, NWU, Mai 2003
 !
 ! This subroutine applies "penalty" forces on nodes with Dirichlet (essential) Boundary Conditions
 ! 
-  use solid_variables, only: solid_force_FSI,solid_coor_init,solid_coor_curr
+  use solid_variables, only: nn_solid,nsd_solid
   implicit none
+
+  real*8,dimension(1:nsd_solid,1:nn_solid),intent(inout) :: solid_force_FSI   !...fluid structure interaction force
+  real*8,dimension(1:nsd_solid,1:nn_solid),intent(in) :: solid_coor_init   !...node position initial
+  real*8,dimension(1:nsd_solid,1:nn_solid),intent(in) :: solid_coor_curr   !...node position current
 
   integer :: innBC
 

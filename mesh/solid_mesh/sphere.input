@@ -1,0 +1,80 @@
+/FILNAM,sphere,1 
+/TITLE,Sphere
+
+/PREP7  
+
+ET,1,SOLID45 
+
+radius = 0.5
+ratio = 0.4
+
+!div_sqr = 10
+!div_rad = 7
+div_sqr = 3
+div_rad = 2
+
+
+BLOCK,0,radius*ratio,0,radius*ratio,0,radius*ratio
+ 
+K,9,radius,0,0,
+csys,2
+K,10,radius,45,0,
+K,11,radius,0,45
+csys,0
+LSTR,       4,       9  
+LSTR,      10,       3
+  
+LARC,9,10,2,radius,
+LARC,9,11,2,radius,  
+
+AL,13,15,14,3
+VDRAG,7, , , , , ,16 
+
+Block,0,radius*ratio,0,radius*2,0,radius*2
+LSTR,2,10
+LSTR,10,18
+LSTR,18,2
+AL,37,38,39
+VOFFST,19,2*radius, , 
+VSBV,       2,       4  
+VSBV,       5,       3  
+
+NUMCMP,VOLU
+LSLA,s,26
+LSEL,a,line,,1,12,1,0
+LESIZE,all, , ,div_sqr, , , , ,1
+LSEL,s,line,,13,14,1,0
+LSEL,a,line,,23,24,1,0
+LESIZE,all, , ,div_rad, , , , ,1
+ALLS
+!* VMESH,all
+
+ 
+clocal,11,0,0,0,0,45,0,0
+csys,11
+
+VSYMM,Y,2, , , ,0,0 
+csys,0
+
+clocal,12,0,0,0,0,0,45,0
+csys,12
+VSYMM,Z,3, , , ,0,0
+csys,0
+VSYMM,Z,all,,,,0,0
+VSYMM,Y,all,,,,0,0
+VSYMM,X,all,,,,0,0
+
+LDELE,16
+VMESH,all
+NUMMRG,ALL, , , ,LOW
+NUMCMP,ALL  
+
+NSEL,S,LOC,X,-1,-0.001
+ESLN,S
+
+EPLOT
+
+
+eplot
+
+

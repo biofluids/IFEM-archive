@@ -7,7 +7,10 @@ c	930329 - converted from quad2d3n.fcm                                 c
 c	         rules taken from Hughes Table 3.I.2                         c
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine quad3d4n(iquad, nquad, xquad, wquad, maxnsd, maxnquad)
+      implicit none
 
+	integer :: iquad,nquad
+	integer :: maxnsd,maxnquad
 	real* 8 xquad(maxnsd,maxnquad)
 	real* 8 wquad(maxnquad)
 

@@ -2,7 +2,7 @@
 !     jacobian,bd,pd calculation
 !     
 subroutine r_bdpd_init(xji)
-  use solid_variables, only: nis
+  use solid_variables, only: nen_solid
   use r_common
   implicit none
 
@@ -12,7 +12,7 @@ subroutine r_bdpd_init(xji)
   real*8 :: dumcd
 
  !...compute the bd matrix-> strain displacement matrix
-  do i=1,nis
+  do i=1,nen_solid
      do k=1,3
         dumcd=0.0d0
         do j=1,3

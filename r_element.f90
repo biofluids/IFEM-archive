@@ -3,7 +3,7 @@
 !     element calculation
 !
 subroutine r_element(rs)
-  use solid_variables, only: nis
+  use solid_variables, only: nen_solid
   use r_common, only: h,r_p
   implicit none
 
@@ -15,7 +15,7 @@ subroutine r_element(rs)
   s=rs(2)
   t=rs(3)
 
-  cube: if (nis .eq. 8) then 
+  cube: if (nen_solid .eq. 8) then 
      h(1)=0.125d0*(1.0d0+r)*(1.0d0+s)*(1.0d0+t)
      h(2)=0.125d0*(1.0d0-r)*(1.0d0+s)*(1.0d0+t)
      h(3)=0.125d0*(1.0d0-r)*(1.0d0-s)*(1.0d0+t)
@@ -67,7 +67,7 @@ subroutine r_element(rs)
      r_p(3,8)=-0.125d0*(1.0d0+r)*(1.0d0-s)         
   endif cube
 
-  tetr: if (nis .eq. 4) then 
+  tetr: if (nen_solid .eq. 4) then 
      h(1)=r
      h(2)=s
      h(3)=t
