@@ -43,35 +43,35 @@
           nit = 1
       ntsbout = 1
         idisk = 0
-       idiskmsh = 0
-             inner = 1
-             outer = 1
-          iscaling = 1
+
+	inner = 1
+	outer = 1
+	iscaling = 1
 
          restart  = .false.
           stokes  = .false.
           steady  = .false.
           hg_vol  = .false.
           static  = .false.
-	     taudt  = .false.
-	   conserve = .false.
+	   taudt  = .false.
+	 conserve = .false.
 
         do j=1,21
-        do i=1,ndfpad
-        bc(i,j) = 0
-        bv(i,j) = -999.0
-        enddo
-          bcf(j) = 0
-          bvf(j) = -999.0
+	   do i=1,ndfpad
+	      bc(i,j) = 0
+	      bv(i,j) = -999.0
+	   enddo
+	   bcf(j) = 0
+	   bvf(j) = -999.0
         enddo
 
-          do i=1,ndfpad
-          ic(i) = -999.0
-          enddo
-          icf = -999
+        do i=1,ndfpad
+	   ic(i) = -999.0
+        enddo
+	icf = -999
 
         do idel=0,21
-        delta(idel) = 0.0
+	   delta(idel) = 0.0
         end do
 
         mass = 1.0

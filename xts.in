@@ -4,71 +4,83 @@ stokes     off
 hg_vol     on
 taudt      on
 static     off
-conserve   on
-
+readshape  off
 
 nn  38359
 ne 211364
 
+maxconn	90
+
 nrng     7
 nen      4
-ndf      4
-nsd      3
-iquad    1
+ndf		4
+nsd		3
+iquad    2
 
-nit       05
-nts       02
-ntsbout   01
-idisk     00 
-inner     60
+nit       4
+nts       60  
+ntsbout   02
+idisk     00
+inner     80
 outer     01
 iscaling  01
 
-dt       0.20
+dt       0.2    
 t_start  0.0
 alpha    0.5
 
-fix     1 +0.0 +0.0 +0.0 -999   0.0
-fix     2 -999 +0.0 -999 -999   0.0
-fix     3 +1.0 +0.0 +0.0 -999   0.0
-fix     4 -999 -999 -999 -999   0.0
-fix     5 -999 -999 +0.0 -999   0.0
-fix     6 -999 -999 +0.0 -999   0.0
-fix     7 -999 +0.0 -999 -999   0.0
+fix     1 +0.0 +0.0 +0.0 -999   !! building
+fix     2 -999 +0.0 -999 -999       
+fix     3 +1.0 +0.0 +0.0 -999   !! inflow
+fix     4 -999 -999 -999 -999   !! outflow
+fix     5 -999 -999 +0.0 -999    
+fix     6 -999 -999 +0.0 -999   
+fix     7 -999 +0.0 -999 -999    
 
-fixd     1 -999 -999 -999          
-fixd     2 +0.0 +2.0 0.0       
-fixd     3 -999 -999 -999            
-fixd     4 +0.0 +0.0 0.0           
-fixd     5 -999 -999 -999           
-fixd     6 -999 -999 -999
+initial   +1.0 +0.0 +0.0 +0.0
 
-landa_over_mu 5.0
-initial   +1.0 +0.0 +0.0 +0.0 0.0
+gravity     0.0     0.0     0.0   
 
-gravity     0.0    0.0     0.0
-interface  -999   -999     -999  !! if less than this set fi to 1.0
-
-surf  1  6
-hydro 5
-
-vis_liq 1.5e-5   !! water 1.3e-3
-vis_gas 1.5e-5   !! gas   1.5e-5
-den_liq 1.225 
-den_gas 1.225
-ref_lgt 1.0
-ref_vel 10.0
-ref_den 1.225
-ref_den 1000.0
+vis_liq 1.2e-5   !! water 1.3e-3
+vis_gas 1.2e-5   !! gas   1.5e-5
+den_liq 7.65e-2
+den_gas 7.65e-2
+ref_lgt 50.0
+ref_vel 20
+ref_den 1 
 
 delta 0 1.0   !! hg
 delta 1 1.0   !! taum
-delta 2 1.0   !! tauc
-delta 3 1.0   !! ka
+delta 2 2.0   !! tauc
+delta 3 2.0   !! tauf
 delta 4 0.0   !! turb
-delta 5 1.5   !! smoothing
-delta 6 0.5   !! interface (will change automatically)
 
-turb_kappa 0.15
+turb_kappa 0.15 
 
 done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

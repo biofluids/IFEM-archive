@@ -7,27 +7,23 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	integer  rngface(neface,nec),ien(nen,nec)
 	real* 8  xn(nsd,nnc),ds(nsd,nnc),dsf(nnc)
-	real* 8  hn(nnc),hm(nn_loc),tt
+	real* 8  hn(nnc),hm(nn_on),tt
 	integer isd, inl, iec, irng, ieface, inface, inn
 	logical assemble
-	real* 8 eps1,eps2,diameter,x0,w0,damp,wd
-	real* 8 hs(nrng,nnc), h(nrng,nn_loc)
+	real* 8 eps1,eps2,diameter,x0,length(nsd)
+	real* 8 hs(nrng,nnc), h(nrng,nn_on)
 	pointer (hsptr, hs),(hptr, h)
 
 c  construct lien and mien mappings from ien array
         hsptr = malloc(nrng*nnc*fsize)
-        hptr  = malloc(nrng*nn_loc*fsize)
+        hptr  = malloc(nrng*nn_on*fsize)
 
         eps1 = -1000000.0 
         eps2 = -10000.0 
-	w0=sqrt(spring/mass)
-	damp=damper/mass/2/w0
-	wd=w0*sqrt(1-damp**2)
-	x0=amp*diameter
+	x0 = amp*diameter
 
-	call fclear (h,nrng*nn_loc)
+	call fclear (h,nrng*nn_on)
 
-c	write(*,*) 'amp=',amp
         do inn=1,nnc
 	   do isd=1,nsd
 	      ds(isd,inn) = eps1
@@ -48,18 +44,15 @@ c	write(*,*) 'amp=',amp
 
         assemble=.true.
         call scatter(h,hs,nrng,assemble,hn,hm)
+
 	do irng=1,nrng
 	  do inn=1,nnc
 	     do  isd=1,nsd
 c..... the boundary value, bvd is inputted for oscillation frequency.
 c.....  the displacement is a periodic sine wave, a function of time.
-	      if((hs(irng,inn).gt.1.0e-8).and.(bcd(isd,irng).gt.0)) then
-		     ds(isd,inn)=x0*sin(bvd(isd,irng)*tt)
-c		     ds(isd,inn)=exp(-w0*damp*tt)*(x0*cos(wd*tt)+w0*damp
-c	1	      *x0/wd*sin(wd*tt))
-		   if (bvd(isd,irng).eq.0.0)  ds(isd,inn)=0.0
-	      endif
-
+	  	if((hs(irng,inn).gt.1.0e-8).and.(bcd(isd,irng).gt.0))
+	1	     ds(isd,inn)=x0*sin(bvd(isd,irng)*tt)
+		if (bvd(isd,irng).eq.0.0)  ds(isd,inn)=0.0
 	     enddo
 	  enddo
 	enddo
@@ -81,24 +74,24 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	include "malloc.h"
 
 	integer ids(nsd,nnc),rngface(neface,nec),ien(nen,nec)
-	real* 8  hn(nnc),hm(nn_loc)
+	real* 8  hn(nnc),hm(nn_on)
 	integer isd, inl, iec, irng, ieface, inface, inn, iflag
 	logical assemble
 	real* 8 epsr,epsl
 	integer ierr,status(MPI_STATUS_SIZE)
 
-	real* 8 ds(nsd,nnc),d(nsd,nn_loc)
+	real* 8 ds(nsd,nnc),d(nsd,nn_on)
 	pointer (dsptr, ds),(dptr, d)
 
-	real* 8 dsf(nnc),df(nn_loc)
+	real* 8 dsf(nnc),df(nn_on)
 	pointer (dsfptr, dsf),(dfptr, df)
 
 	dsptr = malloc(nsd*nnc*fsize)
-	dptr  = malloc(nsd*nn_loc*fsize)
+	dptr  = malloc(nsd*nn_on*fsize)
 	dsfptr= malloc(nnc*fsize)
-	dfptr = malloc(nn_loc*fsize)
+	dfptr = malloc(nn_on*fsize)
 
-	call fclear (d,nsd*nn_loc)
+	call fclear (d,nsd*nn_on)
 	epsr = 0.0001         
 	epsl = 0.000001      
 	do ieface=1,neface
@@ -161,6 +154,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	return
 	end
+
 
 
 

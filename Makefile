@@ -1,20 +1,20 @@
 SHELL=/bin/sh
-GEOMOBJ=conv-nas-geom.o ewdio.o ewdmem.o
 OBJ=main.o initialize.o parseinput.o echoinput.o hypo.o meshgen.o\
-    ewdio.o ewdmem.o error.o norm.o connection.o connectionnode.o dyno.o hg.o\
+    ewdio.o ewdmem.o error.o norm.o connection.o connectionnode.o\
+	connectionnode2.o get.o bcsetup.o luio.o hg.o\
+	ma28ad.o ma28cd.o blkdta000.o blkdta001.o blkdta002.o\
     isatty.o getkey.o getstr.o getstrn.o getint.o getreal.o iei2cray.o\
-    form.o equal.o set.o shape.o disk.o quad3d4n.o quad3d8n.o fclear.o\
-    vol.o update.o block.o blockf.o blockgmres.o blockgmresf.o hydro.o\
-    gmres.o gmresf.o quad2d3n.o quad2d4n.o lenght.o sharp.o cut.o get.o\
-    locate.o dim.o gmresm.o blockm.o formm.o blockgmresm.o updatex.o\
-    lump.o solerror.o add.o defgrad.o velocity.o liftdrag.o
+    form.o equal.o shape.o disk.o quad3d4n.o quad3d8n.o fclear.o\
+	block.o gmres.o blockgmres.o update.o lenght.o dim.o shapeio.o\
+    rkpm.o correct3dl.o shape3dl.o gjinv.o window3d.o \
+     blockm.o blockgmresm.o update.o gmresm.o set.o add.o updatex.o
 POSTOBJ=mainpost.o tecplotpost.o dataout.o ewdmem.o error.o ewdio.o fclear.o iei2cray.o getkey.o getstr.o getint.o getreal.o initialize.o meshgen.o parseinput.o postin.o
 
-FFLAGS= -N 80 -O2
-CFLAGS= -O2
-CF77=f90 $(FFLAGS)
+FFLAGS= -N 80
+CFLAGS=
+CF77=f90 -g $(FFLAGS)
 CC=cc
-LDR=f90 $(FFLAGS)
+LDR=f90 -g $(FFLAGS)
 COMMAND=xts-mpi 
 LIB=
 
@@ -23,9 +23,6 @@ $(COMMAND):	$(OBJ)
 
 post: $(POSTOBJ)
 	$(LDR) $(LDFLAGS) -o post $(POSTOBJ) $(LIB)
-
-geom: $(GEOMOBJ)
-	$(LDR) $(LDFLAGS) -o geom $(GEOMOBJ) $(LIB)
 
 debug:
 	$(MAKE) $(COMMAND) FFLAGS='$(FFLAGS) -g' CFLAGS='$(CFLAGS) -g'
@@ -43,3 +40,11 @@ clean:
 
 .f.o:
 	$(CF77) -c $<
+
+
+
+
+
+
+
+

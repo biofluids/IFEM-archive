@@ -13,7 +13,8 @@ ccccccccccccccccccc
       call initialize
       call parseinput
       call tecplotpost
-c      call tecplotpost2
+
       call MPI_FINALIZE(ierr)
+
       end
       
