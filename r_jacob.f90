@@ -23,6 +23,7 @@ subroutine r_jacob(x,xj,xji,det)
         xj(i,j) = dum
      enddo
   enddo
+
  !...compute the determinant of the jacobian matrix
 
   threedim: if (nsd_solid .eq. 3) then 
@@ -37,7 +38,7 @@ subroutine r_jacob(x,xj,xji,det)
   cf(3,2) = - (xj(1,1)*xj(2,3) - xj(1,3)*xj(2,1))
   cf(3,3) = + (xj(1,1)*xj(2,2) - xj(1,2)*xj(2,1))
 
-  det =( xj(1,1) * cf(1,1) + &
+  det =abs( xj(1,1) * cf(1,1) + &
          xj(1,2) * cf(1,2) + &
          xj(1,3) * cf(1,3) )
 
@@ -64,7 +65,7 @@ subroutine r_jacob(x,xj,xji,det)
 
   twodim: if (nsd_solid .eq. 2) then 
  !...2-D determinant
-  det = ( xj(1,1) * xj(2,2) - &
+  det = abs( xj(1,1) * xj(2,2) - &
          xj(1,2) * xj(2,1) )
 
   if (det .lt. 1.0d-15) then

@@ -1020,7 +1020,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
       if(det .le. zero) then
       print *, 'det =', det
-      print *, 'STOP! the determinant det < 0 '
+      print *, 'STOP! the determinat det < 0 '
       stop
       else
       end if
@@ -1479,7 +1479,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       zero = 0.0d0
       if(det .le. zero) then
 		print *, 'det =', det
-		print *, 'STOP! the determinant det < 0 '
+		print *, 'STOP! the determinat det < 0 '
 		print *, am00, am10, am01 
 		print *, am10, am20, am11 
 		print *, am01, am11, am02 

@@ -4,7 +4,7 @@
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
        solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
-  use r_common, only: xmg,density_solid,predrf,ninit
+  use r_common, only: xmg,density_solid,predrf
   use solid_variables, only: nn_solid,ne_solid,nen_solid,nsd_solid,nsurface
   use solid_fem_BC
   implicit none
@@ -12,13 +12,11 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
 
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
-
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solidcoor2
-
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
+
 
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
 
@@ -42,38 +40,20 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
     !...calculate timefunction
      call r_timefun
     !...calculate nodal forces by timefunction  (initial configuration)
-	 call r_load
+     call r_load
     !...apply concentrated force                (initial configuration)
-	 call r_nodalf
+     call r_nodalf
 
      do ipt = 1,nn_solid
 		do isd = 1,nsd_solid
-		   solid_force_FSI(isd, ipt) = predrf(ipt+(isd-1)*nn_solid)
+        solid_force_FSI(isd, ipt) = predrf(ipt+(isd-1)*nn_solid)
 		enddo
      enddo
-
-
-	! Apply displacement
-   ! if (ninit .eq. 1) then
-    !    call r_sreadinit(solid_coor_curr,solidcoor2)
-  
-    !    solid_coor_curr(:,:)=solidcoor2(:,:)
-
-
-	!	do ipt = 1,nn_solid
-	!		do isd = 1,nsd_solid
-	!		solid_force_FSI(isd, ipt) = solid_coor_curr(isd,ipt)-solid_coor_init(isd,ipt)
-	!		enddo
-	!	enddo
-
-	
-     !endif
 
     !...apply Dirichlet BC in current configuration (penalty stiffness)
      call solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_coor_curr)
 
      write(*,*) ' netto interaction force in solid (x-dir) =',sum(solid_force_FSI(1,:))
-
 
   case (0) ! 0D point
 
@@ -81,7 +61,8 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 
      solid_force_FSI(1:nsd_solid,1)=-xmg(1:nsd_solid)*density_solid
   end select
-  
+
+
 !	 write(*,*) 'solid_force_FSI(1,4)',solid_force_FSI(1,1:4)
   
   return

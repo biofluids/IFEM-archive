@@ -277,9 +277,9 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
   use solid_variables
-  use fluid_variables, only: nn,ndf,nsd,vis_liq
+  use fluid_variables, only: nn,ndf,nsd
   use run_variables, only: its
   implicit none
 
@@ -295,7 +295,6 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
   !real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_prevel      !...velocity - previous timestep
   !real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
-  real(8),dimension (nsd,nsd,nn) :: f_stress
 
 
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
@@ -320,41 +319,8 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
 
   integer,parameter :: ifileunit = 15
 
-
-  ! Fluid stress and strain rate, Voigt notation
   fluid_stress(1:nsd*2,1:nn)=0.0
   fluid_strain(1:nsd*2,1:nn)=0.0
-
-  if (nsd.eq.2) then
-	! 2 Dim
-	fluid_stress(1,1:nn)=f_stress(1,1,1:nn)
-	fluid_stress(2,1:nn)=f_stress(2,2,1:nn)
-	fluid_stress(3,1:nn)=f_stress(1,2,1:nn)
-	fluid_stress(4,1:nn)=f_stress(2,1,1:nn)
-
-	fluid_strain(1,1:nn)=f_stress(1,1,1:nn)/(2*vis_liq)
-	fluid_strain(2,1:nn)=f_stress(2,2,1:nn)/(2*vis_liq)
-	fluid_strain(3,1:nn)=f_stress(1,2,1:nn)/(2*vis_liq)
-	fluid_strain(4,1:nn)=f_stress(2,1,1:nn)/(2*vis_liq)
-
-
-  else
-	! 3 Dim
-	fluid_stress(1,1:nn)=f_stress(1,1,1:nn)
-	fluid_stress(2,1:nn)=f_stress(2,2,1:nn)
-	fluid_stress(3,1:nn)=f_stress(3,3,1:nn)
-	fluid_stress(4,1:nn)=f_stress(2,3,1:nn)
-	fluid_stress(5,1:nn)=f_stress(1,3,1:nn)
-	fluid_stress(6,1:nn)=f_stress(1,2,1:nn)
-
-	fluid_strain(1,1:nn)=f_stress(1,1,1:nn)/(2*vis_liq)
-	fluid_strain(2,1:nn)=f_stress(2,2,1:nn)/(2*vis_liq)
-	fluid_strain(3,1:nn)=f_stress(3,3,1:nn)/(2*vis_liq)
-	fluid_strain(4,1:nn)=f_stress(2,3,1:nn)/(2*vis_liq)
-	fluid_strain(5,1:nn)=f_stress(1,3,1:nn)/(2*vis_liq)
-	fluid_strain(6,1:nn)=f_stress(1,2,1:nn)/(2*vis_liq)
-
-  endif
 
 
   if (klok .eq. 0) then
@@ -460,21 +426,20 @@ elseif (nsd==2) then
   write(*,*) 'writing... ', name_file3
   open(ifileunit, file=name_file3, form='formatted')
   write(ifileunit, '(A)') 'structure field: stress'  
- 
-  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),solid_stress(3,in),                 &
-                        solid_stress(4,in), 0.0, 0.0,in=1,nn_solid),  &
-                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),                 &
-                        fluid_stress(4,in), 0.0, 0.0,in=1,nn)
+  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in), 0.0,           &
+                       0.0, 0.0, solid_stress(3,in), in=1,nn_solid),  &
+                       (fluid_stress(1,in),fluid_stress(2,in), 0.0,           &
+                        0.0, 0.0, fluid_stress(3,in), in=1,nn)
   close(ifileunit)
 
  !...Write strain output in ens_movie.strain*
   write(*,*) 'writing... ', name_file4
   open(ifileunit, file=name_file4, form='formatted')
   write(ifileunit, '(A)') 'structure field: strain'  
-  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),                 &
-                        solid_strain(4,in), 0.0, 0.0,in=1,nn_solid),  &
-                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
-                        fluid_strain(4,in), 0.0, 0.0,in=1,nn)
+  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),           &
+                        0.0, 0.0,solid_strain(4,in),in=1,nn_solid),  &
+                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),           &
+                        0.0, 0.0,fluid_strain(4,in), in=1,nn)
   close(ifileunit)
 
 

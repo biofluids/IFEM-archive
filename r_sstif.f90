@@ -27,9 +27,11 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
 
 
   sdensit=density_solid
+
 !ccccccccccc
 !     i-u
 !ccccccccccc
+
   do ni=1,nen_solid
      do isd=1,nsd_solid
         nu1 = (isd-1)*nn_solid+solid_fem_con(ne,ni)
@@ -46,12 +48,6 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
         enddo
      enddo
   enddo
-
-!	do ipt = 1,nn_solid
-!		do isd = 1,nsd_solid
-!			solid_force_internal1(isd, ipt) = predrf(ipt+(isd-1)*nn_solid)
-!		enddo
-!	enddo
 
   do ip=1,nump
      call r_scalfp(fp,ocpp,ip)
@@ -74,7 +70,7 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
   enddo
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
   xac(1:nsd_solid) = xac(1:nsd_solid) + xmg(1:nsd_solid)
-  
+
   totalh=0
   do ni=1,nen_solid
   	if(nsd_solid == 3) then
@@ -85,20 +81,16 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
      predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
      predrf(nw1) = predrf(nw1) - w*sdensit*h(ni)*xac(3) - w*xviss*h(ni)*xve(3)
 	elseif(nsd_solid == 2) then
-		
      nu1=             solid_fem_con(ne,ni)
      nv1=  nn_solid + solid_fem_con(ne,ni)
-
      predrf(nu1) = predrf(nu1) - w*sdensit*h(ni)*xac(1) - w*xviss*h(ni)*xve(1)
      predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
-
-
-
 
 	endif
 !   totalh=totalh+h(ni)
 
   enddo
+
   return
 end subroutine r_sstif
 

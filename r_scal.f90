@@ -34,8 +34,8 @@ subroutine r_scalfu(fu,isd,ni)
 
   do ksd = 1,nsd_solid
     fu = fu + bd(ksd,ni)*PK1str_tens(ksd,isd)
-
   enddo
+
   return
 end subroutine r_scalfu
 
@@ -88,6 +88,7 @@ subroutine r_scalkpp(fkpp,ocpp,k,m)
   integer :: k,m
 
   fkpp = ocpp*hp(k)*hp(m)
+
   return
 end subroutine r_scalkpp
 
@@ -109,6 +110,7 @@ subroutine r_scalkup(fkup,ocup,i,k,ni)
   do m=1,2*nsd_solid
      fkup=fkup+ocup(m)*dge(m,i,ni)*hp(k)
   enddo
+
   return
 end subroutine r_scalkup
 

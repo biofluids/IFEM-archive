@@ -26,21 +26,27 @@ subroutine r_sreadinit(solid_coor_init,solid_coor_curr)
 !  endif
 !===========================================================
 !Mickael modified this part
+write(*,*)'nn= ', nn_solid
 
+   write(*,*) solid_coor_init(2,1)
 
 do i=1,nn_solid
 
-	!solid_coor_curr(2,i) = (0.375*solid_coor_init(1,i)+0.925)*solid_coor_init(2,i)
-	
+	solid_coor_curr(2,i) = (solid_coor_init(2,i)-1.0) *1.4+1.0
+	solid_coor_curr(1,i) = (solid_coor_init(1,i) -1.0)*0.9+1.0 
 
 
-	!solid_coor_curr(2,i) = (-0.3125*(solid_coor_init(1,i))**2+ &
-	!		0.625*solid_coor_init(1,i)+0.9875)*solid_coor_init(2,i)
 
-	!solid_coor_curr(2,i) = (-0.625*(solid_coor_init(1,i))**2+ &
-	!		1.25*solid_coor_init(1,i)+0.675)*solid_coor_init(2,i)
+! if (solid_coor_init(1,i) .gt. 0.0) then
+!	solid_coor_curr(1,i) = solid_coor_init(1,i) +0.15 
+ !       solid_coor_curr(2,i) = solid_coor_init(2,i) 
 
-
+!	write(*,*) solid_coor_curr(2,i)
+!	 write(*,*) solid_coor_init(2,i)
+!elseif (solid_coor_init(1,i) .le. 0.0) then
+!	solid_coor_curr(1,i) = solid_coor_init(1,i) -0.15
+ !       solid_coor_curr(2,i) = solid_coor_init(2,i) 
+!endif
 enddo
 
 

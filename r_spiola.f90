@@ -33,8 +33,7 @@ subroutine r_spiola(xmj,dxmj,xto)
         PK1str_tens(isd,jsd) = 0.0d0
         do ksd = 1,3
            PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) + PK2str_tens(isd,ksd)*xto(jsd,ksd)
-        
-		enddo
+        enddo
      enddo
   enddo
 

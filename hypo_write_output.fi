@@ -23,7 +23,7 @@
           if( n_tec_ens == 0) then   !ensight output
 
              call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr)
-             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
              call zfem_ensCase(dt,its,ntsbout)
 
           endif
@@ -35,7 +35,7 @@
           if( n_tec_ens == 0) then   !ensight output
 
              call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr)
-             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
              call zfem_ensCase(dt,its,ntsbout)
 
           endif

@@ -2,7 +2,6 @@
   integer,dimension(1:ne_solid,1:nsurface)  :: solid_surface   !...surface element faces
 
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
-
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
 !  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_pre_stress   !...node position pre-stress structure
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
@@ -18,7 +17,7 @@
 
 
   real(8),allocatable :: coor_1(:,:)
-!  real(8),allocatable :: coor_2(:,:)
+  real(8),allocatable :: coor_2(:,:)
   integer,allocatable :: solid_fem_con_1(:,:)
   integer,allocatable :: solid_surface_1(:,:)
 
