@@ -7,7 +7,7 @@
 !c   Starts Mesh Update Iteration Loop
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-       ale_mesh_update = 0
+       ale_mesh_update = 1
 
        mesh_update_a: if (ale_mesh_update /= 0) then
        mesh_update_b: if (  (mod(its,ale_mesh_update) == 0)  .or.  (its == 1)  ) then

@@ -81,7 +81,7 @@ subroutine parseinput_solid
   ne_solid = ne_solid_1 * n_solid
 
   if (mno .lt. nn_solid) then !...see r_common.f90
-     write(*,*) 'boost mno in r_common.f'
+     write(*,*) 'boost maxnn_solids in hypo.f and delta_nonuniform'
      stop
   endif
 
@@ -111,12 +111,9 @@ subroutine parseinput_solid
      fnod(nodefn(i),ndirfn(i)) = ftemp*1.0d5
   enddo
 
-  read(1,*) material_type !1=hyperelastic material, 2=linear elastic material  
-  read(1,*) young_mod  ! young's modulus
+
+
   read(1,*) rc1,rc2,rk,density_solid
-  if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
-  if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
-  write(*,*) 'Youngs modulus=', young_mod
   write(*,*) 'C1      = ',rc1
   write(*,*) 'C2      = ',rc2
   write(*,*) 'kappa   = ',rk

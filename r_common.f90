@@ -10,7 +10,7 @@ module r_common
 
   integer,parameter :: nup=4,nnumr=4
   integer,parameter :: mnos=0,nels=0
-  integer,parameter :: mno=24971,mno2=3*mno,nel=106454
+  integer,parameter :: mno=23000,mno2=3*mno,nel=15000
   !integer,parameter :: n_solid_max=2
 !ccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -63,7 +63,7 @@ module r_common
 
   real(8) :: dge(6,3,9),ddge(6,3,3,9,9)
 
-  real(8) :: young_mod,rc1,rc2,rk  !...rubber material parameters
-  integer :: material_type
+  real(8) :: rc1,rc2,rk  !...rubber material parameters
+  
 end module r_common
 

@@ -27,7 +27,7 @@ subroutine formd(ds,meshvel,rngface,ien)
 
   h(:,:) = 0.0d0
 
-  ds(1:ndf,1:nn) = eps1
+  !ds(1:ndf,1:nn) = eps1
   
 
   do ieface=1,neface
@@ -44,14 +44,32 @@ subroutine formd(ds,meshvel,rngface,ien)
 
   !call equal(h,hs,nrng*nn)
   hs(:,:) = h(:,:)
- ! tt_ramp = -0.5
-  !if ((tt >= 0).and.(tt <= tt_ramp)) then
-  !     bv(wdf,8) = 5.0  * tt/tt_ramp
-  !elseif (tt >= tt_ramp) then
-  !     bv(wdf,8) = 5.0
-  !endif
 
-!  write(*,'("boundary 8 (inflow) x-velocity: ",f12.7," cm/s")') bv(udf,8)
+  tt_ramp = 0.4
+  if ((tt >= 0).and.(tt <= tt_ramp)) then
+       bv(udf,2) = 10.0d0  * tt/tt_ramp
+       bv(udf,4) = 10.0d0  * tt/tt_ramp
+       bv(udf,5) = 10.0d0  * tt/tt_ramp
+       bv(udf,6) = 10.0d0  * tt/tt_ramp  !...inlet (6) velocity in direction #degree of freedom#
+       bv(wdf,2) = 2.50d0  * tt/tt_ramp
+       bv(wdf,4) = 2.50d0  * tt/tt_ramp
+       !bv(wdf,5) = 1.0d0  * tt/tt_ramp
+       !bv(wdf,6) = 1.0d0  * tt/tt_ramp
+  elseif (tt > tt_ramp) then
+       bv(udf,2) = 10.0d0
+       bv(udf,4) = 10.0d0
+       bv(udf,5) = 10.0d0
+       bv(udf,6) = 10.0d0
+       bv(wdf,2) = 2.50d0
+       bv(wdf,4) = 2.50d0
+       !bv(wdf,5) = 1.0d0
+       !bv(wdf,6) = 1.0d0
+  endif
+
+
+
+  write(*,'("boundary 6 (inflow) x-velocity: ",f12.7," cm/s")')bv(udf,6)
+  write(*,'("boundary 6 (inflow) z-velocity: ",f12.7," cm/s")')bv(wdf,6)
 
 
   do irng=1,nrng
