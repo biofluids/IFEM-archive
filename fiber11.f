@@ -34,18 +34,18 @@ c++++++++
             call r_nodalf
          endif
 
-         do 104 i=1,nnd
+         do i=1,nnd
             fix_con(i)= 1.0
- 104     continue
+	   enddo
 
          njc=0
 
-         do 37 i=1,numgb
+         do i=1,numgb
 ccccccccccccccccccccccccccccccccccccccccccc
 c     Fixed 1,2
 ccccccccccccccccccccccccccccccccccccccccccc
             if (ndirgb(i) .eq. 111111) then
-               do 38 j=1,numdir(i)
+               do j=1,numdir(i)
                   nl=nodegb(i,j)
 c     
                   if (nxt(1,nl) .ne. 0) then
@@ -96,28 +96,28 @@ c
      $                    xvisc*vel_pt(iz,nl)-
      $                    tension*unitvector(3)
                   endif
- 38            continue
+			 enddo
             endif
 ccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Fixed 1
 ccccccccccccccccccccccccccccccccccccccccccccccccc
             if (ndirgb(i) .eq. 110111) then
-               do 47 j=1,numdir(i)
+               do j=1,numdir(i)
                   nl=nodegb(i,j)
                   fix_con(nl)=-2
                   predrf(nl)=0.0d0
- 47            continue
+			 enddo
             endif
 ccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Fixed 2
 ccccccccccccccccccccccccccccccccccccccccccccccccc
             if (ndirgb(i) .eq. 101111) then
-               do 52 j=1,numdir(i)
+               do j=1,numdir(i)
                   nl=nnd+nodegb(i,j)
                   predrf(nl)=0.0d0
- 52            continue
+			 enddo
             endif
- 37      continue
+	    enddo
 
       endif
 
@@ -126,7 +126,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
 
       ipt = icon
 
-      do 100 icon = dlptlocal_head, dlptlocal_tail
+      do icon = dlptlocal_head, dlptlocal_tail
          ipt = icon   
          
          if ( (fix_con(icon) .eq. -1.0) ) then
@@ -177,7 +177,7 @@ c++++++
             endif
          endif
 
- 100  continue
+	enddo
 
       icon = dlptlocal_tail
       ipt = icon 

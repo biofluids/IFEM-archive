@@ -64,7 +64,6 @@ c     stress
 c     discretized pressure
                wp=wgt(lx,nint)*wgt(ly,nint)*thic 
                w=wp*todet
-
                call r_sstif(ocpp,ocuu,ocup,ne,w,toxj)
                if (iflag .eq. 0) then
                   call r_scauchy(det,todet,xto,lx,ly,ne)
@@ -109,6 +108,7 @@ c
      $              xfrtem(i,j)*ttm(j)
  56         continue
             pre(i,ne)=-tem(i)-ten(i)
+
  55      continue
 c     
  89   continue

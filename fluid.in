@@ -6,9 +6,8 @@ taudt =     1
 static =    0
 conserve =  1
 
-
-nn = 8505
-ne = 6400
+nn=  13365
+ne=  10240
 
 nrng =    6
 nen =     8
@@ -16,16 +15,16 @@ ndf =     4
 nsd =     3
 iquad =   1
 
-nit =      04
-nts =      05 
-ntsbout =  01
+nit =      02
+nts =      40 
+ntsbout =  1
 idisk =    00 
 inner =    40
 outer =    02
 iscaling = 01
 maxconn =  90
 
-dt =      0.0005
+dt =      0.01
 t_start = 0.0
 alpha =   0.5
 
@@ -44,8 +43,8 @@ interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 surf = 1  6
 hydro = 5
 
-vis_liq = 10.0   !! water 1.3e-3
-vis_gas = 10.0   !! gas   1.5e-5
+vis_liq = 0.0113   !! water 1.3e-3
+vis_gas = 0.0113   !! gas   1.5e-5
 den_liq = 1.00 
 den_gas = 1.00
 ref_lgt = 1.0

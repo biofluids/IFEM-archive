@@ -39,11 +39,16 @@ c
          pave(i)=pave(i)/ntem
 	enddo
 c     
-      write(9001,850) klok,nnda,numela 
-c 850  format('ZONE N=',i5,',',' E=',i5,',',
+	if (klok.eq.0) then
+	      write(9001,850) klok,nnda,numela 
  850  format('ZONE   T= "',i5,'", N=',i5,', E=',i5,
      $     ', F=FEPOINT, ET=QUADRILATERAL')
-c     
+	else
+	      write(9001,853) klok,nnda,numela 
+ 853  format('ZONE   T= "',i5,'", N=',i5,', E=',i5,
+     $     ', F=FEPOINT, ET=QUADRILATERAL, D=(FECONNECT)')
+	endif
+	     
       do i=(nslay-1)*nnda+1,nslay*nnda
          write(9001,851) (coor(i,1)+dis(1,i))*unit_length,
      $        (coor(i,2)+dis(2,i))*unit_length,
@@ -52,7 +57,7 @@ c
      $        tstress(2,i)*unit_pressure,
      $        tstress(3,i)*unit_pressure,
      $        tstress(4,i)*unit_pressure,
-     $        pave(i),
+     $        pave(i)*unit_pressure,
      $        tstrain(1,i),
      $        tstrain(2,i),
      $        tstrain(3,i),
@@ -60,11 +65,12 @@ c
  851     format(13(e14.6,', '))
 	enddo
 c     
-
+	if (klok.eq.0) then
       do i=1,numela
          write(9001,852) (nea(i,j),j=1,nis)
  852     format(i4,' ',i4,' ',i4,' ',i4)
 
 	enddo
+	endif
       return
       end

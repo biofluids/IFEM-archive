@@ -1,7 +1,7 @@
 c++++++++
 c	ibd0_application_parameters.fh
 c++++++++
-!       parameter (xnmag=4)
+!       parameter (xnmag=8.0)
 	   parameter (xnmag=0.5)
        parameter (max_point=40000)
        parameter (pi=3.14159265d0)

@@ -6,7 +6,7 @@ c   initialization for the solid variables (and input file reading) in hypo.f
 	program main
 
 	implicit real*8 (a-h,o-z)
-c    include "global.h"
+      include "global.h"
 	include "r_common"
 	include "main_common"
       

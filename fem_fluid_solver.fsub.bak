@@ -1,0 +1,23 @@
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c   FEM Navier Stokes fluid solver
+c     incompressible, explicit
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+        do iit=1,nit
+          call fclear(p,ndf*nn_loc)
+          call fclear(w,ndf*nn_loc)
+          call block(x,d,do,p,w,hg,ien)
+          assemble=.true.
+          call scatter(p,bg,ndf,assemble,hn,hm)
+          call scatter(w,wg,ndf,assemble,hn,hm)
+          call setid(bg,id,ndf)
+          call getnorm(bg,bg,ndf*nnc,res_l)
+          res_l= sqrt(res_l/nq)
+          call fclear(dg,ndf*nnc)
+          call gmres(x,d,do,id,wg,bg,dg,hg,ien,hn,hm,
+     &         z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss)
+          call getnorm(dg,dg,ndf*nnc,del_l)
+          del_l = sqrt(del_l/nq)
+          call update(p, d, dg, ndf,hn,hm)
+          if (myid.eq.0) write(6,102)iit,res_l,del_l
+          if (myid.eq.0) write(7,102)iit,res_l,del_l
+        end do

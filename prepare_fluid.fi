@@ -31,7 +31,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call shape2d
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call equal(xn,x,nsd*nn)
-      call equal(dn,d,nsd*nn)
+      call equal(dn,d,ndf*nn)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call error("mesh information",-999,.false.)
       call vol(x,ien)

@@ -34,3 +34,4 @@ c   pointer allocation
       avlocptr = malloc(ndf*nn*fsize)
 
 	ffluidsptr=malloc(nsd*nn*fsize)
+!	dvolumeptr = malloc(nn*fsize)

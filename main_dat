@@ -1,9 +1,9 @@
 2		/n_step_run
 1		/n_step_wr_ib_user_files
 0		/nrestart, 0: new problem, 1:old problem
--0.5d0 10.0d0 	/xshift,zshift  
+4.0d0 7.5d0 	/xshift,zshift  
 1		/nslay
-0.0113d0 1.0d0 0.005d0 /nu, density of fluid (g/cm^3), time step
+0.0113d0 1.0d0 0.0002d0 /nu, density of fluid (g/cm^3), time step
 16.0d0	/physical dimension of fluid domain(cm)
 1.0d0
 16.d0

@@ -39,22 +39,46 @@ c      dimension  f3( dmnac1:dmxac1, dmnac2:dmxac2, dmnac3:dmxac3)
 	real* 8 xn(nsd,nn)
 	integer ien(nen,ne)
 
-      klok1= klok/n_step_wr_ib_user_files
-	jump_frame=1
-      nn_klok=klok1/jump_frame
+c      klok1= klok/n_step_wr_ib_user_files
+c	jump_frame=1
+c      nn_klok=klok1/jump_frame
 
-      if (mod(klok1,jump_frame) .eq. 0) then
-
+!      if (mod(klok1,jump_frame) .eq. 0) then
+	if (mod(klok,ntsbout).eq.0) then
 c++++++++
 c     write fluid domain output in 'tecf.dat'
 c++++++++
-      write(9000,*) 'Title="fem method tecplot output"'
+c      write(9000,*) 'Title="fem method tecplot output"'
 c         write(9000,*) 'Variables="X","Z","U","W","P","Cir"'
-	write(9000,*) 'Variables="X" "Y" "Z" "U" "V" "W" "P"'
+c	write(9000,*) 'Variables="X" "Y" "Z" "U" "V" "W" "P"'
 
-      write(9000,777) klok, nn, ne
- 777  format(' Zone T="',i3,  
+	if (klok .eq.0) then
+		write(9000,*) 'Title="fem method tecplot output"'
+		write(9000,*) 'Variables="X" "Y" "Z" "U" "V" "W" "P"'
+		write(9000,777) klok, nn, ne	
+		do i=1,nn
+			write(9000,601) xn(1,i),xn(2,i),xn(3,i),
+     +			d(1,i),d(2,i),d(3,i),d(4,i)
+		enddo
+		do i=1,ne
+			write(9000,602) (ien(j,i),j=1,nen)
+		enddo
+
+	else
+		write(9000,778) klok, nn, ne
+		do i=1,nn
+			write(9000,601) xn(1,i),xn(2,i),xn(3,i),
+     +			d(1,i),d(2,i),d(3,i),d(4,i)
+		enddo
+	endif
+
+ 777	format(' Zone T="',i3,  
      $       '", N=', i5, ', E=', i5, ', F=FEPOINT, ET=BRICK')
+ 778  format(' Zone T="',i3,  
+     $       '", N=', i5, ', E=', i5, ', F=FEPOINT, ET=BRICK, D=(FECONNE
+     $CT)')
+ 601	format(7(e14.6,1x))
+ 602	format(8i10)
       j=0
 
 c++++++++
@@ -72,26 +96,19 @@ c 403        continue
 c 400     continue
 
 
-	do i=1,nn
-		write(9000,601) xn(1,i),xn(2,i),xn(3,i),
-     +		d(1,i),d(2,i),d(3,i),d(4,i)
-	enddo
-	do i=1,ne
-		write(9000,602) (ien(j,i),j=1,nen)
-	enddo
- 601	format(7(e14.6,1x))
-602	format(8i10)
          
 c++++++++     
 c     output to tecplot header
 c++++++++          
          if (n_ibmfem .eq. 1) then
+		 if (klok.eq.0) then
             write(9001,891) 
  891        format('TITLE="Nonlinear Rubber Program"')
             write(9001,892)
  892        format('VARIABLES=X,Z,DISPX,DISPZ,STRESXX,STRESSZZ,',
      $           'STRESSXZ,STRESSYY,PRE,STRAINXX,STRAINZZ,STRAINXZ,',
      $           'STRAINYY')
+		 endif
             call r_print
             call r_main2(nn_klok,klok)
          endif

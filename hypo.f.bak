@@ -1,0 +1,392 @@
+c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c	main.fcm                                                             c
+c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c   *.fsub files are used to shorten hypo.f (keeping the overview)
+c   the include command reads these files and replaces the include line
+c   with the content of these files
+	  subroutine hypo
+	  implicit none
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c 1   Preparation      
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	  
+
+cccccccccccccccccccccccccccccc	  
+c 1.1 Definition of variables
+	  
+      !...FEM fluid solver
+      include "global.h" !.......global values for fluid FEM Solver
+      include "malloc.h" !.......how much memory is needed to allocate pointers
+      
+      !...IBM code
+      include 'r_common' !.......declares some IBM-variables as common
+      include 'main_common' !....same as above 
+      
+      !...defines variables, which are used locally (not common) in hypo.f
+      include "declaration_fluid.fh"
+      include "declaration_solid.fh"
+
+cccccccccccccccccccccccccccccc
+c 1.2 Allocate Pointers
+
+c+++++++++++++++
+c 1.2.1   fluid
+
+      call error("initialization",-999,.false.)
+      tt = t_start
+      call error("read ien",-999,.false.)
+      ienptr = malloc(nen*nec*isize)
+      call readien(ien)
+      call error("communications",-999,.false.)
+      call commsetup(ien)
+c    call nodesetup (cnn,mn) !!!!change me
+
+      !...allocate the memory for pointers      
+      include "pointer.fsub"
+
+cccccccccccccccccccccccccccccc            
+c 1.3 Prepare for calculation 
+
+c+++++++++++++++
+c 1.4.1  General
+      include "prepare_calculation.fsub"
+
+c+++++++++++++++
+c 1.4.2  Fluid
+      include "prepare_fluid.fsub"
+
+c+++++++++++++++
+c 1.4.3  Solid
+      include "prepare_solid.fsub"
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c 2   time loop
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      do its=1,nts !.....count from 1 to number of timesteps
+         istep = its
+         iti   = its
+
+         tt = tt + dt !......update real time
+         klok = klok + 1 !...???
+        
+         include "write_screen_message_every_timestep.fsub"
+     
+
+         call equal(d,do,ndf*nn_loc)   !.....???
+        
+         include "solid_fem_prepare_each_timestep.fsub"
+ 
+c========================================
+c ***   begin iteration of coupling   ***
+c========================================
+      do 2000 iiterstep = 1, n_iter_step
+
+         if (n_iter_step .gt. 1) then
+            write(6,*) 'beginning iteration ', 
+     $           iiterstep, ' of step ', istep
+         endif
+         
+cccccccccccccccccccccccccccccccccccccccccc      
+c 2.1 Construction of the Deltafunctions
+            
+c++++++++ 
+c     ** create connection lists, traversing dlist with key=idomain_ptcon.
+c   asynchronous
+c++++++++ 
+
+c                ??????????
+         call create_conexchlists(
+     $        dnext_pt, dlptlocal_number,
+     $        dlptlocal_head, dlptlocal_tail,
+     $        idomain_ptcon, dnext_con, dlconshare_number,
+     $        dlconshare_head, dlconshare_tail)
+
+
+c++++++++                   
+c     ** assign masks for connection exchanges. mustfollowdacxlists.
+c     asynchronous.
+c++++++++                   
+c                  ????????
+
+         call create_shareconmask(
+     $        dlconshare_number,  dmasksharecon)
+         
+         call calctypeactivations(
+     $        klok, bwriteon)
+
+c++++++++
+c     applying periodic boundary velocity
+c     n_periodicvel equal to 1, apply periodic boundary velocity
+c     equal to 0, do not apply
+c++++++++
+
+c   removed by Axel: fluid is solved and prepared by fem solver
+c         if (n_periodicvel .eq. 1) then
+c            call periodicvel(u,v,w,dmnac1,dmnac2,
+c     $           dmnac3,dmxac1,dmxac2,dmxac3,dmnlc1,dmnlc2,
+c     $           dmnlc3,dmxlc1,dmxlc2,dmxlc3,info,istep,
+c     $           f1,f2,f3,p)
+c
+c            call exchangefluiddata(dtid(dilocaldomain),dtidaxisneighbor,  
+c     $           ibd_fluid_vel,vel_fluid) 
+c
+c         endif
+
+cccccccccccccccccccccccccccccccccccccccc
+c 2.  Solid solver
+c
+c     Calculate material point forces
+c     (which will be distributed to the fluidc in the next step
+c     ->  F(t + dt)     
+     
+         call calcpointforces(
+     $        dilocaldomain, dtid, dmasksharecon,
+     $        dnext_pt,dlptlocal_number,
+     $        dlptlocal_head,dlptlocal_tail,
+     $        dnext_con, dlconshare_number, 
+     $        dlconshare_head,dlconshare_tail,
+     $        idomain_pt, idomain_ptcon,
+     $        coord_pt, coord_ptfcu, 
+     $        acttype_con,
+     $        stiff0_con,
+     $        rest0_con,
+     $        fix_con,
+     $        forces_fcu,
+     $        stiffness_fcu, restlength_fcu, force_pt,
+     $        accel_pt,vel_pt)
+
+c++++++++
+c     calculate the applied forces
+c   n_dispforce equal to 1, use initial displacement.
+c   n_dispforce equal to 0, use external excitation force
+c++++++++
+         if (n_dispforce .eq. 0) then
+            
+            call disturbance(u,v,w,istep,
+     $           mn_pt_alloc, mx_pt_alloc,
+     $           dnext_pt,dlptlocal_number, 
+     $           dlptlocal_head, dlptlocal_tail, 
+     $           dmnac1,dmnac2,dmnac3,dmxac1,dmxac2,dmxac3,
+     $           dmnlc1,dmnlc2,dmnlc3,dmxlc1,dmxlc2,dmxlc3,
+     $           vel_pt, coord_pt, force_pt, accel_pt)
+         endif
+         
+         
+cccccccccccccccccccccccccccccccccccccccccccccccccc         
+c 2.5 Distribution of the solid forces to the fluid domain
+c
+c     F(t + dt)  ->  f(t + dt)         
+         
+         call interactviadelta(
+     $        mn_pt_alloc, mx_pt_alloc,
+     $        dnext_pt,
+     $        dlptlocal_number, 
+     $        dlptlocal_head, dlptlocal_tail,
+     $        ib_spread_force,
+     $        dmnac1, dmxac1,
+     $        dmnac2, dmxac2,
+     $        dmnac3, dmxac3,
+     $        coord_pt, 
+     $        force_pt, force_fluid)                       
+
+cccccccccccccccccccccccccccccccccccccccccccccccccc
+c 2. FEM Navier-Stokes Solver
+c
+c     calculates v(t+dt),p(t+dt)
+      
+
+        include "fem_fluid_solver.fsub"
+
+        include "postprocess_fluid.fsub"
+
+cccccccccccccccccccccccccccccccccccccccccccccccccc
+c 2. Interpolation fluid velocity -> immerged material points
+c        v_fluid(t+dt)  ->  v_solid(t+dt)      
+c++++++++++
+     
+            call interactviadelta(          !...old
+     $           mn_pt_alloc, mx_pt_alloc,
+     $           dnext_pt,
+     $           dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+     $           ib_interp_vel,
+     $           dmnac1, dmxac1,
+     $           dmnac2, dmxac2,
+     $           dmnac3, dmxac3,
+     $           coord_pt,
+     $           vel_pt, vel_fluid)                  
+
+    
+c 2. Update material point displacement u(t+dt) = u(t) + dt*v(t)
+            
+            !...calculate the acceleration of material points
+            call calcaccel(klok,
+     $           mn_pt_alloc,mx_pt_alloc,
+     $           dnext_pt,
+     $           dlptlocal_number,dlptlocal_head,dlptlocal_tail,
+     $           vel_pt,prevel_pt,accel_pt)
+
+
+
+
+
+c++++++++
+c     update solid domain
+c     ibm to rubber coordinate convertion
+c++++++++
+            if (n_ibmfem .eq. 1) then
+               viter=0.0d0
+               do 301 i=1,nnd
+                  if (fix_con(i) .eq. -1) then
+                     du(1,i)= 0.0d0
+                     du(2,i)= 0.0d0
+                  else
+                     du(1,i)=vel_pt(1,i)
+                     du(2,i)=vel_pt(3,i)
+                     acm(1,i)=accel_pt(1,i)
+                     acm(2,i)=accel_pt(3,i)
+                  endif
+                  dis(1,i)=dis(1,i)+du(1,i)
+                  dis(2,i)=dis(2,i)+du(2,i)
+ 
+                  if (klok .eq. 1) then
+                     vnorm=vnorm+du(1,i)**2+
+     $                    du(2,i)**2
+                  else
+                     viter=viter+du(1,i)**2+
+     $                    du(2,i)**2
+                  endif
+ 301           continue
+               
+               if (klok .eq. 1) then
+                  vnorm=dsqrt(vnorm)
+                  viter=1.0d0
+               else
+                  viter=dsqrt(viter)/vnorm
+               endif
+
+               write(*,*) viter
+
+               if (niterf .eq. 0) then
+                  if (viter .gt. threshold) then                     
+                     do 45 i=1,nnd
+                        dis(1,i)=dis(1,i)+du(1,i)
+                        dis(2,i)=dis(2,i)+du(2,i)
+ 45                  continue
+                     
+                     do 33 ne=1,numel
+                        do 34 k=1,nump
+                           nh1=(ne-1)*nump+k
+                           prec(nh1)=prec(nh1)+
+     $                          pre(k,ne)
+ 34                     continue
+ 33                  continue
+                  else
+                     niterf=1
+                  endif
+               else
+                  write(*,*) viter,viter
+                  do 46 i=1,nnd
+                     predrf(i)=predrf2(i)
+                     predrf(i+nnd)=predrf2(i+nnd)
+                     drf(i)=drf2(i)
+                     drf(i+nnd)=drf2(i+nnd)
+                     vel_pt(1,i)=0.0d0
+                     vel_pt(3,i)=0.0d0
+ 46               continue
+               endif
+            endif
+
+        !   move the lagrangian things
+            call movepoints(
+     $           mn_pt_alloc, mx_pt_alloc,
+     $           dnext_pt,
+     $           dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+     $           vel_pt, coord_pt, acttypec_con,fix_con)
+
+            call interpssbpressure(dilocaldomain,dmnac1, dmxac1,
+     $           dmnac2, dmxac2, dmnac3, dmxac3,pressure_ss, 
+     $           wt_delss,ice1_delss, ice2_delss, ice3_delss, 
+     $           pressure_bal,dbanybc, dmnbce1, dmxbce1, dmnbce2, 
+     $           dmxbce2,dmnbce3, dmxbce3, pressure_fluid)
+
+
+ 2000    continue !...end of iteration loop
+
+c++++++++++
+c reapply velocity boundary condition
+c++++++++++
+c removed by Axel
+c         if (n_periodicvel .eq. 1) then
+c            call periodicvel(u,v,w,dmnac1,dmnac2,
+c     $           dmnac3,dmxac1,dmxac2,dmxac3,dmnlc1,dmnlc2,
+c     $           dmnlc3,dmxlc1,dmxlc2,dmxlc3,info,istep,
+c     $           f1,f2,f3,p)        
+c         endif
+            
+c++++++++++++++++
+c     *** user file i/o - write out .xfdi file for current klok
+c++++++++++++++++
+c         if( (mod(klok, n_step_wr_ib_user_files) .eq. 0) .or.
+c     $        (klok .eq. 1)) then
+         
+c     if(klok .eq. 1) then
+c     currentstep = klok
+c     else
+c     currentstep = klok/n_step_wr_ib_user_files+1
+c     endif    
+         
+c         if (mod(klok, n_step_wr_ib_user_files) .eq. 0) then
+
+            
+c            currentstep = klok/n_step_wr_ib_user_files
+c            time_value(currentstep) = klok * td
+
+
+ccccccccccccccccccccccccccccccc
+c 2.  Write output
+c   
+c     write several output files (ensight, tecplot) for solid (ibm, fem)
+c     and fluid (ensight)
+
+      include 'write_output.fsub'
+
+     
+        
+      end do !....end of time loop 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+ 101  format(/"Number of equations for Flow.........(nq) = ",i10)
+ 102  format("Iteration",i3,':  ',4e14.7)
+	  
+
+	  
+
+      if ((n_ibmfem .eq. 0).and.(n_tec_ens .eq. 0)) then
+         write(*, *) 'generate ensight case file'
+         call zibm_enscase(time_value, currentstep)
+      end if
+      if((n_ibmfem .eq. 1).and. (n_tec_ens .eq. 0)) then
+         write(*, *) 'generate ensight case file'
+         call zfem_enscase(time_value, currentstep)
+      end if
+
+      naxx2=time()
+      write(*,*) naxx1,naxx2,naxx2-naxx1
+
+
+      end 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

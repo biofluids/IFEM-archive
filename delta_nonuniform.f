@@ -8,7 +8,7 @@ c interpolation and distribution of the velocities and forces respectively
 c between fluids and solids domain.
 
       subroutine delta_nonuniform(shrknode,cnn,ncnn,nn_solids,x_solids,
-     +     xna,ien)
+     +     xna,ien,dwjp)
 
       include 'global.h'
 	parameter (maxnn_solids=1000)
@@ -17,7 +17,6 @@ c between fluids and solids domain.
 	integer nn_solids
       real* 8 shrknode(maxconn,maxnn_solids)
       integer cnn(maxconn,maxnn_solids),ncnn(maxnn_solids)
-
       real* 8 x_solids(nsd,nn_solids)
 
 	!fluids variables
@@ -37,8 +36,9 @@ c between fluids and solids domain.
       integer ie,inl,isd,nnum
       integer inf(maxconn),ninf
 
-C      coef = 0.5
-      coef = 0.6d0
+
+      coef = 0.95d0
+c      coef = 0.6d0
       maxinf = 0
       mininf = 9999
       avginf = 0

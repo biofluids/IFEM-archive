@@ -23,6 +23,7 @@ c Definition of variables
 
 	real* 8 shrknode(90,maxnn_solids)
 	integer ncnn(maxnn_solids),cnn(90,maxnn_solids)
+	real* 8 dvolume(nn)
 
 	!...defines variables, which are used locally (not common) in hypo.f
 
@@ -37,11 +38,7 @@ c Prepare for calculation, read in inputs
 		write(*,*) 'boost maxnn_solids in hypo.f and delta_nonuniform'
 		stop
 	endif
-
-	newcoor(1,:)=coor(:,1)
-	newcoor(3,:)=coor(:,2)
-	newcoor(2,:)=0.0d0
-	newcoor(:,nnd+1:nnd+nn)=xn(:,:)
+	include "write_output.fi"
 
 ccccccccccccccccccccccccccccccc
 c time loop
@@ -52,7 +49,7 @@ c time loop
 
 	   tt = tt + dt !......update real time
 	   klok = klok + 1 !.... for ibm output
-	   ntsout=n_step_wr_ib_user_files  ! output steps are the same
+c	   ntsbout=n_step_wr_ib_user_files  ! output steps are the same
 
 	 write (6,*) ' '
 	 write (6,*) ' TIME STEP = ', its
@@ -65,7 +62,7 @@ c Construction of the dirac deltafunctions for nonuniform spacing
 	 write(*,*) 'calculating RKPM delta function'
 	 if (ndelta.eq.1) then	!non-uniform RKPM delta function
 	 call delta_nonuniform(shrknode,cnn,ncnn,nnd,coord_pt,xn,
-	1	ien)
+	1	ien,dvolume)
 	 endif
 
 cccccccccccccccccccccccccccccccccccccccc
@@ -77,10 +74,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 c 2.5 Distribution of the solid forces to the fluid domain
 c	F(t + dt)  ->  f(t + dt)							 
 	 ibuf=2
-c	 write(*,*) 'distributing the force onto fluids'
-c	 call diracdelta(force_pt,nnd, coord_pt,
-c	1	 f_fluids,nn,
-c     +	ndelta,shrknode,cnn,ncnn,maxconn,ibuf)
+	 write(*,*) 'distributing the force onto fluids'
+	 call diracdelta(force_pt,nnd, coord_pt,f_fluids,nn,
+     +	ndelta,shrknode,cnn,ncnn,maxconn,dvolume,ibuf)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccc
 c 2. FEM Navier-Stokes Solver - calculates v(t+dt),p(t+dt)
@@ -93,26 +89,21 @@ c	   v_fluid(t+dt)  ->  v_solid(t+dt)
 		  
 	 ibuf=1
 	 write(*,*) 'interpolating fluid velocity onto the solids'
-c	 call diracdelta(vel_pt,nnd, coord_pt,
-c	1	 d(1:3,:),nn,
-c     +	ndelta,shrknode,cnn,ncnn,maxconn,ibuf)
+	 call diracdelta(vel_pt,nnd, coord_pt, d(1:3,:),nn,
+     +	ndelta,shrknode,cnn,ncnn,maxconn,dvolume,ibuf)
 	 
 ccccccccccccccccccccccccccccccccccccccccccccccccc
 c	update solid domain
 	 write(*,*) 'updating the variables for the structure'
 	 include "solids_update.fi"
 
-c	write output file every ntsout steps
+c	write output file every ntsbout steps
 
-	 if (mod(its,ntsout).eq.0) then
+	 if (mod(its,ntsbout).eq.0) then
 	    write(*,*) 'generating the output'
        	include 'write_output.fi'
 	 endif
 	
-	newcoor(1,:)=coord_pt(1,:)
-	newcoor(2,:)=coord_pt(2,:)
-	newcoor(3,:)=coord_pt(3,:)
-	newcoor(:,nnd+1:nnd+nn)=xn(:,:)
 	enddo			!....end of time loop 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c	write output summary for ensight *.case 

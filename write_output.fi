@@ -42,8 +42,8 @@ c     $              dmnlc1,     dmnlc2,    dmnlc3,
 c     $              dmxlc1,     dmxlc2,    dmxlc3)
             endif
                
-            currentstep = klok/n_step_wr_ib_user_files
-            time_value(currentstep) = klok * td
+c            currentstep = klok/n_step_wr_ib_user_files
+c            time_value(currentstep) = klok * td
 
 c++++++++
 c     ibm :: tecplot and ensight output

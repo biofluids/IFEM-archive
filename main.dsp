@@ -67,7 +67,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE F90 /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt
-# ADD F90 /browser /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt
+# ADD F90 /browser /check:bounds /compile_only /debug:full /nologo /optimize:5 /traceback /warn:argument_checking /warn:nofileopt
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
 # ADD CPP /nologo /ML /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -264,6 +264,10 @@ SOURCE=.\meshgen.f
 # Begin Source File
 
 SOURCE=.\movepoints.f
+DEP_F90_MOVEP=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
@@ -322,6 +326,23 @@ DEP_F90_R_ELE=\
 # Begin Source File
 
 SOURCE=.\r_input.f
+DEP_F90_R_INP=\
+	".\iba_application_parameters.fh"\
+	".\ibd0_exchange_pars.fh"\
+	".\ibg_change_me_ptcon_var_common_equiv.fh"\
+	".\ibg_change_me_ptcon_var_decl.fh"\
+	".\ibg_parameters_run.fh"\
+	".\ibg_variable_equivalences.fh"\
+	".\ibg_variables_cfd.fh"\
+	".\ibg_variables_cloud.fh"\
+	".\ibg_variables_domain.fh"\
+	".\ibg_variables_fluid.fh"\
+	".\ibg_variables_marker.fh"\
+	".\ibg_variables_point.fh"\
+	".\ibg_variables_run.fh"\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
@@ -340,10 +361,30 @@ DEP_F90_R_LOA=\
 # Begin Source File
 
 SOURCE=.\r_main.f
+DEP_F90_R_MAI=\
+	".\iba_application_parameters.fh"\
+	".\ibd0_exchange_pars.fh"\
+	".\ibg_change_me_ptcon_var_common_equiv.fh"\
+	".\ibg_change_me_ptcon_var_decl.fh"\
+	".\ibg_parameters_run.fh"\
+	".\ibg_variable_equivalences.fh"\
+	".\ibg_variables_cfd.fh"\
+	".\ibg_variables_cloud.fh"\
+	".\ibg_variables_domain.fh"\
+	".\ibg_variables_fluid.fh"\
+	".\ibg_variables_marker.fh"\
+	".\ibg_variables_point.fh"\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_main2.f
+DEP_F90_R_MAIN=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
@@ -443,11 +484,15 @@ DEP_F90_R_SRE=\
 # Begin Source File
 
 SOURCE=.\r_sstif.f
+DEP_F90_R_SST=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sstrain.f
-DEP_F90_R_SST=\
+DEP_F90_R_SSTR=\
 	".\r_common"\
 	
 # End Source File
@@ -492,10 +537,6 @@ SOURCE=.\sharp.f
 # Begin Source File
 
 SOURCE=.\solids_solver.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\solids_solver_prepare.fi
 # End Source File
 # Begin Source File
 

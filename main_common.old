@@ -1,0 +1,307 @@
+c++++++++
+c	ibd0_application_parameters.fh
+c++++++++
+       parameter (nmag=1)
+       parameter (max_point=40000)
+c       parameter (pi=datan(1.0d0)*4.0d0)
+       parameter (n_pt_exp    =  90000) 	
+       parameter (n_marker_exp=  10000) 
+       parameter (n_iter_step = 1) 
+       parameter (n_lat_exp1     = 64*nmag) 
+       parameter (n_lat_exp2     = 64*nmag)  
+       parameter (n_lat_exp3     = 64*nmag)  
+
+       parameter (n_cloud_alloc = 11)
+       parameter (mn_cloud_alloc = 1)
+       parameter (mx_cloud_alloc = mn_cloud_alloc+(n_cloud_alloc-1))
+       parameter (nskipx= 2)
+       parameter (nskipy= 2)
+       parameter (nskipz= 2)
+
+c++++++++
+c	read from main_dat file
+c++++++++
+       common /ws1/n_step_run,n_step_wr_ib_user_files
+       common /ws2/n_step_wr_pc_file
+       common /ws3/nslay,iramp
+       real*8 xshift,zshift
+       common /ws4/xshift,zshift
+       common /ws5/r_nu, r_rho, t_step
+       common /ws6/n_ibmfem,n_tec_ens,n_dispforce
+       common /ws7/n_mass,n_periodicvel,n_ibmfv
+       common /ws8a/n_matlab,nptfileg
+       common /ws8/mnk,mxk,npout(100),npmax
+
+       common /ws9/r_len_fluid_exp1, r_len_fluid_exp2, r_len_fluid_exp3
+       common /ws10/ unit_length, unit_mass, unit_time, unit_divergence
+       common /ws11/ unit_force, unit_frc_density, unit_pressure
+       common /ws12/ unit_resistance, unit_velocity
+       common /ws13/ unit_viscosity, unit_density
+       common /ws14/ unit_flow, unit_volume  
+       common /ws15/nteclay
+       common /ws16/applyv,applyf,threshold,cmass
+       common /ssw/ndelta,nrestart,nt0
+       common /ssz/nptibm,nptfem
+       common /ssx/xfactor,xssf
+
+c++++++++
+c n_ibmfem         = 1, fem; 
+c n_ibmfem         = 0, ibm
+c n_tec_ens	= 1, tecplot output;
+c n_tec_ens	= 0, ensight output
+c n_dispforce   = 1, initial displacement; 
+c n_dispforce   = 0, external excitation force.
+c n_periodicvel = 1, periodic boundary velocity;
+c n_periodicvel = 0, do not apply
+c++++++++
+
+       parameter (n_ce1     = n_lat_exp1)
+       parameter (n_ce2     = n_lat_exp2)
+       parameter (n_ce3     = n_lat_exp3)
+
+      parameter (n_de1      =    1)   
+      parameter (n_de2      = n_de1)  
+      parameter (n_de3      = n_de1)  
+
+      parameter (n_lo_pc1   =   1)     
+      parameter (n_lo_pc2   =   0)     
+      parameter (n_lo_pc3   =   0)     
+				       
+      parameter (n_hi_pc1   =   0)     
+      parameter (n_hi_pc2   =   0)     
+      parameter (n_hi_pc3   =   0) 
+
+      parameter (coef_alloc_pt_domain = 2.5d0) 
+      parameter (coef_alloc_mk_domain = 4.0d0) 
+
+      parameter (n_step_wr_checkpoint_file =    0)  
+
+
+
+     
+
+c++++++++
+c ibd0_implementation_parameters.fh
+c++++++++
+      parameter (n_dim_space = 3)  
+
+      parameter (ix        = 1     )
+      parameter (iy        = ix + 1)
+      parameter (iz        = ix + 2)
+
+      parameter (n_con_pt  = 2)
+      parameter (i_lo    = 1)
+      parameter (i_hi    = i_lo + 1 )
+ 
+      parameter (n_con_fcu   = 1)
+      parameter (mn_con_fcu = 1)
+      parameter (mx_con_fcu = mn_con_fcu + (n_con_fcu-1))
+ 
+      parameter (n_attr_fcu  = 4) 
+      parameter (mn_attr_fcu = 1)
+      parameter (mx_attr_fcu = mn_attr_fcu + (n_attr_fcu - 1))
+
+      parameter (i_attr_acttype = mn_attr_fcu    )         
+      parameter (i_attr_stiff0  = mn_attr_fcu + 1)         
+      parameter (i_attr_rest0   = mn_attr_fcu + 2)         
+      parameter (i_attr_fracaroundring = mn_attr_fcu + 3)  
+ 
+      parameter (n_attr_mk   = n_attr_fcu) 
+      parameter (mn_attr_mk  = 1)
+      parameter (mx_attr_mk  = mn_attr_mk + (n_attr_mk - 1))
+
+      parameter (i_attr_cloud  = mn_attr_mk)
+
+      parameter (n_c_del_oneaxis   = 4)                           
+
+      parameter (n_c_del_closed_oneaxis= (n_c_del_oneaxis - 1) / 2)
+      parameter (n_c_del_open_oneaxis  = n_c_del_closed_oneaxis + 1)
+      parameter (n_c_del_beyond_oneaxis= n_c_del_closed_oneaxis +
+     $                                   n_c_del_open_oneaxis)
+
+      parameter (n_lo_gc_del_oneaxis     = n_c_del_closed_oneaxis)
+      parameter (n_hi_gc_del_oneaxis     = n_c_del_open_oneaxis)  
+
+      parameter (n_lo_gc1   = n_lo_gc_del_oneaxis)
+      parameter (n_lo_gc2   = n_lo_gc_del_oneaxis)
+      parameter (n_lo_gc3   = n_lo_gc_del_oneaxis)
+
+      parameter (n_hi_gc1   = n_hi_gc_del_oneaxis)
+      parameter (n_hi_gc2   = n_hi_gc_del_oneaxis)
+      parameter (n_hi_gc3   = n_hi_gc_del_oneaxis)
+
+      parameter (i_minus    = 1)
+      parameter (i_plus     = i_minus + 1)
+ 
+      parameter (mn_mode_exp1 = 0)  
+
+      parameter (mn_mode_exp2 = 0) 
+
+      parameter (mn_mode_exp3 = 0) 
+
+      parameter (n_lo_pm1   = 0) 
+      parameter (n_lo_pm2   = 0) 
+      parameter (n_lo_pm3   = 0) 
+
+c++++++++
+c ibd0_automatic_parameters.fh
+c++++++++
+      parameter (n_pt_and_mk_exp  = n_pt_exp + n_marker_exp)
+
+      parameter (ib_calc_point_frc = 1) 
+      parameter (ib_spread_force   = 2) 
+      parameter (ib_calc_fluid_dyn = 3) 
+      parameter (ib_interp_vel     = 4) 
+      parameter (ib_move_point     = 5) 
+
+      parameter (n_ce      = n_ce1 * n_ce2 * n_ce3)
+
+      parameter (mn_ce1   = 0)
+      parameter (mn_ce2   = 0)
+      parameter (mn_ce3   = 0)
+
+      parameter (MN_LAT_EXP1=MN_CE1)
+      parameter (MN_LAT_EXP2=MN_CE2)
+      parameter (MN_LAT_EXP3=MN_CE3)
+
+
+      parameter (mx_ce1   = mn_ce1 + (n_ce1 - 1) )
+      parameter (mx_ce2   = mn_ce2 + (n_ce2 - 1) )
+      parameter (mx_ce3   = mn_ce3 + (n_ce3 - 1) )
+
+      parameter (nn_kludge_mod= n_ce)
+      parameter (rnn_kludge_mod= nn_kludge_mod)
+
+      parameter (n_de       = n_de1 * n_de2 * n_de3)
+
+      parameter (null_de    = -1)
+      parameter (mn_de    = null_de +   1)
+      parameter (mx_de    = null_de + n_de)
+
+      parameter (n_lc1     = n_ce1 / n_de1)
+      parameter (n_lc2     = n_ce2 / n_de2)
+      parameter (n_lc3     = n_ce3 / n_de3)
+      parameter (n_lc      = n_lc1 * n_lc2 * n_lc3)
+
+      parameter (mn_lc1    = mn_ce1)
+      parameter (mx_lc1    = mn_lc1 +     (n_lc1 - 1))
+
+      parameter (lo_lc1    = mn_lc1 +     (n_hi_gc_del_oneaxis - 1) )
+      parameter (hi_lc1    = mx_lc1 -     (n_lo_gc_del_oneaxis - 1) )
+
+      parameter (mn_lc2    = mn_ce2)
+      parameter (mx_lc2    = mn_lc2 +     (n_lc2 - 1))
+
+      parameter (lo_lc2    = mn_lc2 +     (n_hi_gc_del_oneaxis - 1) )
+      parameter (hi_lc2    = mx_lc2 -     (n_lo_gc_del_oneaxis - 1) )
+
+
+      parameter (mn_lc3    = mn_ce3)
+      parameter (mx_lc3    = mn_lc3 +     (n_lc3 - 1))
+
+      parameter (lo_lc3    = mn_lc3 +     (n_hi_gc_del_oneaxis - 1) )
+      parameter (hi_lc3    = mx_lc3 -     (n_lo_gc_del_oneaxis - 1) )
+
+      parameter (mn_gc1    = mn_lc1 - n_lo_gc_del_oneaxis)
+      parameter (lo_gc1    = mn_lc1 -     1)
+      parameter (hi_gc1    = mx_lc1 +     1)
+      parameter (mx_gc1    = mx_lc1 + n_hi_gc_del_oneaxis)
+
+      parameter (mn_gc2    = mn_lc2 - n_lo_gc_del_oneaxis)
+      parameter (lo_gc2    = mn_lc2 -     1)
+      parameter (hi_gc2    = mx_lc2 +     1)
+      parameter (mx_gc2    = mx_lc2 + n_hi_gc_del_oneaxis)
+
+      parameter (mn_gc3    = mn_lc3 - n_lo_gc_del_oneaxis)
+      parameter (lo_gc3    = mn_lc3 -     1)
+      parameter (hi_gc3    = mx_lc3 +     1)
+      parameter (mx_gc3    = mx_lc3 + n_hi_gc_del_oneaxis)
+
+      parameter (n_gc1     = n_c_del_beyond_oneaxis)
+      parameter (n_gc2     = n_c_del_beyond_oneaxis)
+      parameter (n_gc3     = n_c_del_beyond_oneaxis)	
+
+      parameter (nfficd1   =  n_lc1 + n_gc1)
+      parameter (nfficd2   =  n_lc2 + n_gc2)
+      parameter (nfficd3   =  n_lc3 + n_gc3)
+      parameter (nfficd    =  nfficd1 * nfficd2 * nfficd3)
+
+      parameter (ngcd      =  nfficd - n_lc)
+
+      parameter (n_pc1     =  (n_lo_pc1 + n_hi_pc1) )
+      parameter (n_pc2     =  (n_lo_pc2 + n_hi_pc2) )
+      parameter (n_pc3     =  (n_lo_pc3 + n_hi_pc3) )
+
+      parameter (n_ac1     =  nfficd1 + n_pc1)
+      parameter (n_ac2     =  nfficd2 + n_pc2)
+      parameter (n_ac3     =  nfficd3 + n_pc3)
+      parameter (n_ac      =  n_ac1 * n_ac2 * n_ac3)
+
+      parameter (n_pc    =  n_ac - nfficd)
+
+      parameter (mn_ac1    = mn_gc1 - n_lo_pc1)
+      parameter (mn_ac2    = mn_gc2 - n_lo_pc2)
+      parameter (mn_ac3    = mn_gc3 - n_lo_pc3)
+      parameter (mx_ac1    = mx_gc1 + n_hi_pc1)
+      parameter (mx_ac2    = mx_gc2 + n_hi_pc2)
+      parameter (mx_ac3    = mx_gc3 + n_hi_pc3)
+
+      parameter (n_lm1     = 1 + (n_lc1/2) ) 
+      parameter (n_lm2     = n_lc2)
+      parameter (n_lm3     = n_lc3)
+      parameter (n_lm      = (n_lm1 * n_lm2 * n_lm3) )
+
+      parameter (mn_lm1     = mn_mode_exp1)
+      parameter (mn_lm2     = mn_mode_exp2)
+      parameter (mn_lm3     = mn_mode_exp3)
+
+      parameter (mx_lm1     = mn_lm1 + (n_lm1 - 1) )
+      parameter (mx_lm2     = mn_lm2 + (n_lm2 - 1) )
+      parameter (mx_lm3     = mn_lm3 + (n_lm3 - 1) )
+
+      parameter (n_hi_pm1  =((n_lo_pc1+n_lo_gc1+n_hi_gc1+n_hi_pc1)/2-1))
+      parameter (n_hi_pm2  =(n_lo_pc2 + n_lo_gc2 + n_hi_gc2 + n_hi_pc2))
+      parameter (n_hi_pm3  =(n_lo_pc3 + n_lo_gc3 + n_hi_gc3 + n_hi_pc3))
+
+      parameter (n_pm1     =  (n_lo_pm1 + n_hi_pm1) )
+      parameter (n_pm2     =  (n_lo_pm2 + n_hi_pm2) )
+      parameter (n_pm3     =  (n_lo_pm3 + n_hi_pm3) )
+
+      parameter (n_am1     =  n_lm1 + n_pm1)
+      parameter (n_am2     =  n_lm2 + n_pm2)
+      parameter (n_am3     =  n_lm3 + n_pm3)
+      parameter (n_am      =  n_am1 * n_am2 * n_am3)
+
+      parameter (n_pm      =  n_am - n_lm)
+
+      parameter (mn_am1    = mn_lm1 - n_lo_pm1)
+      parameter (mn_am2    = mn_lm2 - n_lo_pm2)
+      parameter (mn_am3    = mn_lm3 - n_lo_pm3)
+      parameter (mx_am1    = mx_lm1 + n_hi_pm1)
+      parameter (mx_am2    = mx_lm2 + n_hi_pm2)
+      parameter (mx_am3    = mx_lm3 + n_hi_pm3)
+
+      parameter (n_pt_dom_average = (n_pt_exp / n_de) + 1)
+      parameter (n_point_alloc=  n_pt_exp)
+
+      parameter (null_pt     = 0)
+      parameter (mn_pt_alloc     = null_pt  +           1)
+      parameter (mx_pt_alloc     = null_pt  + n_point_alloc)
+
+      parameter (mn_point_alloc     = mn_pt_alloc)
+      parameter (mx_point_alloc     = mx_pt_alloc)
+
+      parameter (n_mk_dom_average = (n_marker_exp / n_de) + 1)
+      parameter (n_marker_alloc=  n_marker_exp)
+
+      parameter (null_marker = 0)
+      parameter (mn_marker_alloc = null_marker  + 1)
+      parameter (mx_marker_alloc = null_marker  + n_marker_alloc)
+
+      parameter (n_table_fft =
+     &           (2*((n_lat_exp1 + n_lat_exp2 + 
+     $	n_lat_exp3)+(3*15))))
+      parameter (n_work_fft = 1 ) 
+      parameter (n_isys_fft = 1 ) 
+      logical  bwriteon       
+

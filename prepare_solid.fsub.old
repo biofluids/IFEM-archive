@@ -1,0 +1,297 @@
+
+c Lucy commented this part out temporarily
+c++++++++
+c     tecplot output file setting
+c++++++++
+ 
+c      open(5,file='tec_input',status='unknown')
+c      read(5,*) jump_frame,jump_fd,jump_mk,mk_start,mk_finish
+c      open(9000, file='tecf.dat', status='unknown')
+c      open(9001, file='tecs.dat', status='unknown')
+c      open(9500, file='zzz.m', status='unknown')
+
+      open(9988, file='main_dat', status='old')
+      open(223,file='rest0a',form='unformatted',status='unknown')
+      open(224,file='rest0b',form='unformatted',status='unknown')
+      open(25,file='rest1',form='unformatted',status='unknown')
+
+c++++++++
+c     global input file read
+c++++++++
+      write(*,*) 'reading main_dat'
+      call readmain(coord_ss)
+
+c++++++++
+c     n_ibmfem 1/0 fem/ibm
+c++++++++
+
+      vnorm=0.0d0
+      niterf=0
+      naxx1=time()
+      if (n_ibmfem .eq.1) write(*,*) 'structure solver - FEM'
+      if (n_ibmfem .ne.1) write(*,*) 'structure solver - Fiber'
+
+      if (n_ibmfem .eq. 1) then
+         open(1,file='coortable',status='old')
+         open(2,file='output',status='unknown')
+         open(3,file='pp.m',status='unknown')
+         open(4,file='load',status='unknown')
+         open(20,file='coor',status='unknown')
+         open(21,file='cont',status='unknown')
+         open(22,file='disp',status='unknown')
+         open(24,file='pres',status='unknown')
+	 write(*,*) 'reading coortable'
+         call r_input
+      endif
+
+      if (n_iter_step .ne. 1) then
+         call flush(6)
+         call exit(1)
+      endif
+
+      td    = t_step / n_iter_step
+      istep = 0
+      klok  = istep
+      dilocaldomain = i_domain_soloist
+      dtid(dilocaldomain) = dilocaldomain
+      bwriteon = (dilocaldomain .eq. i_domain_soloist)
+      if (dilocaldomain .eq. i_domain_soloist) then
+         call flush(6)
+      endif
+ 10   format(a21,i4,a3,i4,a4,i4)
+
+c Lucy commented this part out, might need to re-write for the new fluid-solver
+
+c++++++++
+c     determine local domain's indices into global arrays - cfd
+c++++++++
+c      do 110 idomain = mn_de, mx_de
+c         if (idomain .eq. dilocaldomain) then
+c            call  calc_fluidbounds(dilocaldomain,
+c     $           dmnac1, dmngc1, dmnlc1,  dmxlc1, dmxgc1, dmxac1,
+c     $           dmnac2, dmngc2, dmnlc2,  dmxlc2, dmxgc2, dmxac2,
+c     $           dmnac3, dmngc3, dmnlc3,  dmxlc3, dmxgc3, dmxac3)
+c            
+c            dmnmode1 = dmnlc1 - mn_ce1
+c            dmnmode2 = dmnlc2 - mn_ce2
+c            dmnmode3 = dmnlc3 - mn_ce3
+c            
+c            dmxmode1 = dmnmode1 + ( (1 + (dmxlc1 - dmnlc1)) / 2 )
+c            
+c            dmxmode2 = dmnmode2 + (dmxlc2 - dmnlc2)
+c            dmxmode3 = dmnmode3 + (dmxlc3 - dmnlc3)
+c            
+c            dmnam1 = dmnmode1
+c            dmnam2 = dmnmode2
+c            dmnam3 = dmnmode3
+
+c            dmxam1 = dmnam1 + (mx_am1 - mn_am1)
+c            dmxam2 = dmnam2 + (mx_am2 - mn_am2)
+c            dmxam3 = dmnam3 + (mx_am3 - mn_am3)            
+c         endif
+c 110  continue
+
+c      write(*,351) 
+c 351  format('domain sizes')
+
+c      write(*,*)  dmnac1, dmngc1, dmnlc1
+c      write(*,*)  dmxac1, dmxgc1, dmxlc1
+
+c      write(*,*)  dmnac2, dmngc2, dmnlc2
+c      write(*,*)  dmxac2, dmxgc2, dmxlc2
+
+c      write(*,*)  dmnac3, dmngc3, dmnlc3
+c      write(*,*)  dmxac3, dmxgc3, dmxlc3
+
+c      write(*,352) 
+c 352  format('spectrum sizes')
+
+c      write(*,*)  mn_ac1, mn_am1, mn_lc1
+c      write(*,*)  mx_ac1, mx_am1, mx_lc1
+
+c      write(*,*)  mn_ac2, mn_am2, mn_lc2
+c      write(*,*)  mx_ac2, mx_am2, mx_lc2
+
+c      write(*,*)  mn_ac3, mn_am3, mn_lc3
+c      write(*,*)  mx_ac3, mx_am3, mx_lc3
+
+c++++++++
+c     set domain mask for sending one<-->neighbors
+c++++++++
+c Lucy commented this subroutine out, might not need it right now
+c      call  create_neighbormask(dilocaldomain,      
+c     $     dtid,dtidaxisneighbor,dmaskneighbor)      
+
+c++++++++
+c  ** initialize domain accounting lists for force points
+c++++++++
+      call  init_domainaccounting(mn_pt_alloc,mx_pt_alloc,
+     $     null_pt,dnext_pt,                                      
+     $     dlfreept_number, dlfreept_head, dlfreept_tail, 
+     $     dlptlocal_number,dlptlocal_head,dlptlocal_tail,
+     $     dlptsend_number, dlptsend_head, dlptsend_tail, 
+     $     dlptrecv_number, dlptrecv_head, dlptrecv_tail) 
+      
+c Lucy commented this section out, no longer need a marker file
+c      call  init_domainaccounting(mn_marker_alloc,
+c     $     mx_marker_alloc, null_marker,dnext_mk, 
+c     $     dlfreemk_number, dlfreemk_head, dlfreemk_tail, 
+c     $     dlmklocal_number,dlmklocal_head,dlmklocal_tail,
+c     $     dlmksend_number, dlmksend_head, dlmksend_tail, 
+c     $     dlmkrecv_number, dlmkrecv_head, dlmkrecv_tail) 
+      
+c++++++++
+c     use io8 subroutine for fem reading
+c++++++++
+      call rdpc(input_filename_pc,klok,dnext_pt,
+     $     dlfreept_number,dlfreept_head,dlfreept_tail,   
+     $     dlptlocal_number,dlptlocal_head,dlptlocal_tail,
+     $     pt_iptexp,coord_pt,attrib_fcu,num_fiber,num_point)      
+
+c++++++++
+c  ** calculate future owner data for points.
+c++++++++
+       call  calc_ptfuturedomain(dnext_pt,dlptlocal_number, 
+     $     dlptlocal_head,dlptlocal_tail,coord_pt,idomain_pt) 
+ 
+c++++++++
+c  * copy idomain_pt to idomain_ptcon as appropriate; *
+c  * stiff0==0->bflag for no connection *
+c++++++++
+       ipt = dlptlocal_head
+      
+      idomain_ptcon(ipt,i_lo) = null_de 
+      
+      do 123  n=1, dlptlocal_number - 1
+         if (attrib_fcu(ipt,i_attr_stiff0,mn_con_fcu) .eq. 0) then
+            idomain_ptcon(ipt ,i_hi) = null_de
+            idomain_ptcon(dnext_pt(ipt),i_lo) = null_de
+         else
+            idomain_ptcon(ipt ,i_hi) = idomain_pt(dnext_pt(ipt))
+            idomain_ptcon(dnext_pt(ipt),i_lo) = idomain_pt(ipt)
+         endif
+         
+         ipt = dnext_pt(ipt)
+ 123  continue
+ 
+      idomain_ptcon(ipt,i_hi) = null_de 
+
+      if (dlptlocal_number.gt.0) then
+         ipt = dlptlocal_head
+         do 813 n = 1, dlptlocal_number
+            idomain_pt(ipt)      = dilocaldomain
+            force_pt(ix,ipt) = 0.0d0
+            force_pt(iy,ipt) = 0.0d0
+            force_pt(iz,ipt) = 0.0d0
+            ipt = dnext_pt(ipt)
+ 813     continue
+      endif
+
+      call  inittypeactivations(td, bwriteon) 
+
+c. Lucy commented this part out, no longer need marker file
+c++++++++
+c     user file i/o - read in marker files
+c++++++++
+c      call rdmk(input_filename_mk,ncloud_run,
+c     $     mncloud_run,mxcloud_run,nmark_run,nmk_cloud,
+c     $     mnmk_cloud,mxmk_cloud,dnext_mk,dlfreemk_number,
+c     $     dlfreemk_head, dlfreemk_tail,dlmklocal_number,
+c     $     dlmklocal_head, dlmklocal_tail,mkpin,coord_mk)
+
+c++++++++
+c     create connection lists, traversing dlist with key=idomain_ptcon.
+c  asynchronous
+c++++++++
+      call create_conexchlists(dnext_pt,dlptlocal_number,
+     $     dlptlocal_head,dlptlocal_tail,idomain_ptcon,
+     $     dnext_con,dlconshare_number,dlconshare_head,
+     $     dlconshare_tail)
+     
+
+c Lucy commented this out, this might be used for old delta function
+c++++++++
+c     assign masks for connection exchanges. mustfollowdacxlists.
+c  asynchronous.
+c++++++++
+c      call create_shareconmask(dlconshare_number,dmasksharecon) 
+
+c Lucy commented this out, source and sink terms for fluids
+c      call initssb(ss_name,pressure_rsrvss,resist_rsrvss, 
+c     $     pressure_ss, flow_ss, dmnlc1,dmxlc1, 
+c     $     dmnlc2, dmxlc2, dmnlc3, dmxlc3,
+c     $     dbanybc,dmnbce1,dmxbce1,dmnbce2,dmxbce2, 
+c     $     dmnbce3,dmxbce3) 
+
+c Lucy commented this out, this is for fluids
+c++++++++
+c  *  initialize fluid velocity and force arrays
+c++++++++
+c      call ibg_initfluidsolve(
+c     $     prdeno, qrfact, xcfact, ycfact, zcfact,
+c     $     dmnmode1, dmnmode2, dmnmode3,
+c     $     dmxmode1, dmxmode2, dmxmode3,
+c     $     dmnam1,   dmnam2,   dmnam3,
+c     $     dmxam1,   dmxam2,   dmxam3,
+c     $     n_table_fft,    table_fft,
+c     $     n_work_fft,     workspace_fft,
+c     $     n_isys_fft,     isys_fft,
+c     $     info)
+
+c      if (nrestart .ne. 1) then
+c         nt0=0
+c         xfactor=1.0d0
+c         do 1310 k = dmnac3 , dmxac3
+c            do 1320 j = dmnac2, dmxac2
+c               do 1330 i = dmnac1, dmxac1
+c                  u( i, j, k) =  0.0d0
+c                  v( i, j, k) =  0.0d0
+c                  w( i, j, k) =  0.0d0
+c                  f1(i, j, k) =  0.0d0
+c                  f2(i, j, k) =  0.0d0
+c                  f3(i, j, k) =  0.0d0
+c 1330          continue
+c 1320       continue
+c 1310    continue
+c      else
+c         read(25) nt0
+
+c         do 7310 k = dmnac3 , dmxac3
+c            do 7320 j = dmnac2, dmxac2
+c               do 7330 i = dmnac1, dmxac1
+c                  f1(i, j, k) =  0.0d0
+c                  f2(i, j, k) =  0.0d0
+c                  f3(i, j, k) =  0.0d0
+c                  read(25) u( i, j, k),v( i, j, k),
+c     $                 w( i, j, k)
+c 7330          continue
+c 7320       continue
+c 7310    continue
+c      endif
+
+      klok = 0+nt0
+
+      if (dilocaldomain .eq. i_domain_soloist) then
+c         write(6,*)
+c         write(6,*) 'begin iterations'
+c         write(6,*)
+         call flush(6)
+      endif
+
+c      call calccentroid(mn_cloud_sourcesink, mx_cloud_sourcesink,
+c     $     mn_marker_alloc, mx_marker_alloc, 
+c     $     nmk_cloud(mn_cloud_sourcesink), 
+c     $     mnmk_cloud(mn_cloud_sourcesink), 
+c     $     mxmk_cloud(mn_cloud_sourcesink), 
+c     $     coord_mk,coord_ss)            
+
+
+c++++++++
+c     mapping of original coordinates from ibm to rubber
+c++++++++
+      if (n_ibmfem .eq. 1) then
+         call r_main
+         dt_solid=1.0d0
+         nts_solid=n_step_run
+      endif
+c
