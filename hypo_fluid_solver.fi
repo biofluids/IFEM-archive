@@ -1,0 +1,49 @@
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!   FEM Navier Stokes fluid solver
+!     incompressible, implicit
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      write(*,*) "*** Solving Fluids ***"
+
+	! store the variables from the previous time step,dold=d 
+	  dold(1:ndf,1:nn) = d(1:ndf,1:nn)
+
+	  
+	! apply time dependent boundary conditions to d
+	  call formbc(d,rng,ien)
+	  	   
+        do iit=1,nit
+	    p(1:ndf,1:nn) = 0.0d0
+	    w(1:ndf,1:nn) = 0.0d0
+
+	! calculate residual of each degree of freedom, p and diagonal matrix w
+          call block(x,d,dold,p,w,hg,ien,f_fluids)
+
+	! apply boundary conditions, calculate residual with corrected BC
+	! i.e. where id=0, p=0
+          call setid(p,id,ndf)
+
+	! calculate the normalized the error, res_l
+          call getnorm(p,p,ndf*nn,res_l)
+          res_l= sqrt(res_l/nq)
+
+	! calculate the increment(delta_d) for each degree of freedom, dg
+	    dg(1:ndf,1:nn) = 0.0d0
+          call gmres(x,d,dold,id,w,p,dg,hg,ien,    &
+               z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids)
+
+	! calculate the normalized increment, del_l
+          call getnorm(dg,dg,ndf*nn,del_l)
+          del_l = sqrt(del_l/nq)
+
+	! update the calculated variables, d=d+dg
+          call update(p, d, dg, ndf)
+
+	! output the errors in each iteration
+          write(6,102) iit,res_l,del_l
+          write(7,102) iit,res_l,del_l
+        enddo
+	
+ 101	format(/"Number of equations for Flow.........(nq) = ",i10)
+ 102	format("Iteration",i3,':  ',4e14.7)
+
+      write(*,'("  maximum fluid velocity (x dir) = ",f8.5)'),maxval(d(1,:))

@@ -1,8 +1,8 @@
-C
+
 	subroutine quad2d3n(igau,ngau,gau,wei,maxnsd,maxnquad)
-C
+
       real*8  gau(maxnsd,maxnquad), wei(maxnquad)
-C
+
       GO TO (1,2),IGAU
 C
 C     1-POINT GAUSS

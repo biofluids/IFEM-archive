@@ -1,5 +1,6 @@
 	subroutine error(string, param, fatal)
 c        include "mpif.h"
+      implicit none
 	character string*(*)
 	integer param, strlen
 	logical fatal

@@ -1,4 +1,4 @@
-c   Definition for fluid field variables   
+!   Definition for fluid field variables   
    
       integer ien(nen,ne),rng(neface,ne)
       real* 8 xn(nsd,nn), x(nsd,nn), hg(ne)
@@ -39,7 +39,7 @@ c   Definition for fluid field variables
 
 	real* 8 dvolume(nn)
 	pointer (dvolumeptr,dvolume)
-c	real* 8 shrknode(maxconn,nnd)
-c	pointer (shrknodeptr,shrknode)
-c	integer ncnn(nnd),cnn(maxconn,nnd)
-c	pointer (ncnnptr,ncnn),(cnnptr,cnn)
+!	real* 8 shrknode(maxconn,nnd)
+!	pointer (shrknodeptr,shrknode)
+!	integer ncnn(nnd),cnn(maxconn,nnd)
+!	pointer (ncnnptr,ncnn),(cnnptr,cnn)

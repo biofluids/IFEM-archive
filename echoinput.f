@@ -1,12 +1,12 @@
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine echoinput
-
+	use run_variables
+      use fluid_variables
 	implicit none
-	include "global.h"
 
-	character*8 date
+	!character*8 date
 	character*3 yon
-	integer io, idelta, irng, isd, idf, i, j
+	integer io, idelta, i
 
 c	if (myid.ne.0) return
 

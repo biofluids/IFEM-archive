@@ -5,14 +5,14 @@ c Northwestern University
 c Iterative Solver
 c output increment of d, dg
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine gmres(x,d,do,id,w,bg,dg,hg,ien,
+	subroutine gmres(x,d,dold,id,w,bg,dg,hg,ien,
 	1    z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss,fext)
-
+      use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,iscaling
 	implicit none
-	include "global.h"
+
 
 	real* 8 x(nsd,nn)
-	real* 8 d(ndf,nn), do(ndf,nn),hg(ne)
+	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	integer id(ndf,nn),ien(nen,ne)
 
@@ -49,7 +49,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	endif
 
 c       clear arrays
-	call fclear (v,ndf*nn*(inner+1))
+	!call fclear (v,ndf*nn*(inner+1))
+	v(1:ndf*nn,1:inner+1) = 0.0d0
 
 c       compute residual as r = W**(-1/2) * (b - A * d)
 
@@ -96,8 +97,9 @@ c       compute A * v_j
 	   enddo
 c	   call gather (vloc, zg, ndf, hn, hm)
 	   call equal(zg,vloc,ndf*nn)
-	   call fclear (avloc,ndf*nn)
-	   call blockgmres(x,d,do,vloc,avloc,hg,ien,fext)
+	   !call fclear (avloc,ndf*nn)
+         avloc(1:ndf,1:nn) = 0.0d0
+	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext)
 c	   call scatter(avloc, avg, ndf, assemble, hn, hm)
 	   call equal(avloc,avg,ndf*nn)
 	   call setid(avg,id,ndf)

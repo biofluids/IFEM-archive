@@ -1,11 +1,11 @@
-c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine readx(xn)
+      use fluid_variables, only: nsd,nn
 
-	include "global.h"
 	real* 8 xn(nsd,nn)
-c	integer lock,ierr,status(MPI_STATUS_SIZE)
+!	integer lock,ierr,status(MPI_STATUS_SIZE)
 	integer file,offset,endset,i
-c	real* 8 x_temp(nsd,nn),xn_temp(nsd,nn)
+!	real* 8 x_temp(nsd,nn),xn_temp(nsd,nn)
 
 	file=23
 	open(file, FILE="mxyz.dat", STATUS="old")
@@ -16,14 +16,16 @@ c	real* 8 x_temp(nsd,nn),xn_temp(nsd,nn)
 	close(file)
 	return
 	end
-c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine readien(ien)
-	
-	include "global.h"
+	use fluid_variables, only: nen,ne
+
 	integer ien(nen,ne)
-c	integer lock,ierr,status(MPI_STATUS_SIZE)
-	character*4 ifp
-	integer file,offset,endset,ien_temp(nen,ne)
+!	integer lock,ierr,status(MPI_STATUS_SIZE)
+!	character*4 ifp
+	integer file
+	!integer offset,endset
+	!integer :: ien_temp(nen,ne)
 
 	file=21
 	open(file, FILE="mien.dat", STATUS="old")
@@ -33,14 +35,16 @@ c	integer lock,ierr,status(MPI_STATUS_SIZE)
 	close(file)
 	return
 	end
-c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine readrng(rngface)
+	use fluid_variables, only: ne,neface
 
-	include "global.h"
-	integer rngface(neface,ne), rngfaceieee(neface,ne/2+1)
-c	integer lock,ierr,io,status(MPI_STATUS_SIZE)
-	character*4 ifp
-	integer file,offset,endset,rng_temp(neface,ne)
+	integer rngface(neface,ne)
+	!integer rngfaceieee(neface,ne/2+1)
+!	integer lock,ierr,io,status(MPI_STATUS_SIZE)
+	!character*4 ifp
+	integer file
+	!integer offset,endset
 
 	file=26
 	open(file, FILE="mrng.dat", STATUS="old")

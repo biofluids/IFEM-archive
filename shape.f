@@ -2,9 +2,8 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c	S. Aliabadi                                                          c
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	  subroutine shape
-
+        use fluid_variables
 	  implicit none
-	  include "global.h"
 
 	  integer iq
 
@@ -82,9 +81,9 @@ c  local first derivatives
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	  subroutine shape2d
+	  use fluid_variables
 
 	  implicit none
-	  include "global.h"
 
 	  integer iq
 

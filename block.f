@@ -4,9 +4,10 @@ c  Northwestern University
 c  This subroutine solves for the residual for all degrees of freedom
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids)
-
+	use global_constants
+	use run_variables
+      use fluid_variables
 	implicit none
-	include "global.h"
 
 	integer ien(nen,ne)
 	real* 8 xloc(nsd,nn)
@@ -37,7 +38,7 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	dtinv = 1.0/dt
 	if(steady) dtinv = 0.0
-	oma   = 1.0 -alpha
+	oma   = 1.0 - alpha
 	ama   = 1.0 - oma
 
 	do ie=1,ne		! loop over elements

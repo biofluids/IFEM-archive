@@ -2,9 +2,8 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  S. Aliabadi                                                          c
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine lenght(xloc,ien,hg) 
-
+      use fluid_variables
 	implicit none
-	include "global.h"
 
 	integer ien(nen,ne)
 	real* 8 xloc(nsd,nn),x(nsdpad,nenpad)
@@ -16,7 +15,7 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	real* 8 evol
 	real* 8 gmin,gmax,lmin,lmax
-	integer i,inl,ie,iq,isd
+	integer inl,ie,iq,isd
 
 c	integer ierr,status(MPI_STATUS_SIZE)
 

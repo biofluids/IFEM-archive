@@ -6,9 +6,10 @@ c  called by gmres.f
 c  this subroutine calculate the increment of the residual
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
-
+	use global_constants
+	use run_variables, only: dt
+      use fluid_variables
 	implicit none
-	include "global.h"
 
 	integer ien(nen,ne)
 	real* 8 xloc(nsd,nn)

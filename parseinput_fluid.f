@@ -8,18 +8,22 @@ c	---------------------------------------------------------------------c
 c	Northwestern University                                              c
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine parseinput_fluid
-
-	include "global.h"
+	use run_variables, only:ntsbout,nts,dt
+	use fluid_variables
+	use delta_nonuniform, only: maxconn
+	use global_simulation_parameter, only:nrestart
+	implicit none
 	
-	character*32 key, keyaux
-	character*8 onoff
-	logical fctrl, getkey, isatty
-	logical enough
-	data enough /.false./
-	logical restart_onoff, steady_onoff,hg_vol_onoff, taudt_onoff
+!	character*32 key, keyaux
+!	character*8 onoff
+!	logical fctrl, getkey, isatty
+!	logical enough
+!	data enough /.false./
+!	logical restart_onoff, 
+	logical steady_onoff,hg_vol_onoff, taudt_onoff
 	logical static_onoff, conserve_onoff, stokes_onoff
 	real*8  fix(5),read_delta(2)
-	integer idelta
+	integer idelta,i,ibc,idf
 	integer file_in,echo_out
 	common /filename/file_in,echo_out
 
@@ -28,12 +32,14 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	OPEN(file_in,file='fluid.in',STATUS='old')
 	OPEN(echo_out,file='summary.dat',STATUS="unknown")
 
-	CALL Read_Int(restart_onoff,1)
-	if (restart_onoff.eq.1) then
-		restart=.TRUE.
-	elseif (restart_onoff.eq.0) then
-		restart=.FALSE.
-	endif
+c	CALL Read_Int(restart_onoff,1)
+c	if (restart_onoff.eq.1) then
+c		restart=.TRUE.
+c	elseif (restart_onoff.eq.0) then
+c		restart=.FALSE.
+c	endif
+
+	CALL Read_Int(nrestart,1)
 
 	CALL Read_Int(steady_onoff,1)
 	if (steady_onoff.eq.1) then

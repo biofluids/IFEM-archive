@@ -1,10 +1,20 @@
       subroutine gaussj(a,n,npp,b,m,mp)
-      implicit real*8 (a-h,o-z)
-      parameter (nmax=10000)
-      dimension a(npp,npp),b(npp,mp),ipiv(nmax),indxr(nmax),indxc(nmax)
-      do 11 j=1,n
+      implicit none
+
+	integer :: n,npp,m,mp
+      integer,parameter :: nmax = 10000
+      real*8 ::  a(npp,npp),b(npp,mp)
+	integer,dimension(nmax) :: ipiv,indxr,indxc
+
+      integer :: i,j,k,l,ll
+	integer :: irow,icol
+
+	real*8 :: big,dum,pivinv
+
+      do j=1,n
         ipiv(j)=0
-11    continue
+      enddo
+
       do 22 i=1,n
         big=0.0d0
         do 13 j=1,n

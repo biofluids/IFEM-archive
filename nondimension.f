@@ -1,16 +1,16 @@
 	subroutine nondimension  
+	use fluid_variables
 	implicit none
-	include "global.h"
 	
-	integer i,j
+	integer isd
 
 	den_gas = den_gas/ref_den
 	den_liq = den_liq/ref_den
 	vis_gas = vis_gas/ref_den/ref_vel/ref_lgt
 	vis_liq = vis_liq/ref_den/ref_vel/ref_lgt
 
-	do i=1,nsd
-	   gravity(i) = gravity(i)*ref_lgt/ref_vel/ref_vel
+	do isd=1,nsd
+	   gravity(isd) = gravity(isd)*ref_lgt/ref_vel/ref_vel
 	enddo
 	return
 	end

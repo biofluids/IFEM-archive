@@ -1,0 +1,47 @@
+! OUTPUT generator for both fluids and structure parts
+! written by Lucy Zhang
+! 12/5/02
+! write output in different files each timestep (or less often)
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+! origin:  ibm code
+! n_matlab = 1  :  matlab output
+!
+! n_ibmfem = 0  :  ibm output
+! n_ibmfem = 1  :  fem output
+!
+! n_tec_ens =1  :  tecplot output
+! n_tec_ens =0  :  ensight output
+!
+
+       write(*,*) "generating the output"
+
+       !currentstep = klok/n_step_wr_ib_user_files
+       !time_value(currentstep) = klok * td
+
+       if (its == 0) then
+
+          if( n_tec_ens == 0) then   !ensight output
+
+             call zfem_ensGeo(klok,ien,xn)
+
+		   call zfem_ensFluid(d,f_fluids,klok)
+       
+             call zfem_ensCase(dt, its,ntsbout)
+
+	    endif
+
+	 elseif (mod(its,ntsbout) == 0) then
+	    
+          if( n_tec_ens == 0) then   !ensight output
+
+             call zfem_ensGeo(klok,ien,xn)
+
+             call zfem_ensFluid(d,f_fluids,klok)
+
+	       call zfem_ensCase(dt, its,ntsbout)
+
+	    endif
+
+	 endif
+
+

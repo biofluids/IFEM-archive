@@ -13,7 +13,7 @@
 	  xr(3,2) = x(2,3) - x(2,4)
 	  xr(3,3) = x(3,3) - x(3,4)
 
-c  jacobian
+!  jacobian
 	  cf(1,1) = + (xr(2,2)*xr(3,3) - xr(3,2)*xr(2,3))
 	  cf(1,2) = - (xr(1,2)*xr(3,3) - xr(3,2)*xr(1,3))
 	  cf(1,3) = + (xr(1,2)*xr(2,3) - xr(2,2)*xr(1,3))
@@ -24,9 +24,7 @@ c  jacobian
 	  cf(3,2) = - (xr(1,1)*xr(3,2) - xr(3,1)*xr(1,2))
 	  cf(3,3) = + (xr(1,1)*xr(2,2) - xr(2,1)*xr(1,2))
 
-	  det = ( xr(1,1) * cf(1,1)
-	1	   + xr(2,1) * cf(1,2)
-	2	   + xr(3,1) * cf(1,3) )
+	  det = ( xr(1,1) * cf(1,1) + xr(2,1) * cf(1,2) + xr(3,1) * cf(1,3) )
 
 	  sx(1,1) = cf(1,1)/det
 	  sx(1,2) = cf(2,1)/det
@@ -38,7 +36,7 @@ c  jacobian
 	  sx(3,2) = cf(2,3)/det
 	  sx(3,3) = cf(3,3)/det
 
-c  global first derivatives
+!  global first derivatives
 	  sh(1,1) = sx(1,1)
 	  sh(1,2) = sx(2,1)
 	  sh(1,3) = sx(3,1)

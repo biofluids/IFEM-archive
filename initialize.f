@@ -1,6 +1,11 @@
 	subroutine initialize
+	use run_variables
+      use fluid_variables
+	implicit none
 
-	include "global.h"
+      integer :: isd,i,j,idel
+
+	!real*8 :: mass
 
 	call facemap
 
@@ -77,7 +82,7 @@
 	   delta(idel) = 0.0
 	end do
 
-	mass = 1.0
+	!mass = 1.0
 
 	return
 	end

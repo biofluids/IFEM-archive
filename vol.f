@@ -2,9 +2,9 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  S. Aliabadi                                                          c
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine vol(xloc, ien) 
-
+      use fluid_variables
 	implicit none
-	include "global.h"
+
 
 	integer ien(nen,ne)
 	real* 8 xloc(nsd,nn)
@@ -13,9 +13,9 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 eft0,det
 	real* 8 sh(0:nsdpad,nenpad)
 	real* 8 xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
-
-	real* 8 e_gas,e_liq,p_gas,p_liq
-	integer i,inl,ie,iq,isd
+	!Lucy removed e_gas and p_gas
+	real* 8 e_liq,p_liq
+	integer inl,ie,iq,isd
 
 c	integer ir,status(MPI_STATUS_SIZE)
 

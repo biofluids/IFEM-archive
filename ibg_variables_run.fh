@@ -1,7 +1,0 @@
-      integer  klok           
-      real*8     td             
-      integer  istep          
-c      logical  bwriteon       
-      integer  nmark_run      
-
-

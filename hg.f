@@ -2,10 +2,8 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c	M. Behr [AHPCRC]                                                     c
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine get_hg(x, hg)
-
+      use fluid_variables
 	implicit none
-
-	include "global.h"
 
 	real* 8 x(nsd,nen)
 	real* 8 hg

@@ -1,7 +1,7 @@
 	subroutine hydrostatic(xloc,floc,p,rng,ien)
+	use fluid_variables
 
 	implicit none
-	include "global.h"
 
 	integer rng(neface,ne),ien(nen,ne)       
 	real*8 xloc(nsd,nn),floc(nn),p(ndf,nn)
@@ -10,7 +10,7 @@
 	real*8 xr(nsdpad,nsdpad),sh(10) 
 	real*8 g,gr,ro,pp
 	real*8 n1,n2,n3,c1,c2,c3,h
-	integer i,inl,ie,isd,ieface,inface,node
+	integer inl,ie,isd,ieface,inface,node
 	logical yes
 c	integer ierr,io,status(MPI_STATUS_SIZE)
 
@@ -37,7 +37,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	   do ieface = 1,neface
 	      if(rng(ieface,ie).eq.hydro) then
 		 do inface=1,nnface
-		    inl = map(ieface,inface,etype)
+		    inl = mapping(ieface,inface,etype)
 		    do isd = 1,nsd
 		       x(isd,inface) = xloc(isd,ien(inl,ie))
 		    enddo
@@ -100,7 +100,7 @@ cccccccc    since gravity is negative, then (-)(-) = +
 		 n3 = abs(n3)
 
 		 do inface = 1,nnface
-		    inl = map(ieface,inface,etype)
+		    inl = mapping(ieface,inface,etype)
 		    node = ien(inl,ie)
 		    p(1,node) = p(1,node) - sh(inface)*pp*n1
 		    p(2,node) = p(2,node) - sh(inface)*pp*n2
