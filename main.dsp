@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib /nologo /stack:0x17d78400,0x989680 /subsystem:console /incremental:no /debug /machine:I386 /pdbtype:sept
 # SUBTRACT LINK32 /verbose /profile /pdb:none
 
 !ENDIF 
@@ -153,6 +153,11 @@ SOURCE=.\fluid_variables.f90
 # Begin Source File
 
 SOURCE=.\form.f90
+DEP_F90_FORM_=\
+	".\Debug\fluid_variables.mod"\
+	".\Debug\global_constants.mod"\
+	".\Debug\run_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -281,6 +286,9 @@ DEP_F90_LENGH=\
 # Begin Source File
 
 SOURCE=.\main.f90
+DEP_F90_MAIN_=\
+	".\Debug\parseinput.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -334,10 +342,18 @@ SOURCE=.\quad3d8n.f
 # Begin Source File
 
 SOURCE=.\r_bdpd_curr.f90
+DEP_F90_R_BDP=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_bdpd_init.f90
+DEP_F90_R_BDPD=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -346,70 +362,124 @@ SOURCE=.\r_common.f90
 # Begin Source File
 
 SOURCE=.\r_element.f90
+DEP_F90_R_ELE=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_jacob.f90
+DEP_F90_R_JAC=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_load.f90
+DEP_F90_R_LOA=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_nodalf.f90
+DEP_F90_R_NOD=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sboc.f90
+DEP_F90_R_SBO=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sbpress.f90
+DEP_F90_R_SBP=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_scal.f90
+DEP_F90_R_SCA=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_scauchy.f90
+DEP_F90_R_SCAU=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_smaterj.f90
+DEP_F90_R_SMA=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_spiola.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spiola_elastic.f90
+DEP_F90_R_SPI=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_spiola_viscous.f90
+DEP_F90_R_SPIO=\
+	".\Debug\fluid_variables.mod"\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_spress.f90
+DEP_F90_R_SPR=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sreadinit.f90
+DEP_F90_R_SRE=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sstif.f90
+DEP_F90_R_SST=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sstrain.f90
+DEP_F90_R_SSTR=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_stang.f90
+DEP_F90_R_STA=\
+	".\Debug\r_common.mod"\
+	".\Debug\run_variables.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -418,6 +488,10 @@ SOURCE=.\r_stoxc.f90
 # Begin Source File
 
 SOURCE=.\r_timefun.f90
+DEP_F90_R_TIM=\
+	".\Debug\global_constants.mod"\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -462,10 +536,20 @@ DEP_F90_SOLID=\
 # Begin Source File
 
 SOURCE=.\solid_solver.f90
+DEP_F90_SOLID_=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_fem_BC.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\solid_update.f90
+DEP_F90_SOLID_U=\
+	".\Debug\r_common.mod"\
+	".\Debug\run_variables.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 

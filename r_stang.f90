@@ -98,46 +98,26 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         call r_bdpd_init(toxji)
 !     deformation gradient
         call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc)
-
-!================================================
-! Hyperelastic Material --> Option material_type=1
-	if (material_type==1) then
 !     material j
-		call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
+        call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 !     discretized pressure
-		call r_spress(rs,ine)
+        call r_spress(rs,ine)
 !     continuous pressure
         call r_sbpress(dxmj,ddxmj,xmj)
 !     material c
         call r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)
 !     strain
         call r_sstrain(toc,xto,iq,ine,ge)
-!     First Piola-Kirchoff stress - P
-        call r_spiola(ocpp,xmj,dxmj,xto) !hyperelastic material
+!     elastic stress
+        call r_spiola(ocpp,xmj,dxmj,xto)
 !     correction for viscous fluid stress
         call r_spiola_viscous(xot,vel)  
 !     calculate cauchy stress for output
-!     ! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
-      if (mod(its,ntsbout) == 0) then
-        call r_scauchy(det,todet,xto,cstr_element)
-        cstr(1:6,ine,iq) = cstr_element(1:6)
-      endif
-!==========================================================
-! Linear elastic Cauchy stress - sigma
-	elseif (material_type==2) then
-!     strain
-        call r_sstrain(toc,xto,iq,ine,ge)
-!	  Calculate cauchy stress then transform to 1st PK stress
-		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
-!     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
-!     assemble cauchy stress for output
-      if (mod(its,ntsbout) == 0) then
-        cstr(1:6,ine,iq) = cstr_element(1:6)
-      endif
-	endif
-!===========================================================
-
+!     !!! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
+        if (mod(its,ntsbout) == 0) then
+           call r_scauchy(det,todet,xto,cstr_element)
+           cstr(1:6,ine,iq) = cstr_element(1:6)
+        endif
 !     gauss weight and volume
         w_init = wq_solid(iq) * todet
         w_curr = wq_solid(iq) * det
@@ -146,7 +126,6 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
         tot_vol_curr = tot_vol_curr + w_curr
 !     internal force and stiffness matrix
         call r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ine,w_init,toxj,vel,acc,solid_fem_con,cstr_element)
-
 
      enddo gauss_int  
   enddo element

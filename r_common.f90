@@ -63,7 +63,7 @@ module r_common
 
   real(8) :: dge(6,3,9),ddge(6,3,3,9,9)
 
-  real(8) :: young_mod,rc1,rc2,rk  !...rubber material parameters
-  integer :: material_type
+  real(8) :: rc1,rc2,rk  !...rubber material parameters
+  
 end module r_common
 

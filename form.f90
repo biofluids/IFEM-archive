@@ -27,7 +27,7 @@ subroutine formd(ds,meshvel,rngface,ien)
 
   h(:,:) = 0.0d0
 
-  ds(1:ndf,1:nn) = eps1
+  !ds(1:ndf,1:nn) = eps1
   
 
   do ieface=1,neface
@@ -44,14 +44,15 @@ subroutine formd(ds,meshvel,rngface,ien)
 
   !call equal(h,hs,nrng*nn)
   hs(:,:) = h(:,:)
- ! tt_ramp = -0.5
-  !if ((tt >= 0).and.(tt <= tt_ramp)) then
-  !     bv(wdf,8) = 5.0  * tt/tt_ramp
-  !elseif (tt >= tt_ramp) then
-  !     bv(wdf,8) = 5.0
-  !endif
 
-!  write(*,'("boundary 8 (inflow) x-velocity: ",f12.7," cm/s")') bv(udf,8)
+  tt_ramp = 0.5
+  if ((tt >= 0).and.(tt <= tt_ramp)) then
+       bv(wdf,8) = 5.0  * tt/tt_ramp
+  elseif (tt >= tt_ramp) then
+       bv(wdf,8) = 5.0
+  endif
+
+  write(*,'("boundary 8 (inflow) x-velocity: ",f12.7," cm/s")') bv(udf,8)
 
 
   do irng=1,nrng

@@ -46,9 +46,9 @@ subroutine solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_co
      yy(1:3) = solid_coor_curr(1:3,solid_BC_ess(innBC))
 
      dist(1:3)         = yy(1:3) - xx(1:3)
-! Lucy changed it for testing solids
-!     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC)
-	 force_BC(1:3)=solid_BC_ess_value(1:3,innBC)*0.5
+
+     force_BC(1:3) = dist(1:3) * solid_BC_ess_value(1:3,innBC)
+
      solid_force_FSI(1:3,solid_BC_ess(innBC)) = solid_force_FSI(1:3,solid_BC_ess(innBC)) - force_BC(1:3)
   enddo
 

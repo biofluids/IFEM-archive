@@ -34,7 +34,7 @@ subroutine readien_solid(solid_con,ne,nen)
   file=21
   open(file, FILE="mien_solid.in", STATUS="old",action="read")
   do ine=1,ne
-     read(file,*) idummy,solid_con(ine,1:nen),idummy
+     read(file,*) idummy,solid_con(ine,1:nen)
   enddo
   close(file)
 
