@@ -261,7 +261,7 @@ C...ON PN SCATTER(STEP1)
 		node = node_glb(i)
         xn(node) = x(i)
 	  enddo
-	  
+
 	  call MPI_BARRIER(MPI_COMM_WORLD,ierr)
 
 C...OFF PN SCATTER(STEP2)
@@ -286,7 +286,11 @@ C...OFF PN SCATTER(STEP2)
 	1		   101,MPI_COMM_WORLD,status,ierr)
 		  do j = 1,glb(iproc)
 			node = node_glb(jptr+j-1)
-			xn(node) = xn(node)*flag+bufglb(j)
+			if (flag.eq.0) then
+			  xn(node) = max(xn(node),bufglb(j))
+			else
+			  xn(node) = xn(node)*flag + bufglb(j)
+			end if
 		  enddo
 		endif
 		
@@ -337,3 +341,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  
       return
       end
+
+
+
+
+
+
+

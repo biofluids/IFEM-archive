@@ -1,12 +1,12 @@
-c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c	parseinput.fcm                                                       c
-c	---------------------------------------------------------------------c
-c	sets parameters from standard input or control file                  c
-c	---------------------------------------------------------------------c
-c	910919 - written                                                     c
-c	---------------------------------------------------------------------c
-c	M. Behr [AHPCRC]                                                     c
-c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  parseinput.fcm                                                       c
+c  ---------------------------------------------------------------------c
+c  sets parameters from standard input or control file                  c
+c  ---------------------------------------------------------------------c
+c  910919 - written                                                     c
+c  ---------------------------------------------------------------------c
+c  M. Behr [AHPCRC]                                                     c
+c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	  subroutine parseinput
 
 	  include "global.h"
@@ -38,8 +38,6 @@ c  ---------------------------------------------------------------------c
 		  call getint(ndf)
 		else if (key.eq.'ne') then
 		  call getint(ne)
-		else if (key.eq.'nqd') then
-		  call getint(nqd)
 		else if (key.eq.'maxconn') then
 		  call getint(maxconn)
 		else if (key.eq.'nn') then
@@ -61,18 +59,17 @@ c  ---------------------------------------------------------------------c
 		  do i=1,surf(0)
 			call getint(surf(i))
 		  enddo
-		else if (key.eq.'calcforce') then !.....calculate forces on surfaces
-		  call getstr(onoff)
-		  calcforce = (onoff.ne.'off')
-		else if (key.eq.'fsurf') then !......list of surface numbers to calculate forces
-		  nfsurf = nfsurf + 1
-		  call getint(isurf)
-		  fsurf(isurf) = 1
 		else if (key.eq.'hydro') then
 		  call getint(hydro)
 		else if (key.eq.'restart') then !.....restart
 		  call getstr(onoff)
 		  restart = (onoff.ne.'off')
+		else if (key.eq.'readshape') then !.....restart
+		  call getstr(onoff)
+		  readshape = (onoff.ne.'off')
+		else if (key.eq.'readdecomp') then !.....restart
+		  call getstr(onoff)
+		  readdecomp = (onoff.ne.'off')
 		else if (key.eq.'alpha') then !.......time discretization parameter
 		  call getreal(alpha)
 		else if (key.eq.'delta') then !.......stabilization deltas
@@ -136,8 +133,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 			call getreal(bv(idf,ibc))
 			if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
 		  enddo 
-		  call getreal(bvf(ibc))
-		  if(abs(bvf(ibc)+999.0).gt.1.0e-6) bcf(ibc) = 1
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	    else if (key.eq.'fix') then
 		  call getint(ibc)
@@ -145,15 +140,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 			call getreal(bv(idf,ibc))
 			if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
 		  enddo 
-		  call getreal(bvf(ibc))
-		  if(abs(bvf(ibc)+999.0).gt.1.0e-6) bcf(ibc) = 1
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	    else if (key.eq.'initial') then
 		  do idf=1,ndf
 			call getreal(ic(idf))
 		  enddo 
-		  call getreal(icf)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		else
 
@@ -168,10 +160,20 @@ c  further defaults
 	  if (steady) alpha = 1.0
 
 	  if      (nen.eq.4) then
+		if(iquad.eq.1) then
+		  nquad = 1
+		else if(iquad.eq.2) then
+		  nquad = 4
+		endif
 		etype = tet
 		neface = 4
 		nnface = 3
 	  else if (nen.eq.8) then
+		if(iquad.eq.1) then
+		  nquad = 1
+		else if(iquad.eq.2) then
+		  nquad = 8
+		endif
 		etype = hex
 		neface = 6
 		nnface = 4
@@ -193,10 +195,11 @@ c  further defaults
 	  nnc = (nn - 1) / numproc + 1
 	  maxnnc = nnc
 	  if (myid.eq.numproc-1) nnc = nn - (numproc - 1) * maxnnc
-	  nqdc = (nqd - 1) / numproc + 1
-	  maxnqdc = nqdc
-	  if (myid.eq.numproc-1) nqdc = nqd - (numproc - 1) * maxnqdc
+c  nqdc = (nqd - 1) / numproc + 1
+c  maxnqdc = nqdc
+c  if (myid.eq.numproc-1) nqdc = nqd - (numproc - 1) * maxnqdc
+	  nqdc = nec * nquad
+	  maxnqdc = maxnec * nquad
 
 	  return
 	  end
-

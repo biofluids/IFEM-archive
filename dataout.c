@@ -14,13 +14,13 @@ void HEADEROUT(_fcd title, int *nsd, int *ndf) {
   fprintf(f, "TITLE = \"%s\"\n", ctitle);
   fprintf(f, "VARIABLES = ");
   if(*nsd == 2) {
-	fprintf (f, "\"X\" \"Y\" \"U\" \"V\" ");
+	fprintf (f, "\"X\" \"Y\" ");
   }
   else if(*nsd == 3) {
-    fprintf (f, "\"X\" \"Y\" \"Z\" \"U\" \"V\" \"W\" "); 
+    fprintf (f, "\"X\" \"Y\" \"Z\" "); 
   }
   if(*ndf - *nsd == 1) {
-	fprintf (f, "\"P\" \"PHI\" ");
+	fprintf (f, "\"PHI\" ");
   }
   fprintf(f, "\n");
   fclose(f);
@@ -32,6 +32,7 @@ void POSTOUT(int *count, int *xn, int *dd, int *nsd,
   int i,j;
   int *xnout = xn, *ddout = dd;
   FILE *f = fopen("tecout.dat", "a");
+  *ndf = 0;
   printf("Writing file %d...\n", *count);
   if ((*count) == 0) {
     fprintf(f, "ZONE T=\"%d\", N=%d, E=%d, F=FEPOINT, ET=TETRAHEDRON\n",

@@ -1,11 +1,11 @@
-      subroutine postin(d,f,dd,file)
+      subroutine postin(d,dd,file)
       include "global.h"
       real* 8 d(ndf,nnc),f(nnc),dd(ndf+1,nnc)
       character file*(*)
       integer ndft,i,j
       integer lk,ir,status(MPI_STATUS_SIZE)
 
-      ndft = ndf + 1
+      ndft = ndf
       call fclear (dd,ndft*nnc)
       maxrecl = ndft* maxnnc * 8
       lk = 1
@@ -21,7 +21,6 @@
       end if
 
       do i=1,nnc
-        f(i) = dd(ndft,i)
         do j=1,ndf
           d(j,i) = dd(j,i)
         enddo

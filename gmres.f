@@ -1,15 +1,27 @@
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	  subroutine gmres(x,d,do,id,w,bg,dg,hg,ien,hn,hm,
-	1	   z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss)
+	  subroutine gmres(x,shrk,shrknode,d,do,w,bg,p2,rinc,dg,hg,ien,rng,
+	1	   blist,bvlist,maxb,
+	2	   bnodesall,nodebcon2,cnn,ncnn,cnn2,ncnn2,hn,hm,hm2,
+	3	   z,v,zg,vn,v2,avg,sm,von,avon,h,y,cc,ss)
 
       implicit none
 	  include "global.h"
 
-      real* 8 x(nsd,nn_loc)
-	  real* 8 d(ndf,nn_loc), do(ndf,nn_loc),hg(nec)
-	  real* 8 bg(ndf*nnc), dg(ndf*nnc), w(ndf*nnc)
-      integer id(ndf,nnc),ien(nen,nec)
-	  real* 8 hn(nnc),hm(nn_loc)
+	  integer maxb
+      real* 8 x(nsd,nn_loc),f(nn_on)
+	  real* 8 shrk(0:nsd,maxconn,nquad*nec)
+	  real* 8 shrknode(maxconn,nnc)
+	  real* 8 d(ndf,nn_on), do(ndf,nn_on),hg(nec)
+	  real* 8 bg(ndf*nnc), dg(ndf*nnc), w(ndf*nnc), p2(ndf*nn_on2)
+	  real* 8 rinc(ndf,nnc)
+      integer ien(nen,nec),rng(neface,nec)
+	  integer blist(maxb,ndf)
+	  real* 8 bvlist(maxb,ndf)
+	  integer bnodesall(0:numproc-1,ndf)
+	  real* 8 nodebcon2(ndf,nn_on2)
+      integer cnn(maxconn,nqdc),ncnn(nqdc)
+	  integer cnn2(maxconn,nnc),ncnn2(nnc)
+	  real* 8 hn(nnc),hm(nn_on),hm2(nn_on2)
 
 	  real* 8 h(inner+1,inner)
 	  real* 8 y(inner+1)
@@ -18,9 +30,10 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	  real* 8 z(ndf*nnc,inner)
 	  real* 8 v(ndf*nnc,inner+1)
 	  real* 8 zg(ndf*nnc), avg(ndf*nnc), sm(ndf*nnc)
-	  real* 8 vloc(ndf,nn_loc),avloc(ndf,nn_loc)
-      logical assemble
-	  real* 8 eps, rnorm, rnorm0, order
+	  real* 8 vn(ndf*nnc),v2(ndf*nn_on2)
+	  real* 8 von(ndf,nn_on),avon(ndf,nn_on)
+      logical assemble,homog
+	  real* 8 eps, rnorm, rnorm0, convorder
 	  real* 8 gam,hsave,ysave,tmpo
 	  integer i,j,k,ij,jj,i1,j1,k1,l,iqc,igmres
 
@@ -38,13 +51,17 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	  else
         do iqc=1,ndf*nnc
 		  if (w(iqc).lt.0.0) sm(iqc) = -1.0
-		  w(iqc) = 1.0 / sqrt(abs(w(iqc)))
+		  if (w(iqc).ne.0.0) then
+			w(iqc) = 1.0 / sqrt(abs(w(iqc)))
+		  else
+			w(iqc) = 1.0
+		  end if
         enddo
 	  endif
 
 c  clear arrays
 	  call fclear (v,ndf*nnc*(inner+1))
-	  call fclear (vloc,ndf*nn_loc)
+	  call fclear (von,ndf*nn_on)
 
 c  compute residual as r = W**(-1/2) * (b - A * d)
 
@@ -61,7 +78,6 @@ c  compute residual as r = W**(-1/2) * (b - A * d)
 		return
 	  endif
 
-
 c  outer GMRES loop (igmres)
 	  igmres = 0 
  10	  igmres = igmres + 1
@@ -75,7 +91,7 @@ c  first krylov vector
       do iqc=1,ndf*nnc
 		v(iqc,1) = v(iqc,1) / rnorm
 	  enddo
-
+	  
 c  construct krylov vectors 2:inner and hessenberg matrix
 	  do j=1,inner
 
@@ -89,11 +105,18 @@ c  compute A * v_j
 		do iqc=1,ndf*nnc
 	      zg(iqc) = w(iqc) * zg(iqc)
 		enddo
-		call gather (vloc, zg, ndf, hn, hm)
-		call fclear (avloc,ndf*nn_loc)
-		call blockgmres(x,d,do,vloc,avloc,hg,ien)
-		call scatter(avloc, avg, ndf, assemble, hn, hm)
-		call setid(avg,id,ndf)
+
+c		call grab_all (von, zg, ndf, hn, hm)
+		homog = .true.
+		call dbartod(zg,vn,von,v2,blist,bvlist,bnodesall,nodebcon2,
+	1		 homog,maxval(bnodes),
+	2		 shrknode,cnn2,ncnn2,hn,hm,hm2)
+		call fclear (avon,ndf*nn_on)
+		call blockgmres(x,shrk,d,do,von,avon,
+	1		 hg,ien,rng,cnn,ncnn)
+c		call send_all(avon, avg, ndf, assemble, hn, hm)
+		call rtorbar(avon,avg,p2,rinc,blist,bvlist,bnodesall,
+	1		 nodebcon2,maxval(bnodes),shrknode,cnn2,ncnn2,hn,hm,hm2)
 
 		do iqc=1,ndf*nnc
 		  avg(iqc) = w(iqc) * avg(iqc)
@@ -199,11 +222,11 @@ c  go back to unscaled system
 		dg(iqc) = w(iqc) * dg(iqc)
 	  enddo
 
-	  order = 0.43429448 * log(rnorm0/rnorm)
-	  if(myid.eq.0) write(6,101) order,rnorm0,rnorm
-	  if(myid.eq.0) write(7,101) order,rnorm0,rnorm
+	  convorder = 0.43429448 * log(rnorm0/rnorm)
+	  if(myid.eq.0) write(6,101) convorder,rnorm0,rnorm
+	  if(myid.eq.0) write(7,101) convorder,rnorm0,rnorm
 
- 101  format('Flow     : convergence order = ', f5.2, 2e14.7)
+ 101  format('Flow     : convergence order = ', f5.2,2e14.7)
  102  format('Flow     : zero residual')
 
 	  return

@@ -1,15 +1,17 @@
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine gmresf(x,u,id,w,bg,dg,hg,ien,hn,hm,
-     &                 z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss)
+	subroutine gmresf(x,shrk,shrkb,hg,ien,rng,cnn,ncnn,w,bg,dg,
+     &                 hn,ho,z,v,zg,avg,sm,von,avon,h,y,cc,ss)
 
       implicit none
 	include "global.h"
 
-      real* 8 x(nsd,nn_loc),u(nsd,nn_loc)
+      real* 8 x(nsd,nn_loc)
+        real* 8 shrk(0:nsd,maxconn,nquad*nec), shrkb(maxconn,neface*nec)
 	real* 8 hg(nec)
 	real* 8 bg(nnc), dg(nnc), w(nnc)
-      integer id(nnc),ien(nen,nec)
-	real* 8 hn(nnc),hm(nn_loc)
+      integer   ien(nen,nec),rng(neface,nec)
+        integer cnn(maxconn,nqdc), ncnn(nqdc)
+	real* 8 hn(nnc),ho(nn_on)
 
 	real* 8 h(inner+1,inner)
 	real* 8 y(inner+1)
@@ -18,7 +20,7 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 z(nnc,inner)
      	real* 8 v(nnc,inner+1)
 	real* 8 zg(nnc), avg(nnc), sm(nnc)
-	real* 8 vloc(nn_loc),avloc(nn_loc)
+	real* 8 von(nn_on),avon(nn_on)
       logical assemble
 	real* 8 eps, rnorm, rnorm0, order
 	real* 8 gam,hsave,ysave,tmpo
@@ -32,7 +34,12 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         sm(iqc) = 1.0
 	  enddo
 
+c        do i=1,nnc
+c        if(w(i).lt.1.0e-9) write(6,*) myid,i,w(i)
+c          enddo
+
         if(iscaling.eq.0) then
+
 	  do iqc=1,nnc
         w(iqc) = 1.0
 	  enddo
@@ -45,7 +52,7 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c	clear arrays
         call fclear (v,nnc*(inner+1))
-	  call fclear (vloc,nn_loc)
+	  call fclear (von,nn_on)
 
 c     compute residual as r = W**(-1/2) * (b - A * d)
 
@@ -90,11 +97,10 @@ c     compute A * v_j
             do iqc=1,nnc
 	      zg(iqc) = w(iqc) * zg(iqc)
 		enddo
-            call gather (vloc, zg,  1, hn, hm)
-		call fclear (avloc,nn_loc)
-            call blockgmresf(x,u,vloc,avloc,hg,ien)
-	      call scatter(avloc, avg,  1, assemble, hn, hm)
-            call setid(avg,id, 1)
+            call grab_all (von, zg,  1, hn, ho)
+		call fclear (avon,nn_on)
+            call blockgfrk(x,shrk,shrkb,von,avon,hg,ien,rng,cnn,ncnn)
+	      call send_all(avon, avg,  1, assemble, hn, ho)
 
             do iqc=1,nnc
 		avg(iqc) = w(iqc) * avg(iqc)
@@ -117,7 +123,7 @@ c     compute A * v_j
 
 	enddo				! end inner loop
 
-c	compute y(1:inner+1) from local hessenberg linear system
+c	compute y(1:inner+1) from onal hessenberg linear system
 c	H_m * y = beta * e_1
 
 c		initialize reduced residual

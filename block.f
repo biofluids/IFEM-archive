@@ -1,55 +1,77 @@
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  S. K. ALIABADI
+c  - modified for RKPM by G. Wagner
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	  subroutine block(xloc, dloc, doloc, p, q, hk, ien)
+	  subroutine block(xloc,shrk,don,doon,p,q,hk,ien,rng,
+	1	   cnn,ncnn)
 
 	  implicit none
 	  include "global.h"
 
-      integer ien(nen,nec)
+      integer ien(nen,nec),rng(neface,nec)
+      integer cnn(maxconn,nqdc),ncnn(nqdc)
       real* 8 xloc(nsd,nn_loc)
-      real* 8 dloc(ndf,nn_loc),doloc(ndf,nn_loc)
-      real* 8 p(ndf,nn_loc),q(ndf,nn_loc),hk(nec)
+	  real* 8 shrk(0:nsd,maxconn,nquad*nec)
+      real* 8 don(ndf,nn_on),doon(ndf,nn_on)
+      real* 8 p(ndf,nn_on),q(ndf,nn_on),hk(nec)
 
       real* 8 x(nsdpad,nenpad)
-      real* 8 d(ndfpad,nenpad),do(ndfpad,nenpad)
+      real* 8 d(ndfpad,maxconn),do(ndfpad,maxconn)
 
       real* 8 eft0,det,effd,effm,effc
-      real* 8 sh(0:nsdpad,nenpad),ph(0:nsdpad,nenpad)
+      real* 8 sh(0:nsdpad,nenpad)
+      real* 8 ph(0:nsdpad,maxconn)
       real* 8 xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
 
 	  real* 8 drt(ndfpad),drs(ndfpad)
 	  real* 8 drx(ndfpad),dry(ndfpad),drz(ndfpad)
-	  real* 8 u,v,w,pp,ug
+	  real* 8 u,v,w,pp,fi,ug
       real* 8 txx,txy,txz,tyx,tyy,tyz,tzx,tzy,tzz
 	  real* 8 hg,taum,tauc,vel,ree
 	  real* 8 res_c,res_a(nsdpad),res_t(nsdpad)
+	  real* 8 a1,a2,a3,b1,b2,b3,c1,c2,c3
 	  real* 8 prs_c,prs_t(nsdpad)
       real* 8 mu,nu,ro,g(nsdpad)
 	  real* 8 tempu,tempv,tempw,temp
 	  real* 8 dtinv,oma,ama
-	  integer inl, ie, isd, idf, iq, node
+	  real* 8 res_g,area,gg,coef
+	  integer inl,ie,ieface,irng,isd,idf,inface,iq,node
+	  integer qp,qb,node1,node2,node3,node4
+	  integer ierr
+
+c	  if (myid.eq.6) write (*,*) myid,"flag0!"
 
 	  dtinv = 1.0/dt
 	  if(steady) dtinv = 0.0
-	  oma   = 1.0 -alpha
+	  oma   = 1.0 - alpha
 	  ama   = 1.0 - oma
+c  coef = vis_liq/sqrt(hmin*hmin + hmax*hmax)
+	  coef = 1e3
+
+	  qp = 0
+	  qb = 0
+
+c	  if (myid.eq.6) write (*,*) myid,"flag1!"
 
 	  do ie=1,nec 
 
-        do inl=1,nen
+		do inl=1,nen
 		  do isd=1,nsd
 			x(isd,inl) = xloc(isd,ien(inl,ie))
-		  enddo
-		  do idf=1,ndf
-			d(idf,inl) =  dloc(idf,ien(inl,ie))
-            do(idf,inl) = doloc(idf,ien(inl,ie))
 		  enddo
 		enddo
 
 		hg = hk(ie)
 
 		do iq=1,nquad
+		  qp = qp + 1
+
+		  do inl=1,ncnn(qp)
+			do idf = 1,ndf
+			  d(idf,inl)  = don(idf,cnn(inl,qp))
+			  do(idf,inl) = doon(idf,cnn(inl,qp))
+			enddo
+		  enddo
 
 		  if (nen.eq.4) then
 			include "sh3d4n.h"
@@ -59,6 +81,8 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 		  eft0 = abs(det) * wq(iq)
 
+c  Now use RKPM shape functions
+
 		  do idf = 1,ndf
 			drs(idf) = 0.0
 			drx(idf) = 0.0
@@ -67,46 +91,44 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 			drt(idf) = 0.0
 		  enddo
 
-		  do inl=1,nen
+		  do inl=1,ncnn(qp)
+c			stop
 			tempu = ama*d(udf,inl) + oma*do(udf,inl)
 			tempv = ama*d(vdf,inl) + oma*do(vdf,inl)
 			tempw = ama*d(wdf,inl) + oma*do(wdf,inl)
-			drs(udf)=drs(udf)+sh(0,inl)*tempu           
-			drx(udf)=drx(udf)+sh(1,inl)*tempu           
-			dry(udf)=dry(udf)+sh(2,inl)*tempu           
-			drz(udf)=drz(udf)+sh(3,inl)*tempu           
-			drs(vdf)=drs(vdf)+sh(0,inl)*tempv           
-			drx(vdf)=drx(vdf)+sh(1,inl)*tempv           
-			dry(vdf)=dry(vdf)+sh(2,inl)*tempv           
-			drz(vdf)=drz(vdf)+sh(3,inl)*tempv           
-			drs(wdf)=drs(wdf)+sh(0,inl)*tempw           
-			drx(wdf)=drx(wdf)+sh(1,inl)*tempw           
-			dry(wdf)=dry(wdf)+sh(2,inl)*tempw           
-			drz(wdf)=drz(wdf)+sh(3,inl)*tempw           
-		  enddo
-
-		  do inl=1,nen
-			drt(udf)=drt(udf)+sh(0,inl)*(d(udf,inl)-do(udf,inl))*dtinv
-			drt(vdf)=drt(vdf)+sh(0,inl)*(d(vdf,inl)-do(vdf,inl))*dtinv
-			drt(wdf)=drt(wdf)+sh(0,inl)*(d(wdf,inl)-do(wdf,inl))*dtinv
-			drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)      
-			drx(pdf)=drx(pdf)+sh(1,inl)*d(pdf,inl)      
-			dry(pdf)=dry(pdf)+sh(2,inl)*d(pdf,inl)      
-			drz(pdf)=drz(pdf)+sh(3,inl)*d(pdf,inl)      
+			drs(udf)=drs(udf)+shrk(0,inl,qp)*tempu           
+			drx(udf)=drx(udf)+shrk(1,inl,qp)*tempu           
+			dry(udf)=dry(udf)+shrk(2,inl,qp)*tempu           
+			drz(udf)=drz(udf)+shrk(3,inl,qp)*tempu           
+			drs(vdf)=drs(vdf)+shrk(0,inl,qp)*tempv           
+			drx(vdf)=drx(vdf)+shrk(1,inl,qp)*tempv           
+			dry(vdf)=dry(vdf)+shrk(2,inl,qp)*tempv           
+			drz(vdf)=drz(vdf)+shrk(3,inl,qp)*tempv           
+			drs(wdf)=drs(wdf)+shrk(0,inl,qp)*tempw           
+			drx(wdf)=drx(wdf)+shrk(1,inl,qp)*tempw           
+			dry(wdf)=dry(wdf)+shrk(2,inl,qp)*tempw           
+			drz(wdf)=drz(wdf)+shrk(3,inl,qp)*tempw           
+			drt(udf)=drt(udf)+shrk(0,inl,qp)*(d(udf,inl)-do(udf,inl))*dtinv
+			drt(vdf)=drt(vdf)+shrk(0,inl,qp)*(d(vdf,inl)-do(vdf,inl))*dtinv
+			drt(wdf)=drt(wdf)+shrk(0,inl,qp)*(d(wdf,inl)-do(wdf,inl))*dtinv
+			drs(pdf)=drs(pdf)+shrk(0,inl,qp)*d(pdf,inl)      
+			drx(pdf)=drx(pdf)+shrk(1,inl,qp)*d(pdf,inl)      
+			dry(pdf)=dry(pdf)+shrk(2,inl,qp)*d(pdf,inl)      
+			drz(pdf)=drz(pdf)+shrk(3,inl,qp)*d(pdf,inl)      
 		  end do
+
+c		  if (myid.eq.6) write (*,*) myid,"flag2!"
 
 		  u = drs(udf)
 		  v = drs(vdf)
 		  w = drs(wdf)
 		  pp= drs(pdf)
 
-cccccccccccccc
 		  mu = vis_liq
 		  ro = den_liq
 		  g(udf) = gravity(udf)
 		  g(vdf) = gravity(vdf)
 		  g(wdf) = gravity(wdf)
-cccccccccccccc
 
 		  nu = delta(4)*turb_kappa**2*hg**2
 	1		   * sqrt(2*drx(udf)**2+(dry(udf)+drx(vdf))**2
@@ -116,10 +138,10 @@ cccccccccccccc
 
 
 		  res_c = 0.0
-		  do inl=1,nen
-			res_c = res_c+sh(xsd,inl)*d(udf,inl)
-	1			 +sh(ysd,inl)*d(vdf,inl)
-	2			 +sh(zsd,inl)*d(wdf,inl)
+		  do inl=1,ncnn(qp)
+			res_c = res_c+ shrk(xsd,inl,qp)*d(udf,inl)
+	1			         + shrk(ysd,inl,qp)*d(vdf,inl)
+	2			         + shrk(zsd,inl,qp)*d(wdf,inl)
 		  enddo
 
 		  if(stokes) then
@@ -127,6 +149,8 @@ cccccccccccccc
 			v = 0.0
 			w = 0.0
 		  endif
+	
+c		  stop
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		  do isd = 1, nsd
@@ -137,6 +161,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		  res_t(ysd) = dry(pdf) + res_a(ysd) 
 		  res_t(zsd) = drz(pdf) + res_a(zsd)
 
+c		  if (myid.eq.6) write (*,*) myid,"flag3!"
+
 		  vel  = sqrt(u*u+v*v+w*w)
 		  ree  = vel*hg/mu/12.0
 		  if(steady.or.(.not.taudt)) then
@@ -146,19 +172,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		  endif
 		  taum = delta(1)* taum
 		  tauc = delta(2)*hg*vel
+
 		  if(ree.lt.1.0) tauc = tauc*ree
 
 c.....Density optimization
 		  taum = taum/ro
 		  tauc = tauc*ro 
 
-		  do inl=1,nen
-			ph(0,inl) = sh(0,inl)*eft0
-			ph(1,inl) = sh(1,inl)*eft0
-			ph(2,inl) = sh(2,inl)*eft0
-			ph(3,inl) = sh(3,inl)*eft0
+		  do inl=1,ncnn(qp)
+			ph(0,inl) = shrk(0,inl,qp)*eft0
+			ph(1,inl) = shrk(1,inl,qp)*eft0
+			ph(2,inl) = shrk(2,inl,qp)*eft0
+			ph(3,inl) = shrk(3,inl,qp)*eft0
 		  enddo
-		  
+
+			
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c.....Galerkin Terms (Look at notes)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -176,12 +204,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		  prs_t(vdf) = res_t(vdf) * taum
 		  prs_t(wdf) = res_t(wdf) * taum
 		  prs_c      = res_c*tauc
-		  
-		  do inl=1,nen
+
+c		  if (myid.eq.6) write (*,*) myid,"flag4!"
+
+		  do inl=1,ncnn(qp)
 			
-			node=ien(inl,ie)
+			node=cnn(inl,qp)
 
 			temp=ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
+
+c			stop
 
 c.....Continuty Equation
 			p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
@@ -223,41 +255,51 @@ c.....Stablization with Tau_cont
 			p(wdf,node) = p(wdf,node) - ph(zsd,inl)*prs_c
 		  enddo
 
+c		  stop
+c
 c.....Diagonal Preconditioner
+
+c		  if (myid.eq.6) write (*,*) myid,"flag5!"
 
 		  effd =   mu*eft0*alpha
 		  effm = taum*eft0
 		  effc = tauc*eft0
 
-		  do inl=1,nen
+		  do inl=1,ncnn(qp)
 
-			node=ien(inl,ie)
-			ug = ro*(u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
-			temp = alpha*ug + sh(0,inl)*dtinv*ro
-			
+			node=cnn(inl,qp)
+			ug = ro*(u*shrk(1,inl,qp)+v*shrk(2,inl,qp)+w*shrk(3,inl,qp))
+			temp = alpha*ug + shrk(0,inl,qp)*dtinv*ro
+
 			q(udf,node) = q(udf,node)+
-	1			 (alpha*ro*sh(0,inl)*drx(1)+temp)*(sh(0,inl)*eft0+ug*effm)
+	1			 (alpha*ro*shrk(0,inl,qp)*drx(1)+temp)*(shrk(0,inl,qp)*eft0+ug*effm)
 
 			q(vdf,node) = q(vdf,node)+
-	1			 (alpha*ro*sh(0,inl)*dry(2)+temp)*(sh(0,inl)*eft0+ug*effm)
+	1			 (alpha*ro*shrk(0,inl,qp)*dry(2)+temp)*(shrk(0,inl,qp)*eft0+ug*effm)
 
 			q(wdf,node) = q(wdf,node)+
-	1			 (alpha*ro*sh(0,inl)*drz(3)+temp)*(sh(0,inl)*eft0+ug*effm)
+	1			 (alpha*ro*shrk(0,inl,qp)*drz(3)+temp)*(shrk(0,inl,qp)*eft0+ug*effm)
+			
+c			stop
 
-			temp = sh(1,inl)**2+sh(2,inl)**2+sh(3,inl)**2
+			temp = shrk(1,inl,qp)**2+shrk(2,inl,qp)**2+shrk(3,inl,qp)**2
 
-			q(udf,node) = q(udf,node)+(sh(1,inl)**2+temp)*effd
-			q(vdf,node) = q(vdf,node)+(sh(2,inl)**2+temp)*effd
-			q(wdf,node) = q(wdf,node)+(sh(3,inl)**2+temp)*effd
+			q(udf,node) = q(udf,node)+(shrk(1,inl,qp)**2+temp)*effd
+			q(vdf,node) = q(vdf,node)+(shrk(2,inl,qp)**2+temp)*effd
+			q(wdf,node) = q(wdf,node)+(shrk(3,inl,qp)**2+temp)*effd
 			q(pdf,node) = q(pdf,node)+temp*effm
-			q(udf,node) = q(udf,node)+sh(1,inl)**2*effc
-			q(vdf,node) = q(vdf,node)+sh(2,inl)**2*effc
-			q(wdf,node) = q(wdf,node)+sh(3,inl)**2*effc
+			q(udf,node) = q(udf,node)+shrk(1,inl,qp)**2*effc
+			q(vdf,node) = q(vdf,node)+shrk(2,inl,qp)**2*effc
+			q(wdf,node) = q(wdf,node)+shrk(3,inl,qp)**2*effc
 		  enddo
 
 		enddo
-	  enddo
 
+	  enddo
+	  
 	  return
 	  end
+
+
+
 
