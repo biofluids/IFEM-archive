@@ -1,0 +1,16 @@
+      equivalence(u,prdeno,vel_fluid,timestepn_fluid,
+     $	workspace_fft,physandcfd_fluid(0*n_ac))
+      equivalence(v,qrfact,physandcfd_fluid(1*n_ac))
+      equivalence(w,physandcfd_fluid(2*n_ac))
+
+      equivalence(f1,force_fluid,physandcfd_fluid(3*n_ac))
+      equivalence(f2,physandcfd_fluid(4*n_ac))
+      equivalence(f3,physandcfd_fluid(5*n_ac))
+      equivalence(xc,uc,cworkspace_fs,f1(mn_lc1,mn_lc2,mn_lc3))
+      equivalence(yc,vc,f2(mn_lc1,mn_lc2,mn_lc3))
+      equivalence(zc,wc,f3(mn_lc1,mn_lc2,mn_lc3))
+
+      equivalence(p,pressure_fluid,q,div_fluid,
+     $	physandcfd_fluid(6*n_ac))
+      equivalence(qc,pc,p(mn_lc1,mn_lc2,mn_lc3))
+

@@ -1,0 +1,6 @@
+       common/ptforce_pcfile_interface/acttype_con
+       common/ptforce_pcfile_interface/stiff0_con
+       common/ptforce_pcfile_interface/rest0_con
+       common/ptforce_pcfile_interface/fix_con
+
+       equivalence( acttype_con,      attrib_fcu)

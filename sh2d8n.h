@@ -106,4 +106,3 @@ c  global first derivatives
       sh(2,8)=sq(1,8,iq)*sx(1,2)+sq(2,8,iq)*sx(2,2)+sq(3,8,iq)*sx(3,2)
       sh(3,8)=sq(1,8,iq)*sx(1,3)+sq(2,8,iq)*sx(2,3)+sq(3,8,iq)*sx(3,3)
 
-

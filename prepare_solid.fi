@@ -1,0 +1,149 @@
+
+c++++++++
+c     tecplot output file setting
+c++++++++
+c Lucy commented out the next 2 lines temporarily 
+c      open(5,file='tec_input',status='unknown')
+c      read(5,*) jump_frame,jump_fd,jump_mk,mk_start,mk_finish
+      open(9000, file='tecf.dat', status='unknown')
+      open(9001, file='tecs.dat', status='unknown')
+      open(9500, file='vel_time.m', status='unknown')
+
+c      open(9988, file='main_dat', status='old')
+      open(223,file='rest0a',form='unformatted',status='unknown')
+      open(224,file='rest0b',form='unformatted',status='unknown')
+      open(25,file='rest1',form='unformatted',status='unknown')
+
+c++++++++
+c     global input file read
+c++++++++
+c      write(*,*) 'reading main_dat'
+c	call readmain
+
+c++++++++
+c     n_ibmfem 1/0 fem/ibm
+c++++++++
+
+      vnorm=0.0d0
+      niterf=0
+      naxx1=time()
+c      if (n_ibmfem .eq.1) write(*,*) 'structure solver - FEM'
+c      if (n_ibmfem .ne.1) write(*,*) 'structure solver - Fiber'
+c
+c      if (n_ibmfem .eq. 1) then !if FEM
+         open(1,file='coortable.in',status='old')
+         open(3,file='pp.m',status='unknown')
+         open(4,file='load',status='unknown')
+         open(20,file='coor',status='unknown')
+         open(21,file='cont',status='unknown')
+         open(22,file='disp',status='unknown')
+         open(24,file='pres',status='unknown')
+	  write(*,*) 'reading coortable.in'
+         call r_input
+c      endif
+	if (n_ibmfem .eq.1) write(*,*) 'structure solver - FEM'
+      if (n_iter_step .ne. 1) then
+         call flush(6)
+         call exit(1)
+      endif
+
+      td    = t_step / n_iter_step
+      istep = 0
+      klok  = istep
+      dilocaldomain = i_domain_soloist
+      dtid(dilocaldomain) = dilocaldomain
+      bwriteon = (dilocaldomain .eq. i_domain_soloist)
+      if (dilocaldomain .eq. i_domain_soloist) then
+         call flush(6)
+      endif
+ 10   format(a21,i4,a3,i4,a4,i4)
+
+
+c++++++++
+c  ** initialize domain accounting lists for force points
+c++++++++
+      call  init_domainaccounting(mn_pt_alloc,mx_pt_alloc,
+     $     null_pt,dnext_pt,                                      
+     $     dlfreept_number, dlfreept_head, dlfreept_tail, 
+     $     dlptlocal_number,dlptlocal_head,dlptlocal_tail,
+     $     dlptsend_number, dlptsend_head, dlptsend_tail, 
+     $     dlptrecv_number, dlptrecv_head, dlptrecv_tail) 
+      
+c++++++++
+c     use io8 subroutine for fem reading
+c++++++++
+      call rdpc(input_filename_pc,klok,dnext_pt,
+     $     dlfreept_number,dlfreept_head,dlfreept_tail,   
+     $     dlptlocal_number,dlptlocal_head,dlptlocal_tail,
+     $     pt_iptexp,coord_pt,attrib_fcu,num_fiber,num_point)      
+
+c++++++++
+c  ** calculate future owner data for points.
+c++++++++
+       call  calc_ptfuturedomain(dnext_pt,dlptlocal_number, 
+     $     dlptlocal_head,dlptlocal_tail,coord_pt,idomain_pt) 
+ 
+c++++++++
+c  * copy idomain_pt to idomain_ptcon as appropriate; *
+c  * stiff0==0->bflag for no connection *
+c++++++++
+       ipt = dlptlocal_head
+      
+      idomain_ptcon(ipt,i_lo) = null_de 
+      
+      do n=1, dlptlocal_number - 1
+         if (attrib_fcu(ipt,i_attr_stiff0,mn_con_fcu) .eq. 0) then
+            idomain_ptcon(ipt ,i_hi) = null_de
+            idomain_ptcon(dnext_pt(ipt),i_lo) = null_de
+         else
+            idomain_ptcon(ipt ,i_hi) = idomain_pt(dnext_pt(ipt))
+            idomain_ptcon(dnext_pt(ipt),i_lo) = idomain_pt(ipt)
+         endif
+         
+         ipt = dnext_pt(ipt)
+	enddo
+ 
+      idomain_ptcon(ipt,i_hi) = null_de 
+
+      if (dlptlocal_number.gt.0) then
+         ipt = dlptlocal_head
+         do n = 1, dlptlocal_number
+            idomain_pt(ipt)      = dilocaldomain
+            force_pt(ix,ipt) = 0.0d0
+            force_pt(iy,ipt) = 0.0d0
+            force_pt(iz,ipt) = 0.0d0
+            ipt = dnext_pt(ipt)
+	   enddo
+      endif
+
+      call  inittypeactivations(td, bwriteon) 
+
+c++++++++
+c     create connection lists, traversing dlist with key=idomain_ptcon.
+c  asynchronous
+c++++++++
+      call create_conexchlists(dnext_pt,dlptlocal_number,
+     $     dlptlocal_head,dlptlocal_tail,idomain_ptcon,
+     $     dnext_con,dlconshare_number,dlconshare_head,
+     $     dlconshare_tail)
+     
+
+      klok = 0+nt0
+
+      if (dilocaldomain .eq. i_domain_soloist) then
+         call flush(6)
+      endif
+	
+	if (nrestart .ne. 1) then
+		xfactor=1.0
+		nto=0
+	endif
+
+c++++++++
+c     mapping of original coordinates from ibm to rubber
+c++++++++
+      if (n_ibmfem .eq. 1) then
+         call r_main
+         dt_solid=1.0d0
+         nts_solid=n_step_run
+      endif

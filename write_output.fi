@@ -1,0 +1,164 @@
+c OUTPUT generator for both fluids and structure parts
+c written by Lucy Zhang
+c 12/5/02
+c write output in different files each timestep (or less often)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c origin:  ibm code
+c n_matlab = 1  :  matlab output
+c
+c n_ibmfem = 0  :  ibm output
+c n_ibmfem = 1  :  fem output
+c
+c n_tec_ens =1  :  tecplot output
+c n_tec_ens =0  :  ensight output
+c
+c++++++++
+c matlab output
+c+++++++
+            if (n_matlab .eq. 1) then  !matlab
+c               call  zmatlab(
+c     $              klok, td,
+c     $              ncloud_run,  mncloud_run, mxcloud_run, nmark_run,
+c     $              nmk_cloud,   mnmk_cloud,  mxmk_cloud,
+c     $              num_fiber, num_point,
+c     $              dnext_mk,
+c     $              dlfreemk_number, dlfreemk_head, dlfreemk_tail,
+c     $              dlmklocal_number, dlmklocal_head, dlmklocal_tail,
+c     $              mkpin,
+c     $              coord_mk,
+c     $              dnext_pt,
+c     $              dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+c     $              pt_iptexp,
+c     $              coord_pt, attrib_fcu,
+c     $              force_con,force_pt,
+c     $              vel_pt,accel_pt,f1,f2,f3,tem,
+c     $              u,  v,  w, p,
+c     $              mnlatwr1,  mxlatwr1,
+c     $              mnlatwr2,  mxlatwr2,
+c     $              mnlatwr3,  mxlatwr3,
+c     $              dmnac1,    dmnac2,   dmnac3,
+c     $              dmxac1,    dmxac2,   dmxac3,
+c     $              dmnlc1,     dmnlc2,    dmnlc3,
+c     $              dmxlc1,     dmxlc2,    dmxlc3)
+            endif
+               
+c            currentstep = klok/n_step_wr_ib_user_files
+c            time_value(currentstep) = klok * td
+
+c++++++++
+c     ibm :: tecplot and ensight output
+c++++++++
+            if (n_ibmfem .eq. 0) then  !ibm 
+               
+               if( n_tec_ens .eq. 1) then  !tecplot
+                  call zibm_tec(
+     $                 klok, td,
+     $                 ncloud_run,  mncloud_run, mxcloud_run,
+     $				 num_fiber, num_point,
+     $                 dnext_pt,
+     $                 dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+     $                 pt_iptexp,
+     $                 coord_pt, attrib_fcu,
+     $                 force_con,force_pt,
+     $                 vel_pt,accel_pt,f1,f2,f3,tem,
+     $                 d,xn,ien)
+               else  !ensight
+                  call zibm_ensgeo(
+     $                 klok, td,
+     $                 dnext_pt,
+     $                 dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+     $                 pt_iptexp,
+     $                 coord_pt, attrib_fcu,ien,xn)
+				call zibm_ensfluid(d,klok)
+               endif
+            else
+c++++++++
+c     fem :: tecplot and ensight output
+c++++++++
+               if( n_tec_ens .eq. 1) then   !tecplot output
+                  call zfem_tec(
+     $                 klok, td,
+     $                 ncloud_run,  mncloud_run, mxcloud_run,
+     $                 dnext_pt,
+     $                 dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+     $                 pt_iptexp,
+     $                 coord_pt, attrib_fcu,
+     $                 force_con,force_pt,
+     $                 vel_pt,accel_pt,f1,f2,f3,tem,
+     $				 d,xn,ien)
+               else	!ensight output
+c++++++++
+c     geometry file
+c++++++++
+                  call zfem_ensgeo(
+     $                 klok, td, dnext_pt,
+     $                 dlptlocal_number, 
+     $                 dlptlocal_head, 
+     $                 dlptlocal_tail,
+     $                 pt_iptexp, coord_pt, attrib_fcu,ien,xn)
+c++++++++
+c     v, p in fluid domain
+c++++++++
+				call zfem_ensfluid(d,vel_pt,klok)
+                
+c++++++++
+c     stress and strain in structure
+c++++++++
+c                  call zfem_ensstr(klok, 
+c     $                 dlptlocal_number,
+c     $                 dlptlocal_head, 
+c     $                 dlptlocal_tail)
+                  
+               endif               
+            endif
+	n_step_wr_ib_user_files=1
+            iitemp=klok/n_step_wr_ib_user_files
+            nrc=223+mod(iitemp,2)
+
+            rewind(nrc)
+            write(nrc) istep
+	    do i=1,nn
+	      write(nrc) d(1,i),d(2,i),d(3,i)
+		enddo
+
+            if (n_ibmfem .eq. 1) then  !fem output
+               do i=1,nnd
+                  write(nrc) dis(1,i),dis(2,i),dis(3,i),
+     $                 du(1,i),du(2,i),du(3,i),
+     $                 acm(1,i),acm(2,i),acm(3,i),
+     $                 coord_pt(1,i),coord_pt(2,i),coord_pt(3,i),
+     $                 vel_pt(1,i),vel_pt(2,i),vel_pt(3,i),
+     $                 accel_pt(1,i),accel_pt(2,i),accel_pt(3,i),
+     $                 prevel_pt(1,i),prevel_pt(2,i),prevel_pt(3,i)
+	          enddo
+               do i=0,n_ss_alloc-1 
+                  write(nrc) coord_ss(1,i),coord_ss(2,i),coord_ss(3,i)
+                  write(nrc) flow_ss(i),pressure_ss(i)
+	         enddo
+            else  ! ibm output
+               do i=1,nptibm
+                  write(nrc) coord_pt(1,i),coord_pt(2,i),coord_pt(3,i),
+     $                 vel_pt(1,i),vel_pt(2,i),vel_pt(3,i),
+     $                 accel_pt(1,i),accel_pt(2,i),accel_pt(3,i),
+     $                 prevel_pt(1,i),prevel_pt(2,i),prevel_pt(3,i)
+	         enddo
+
+               do i=0,n_ss_alloc-1 
+                  write(nrc) coord_ss(1,i),coord_ss(2,i),coord_ss(3,i)
+                  write(nrc) flow_ss(i),pressure_ss(i)
+	         enddo
+            endif
+
+            if (n_ibmfem .eq. 1) then   !fem output
+               do i=1,3*nnd
+                  write(nrc) predrf(i),drf(i)
+			 enddo
+
+               do nes=1,numel
+                  do k=1,nump
+                     nh1=(nes-1)*nump+k
+                     write(nrc) prec(nh1)
+				enddo
+			 enddo
+               write(nrc) vnorm,viter
+            endif
