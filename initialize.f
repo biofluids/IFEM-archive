@@ -73,6 +73,11 @@
         delta(idel) = 0.0
         end do
 
+	do i=15
+	   totaltime(i)=0.0
+	   starttime(i)=0.0
+	enddo
+
         mass = 1.0
 
         return

@@ -42,6 +42,7 @@
 	  end do
 
 	  assemble = .false.
+
 	  call scatter(bcloc,nodebc,ndf,assemble,hn,hloc)
 	  call scatter(bcvloc,nodebcv,ndf,assemble,hn,hloc)
 	  call grab_all2(nodebcon2,nodebc,ndf,hn,hm2)
@@ -119,81 +120,80 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c  Communicate data needed by processors
 	  dn(:,:) = dbarn(:,:)
-      call grab_all2 (d2,dn,ndf,hn,hm2)
-	  
+	  call grab_all2 (d2,dn,ndf,hn,hm2)
+
 c  Ammend nodes of dn corresponding to boundary conditions
 	  do idf = 1,ndf
-c		write (*,*) myid
-c		stop
-
-		if (bnodes(idf).gt.0) then
-		  do ib = 1,bnodes(idf)
-			node = blist(ib,idf)
-			if (homog) then
-			  dn(idf,node) = 0
-			else
-			  dn(idf,node) = bvlist(ib,idf)
-			end if
-			do inl = 1,ncnn2(node)
-			  neighbor = cnn2(inl,node)
-			  if (nodebcon2(idf,neighbor).eq.0) then
-				dn(idf,node) = dn(idf,node)-shrknode(inl,node)*d2(idf,neighbor)
-			  end if
-			end do
-		  end do
+	     if (bnodes(idf).gt.0) then
+		do ib = 1,bnodes(idf)
+		   node = blist(ib,idf)
+		   if (homog) then
+		      dn(idf,node) = 0
+		   else
+		      dn(idf,node) = bvlist(ib,idf)
+		   end if
+		   do inl = 1,ncnn2(node)
+		      neighbor = cnn2(inl,node)
+		      if (nodebcon2(idf,neighbor).eq.0) then
+			 dn(idf,node) = dn(idf,node)-shrknode(inl,node)*d2(idf,neighbor)
+		      end if
+		   end do
+		end do
 
 c  Send these values to root processor for each idf
-		  tag = myid*10 + idf
-		  call MPI_SEND(dn(idf,1),1,bctype(idf),idf-1,tag,
-	1		   MPI_COMM_WORLD,ierr)
+		tag = myid*10 + idf
+		
+		call MPI_SEND(dn(idf,1),1,bctype(idf),idf-1,tag,
+	1	     MPI_COMM_WORLD,ierr)
+		
+	     end if
+	     
+	     if (myid.eq.idf-1) then
+		if (bnodestot(idf).gt.0) then
+		   counter = 0
+		   do iproc = 0,numproc-1
+		      if (bnodesall(iproc,idf).gt.0) then
+			 tag = iproc*10 + idf
+			 call MPI_RECV(rhs(1+counter),bnodesall(iproc,idf),
+	1		      MPI_DOUBLE_PRECISION,
+	2		      iproc,tag,MPI_COMM_WORLD,status,ierr)
+			 counter = counter + bnodesall(iproc,idf)
+		      end if
+		   end do
 		end if
-
-		if (myid.eq.idf-1) then
-		  if (bnodestot(idf).gt.0) then
-			counter = 0
-			do iproc = 0,numproc-1
-			  if (bnodesall(iproc,idf).gt.0) then
-				tag = iproc*10 + idf
-				call MPI_RECV(rhs(1+counter),bnodesall(iproc,idf),
-	1				 MPI_DOUBLE_PRECISION,
-	2				 iproc,tag,MPI_COMM_WORLD,status,ierr)
-				counter = counter + bnodesall(iproc,idf)
-			  end if
-			end do
-		  end if
-		end if
+	     end if
 	  end do
 
 c  Solve on each root processor
 	  if (myid.lt.ndf) then
-		idf = myid+1
-		if (bnodestot(idf).gt.0) then
-		  mtype = 1
-		  call ma28cd(order, amat, licn, icoln, ikeep, rhs, wgt, mtype)
-c  Return values to original processors
-		  counter = 0
-		  do iproc = 0,numproc-1
-			if (bnodesall(iproc,idf).gt.0) then
-			  call MPI_SEND(rhs(1+counter),bnodesall(iproc,idf),
-	1			   MPI_DOUBLE_PRECISION,iproc,idf,
-	2			   MPI_COMM_WORLD,ierr)
-			  counter = counter + bnodesall(iproc,idf)
-			end if
-		  end do
-		end if
+	     idf = myid+1
+	     if (bnodestot(idf).gt.0) then
+		mtype = 1
+		call ma28cd(order, amat, licn, icoln, ikeep, rhs, wgt, mtype)
+c          Return values to original processors
+		counter = 0
+		do iproc = 0,numproc-1
+		   if (bnodesall(iproc,idf).gt.0) then
+		      call MPI_SEND(rhs(1+counter),bnodesall(iproc,idf),
+	1		   MPI_DOUBLE_PRECISION,iproc,idf,
+	2		   MPI_COMM_WORLD,ierr)
+		      counter = counter + bnodesall(iproc,idf)
+		   end if
+		end do
+	     end if
 	  end if
 
 c  Receive on each processor
 	  do idf = 1,ndf
-		if (bnodes(idf).gt.0) then
-		  call MPI_RECV(dn(idf,1),1,bctype(idf),idf-1,idf,
-	1		   MPI_COMM_WORLD,status,ierr)
-		end if
+	     if (bnodes(idf).gt.0) then
+		call MPI_RECV(dn(idf,1),1,bctype(idf),idf-1,idf,
+	1	     MPI_COMM_WORLD,status,ierr)
+	     end if
 	  end do
-
-c  Recommunicate data needed by each processor
+	  
+c    Recommunicate data needed by each processor
 	  call grab_all(d,dn,ndf,hn,hm)
-
+	  
 	  return
 	  end
 

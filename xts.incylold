@@ -1,0 +1,93 @@
+restart    off
+steady     off
+stokes     off
+hg_vol     on
+taudt      on
+static     off
+readshape  off
+
+nn  2236
+ne 11628
+
+maxconn	90
+
+nrng     15
+nen      4
+ndf	 4
+nsd	 3
+iquad    1
+
+nit       4
+nts       3  
+ntsbout   02
+idisk     00
+inner     80
+outer     01
+iscaling  01
+
+dt       0.02    
+t_start  0.0
+alpha    0.5
+
+fix     1 20.565 +0.0 +0.0 -999   0.0
+fix     2 -999 -999 -999 -999   0.0
+fix     3 -999 -999 -999 -999   0.0
+fix     4 -999 -999 -999 -999   0.0
+fix     5 -999 -999 -999 -999   0.0
+fix     6 +0.0 +0.0 +0.0 -999   0.0
+fix     7 +0.0 +0.0 +0.0 -999   0.0
+fix     8 +0.0 +0.0 +0.0 -999   0.0
+fix     9 +0.0 +0.0 +0.0 -999   0.0
+fix    10 -999 -999 -999 -999   0.0
+fix    11 -999 -999 -999 -999   0.0
+fix    12 -999 -999 -999 -999   0.0
+fix    13 -999 -999 -999 -999   0.0
+fix    14 -999 -999 -999 -999   0.0
+fix    15 -999 -999 -999 -999   0.0
+initial   20.565 +0.0 +0.0 +0.0 0.0
+
+gravity     0.0     0.0     0.0   
+
+vis_liq 1.82e-4   !! water 1.3e-3
+vis_gas 1.82e-4   !! gas   1.5e-5
+den_liq 1.18e-3
+den_gas 1.18e-3
+ref_lgt 50.0
+ref_vel 20.0
+ref_den 1 
+
+delta 0 1.0   !! hg
+delta 1 1.0   !! taum
+delta 2 2.0   !! tauc
+delta 3 2.0   !! tauf
+delta 4 0.0   !! turb
+
+turb_kappa 0.15 
+
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -59,6 +59,13 @@ c  ---------------------------------------------------------------------c
 		  do i=1,surf(0)
 			call getint(surf(i))
 		  enddo
+		else if (key.eq.'calcforce') then !.....calculate forces on surfaces
+		  call getstr(onoff)
+		  calcforce = (onoff.ne.'off')
+		else if (key.eq.'fsurf') then !......list of surface numbers to calculate forces
+		  nfsurf = nfsurf + 1
+		  call getint(isurf)
+		  fsurf(isurf) = 1
 		else if (key.eq.'hydro') then
 		  call getint(hydro)
 		else if (key.eq.'restart') then !.....restart

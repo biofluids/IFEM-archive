@@ -5,7 +5,7 @@ c - Driver to compute RKPM shape functions for
 c   all local quadrature points
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine rkpm(shrk,shrknode,cnn,ncnn,cnn2,ncnn2,ien,rng,xna)
+      subroutine rkpm(shrk,shrknode,shrkf,cnn,ncnn,cnn2,ncnn2,ien,rng,xna)
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Inputs:
 c
@@ -26,7 +26,7 @@ c
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
       include "global.h"
       include "malloc.h"
-      real* 8 shrk(0:nsd,maxconn,nec*nquad)
+      real* 8 shrk(0:nsd,maxconn,nec*nquad),shrkf(0:nsd,maxconn,nqdf)
       real* 8 shrknode(maxconn,nnc)
       integer ien(nen,nec),rng(neface,nec),cnn(maxconn,nqdc),ncnn(nqdc)
       integer cnn2(maxconn,nnc),ncnn2(nnc)
@@ -37,33 +37,34 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       real* 8 b(4), bd(3,4)
       real* 8 shp, shpd(3), det, vol, coef
       real* 8 xmax, ymax, zmax
-      integer nnum, qvcount, ncount, ierr, seed
+      integer nnum, qvcount, qfcount, ncount, ierr, seed
       integer maxinf,mininf,avginf,nqvtot
-      real* 8 starttime, endtime, inftime, comptime, nconntime
+      real* 8 begintime, stoptime, inftime, comptime, nconntime
      
       real* 8 adist(nsd,nn), adistloc(nsd,nn)
       real* 8 dwjploc(nn), dwjp(nn)
-      integer inf(maxconn)
+      integer inf(maxconn),ninf
       pointer (adistptr,adist), (adistlocptr,adistloc), (dwjplocptr,dwjploc)
       pointer (dwjpptr,dwjp), (infptr,inf)
 
       integer nconn(maxconn,nn),nnconn(nn)
       pointer (nconnptr,nconn), (nnconnptr,nnconn)
 
-c      real *8 xnamin(nsdpad),xnamax(nsdpad),lcell(nsdpad)
-c      integer ncell(nsdpad),nx,ny,nz,AllocateStatus
+      real *8 xnamin(nsdpad),xnamax(nsdpad),lcell(nsdpad)
+      integer ncell(nsdpad),nx,ny,nz,AllocateStatus
+      integer i,j,k
 
-c      TYPE List_Node
-c      INTEGER :: NodeNumber
-c      TYPE(List_Node), POINTER :: Next
-c      END TYPE List_Node
+      TYPE List_Node
+      INTEGER :: NodeNumber
+      TYPE(List_Node), POINTER :: Next
+      END TYPE List_Node
 
-c      TYPE List_Node_Ptr
-c      TYPE(List_Node), POINTER :: NodePtr
-c      END TYPE List_Node_Ptr
+      TYPE List_Node_Ptr
+      TYPE(List_Node), POINTER :: NodePtr
+      END TYPE List_Node_Ptr
 
-c      TYPE(List_Node_Ptr), dimension(:,:,:), allocatable :: CellArray
-c      TYPE(List_Node), pointer :: TempPtr
+      TYPE(List_Node_Ptr), dimension(:,:,:), allocatable :: CellArray
+      TYPE(List_Node), pointer :: TempPtr
       
       adistptr    = malloc(nn*nsd*fsize)
       adistlocptr = malloc(nn*nsd*fsize)
@@ -121,7 +122,7 @@ c  Calculate volume
         end do
         
       end do
-      
+
       call MPI_ALLREDUCE(dwjploc, dwjp, nn, MPI_DOUBLE_PRECISION,
      &     MPI_SUM, MPI_COMM_WORLD,ierr)
       call MPI_ALLREDUCE(adistloc, adist, nsd*nn, MPI_DOUBLE_PRECISION,
@@ -129,38 +130,37 @@ c  Calculate volume
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
       
 c  Compute nodal connectvities
-      starttime = MPI_WTIME()
+      begintime = MPI_WTIME()
 
 c  Calculate maximum range of geometry
-c      do isd = 1,nsd
-c        xnamin(isd) = minval(xna(isd,:))
-c        xnamax(isd) = maxval(xna(isd,:))
-c        lcell(isd) = maxval(adist(isd,:))
-c        ncell(isd) = floor((xnamin(isd)-xnamax(isd))/lcell(isd))+1
-c      end do
+      do isd = 1,nsd
+        xnamin(isd) = minval(xna(isd,:))
+        xnamax(isd) = maxval(xna(isd,:))
+        lcell(isd) = 2.0*maxval(adist(isd,:))
+        ncell(isd) = floor((xnamax(isd)-xnamin(isd))/lcell(isd))+1
+      end do
         
 c  Allocate memory for list
-c      allocate(CellArray(ncell(1),ncell(2),ncell(3)))
+      allocate(CellArray(ncell(1),ncell(2),ncell(3)))
 
 c  Loop over nodes
-c      do inl = 1,nn
-c        nx = ceiling((xna(1,inl)-xnamin(1))/lcell(1))
-c        ny = ceiling((xna(2,inl)-xnamin(2))/lcell(2))
-c        nz = ceiling((xna(3,inl)-xnamin(3))/lcell(3))
-c        allocate(TempPtr, STAT=AllocateStatus)
-c        if (AllocateStatus /= 0) stop "*** Not enought memory ***"
-c        TempPtr%NodeNumber = inl
-c        TempPtr%Next => CellArray(nx,ny,nz)%NodePtr
-c        CellArray(nx,ny,nz)%NodePtr => TempPtr
-c      end do
-
-c      stop
+      do inl = 1,nn
+        nx = max(ceiling((xna(1,inl)-xnamin(1))/lcell(1)),1)
+        ny = max(ceiling((xna(2,inl)-xnamin(2))/lcell(2)),1)
+        nz = max(ceiling((xna(3,inl)-xnamin(3))/lcell(3)),1)
+        allocate(TempPtr, STAT=AllocateStatus)
+        if (AllocateStatus /= 0) stop "*** Not enought memory ***"
+        TempPtr%NodeNumber = inl
+        TempPtr%Next => CellArray(nx,ny,nz)%NodePtr
+        CellArray(nx,ny,nz)%NodePtr => TempPtr
+      end do
 
       call getnconn(nconn,nnconn,ien)
-      endtime = MPI_WTIME()
-      nconntime = nconntime + (endtime-starttime)
-      
+      stoptime = MPI_WTIME()
+      nconntime = nconntime + (stoptime-begintime)
+
       qvcount = 0
+      qfcount = 0
       ncount = 0
       cnn(:,:) = 0
       ncnn(:) = 0
@@ -185,13 +185,14 @@ c  Main quadrature point loop starts here
         do iq = 1,nquad
           qvcount = qvcount + 1
           x(1:nsd) = xqd(1:nsd,iq)
-          
 c  Get list of influence nodes
-          starttime = MPI_WTIME()
-          call newgetinf(inf,ninf,x,xna,adist,nconn,nnconn,seed)
-c         call getinf(inf,ninf,x,xna,adist)
-          endtime = MPI_WTIME()
-          inftime = inftime + (endtime - starttime)
+          begintime = MPI_WTIME()
+          ninf=0
+          inf=0
+c          call newgetinf(inf,ninf,x,xna,adist,nconn,nnconn,seed)
+          call getinf(inf,ninf,x,xna,adist,CellArray,xnamin,ncell,lcell)
+          stoptime = MPI_WTIME()
+c          inftime = inftime + (stoptime - begintime)
           cnn(1:ninf,qvcount) = inf(1:ninf)
           ncnn(qvcount) = ninf
           if (ninf.gt.maxinf) maxinf = ninf
@@ -207,19 +208,71 @@ c  loop over influence nodes and call RKPMshape
               y(isd) = xna(isd,nnum)
               a(isd) = adist(isd,nnum)
             enddo
-            starttime = MPI_WTIME()
+            begintime = MPI_WTIME()
             call RKPMshape3dl(shp,shpd,b,bd,x,y,a,dwjp(nnum))
-            endtime = MPI_WTIME()
-            comptime = comptime + (endtime - starttime)
+            stoptime = MPI_WTIME()
+            comptime = comptime + (stoptime - begintime)
             shrk(0,n,qvcount) = shp
             shrk(1:nsd,n,qvcount) = shpd(1:nsd)
           end do
         end do
-        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Still within element loop:
+c  Now calculate for force surface qps, if applicable
+        if (calcforce) then
+          do ieface = 1,neface
+            if (fsurf(rng(ieface,ie)).eq.1) then
+              qfcount = qfcount + 1
+
+c  Calculate location of quadrature point (average of face nodes)
+              x(1:nsd)= 0.0
+              do inface=1,nnface
+                inl = map(ieface,inface,etype)
+                do isd=1,nsd
+                  x(isd) = x(isd) + xna(isd,ien(inl,ie))/nnface
+                enddo
+              enddo
+              
+c  Get list of influence nodes
+              starttime = MPI_WTIME()
+c  call newgetinf(inf,ninf,x,xna,adist,nconn,nnconn,seed,maxconn)
+              call getinf(inf,ninf,x,xna,adist,CellArray,xnamin,ncell,lcell,1)
+              endtime = MPI_WTIME()
+c              inftime = inftime + (endtime - starttime)
+              cnn(1:ninf,nec*nquad+qfcount) = inf(1:ninf)
+              ncnn(nec*nquad+qfcount) = ninf
+              if (ninf.gt.maxinf) maxinf = ninf
+              if (ninf.lt.mininf) mininf = ninf
+              
+              call correct3dl(b,bd,x,xna,adist,dwjp,nn,inf,ninf,maxconn)
+              
+c  loop over influence nodes and call RKPMshape
+              do n = 1,ninf
+                nnum = inf(n)
+                do isd=1,nsd
+                  y(isd) = xna(isd,nnum)
+                  a(isd) = adist(isd,nnum)
+                enddo
+                starttime = MPI_WTIME()
+                call RKPMshape3dl(shp,shpd,b,bd,x,y,a,dwjp(nnum))
+                endtime = MPI_WTIME()
+c                comptime = comptime + (endtime - starttime)
+                shrkf(0,n,qfcount) = shp
+                shrkf(1:nsd,n,qfcount) = shpd(1:nsd)
+              end do
+
+            end if
+          end do
+        end if        
+
+c...add up to here for calculating the force
         
       end do
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      
+      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
 
 c Now calculate for nodes
       do inn = 1,nnc
@@ -229,15 +282,16 @@ c Now calculate for nodes
         x(1:nsd) = xna(1:nsd, myid*maxnnc+inn)
           
 c  Get list of influence nodes
-        starttime = MPI_WTIME()
-        call newgetinf(inf,ninf,x,xna,adist,nconn,nnconn,seed)
-        endtime = MPI_WTIME()
-        inftime = inftime + (endtime - starttime)
+        begintime = MPI_WTIME()
+c        call newgetinf(inf,ninf,x,xna,adist,nconn,nnconn,seed)
+        call getinf(inf,ninf,x,xna,adist,CellArray,xnamin,ncell,lcell)
+        stoptime = MPI_WTIME()
+        inftime = inftime + (stoptime - begintime)
         cnn2(1:ninf,ncount) = inf(1:ninf)
         ncnn2(ncount) = ninf
         if (ninf.gt.maxinf) maxinf = ninf
         if (ninf.lt.mininf) mininf = ninf
-        
+
         call correct3dl(b,bd,x,xna,adist,dwjp,nn,inf,ninf,maxconn)
           
 c  loop over influence nodes and call RKPMshape
@@ -247,13 +301,13 @@ c  loop over influence nodes and call RKPMshape
             y(isd) = xna(isd,nnum)
             a(isd) = adist(isd,nnum)
           enddo
-          starttime = MPI_WTIME()
+          begintime = MPI_WTIME()
           call RKPMshape3dl(shp,shpd,b,bd,x,y,a,dwjp(nnum))
-          endtime = MPI_WTIME()
-          comptime = comptime + (endtime - starttime)
+          stoptime = MPI_WTIME()
+          comptime = comptime + (stoptime - begintime)
           shrknode(n,ncount) = shp
         end do
-      
+
       end do
       
       
@@ -284,37 +338,108 @@ c  loop over influence nodes and call RKPMshape
       call free(nconnptr)
       call free(nnconnptr)
 
+c  Free memory used for Cell Array linked lists
+      do i = 1,ncell(1)
+        do j = 1,ncell(2)
+          do k = 1,ncell(3)
+            do
+              if (.not.associated(CellArray(i,j,k)%NodePtr)) exit
+              TempPtr => CellArray(i,j,k)%NodePtr
+              CellArray(i,j,k)%NodePtr => TempPtr%Next
+              deallocate(TempPtr)
+            end do
+          end do
+        end do
+      end do
+
       return
       end
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
-      subroutine getinf(inf,ninf,x,xna,adist)
+c      subroutine getinf(inf,ninf,x,xna,adist)
+
+c      include "global.h"
+
+c      real*8 x(3), xna(nsd,nn), adist(nsd,nn)
+c      real*8 r(nsdpad)
+c      integer inf(maxconn)
+c      integer ninf
+
+c      ninf = 0
+c      do i = 1,nn
+c        r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
+c        if ((abs(r(1)).le.2*adist(1,i)).and.(abs(r(2)).le.2*adist(2,i)).and. 
+c     &       (abs(r(3)).le.2*adist(3,i))) then
+c          ninf = ninf + 1
+c          inf(ninf) = i
+c        end if
+c      end do
+c      if (ninf > maxconn) then
+c        write (*,*) "Too many influence nodes!"
+c        write (*,*) myid,ninf
+c      else if (ninf.lt.4) then
+c       write (*,*) "Not enough influence nodes!"
+c       write (*,*) myid,ninf
+c      end if
+
+
+c      return
+c      end
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      
+      subroutine getinf(inf,ninf,x,xna,adist,CellArray,xnamin,ncell,lcell)
 
       include "global.h"
 
-      real*8 x(3), xna(nsd,nn), adist(nsd,nn)
-      real*8 r(nsdpad)
+      real *8 x(3), xna(nsd,nn), adist(nsd,nn)
+      real *8 r(nsdpad)
       integer inf(maxconn)
       integer ninf
+      real *8 xnamin(nsdpad),lcell(nsdpad)
+      integer ncell(nsdpad),nx,ny,nz
+      integer i,j,k,node
 
+      TYPE List_Node
+      INTEGER :: NodeNumber
+      TYPE(List_Node), POINTER :: Next
+      END TYPE List_Node
+
+      TYPE List_Node_Ptr
+      TYPE(List_Node), POINTER :: NodePtr
+      END TYPE List_Node_Ptr
+
+      TYPE (List_Node_Ptr) CellArray(ncell(1),ncell(2),ncell(3))
+      
+      TYPE (List_Node), POINTER :: CurrPtr
+      
+c  Calculate nx, ny, nz
+      nx = max(ceiling((x(1)-xnamin(1))/lcell(1)),1)
+      ny = max(ceiling((x(2)-xnamin(2))/lcell(2)),1)
+      nz = max(ceiling((x(3)-xnamin(3))/lcell(3)),1)
+      
+c  Loop over group of cells and test nodes in list
       ninf = 0
-      do i = 1,nn
-        r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
-        if ((abs(r(1)).le.2*adist(1,i)).and.(abs(r(2)).le.2*adist(2,i)).and. 
-     &      (abs(r(3)).le.2*adist(3,i))) then
-              ninf = ninf + 1
-              inf(ninf) = i
-            end if
+      do i = max(1,nx-1),min(ncell(1),nx+1)
+        do j = max(1,ny-1),min(ncell(2),ny+1)
+          do k = max(1,nz-1),min(ncell(3),nz+1)
+            CurrPtr => CellArray(i,j,k)%NodePtr
+            do
+              if (.not.associated(CurrPtr)) exit
+              node = CurrPtr%NodeNumber
+              r(1:nsd) = x(1:nsd) - xna(1:nsd,node)
+              if ((abs(r(1)).le.2*adist(1,node)).and.
+     &             (abs(r(2)).le.2*adist(2,node)).and. 
+     &             (abs(r(3)).le.2*adist(3,node))) then
+                ninf = ninf + 1
+                inf(ninf) = node
+              end if
+              CurrPtr => CurrPtr%Next
+            end do
+          end do
+        end do
       end do
-      if (ninf > maxconn) then
-        write (*,*) "Too many influence nodes!"
-        write (*,*) myid,ninf
-      else if (ninf.lt.4) then
-       write (*,*) "Not enough influence nodes!"
-       write (*,*) myid,ninf
-      end if
-
 
       return
       end
@@ -374,6 +499,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ninf = ninf + nnewinf1
         newinf1(:) = newinf2(:)
         nnewinf1 = nnewinf2
+c        stop
       end do
 
 
@@ -538,6 +664,7 @@ c Communication
 
       return
       end
+
 
 
 

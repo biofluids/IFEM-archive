@@ -1,6 +1,6 @@
       subroutine postin(d,dd,file)
       include "global.h"
-      real* 8 d(ndf,nnc),f(nnc),dd(ndf+1,nnc)
+      real* 8 d(ndf,nnc),f(nnc),dd(ndf,nnc)
       character file*(*)
       integer ndft,i,j
       integer lk,ir,status(MPI_STATUS_SIZE)

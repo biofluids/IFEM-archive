@@ -47,6 +47,9 @@
       integer tri,tet,qud,hex,tris,tets,quds,hexs
       parameter (tri=1,qud=2,tet=3,hex=4,tris=5,quds=6,tets=7,hexs=8)
 
+      logical calcforce
+      integer fsurf(0:21),nfsurf,nqdf
+      common  calcforce,fsurf,nfsurf,nqdf
 
       integer    xsd,ysd,zsd,udf,vdf,wdf,pdf
       parameter (xsd=1,ysd=2,zsd=3,udf=1,vdf=2,wdf=3,pdf=4)
@@ -102,7 +105,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       pointer (bufon2ptr,bufon2),(bufal2ptr,bufal2)
       common  bufon2ptr,bufal2ptr
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	  integer order,nz,licn,lirn
+      integer order,nz,licn,lirn
       real* 8 amat(1),rhs(1)
       integer icoln(1),irown(1),ikeep(1),iw(1)
       real* 8 wgt(1)
@@ -112,8 +115,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       common  order,nz,licn,lirn,bctype
       common  amatptr,rhsptr,icolnptr,irownptr,ikeepptr,iwptr,wgtptr
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
+      real* 8 starttime(15),endtime(15),totaltime(15)
+      common starttime(15),endtime(15),totaltime(15)
 
 

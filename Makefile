@@ -6,8 +6,8 @@ OBJ=main.o initialize.o parseinput.o echoinput.o hypo.o meshgen.o\
     isatty.o getkey.o getstr.o getstrn.o getint.o getreal.o iei2cray.o\
     form.o equal.o shape.o disk.o quad3d4n.o quad3d8n.o fclear.o\
 	block.o gmres.o blockgmres.o\
-    update.o lenght.o dim.o shapeio.o\
-    rkpm.o correct3dl.o shape3dl.o gjinv.o window3d.o
+    update.o lenght.o dim.o shapeio.o timer.o\
+    rkpm.o correct3dl.o shape3dl.o gjinv.o window3d.o liftdrag.o
 POSTOBJ=mainpost.o tecplotpost.o dataout.o ewdmem.o error.o ewdio.o fclear.o iei2cray.o getkey.o getstr.o getint.o getreal.o initialize.o meshgen.o parseinput.o postin.o
 
 FFLAGS= -N 80
