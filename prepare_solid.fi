@@ -7,9 +7,9 @@ c      open(5,file='tec_input',status='unknown')
 c      read(5,*) jump_frame,jump_fd,jump_mk,mk_start,mk_finish
       open(9000, file='tecf.dat', status='unknown')
       open(9001, file='tecs.dat', status='unknown')
-      open(9500, file='zzz.m', status='unknown')
+      open(9500, file='vel_time.m', status='unknown')
 
-      open(9988, file='main_dat', status='old')
+c      open(9988, file='main_dat', status='old')
       open(223,file='rest0a',form='unformatted',status='unknown')
       open(224,file='rest0b',form='unformatted',status='unknown')
       open(25,file='rest1',form='unformatted',status='unknown')
@@ -17,9 +17,8 @@ c      read(5,*) jump_frame,jump_fd,jump_mk,mk_start,mk_finish
 c++++++++
 c     global input file read
 c++++++++
-      write(*,*) 'reading main_dat'
-c      call readmain(coord_ss)
-	call readmain
+c      write(*,*) 'reading main_dat'
+c	call readmain
 
 c++++++++
 c     n_ibmfem 1/0 fem/ibm
@@ -28,22 +27,21 @@ c++++++++
       vnorm=0.0d0
       niterf=0
       naxx1=time()
-      if (n_ibmfem .eq.1) write(*,*) 'structure solver - FEM'
-      if (n_ibmfem .ne.1) write(*,*) 'structure solver - Fiber'
-
-      if (n_ibmfem .eq. 1) then
-         open(1,file='coortable',status='old')
-         open(2,file='output',status='unknown')
+c      if (n_ibmfem .eq.1) write(*,*) 'structure solver - FEM'
+c      if (n_ibmfem .ne.1) write(*,*) 'structure solver - Fiber'
+c
+c      if (n_ibmfem .eq. 1) then !if FEM
+         open(1,file='coortable.in',status='old')
          open(3,file='pp.m',status='unknown')
          open(4,file='load',status='unknown')
          open(20,file='coor',status='unknown')
          open(21,file='cont',status='unknown')
          open(22,file='disp',status='unknown')
          open(24,file='pres',status='unknown')
-	 write(*,*) 'reading coortable'
+	  write(*,*) 'reading coortable.in'
          call r_input
-      endif
-
+c      endif
+	if (n_ibmfem .eq.1) write(*,*) 'structure solver - FEM'
       if (n_iter_step .ne. 1) then
          call flush(6)
          call exit(1)
@@ -93,7 +91,7 @@ c++++++++
       
       idomain_ptcon(ipt,i_lo) = null_de 
       
-      do 123  n=1, dlptlocal_number - 1
+      do n=1, dlptlocal_number - 1
          if (attrib_fcu(ipt,i_attr_stiff0,mn_con_fcu) .eq. 0) then
             idomain_ptcon(ipt ,i_hi) = null_de
             idomain_ptcon(dnext_pt(ipt),i_lo) = null_de
@@ -103,19 +101,19 @@ c++++++++
          endif
          
          ipt = dnext_pt(ipt)
- 123  continue
+	enddo
  
       idomain_ptcon(ipt,i_hi) = null_de 
 
       if (dlptlocal_number.gt.0) then
          ipt = dlptlocal_head
-         do 813 n = 1, dlptlocal_number
+         do n = 1, dlptlocal_number
             idomain_pt(ipt)      = dilocaldomain
             force_pt(ix,ipt) = 0.0d0
             force_pt(iy,ipt) = 0.0d0
             force_pt(iz,ipt) = 0.0d0
             ipt = dnext_pt(ipt)
- 813     continue
+	   enddo
       endif
 
       call  inittypeactivations(td, bwriteon) 

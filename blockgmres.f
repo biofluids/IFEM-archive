@@ -5,7 +5,7 @@ c  blockgmres.f
 c  called by gmres.f
 c  this subroutine calculate the increment of the residual
 c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien)
+	subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 
 	implicit none
 	include "global.h"
@@ -34,6 +34,8 @@ c  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 tempu,tempv,tempw,temp
 	real* 8 dtinv,oma,ama
 	integer inl, ie, isd, idf, iq, node
+	real*8 fext(nsd,nn)
+	real* 8 fnode(nsd,nen),fq(nsd)
 
 c.....calculate 1/dt
 	dtinv = 1.0/dt/alpha
@@ -48,6 +50,7 @@ c...    localize x and degrees of freedom in every node of the element
 	   do inl=1,nen
 	      do isd=1,nsd
 			x(isd,inl) = xloc(isd,ien(inl,ie))
+			fnode(isd,inl) = fext(isd,ien(inl,ie))
 	      enddo
 	      do idf=1,ndf   
 			 q(idf,inl) =  qloc(idf,ien(inl,ie))
@@ -74,7 +77,7 @@ c....    initialize vi,dxi/dxj
 			 dry(idf) = 0.0
 			 drz(idf) = 0.0
 	      enddo
-
+		  fq(:)=0.0
 c....    calculate vi,dvi/dxj
 	     do inl=1,nen
 			 tempu= ama*d(udf,inl) + oma*d_old(udf,inl)
@@ -91,7 +94,8 @@ c....    calculate vi,dvi/dxj
 			 drs(wdf)=drs(wdf)+sh(0,inl)*tempw            
 			 drx(wdf)=drx(wdf)+sh(1,inl)*tempw           
 			 dry(wdf)=dry(wdf)+sh(2,inl)*tempw          
-			 drz(wdf)=drz(wdf)+sh(3,inl)*tempw     
+			 drz(wdf)=drz(wdf)+sh(3,inl)*tempw
+			 fq(:)=fq(:)+sh(0,inl)*fnode(:,inl)      
 	     end do
 c...     initialize delta_d, delta_p, d(delta_v)i/dxj, d(delta_v)i/dt
 	     do idf=1,ndf
@@ -159,6 +163,7 @@ c.....   calculate the delta of residuals
 
 	      do isd = 1, nsd
 		 res_a(isd)=ro*(qrt(isd)+u*qrx(isd)+v*qry(isd)+w*qrz(isd))
+c     +	 -fq(isd)
 	      enddo
 	      res_t(xsd) = qrx(pdf)/alpha + res_a(xsd) 
 	      res_t(ysd) = qry(pdf)/alpha + res_a(ysd) 

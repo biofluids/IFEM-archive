@@ -99,19 +99,19 @@ c++++++++
 c++++++++
 c     v, p in fluid domain
 c++++++++
-				call zfem_ensfluid(d,klok)
+				call zfem_ensfluid(d,vel_pt,klok)
                 
 c++++++++
 c     stress and strain in structure
 c++++++++
-                  call zfem_ensstr(klok, 
-     $                 dlptlocal_number,
-     $                 dlptlocal_head, 
-     $                 dlptlocal_tail)
+c                  call zfem_ensstr(klok, 
+c     $                 dlptlocal_number,
+c     $                 dlptlocal_head, 
+c     $                 dlptlocal_tail)
                   
                endif               
             endif
-
+	n_step_wr_ib_user_files=1
             iitemp=klok/n_step_wr_ib_user_files
             nrc=223+mod(iitemp,2)
 
@@ -123,9 +123,9 @@ c++++++++
 
             if (n_ibmfem .eq. 1) then  !fem output
                do i=1,nnd
-                  write(nrc) dis(1,i),dis(2,i),
-     $                 du(1,i),du(2,i),
-     $                 acm(1,i),acm(2,i),
+                  write(nrc) dis(1,i),dis(2,i),dis(3,i),
+     $                 du(1,i),du(2,i),du(3,i),
+     $                 acm(1,i),acm(2,i),acm(3,i),
      $                 coord_pt(1,i),coord_pt(2,i),coord_pt(3,i),
      $                 vel_pt(1,i),vel_pt(2,i),vel_pt(3,i),
      $                 accel_pt(1,i),accel_pt(2,i),accel_pt(3,i),
@@ -150,7 +150,7 @@ c++++++++
             endif
 
             if (n_ibmfem .eq. 1) then   !fem output
-               do i=1,2*nnd
+               do i=1,3*nnd
                   write(nrc) predrf(i),drf(i)
 			 enddo
 

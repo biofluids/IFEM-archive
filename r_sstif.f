@@ -1,23 +1,23 @@
 c     element tangent stiffness matrix assemblage
 c
-      subroutine r_sstif(ocpp,ocuu,ocup,ne,w,toxj)
+      subroutine r_sstif(ocpp,ocuu,ocup,ne,w,toxj,body_force)
       implicit real*8 (a-h,o-z)
       include 'r_common'
       include 'main_common'
-      dimension ocuu(6,6),ocup(6),toxj(2,2),
-     $     xac(2),xve(2)
 
-      if (iti .le. nmove) then
-         sdensit=0.0d0
-      else
+      dimension ocuu(6,6),ocup(6),toxj(3,3),xac(3),xve(3)
+
+c      if (iti .le. nmove) then
+c         sdensit=0.0d0
+c      else
          sdensit=sdensi
-      endif
+c      endif
 ccccccccccc
 c     i-u
 ccccccccccc
 
-      do 11 ni=1,nis
-         do 12 i=1,2
+      do ni=1,nis
+         do i=1,3
             nu1=(i-1)*nnd+nea(ne,ni)
             mu1=(i-1)*nis+ni
 ccccccccccc
@@ -25,46 +25,54 @@ c     fu
 ccccccccccc
             call r_scalfu(fu,i,ni)
             predrf(nu1)=predrf(nu1)-fu*w
-            do 10 nk=1,nump
+            do nk=1,nump
                call r_scalkup(fkup,ocup,i,nk,ni)
-               xkup(mu1,nk,ne)=xkup(mu1,nk,ne)+
-     $              fkup*w
- 10         continue
- 12      continue
- 11   continue
+               xkup(mu1,nk,ne)=xkup(mu1,nk,ne)+fkup*w
+		  enddo
+		enddo
+	enddo
 c
-      do 13 i=1,nump
+      do i=1,nump
          call r_scalfp(fp,ocpp,i)
          xfp(i,ne)=xfp(i,ne)+fp*w
-         do 14 j=1,nump
+         do j=1,nump
             call r_scalkpp(fkpp,ocpp,i,j)
             xkpp(i,j,ne)=xkpp(i,j,ne)+fkpp*w
- 14      continue
- 13   continue
+	   enddo
+	enddo
 cccccccccccccccccccccccccc
 c     inertia forces
 cccccccccccccccccccccccccc
-      do 624 i=1,2
+      do i=1,3
          xac(i)=0.0d0
          xve(i)=0.0d0
-         do 625 k=1,nis
+         do k=1,nis
             ntem=nea(ne,k)
             xac(i)=xac(i)+h(k)*acm(i,ntem)
-            xve(i)=xve(i)+h(k)*du(i,ntem)
- 625     continue
- 624  continue
+            xve(i)=xve(i)+h(k)*dvel(i,ntem)
+	   enddo
+	enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
       xac(1)=xac(1)+xmg1
       xac(2)=xac(2)+xmg2
-
-      do 730 ni=1,nis
+	xac(3)=xac(3)+xmg3
+	totalh=0
+      do ni=1,nis
          nu1=nea(ne,ni)
          nv1=nnd+nea(ne,ni)
+	   nw1=2*nnd+nea(ne,ni)
+
          predrf(nu1)=predrf(nu1)-w*sdensit*h(ni)*xac(1)
      $        -w*xviss*h(ni)*xve(1)
          predrf(nv1)=predrf(nv1)-w*sdensit*h(ni)*xac(2)
      $        -w*xviss*h(ni)*xve(2)
- 730  continue
+	   predrf(nw1)=predrf(nw1)-w*sdensit*h(ni)*xac(3)
+     $        -w*xviss*h(ni)*xve(3)
+c	totalh=totalh+h(ni)
+c	  body_force=body_force+predrf(nu1)
+	enddo
+c		body_force=body_force+w*sdensit*totalh*xac(1)
+c	write(*,*) 'body_force=',body_force, total_vol
       return
       end
 

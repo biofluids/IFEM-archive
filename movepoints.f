@@ -23,7 +23,7 @@ c      include 'ibd0_automatic_parameters.fh'
       
       ipt = list_head
 
-      do 100 n = 1, list_number
+      do n = 1, list_number
          
          icon = ipt
 
@@ -38,17 +38,9 @@ c      include 'ibd0_automatic_parameters.fh'
             coord_pt(ix,ipt) = coord_pt(ix,ipt)
             coord_pt(iy,ipt) = coord_pt(iy,ipt)
             coord_pt(iz,ipt) = coord_pt(iz,ipt)
-
-c            coord_pt(iy,ipt) = coord_pt(iy,ipt)+ vel_pt(iy,ipt) 
-c            coord_pt(iz,ipt) = coord_pt(iz,ipt)+ vel_pt(iz,ipt)
-c        
-c         elseif (fix_con(icon) .eq. 1.0) then
-c            
-c            coord_pt(ix,ipt) = coord_pt(ix,ipt)
-c            coord_pt(iy,ipt) = coord_pt(iy,ipt)
-c            coord_pt(iz,ipt) = coord_pt(iz,ipt) + vel_pt(iz,ipt)
    
-         else            
+         else      
+c Lucy added dt      
             coord_pt(ix,ipt) = coord_pt(ix,ipt) + vel_pt(ix,ipt)*dt
             coord_pt(iy,ipt) = coord_pt(iy,ipt) + vel_pt(iy,ipt)*dt
             coord_pt(iz,ipt) = coord_pt(iz,ipt) + vel_pt(iz,ipt)*dt
@@ -57,7 +49,7 @@ c            coord_pt(iz,ipt) = coord_pt(iz,ipt) + vel_pt(iz,ipt)
          
          ipt = listnext(ipt)
          
- 100  continue
+	enddo
       
       return
       end 

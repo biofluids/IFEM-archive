@@ -44,4 +44,5 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(7,'(" Maximum element volume... = ",e15.8)') vmax
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      write (7,101) nq
+c      write (7,101) nq
+c101	format('number of equations in flow....nq=',i5)

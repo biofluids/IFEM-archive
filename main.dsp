@@ -65,11 +65,12 @@ LINK32=link.exe
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE F90 /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt
-# ADD F90 /browser /check:bounds /compile_only /debug:full /nologo /optimize:5 /traceback /warn:argument_checking /warn:nofileopt
+# ADD F90 /browser /check:bounds /compile_only /debug:full /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:nofileopt
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /ML /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /ML /W4 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -88,14 +89,36 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\block.f
+DEP_F90_BLOCK=\
+	".\global.h"\
+	".\sh3d4n.h"\
+	".\sh3d8n.h"\
+	
+
+!IF  "$(CFG)" == "main - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "main - Win32 Debug"
+
+# ADD F90 /threads
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\blockgmres.f
+DEP_F90_BLOCKG=\
+	".\global.h"\
+	".\sh3d4n.h"\
+	".\sh3d8n.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\calcaccel.f
+DEP_F90_CALCA=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
@@ -116,14 +139,26 @@ SOURCE=.\delta.f
 # Begin Source File
 
 SOURCE=.\delta_nonuniform.f
+DEP_F90_DELTA=\
+	".\global.h"\
+	".\vol3d4n.h"\
+	".\vol3d8n.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\disturbance.f
+DEP_F90_DISTU=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\echoinput.f
+DEP_F90_ECHOI=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -144,10 +179,9 @@ SOURCE=.\f_fiber2.f
 # Begin Source File
 
 SOURCE=.\facemap.f
-# End Source File
-# Begin Source File
-
-SOURCE=.\fcc.f
+DEP_F90_FACEM=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -160,23 +194,38 @@ SOURCE=.\fem_fluid_solver.fi
 # Begin Source File
 
 SOURCE=.\fiber1.f
+DEP_F90_FIBER=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber10.f
+DEP_F90_FIBER1=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber11.f
+DEP_F90_FIBER11=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber13.f
+DEP_F90_FIBER13=\
+	".\iba_application_parameters.fh"\
+	".\iba_application_variables.fh"\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber2.f
-DEP_F90_FIBER=\
+DEP_F90_FIBER2=\
 	".\iba_application_parameters.fh"\
 	".\iba_application_variables.fh"\
 	
@@ -184,22 +233,39 @@ DEP_F90_FIBER=\
 # Begin Source File
 
 SOURCE=.\fiber3.f
+DEP_F90_FIBER3=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber5.f
+DEP_F90_FIBER5=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber8.f
+DEP_F90_FIBER8=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\fiber9.f
+DEP_F90_FIBER9=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\form.f
+DEP_F90_FORM_=\
+	".\global.h"\
+	".\malloc.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -212,30 +278,79 @@ SOURCE=.\gjinv.f
 # Begin Source File
 
 SOURCE=.\gmres.f
+DEP_F90_GMRES=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\hg.f
+DEP_F90_HG_F24=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\hydro.f
+DEP_F90_HYDRO=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\hypo.f
+DEP_F90_HYPO_=\
+	".\declaration_fluid.fi"\
+	".\declaration_solid.fi"\
+	".\fem_fluid_solver.fi"\
+	".\global.h"\
+	".\iba_application_parameters.fh"\
+	".\ibd0_app_vals_nonzerocfddiv.fh"\
+	".\ibd0_exchange_pars.fh"\
+	".\ibd0_nonzerocfddiv_pars.fh"\
+	".\ibd0_nonzerocfddiv_vars.fh"\
+	".\ibg_change_me_ptcon_var_common_equiv.fh"\
+	".\ibg_change_me_ptcon_var_decl.fh"\
+	".\ibg_parameters_run.fh"\
+	".\ibg_variables_cfd.fh"\
+	".\ibg_variables_cloud.fh"\
+	".\ibg_variables_domain.fh"\
+	".\ibg_variables_point.fh"\
+	".\ibg_variables_run.fh"\
+	".\main_common"\
+	".\malloc.h"\
+	".\pointer.fi"\
+	".\prepare_fluid.fi"\
+	".\prepare_solid.fi"\
+	".\r_common"\
+	".\solids_solver.fi"\
+	".\solids_update.fi"\
+	".\write_output.fi"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\initialize.f
+DEP_F90_INITI=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\io8.f
+DEP_F90_IO8_F=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\lenght.f
+DEP_F90_LENGH=\
+	".\global.h"\
+	".\sh3d4n.h"\
+	".\sh3d8n.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -256,10 +371,18 @@ SOURCE=.\link6.f
 # Begin Source File
 
 SOURCE=.\main.f
+DEP_F90_MAIN_=\
+	".\global.h"\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\meshgen.f
+DEP_F90_MESHG=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -272,14 +395,23 @@ DEP_F90_MOVEP=\
 # Begin Source File
 
 SOURCE=.\nondimension.f
+DEP_F90_NONDI=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\norm.f
+DEP_F90_NORM_=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\parseinput_fluid.f
+DEP_F90_PARSE=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -396,6 +528,10 @@ DEP_F90_R_NOD=\
 # Begin Source File
 
 SOURCE=.\r_print.f
+DEP_F90_R_PRI=\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
@@ -516,23 +652,28 @@ DEP_F90_R_TIM=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\readmain.f
-# End Source File
-# Begin Source File
-
 SOURCE=.\rkpmshape3d.f
 # End Source File
 # Begin Source File
 
 SOURCE=.\set.f
+DEP_F90_SET_F=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\shape.f
+DEP_F90_SHAPE=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\sharp.f
+DEP_F90_SHARP=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -544,15 +685,28 @@ SOURCE=.\solids_update.fi
 # End Source File
 # Begin Source File
 
-SOURCE=.\test.f
-# End Source File
-# Begin Source File
-
 SOURCE=.\update.f
+DEP_F90_UPDAT=\
+	".\global.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\vol.f
+DEP_F90_VOL_F=\
+	".\global.h"\
+	".\sh3d4n.h"\
+	".\sh3d8n.h"\
+	
+
+!IF  "$(CFG)" == "main - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "main - Win32 Debug"
+
+# ADD F90 /optimize:0
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -561,23 +715,32 @@ SOURCE=.\write_output.fi
 # Begin Source File
 
 SOURCE=.\zfem_ensCase.f
+DEP_F90_ZFEM_=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\zfem_ensFluid.f
+DEP_F90_ZFEM_E=\
+	".\global.h"\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\zfem_ensGeo.f
-# End Source File
-# Begin Source File
-
-SOURCE=.\zfem_ensStr.f
+DEP_F90_ZFEM_EN=\
+	".\global.h"\
+	".\main_common"\
+	".\r_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\zfem_tec.f
-DEP_F90_ZFEM_=\
+DEP_F90_ZFEM_T=\
 	".\global.h"\
 	".\main_common"\
 	".\r_common"\
@@ -586,21 +749,32 @@ DEP_F90_ZFEM_=\
 # Begin Source File
 
 SOURCE=.\zibm_ensCase.f
+DEP_F90_ZIBM_=\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\zibm_ensFluid.f
-DEP_F90_ZIBM_=\
+DEP_F90_ZIBM_E=\
 	".\global.h"\
 	
 # End Source File
 # Begin Source File
 
 SOURCE=.\zibm_ensGeo.f
+DEP_F90_ZIBM_EN=\
+	".\global.h"\
+	".\main_common"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\zibm_tec.f
+DEP_F90_ZIBM_T=\
+	".\global.h"\
+	".\main_common"\
+	
 # End Source File
 # End Target
 # End Project

@@ -1,54 +1,134 @@
 c 2. Update material point displacement u(t+dt) = u(t) + dt*v(t)
             
-            !...calculate the acceleration of material points
-            call calcaccel(klok,
-     $           mn_pt_alloc,mx_pt_alloc,
-     $           dnext_pt,
+      !...calculate the acceleration of material points
+c	if (nrigid.eq.1) then  ! if treating rigid case
+c	  totalvel(1:3)=0.0
+c	  do i=1,nnd
+c		totalvel(1:3)=totalvel(1:3)+vel_pt(1:3,i)
+c	  enddo
+c		avgvel(1:3)=totalvel(1:3)/nnd
+c		du(1,1:nnd)=avgvel(1)
+c		du(2,1:nnd)=avgvel(2)
+c		du(3,1:nnd)=avgvel(3)
+c		vel_pt(1,1:nnd)=avgvel(1)
+c		vel_pt(2,1:nnd)=avgvel(2)
+c		vel_pt(3,1:nnd)=avgvel(3)
+c	endif
+
+	if (nrigid .eq.1) then
+	  do i_solid=1,n_solid
+		mom(1:3)=0.0   ! momentum
+		tot_vol=0.0    ! total volume
+
+		do ie=(i_solid-1)*numela+1,i_solid*numela
+	      do nos=1,nis
+              ntem=nea(ie,nos)
+              do noj=1,3
+                 xx(noj,nos)=coor(ntem,noj)
+		    enddo
+	      enddo
+		  do lx=1,nint
+			rs(1)=xg(lx,nint)
+			do ly=1,nint
+			  rs(2)=xg(ly,nint)
+			  do lz=1,nint
+				rs(3)=xg(lz,nint)
+				!calculate determinant
+				do i=1,3
+				   do j=1,3
+					  dum=0.0d0
+					  do k=1,nis
+						 dum=dum+r_p(j,k)*xx(i,k)
+					  enddo
+					  xj(i,j)=dum
+				   enddo
+				enddo
+		  todet = xj(1,1) * (xj(2,2)*xj(3,3) - xj(3,2)*xj(2,3))
+     & 			- xj(2,1) * (xj(1,2)*xj(3,3) - xj(3,2)*xj(1,3))
+     &		    + xj(3,1) * (xj(1,2)*xj(2,3) - xj(2,2)*xj(1,3))
+				wp = wgt(lx,nint)*wgt(ly,nint)*wgt(lz,nint)
+
+				tot_vol = tot_vol+wp*todet*sdensi
+      			do ni=1,nis
+				  node=nea(ie,ni)
+			      mom(1)=mom(1)+wp*todet*sdensi*h(ni)*vel_pt(1,node)
+			      mom(2)=mom(2)+wp*todet*sdensi*h(ni)*vel_pt(2,node)
+			      mom(3)=mom(3)+wp*todet*sdensi*h(ni)*vel_pt(3,node)
+				enddo
+			  enddo
+			enddo
+		  enddo
+		enddo
+
+		avgvel(1:3)=mom(1:3)/tot_vol  !calculate average velocity
+
+		du(1,(i_solid-1)*nnda+1:i_solid*nnda)=avgvel(1)*dt
+		du(2,(i_solid-1)*nnda+1:i_solid*nnda)=avgvel(2)*dt
+		du(3,(i_solid-1)*nnda+1:i_solid*nnda)=avgvel(3)*dt
+		vel_pt(1,(i_solid-1)*nnda+1:i_solid*nnda)=avgvel(1)
+		vel_pt(2,(i_solid-1)*nnda+1:i_solid*nnda)=avgvel(2)
+		vel_pt(3,(i_solid-1)*nnda+1:i_solid*nnda)=avgvel(3)
+	  enddo
+	endif
+
+
+      call calcaccel(klok,mn_pt_alloc,mx_pt_alloc,dnext_pt,
      $           dlptlocal_number,dlptlocal_head,dlptlocal_tail,
      $           vel_pt,prevel_pt,accel_pt,dt)
 
-            if (n_ibmfem .eq. 1) then !...fem analysis for solid is used
-               viter=0.0d0
-               do 301 i=1,nnd
-                  if (fix_con(i) .eq. -1) then
-                     du(1,i)= 0.0d0
-                     du(2,i)= 0.0d0
-                  else
-                     du(1,i)=vel_pt(1,i)
-                     du(2,i)=vel_pt(3,i)
-                     acm(1,i)=accel_pt(1,i)
-                     acm(2,i)=accel_pt(3,i)
-                  endif
-		!Lucy added dt
-                  dis(1,i)=dis(1,i)+du(1,i)*dt
-                  dis(2,i)=dis(2,i)+du(2,i)*dt
- 
-                  if (klok .eq. 1) then
-                     vnorm=vnorm+du(1,i)**2+
-     $                    du(2,i)**2
-                  else
-                     viter=viter+du(1,i)**2+
-     $                    du(2,i)**2
-                  endif
- 301           continue
-               
-               if (klok .eq. 1) then
-                  vnorm=dsqrt(vnorm)
-                  viter=1.0d0
-               else
-                  viter=dsqrt(viter)/vnorm
-               endif
+      if (n_ibmfem .eq. 1) then !...fem analysis for solid is used
+        viter=0.0d0
+        do i=1,nnd
+          if (fix_con(i) .eq. -1) then
+             du(1,i)= 0.0d0
+             du(2,i)= 0.0d0
+		   du(3,i)= 0.0d0
+          else
+		   du(1:3,i)=vel_pt(1:3,i)*dt
+		   dvel(1:3,i)=vel_pt(1:3,i)
+             acm(1:3,i)=accel_pt(1:3,i)
+          endif
+	  enddo
 
+	   do i=1,nnd
+           dis(1:3,i)=dis(1:3,i)+du(1:3,i)
 
-            endif
+           if (klok .eq. 1) then
+             vnorm=vnorm+du(1,i)**2+du(2,i)**2+du(3,i)**2
+           else
+             viter=viter+du(1,i)**2+du(2,i)**2+du(3,i)**2
+           endif
+	   enddo
+           
+       if (klok .eq. 1) then
+          vnorm=dsqrt(vnorm)
+          viter=1.0d0
+       else
+          viter=dsqrt(viter)/vnorm
+       endif
 
-        !   move the lagrangian things
-            call movepoints(
-     $           mn_pt_alloc, mx_pt_alloc,
-     $           dnext_pt,
+       write(*,*) 'norm=',viter
+c               do i=1,nnd
+c                 predrf(i)=predrf2(i)
+c                 predrf(i+nnd)=predrf2(i+nnd)
+c			   predrf(i+2*nnd)=predrf2(i+2*nnd)
+c                 drf(i)=drf2(i)
+c                 drf(i+nnd)=drf2(i+nnd)
+c			   drf(i+2*nnd)=drf2(i+2*nnd)
+c                 vel_pt(1,i)=0.0d0
+c                 vel_pt(2,i)=0.0d0
+c			   vel_pt(3,i)=0.0d0
+c			enddo
+      endif
+
+    ! move the lagrangian things
+      call movepoints(mn_pt_alloc, mx_pt_alloc,dnext_pt,
      $           dlptlocal_number, dlptlocal_head, dlptlocal_tail,
      $           vel_pt, coord_pt, acttypec_con,fix_con,dt)
-
+ 
+    ! write to 'vel_time.m' to plot
+	write(9500,*) 'vel(',its,')=',vel_pt(1,1),';'
+	write(9500,*) 'time(',its,')=',tt,';'
             !...related to source and sinks of pressure
 c            call interpssbpressure(dilocaldomain,dmnac1, dmxac1,
 c     $           dmnac2, dmxac2, dmnac3, dmxac3,pressure_ss, 

@@ -42,7 +42,7 @@ c++++++++
 
          do i=1,numgb
 ccccccccccccccccccccccccccccccccccccccccccc
-c     Fixed 1,2
+c     Fixed 1,2,3
 ccccccccccccccccccccccccccccccccccccccccccc
             if (ndirgb(i) .eq. 111111) then
                do j=1,numdir(i)
@@ -52,47 +52,79 @@ c
                      njc=njc+1
                      fix_con(nnd+njc)=-1
 c     
-c     horizonal support
+c     horizonal support (x-dir)
 c
                      xsr=dsqrt((dis(1,nl)-xtedis*nxt(1,nl))**2+
-     $                    dis(2,nl)**2)
+     $                    dis(2,nl)**2+dis(3,nl)**2)
                   
                      tension = xk*(xsr-xtedis+xstretch)
 
                      unitvector(1)=(dis(1,nl)-
      $                    xtedis*nxt(1,nl))/xsr
-                     unitvector(2)=0.0d0                     
-                     unitvector(3)=dis(2,nl)/xsr
+                     unitvector(2)=dis(2,nl)/xsr          
+                     unitvector(3)=dis(3,nl)/xsr
                      
                      predrf(nl)=predrf(nl)-
      $                    tension*unitvector(1)-
      $                    xvisc*vel_pt(ix,nl)
-                     predrf(nl+nnd)=predrf(nl+nnd)-
+	               predrf(nl+nnd)=predrf(nl+nnd)-
+     $                    tension*unitvector(2)-
+     $                    xvisc*vel_pt(iy,nl)
+                     predrf(nl+2*nnd)=predrf(nl+2*nnd)-
      $                    tension*unitvector(3)-
      $                    xvisc*vel_pt(iz,nl)
-
                   endif
 
-                  if (nxt(3,nl) .ne. 0) then
+c
+c     vertical support (y-dir)
+c
+                  if (nxt(2,nl) .ne. 0) then
                      njc=njc+1
                      fix_con(nnd+njc)=-1
-c
-c     vertical support
-c
-                     xsr=dsqrt((dis(2,nl)-xtedis*nxt(3,nl))**2+
-     $                    dis(1,nl)**2)
+
+                     xsr=dsqrt((dis(2,nl)-xtedis*nxt(2,nl))**2+
+     $                    dis(1,nl)**2+dis(3,nl)**2)
                   
                      tension = xk*(xsr-xtedis+xstretch)
 
                      unitvector(1)=dis(1,nl)/xsr
-                     unitvector(2)=0.0d0
-                     unitvector(3)=(dis(2,nl)-
-     $                    xtedis*nxt(3,nl))/xsr                     
+                     unitvector(2)=(dis(2,nl)-xtedis*nxt(2,nl))/xsr
+                     unitvector(3)=dis(3,nl)/xsr                     
                   
                      predrf(nl)=predrf(nl)-
      $                    xvisc*vel_pt(ix,nl)-
      $                    tension*unitvector(1)
                      predrf(nl+nnd)=predrf(nl+nnd)-
+     $                    xvisc*vel_pt(iy,nl)-
+     $                    tension*unitvector(2)
+                     predrf(nl+2*nnd)=predrf(nl+2*nnd)-
+     $                    xvisc*vel_pt(iz,nl)-
+     $                    tension*unitvector(3)
+                  endif
+
+c
+c     z-dir
+c
+                  if (nxt(3,nl) .ne. 0) then
+                     njc=njc+1
+                     fix_con(nnd+njc)=-1
+
+                     xsr=dsqrt((dis(3,nl)-xtedis*nxt(3,nl))**2+
+     $                    dis(1,nl)**2+dis(2,nl)**2)
+                  
+                     tension = xk*(xsr-xtedis+xstretch)
+
+                     unitvector(1)=dis(1,nl)/xsr
+                     unitvector(2)=dis(2,nl)/xsr
+                     unitvector(3)=(dis(3,nl)-xtedis*nxt(3,nl))/xsr                     
+                  
+                     predrf(nl)=predrf(nl)-
+     $                    xvisc*vel_pt(ix,nl)-
+     $                    tension*unitvector(1)
+                     predrf(nl+nnd)=predrf(nl+nnd)-
+     $                    xvisc*vel_pt(iy,nl)-
+     $                    tension*unitvector(2)
+                     predrf(nl+2*nnd)=predrf(nl+2*nnd)-
      $                    xvisc*vel_pt(iz,nl)-
      $                    tension*unitvector(3)
                   endif
@@ -114,9 +146,23 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
             if (ndirgb(i) .eq. 101111) then
                do j=1,numdir(i)
                   nl=nnd+nodegb(i,j)
+                  fix_con(nl)=-2
                   predrf(nl)=0.0d0
 			 enddo
             endif
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+c     Fixed 3
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+            if (ndirgb(i) .eq. 011111) then
+               do j=1,numdir(i)
+                  nl=2*nnd+nodegb(i,j)
+                  fix_con(nl)=-2
+                  predrf(nl)=0.0d0
+			 enddo
+            endif
+
+
+
 	    enddo
 
       endif
@@ -141,15 +187,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
             force_pt(iy, ipt) = 0.0d0
             force_pt(iz, ipt) = 0.0d0
 
-         elseif (n_ibmfem .eq. 1)  then 
-
-c++++++
-cOct. 22
+         elseif (n_ibmfem .eq. 1)  then !if FEM
 
             if(ipt. le. nptfem) then
             force_pt(ix, icon) = drf(icon)+predrf(icon)
-            force_pt(iy, icon) = 0.0d0            
-            force_pt(iz, icon) = drf(icon+nnd)+predrf(icon+nnd)
+            force_pt(iy, icon) = drf(icon+nnd)+predrf(icon+nnd)           
+            force_pt(iz, icon) = drf(icon+2*nnd)+predrf(icon+2*nnd)
             else 
                force_pt(ix, icon) = force_con(ix,icon) -
      $              force_con(ix,icon-1)
@@ -160,7 +203,7 @@ cOct. 22
             endif
 
 c++++++
-         elseif (n_ibmfem .eq. 0) then
+         elseif (n_ibmfem .eq. 0) then !if fiber
 
             force_pt(ix, ipt) = force_con(ix,icon) -
      $           force_con(ix,icon-1)
@@ -168,13 +211,15 @@ c++++++
      $           force_con(iy,icon-1)
             force_pt(iz, ipt) = force_con(iz,icon) - 
      $           force_con(iz,icon-1)
-
-            if (ipt .eq. nptfilea) then
-               force_pt(ix, ipt) = force_pt(ix,ipt)-
-     $              cma*accel_pt(ix,ipt)
-               force_pt(iz, ipt) = force_pt(iz,ipt)-
-     $              cma*accel_pt(iz,ipt)
-            endif
+c Lucy comment this out, because cma is not defined in FEM
+c            if (ipt .eq. nptfilea) then
+c               force_pt(ix, ipt) = force_pt(ix,ipt)-
+c     $              cma*accel_pt(ix,ipt)
+c               force_pt(iy, ipt) = force_pt(iy,ipt)-
+c     $              cma*accel_pt(iy,ipt)
+c               force_pt(iz, ipt) = force_pt(iz,ipt)-
+c     $              cma*accel_pt(iz,ipt)
+c            endif
          endif
 
 	enddo

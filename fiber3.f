@@ -92,14 +92,12 @@ c Oct. 22
             call exit(1)
          endif
 c++++
-
-c      write(*,*) 'force in fiber3,before ibg=',force_pt(1:3,1:10)
+! in fiber11.f
       call ibg_femcalcptforce(dnext_pt,
      $     dlptlocal_number,dlptlocal_head,dlptlocal_tail,
      $     acttype_con,fix_con,coord_pt,
      $     force_fcu(ix,mn_point_alloc,i_hi),force_pt,
      $     accel_pt,vel_pt)
-c      write(*,*) 'force in fiber3,after ibg=',force_pt(1:3,1:10)
 
       return
       end 

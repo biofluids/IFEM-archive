@@ -18,12 +18,11 @@ c Definition of variables
 	!...IBM code
 	include 'r_common' !.......declares some IBM-variables as common
 	include 'main_common' !....same as above 
-	real* 8 newcoor(nsd,nn+801) 
-	parameter (maxnn_solids=1000)
+c	parameter (maxnn_solids=5000)
 
-	real* 8 shrknode(90,maxnn_solids)
-	integer ncnn(maxnn_solids),cnn(90,maxnn_solids)
-	real* 8 dvolume(nn)
+	real* 8 shrknode(90,mno)
+	integer ncnn(mno),cnn(90,mno)
+	real*8 totalvel(3),avgvel(3),mom(3),rs(3),xj(3,3),xx(3,9)
 
 	!...defines variables, which are used locally (not common) in hypo.f
 
@@ -34,11 +33,12 @@ cccccccccccccccccccccccccccccc
 c Prepare for calculation, read in inputs 
 	include "prepare_solid.fi"
 	include "prepare_fluid.fi"
-	if (maxnn_solids .lt. nnd) then
+
+	if (mno .lt. nnd) then
 		write(*,*) 'boost maxnn_solids in hypo.f and delta_nonuniform'
 		stop
 	endif
-	include "write_output.fi"
+      include 'write_output.fi'
 
 ccccccccccccccccccccccccccccccc
 c time loop
@@ -49,7 +49,7 @@ c time loop
 
 	   tt = tt + dt !......update real time
 	   klok = klok + 1 !.... for ibm output
-c	   ntsbout=n_step_wr_ib_user_files  ! output steps are the same
+!	   ntsbout=n_step_wr_ib_user_files  ! output steps are the same
 
 	 write (6,*) ' '
 	 write (6,*) ' TIME STEP = ', its
@@ -68,14 +68,23 @@ c Construction of the dirac deltafunctions for nonuniform spacing
 cccccccccccccccccccccccccccccccccccccccc
 c   2.  Solid solver - membrane element
 	 write(*,*) 'solving solids'
+
+	if (nsd_solid .eq.3) then
+	 write(*,*) 'solving for 3-d structure'
 	 include "solids_solver.fi"
-	   
+	elseif (nsd_solid .eq. 0) then ! point
+	 write(*,*) 'solving for a point'
+	 force_pt(1,1)=-xmg1*sdensi
+	 force_pt(2,1)=-xmg2*sdensi
+	 force_pt(3,1)=-xmg3*sdensi
+	endif
 cccccccccccccccccccccccccccccccccccccccccccccccccc
 c 2.5 Distribution of the solid forces to the fluid domain
 c	F(t + dt)  ->  f(t + dt)							 
 	 ibuf=2
 	 write(*,*) 'distributing the force onto fluids'
-	 call diracdelta(force_pt,nnd, coord_pt,f_fluids,nn,
+	 call diracdelta(force_pt,nnd, coord_pt,
+	1	 f_fluids,nn,
      +	ndelta,shrknode,cnn,ncnn,maxconn,dvolume,ibuf)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -89,7 +98,8 @@ c	   v_fluid(t+dt)  ->  v_solid(t+dt)
 		  
 	 ibuf=1
 	 write(*,*) 'interpolating fluid velocity onto the solids'
-	 call diracdelta(vel_pt,nnd, coord_pt, d(1:3,:),nn,
+	 call diracdelta(vel_pt,nnd, coord_pt,
+	1	 d(1:3,:),nn,
      +	ndelta,shrknode,cnn,ncnn,maxconn,dvolume,ibuf)
 	 
 ccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -102,8 +112,16 @@ c	write output file every ntsbout steps
 	 if (mod(its,ntsbout).eq.0) then
 	    write(*,*) 'generating the output'
        	include 'write_output.fi'
+	    if ((n_ibmfem .eq. 0).and.(n_tec_ens .eq. 0)) then
+	       write(*, *) 'generate ensight case file'
+	       call zibm_enscase(tt, its,ntsbout)
+	    endif
+	    if((n_ibmfem .eq. 1).and. (n_tec_ens .eq. 0)) then
+	       write(*, *) 'generate ensight case file'
+	       call zfem_enscase(dt, its,ntsbout)
+	    endif
 	 endif
-	
+
 	enddo			!....end of time loop 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c	write output summary for ensight *.case 
@@ -112,14 +130,7 @@ c	n_ibmfem=1 : fem
 c	n_tec_ens=0: ensight
 c	n_tec_ens=1: tecplot
 c
-	if ((n_ibmfem .eq. 0).and.(n_tec_ens .eq. 0)) then
-	   write(*, *) 'generate ensight case file'
-	   call zibm_enscase(time_value, currentstep)
-	end if
-	if((n_ibmfem .eq. 1).and. (n_tec_ens .eq. 0)) then
-	   write(*, *) 'generate ensight case file'
-	   call zfem_enscase(time_value, currentstep)
-	end if
+
 	
 	!...stops time counting and write output to screen
 	naxx2=time()

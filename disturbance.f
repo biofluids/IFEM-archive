@@ -61,6 +61,7 @@ c         force_pt(iz,11)= force_pt(iz,11)+0.1*dsin(pi*(istep-1)/2)
 
       if (n_ibmfem .ne. 1) then
          force_pt(iz,3)= force_pt(iz,3) - dmass*accel_pt(iz,3)
+	   force_pt(iy,3)= force_pt(iy,3) - dmass*accel_pt(iy,3)
          force_pt(ix,3)= force_pt(ix,3) - dmass*accel_pt(ix,3)
       endif
          

@@ -64,9 +64,7 @@ c%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c%%%%%%%%%%%%%%%%%%%%%%
 c used for ensight
 c%%%%%%%%%%%%%%%%%%%%%
-      integer part, part2, sizeX, sizeY, sizeZ, i, j, k, NUM, nskip
-      data part/1/, part2/2/
-
+      integer sizeX, sizeY, sizeZ, i, j, k, NUM, nskip
 
 	real*8  xn(nsd,nn)
 	integer ien(nen,ne)
@@ -97,7 +95,7 @@ c%%%%%%%%%%%%%%%%%%%%%
 
 
       write(file_name,'(A7, A5)')  'fem.geo', fileroot
-      write(6,*) 'file name is ', file_name 
+      write(6,*) 'writing... ', file_name 
 
       open(i_file_unit, file=file_name, form='formatted')
       write(i_file_unit, *) 'This is the ensight format geometry file'
@@ -110,7 +108,7 @@ c%%%%%%%%%%%%%%%%%%%%%
 
       ipt = dlptlocal_head
 
-       do 100 npt = 1, dlptlocal_number
+       do npt = 1, dlptlocal_number
          
          npoint_fiber(iif) = npf
          
@@ -125,7 +123,7 @@ c%%%%%%%%%%%%%%%%%%%%%
 
          ipt = dnext_pt(ipt)
           
- 100   continue
+	 enddo
       
        nfiber_file = nf - 1
 
@@ -135,57 +133,61 @@ c%%%%%%%%%%%%%%%%%%%%
        write(i_file_unit, *) 'node id given'
        write(i_file_unit, *) 'element id given'
        write(i_file_unit, *) 'coordinates'
-       write(i_file_unit, '(I10)') nnda
+       write(i_file_unit, '(I8)') nnd+nn
 
 cc--> node id, x, y, x
 cc-->
-101	format(i8,3e12.5)
 	!write structure coordinates
-       do i=1, nnda  
-         write(i_file_unit, 101) i,(coor(i,1)+dis(1,i))*unit_length,
-     +	coord_pt(2,i)*unit_length,(coor(i,2)+dis(2,i))*unit_length
+       do i=1, nnd
+         write(i_file_unit, 101) i,(coor(i,1)+dis(1,i)),
+     +	(coor(i,2)+dis(2,i)),
+     +	(coor(i,3)+dis(3,i))
+c	    write(i_file_unit, 101) i, coord_pt(1,i), coord_pt(2,i),
+c     +			coord_pt(3,i)
+
 	 enddo
+101	format(i8,3e12.5)
 
 	!write fluids coordinates
 	do i=1,nn
-	  write(i_file_unit,101) i+nnda,xn(1,i),xn(2,i),xn(3,i)
+	  write(i_file_unit,101) i+nnd,xn(1,i),xn(2,i),xn(3,i)
 	enddo
 
-	!write structure part - node numbers
-102	format('part',i2)
-      write(i_file_unit, 102) part
-      write(i_file_unit, *) 'Structure Model'
-	write(i_file_unit,*) 'point'
-	write(i_file_unit,*) nnda
 
-	do i=1,nnda
-	write(i_file_unit,103) i,i
-	enddo
-103	format(2i8)
-
-	!write fluids part - node numbers
-      write(i_file_unit, 102) part2
-      write(i_file_unit, *) 'Fluid Model'
-	write(i_file_unit,*) 'point'
-	write(i_file_unit,*) nn
-	do i=1,nn
-	write(i_file_unit,103) i+nnda,i+nnda
-	enddo
-
-	!write structure part element connectivity
-      write(i_file_unit, *) 'quad4'  !element type
-      write(i_file_unit, '(I10)')  numela   ! number of elements
-      do i=1, numela
-         write(i_file_unit, 105) i, (nea(i,j),j=1,nis) !element connectivity
-	enddo
-105	format(5i10)
+	!write structure part - connectivity
+      write(i_file_unit, *) 'part 1'
+      write(i_file_unit, *) ' Structure Model'
+	if (nsd_solid .eq. 0) then
+		write(i_file_unit,'(a7)') '  point'
+		write(i_file_unit,'(i8)') nnd
+		do i=1,nnd
+			write(i_file_unit,'(2i8)') i,i
+		enddo
+	elseif (nsd_solid .eq.3) then
+		write(i_file_unit,'(a7)') '  hexa8'
+	    write(i_file_unit, '(i8)')  numel   ! number of elements
+          do i=1, numel
+		  write(i_file_unit,'(9i8)') i, (nea(i,j),j=1,nis) !element connectivity
+		enddo
+	endif
 
 	!write fluids part element connectivity
-      write(i_file_unit, *) 'tetra4'  !element type
-      write(i_file_unit, '(I10)')  ne   ! number of elements
-      do i=1, ne
-        write(i_file_unit, 105) i, (ien(j,i)+nnda,j=1,nen) !element connectivity
-	enddo
+      write(i_file_unit, *) 'part 2'
+      write(i_file_unit, *) ' Fluid Model'
+	if (nen .eq. 4) then
+	   write(i_file_unit, *) ' tetra4'
+	   write(i_file_unit, '(i8)')  ne   ! number of elements
+	   do i=1, ne
+		 write(i_file_unit,'(5i8)') i, (ien(j,i)+nnd,j=1,nen) !element connectivity
+	   enddo
+	elseif (nen .eq. 8) then
+	   write(i_file_unit, *) 'hexa8'  !element type
+         write(i_file_unit, '(I8)')  ne   ! number of elements
+         do i=1, ne
+           write(i_file_unit,'(9i8)') i, (ien(j,i)+nnd,j=1,nen) !element connectivity
+	   enddo
+	endif
+
 
       close(i_file_unit)
 

@@ -44,18 +44,18 @@ C
 		WEI(3)= 1.0
 		WEI(4)= 1.0
 
-        GAU(1,5)=-GC
-        GAU(2,5)=-1.0
-        GAU(3,5)=-GC
-        GAU(1,6)=+GC
-        GAU(2,6)=-1.0
-        GAU(3,6)=-GC
-        GAU(1,7)=-GC
-        GAU(2,7)=-1.0
-        GAU(3,7)=+GC
-        GAU(1,8)=+GC
-        GAU(2,8)=-1.0
-        GAU(3,8)=+GC
+c        GAU(1,5)=-GC
+c        GAU(2,5)=-1.0
+c        GAU(3,5)=-GC
+c        GAU(1,6)=+GC
+c        GAU(2,6)=-1.0
+c        GAU(3,6)=-GC
+c        GAU(1,7)=-GC
+c        GAU(2,7)=-1.0
+c        GAU(3,7)=+GC
+c        GAU(1,8)=+GC
+c        GAU(2,8)=-1.0
+c        GAU(3,8)=+GC
 c		WEI(9)= 1.0
 c		WEI(10)= 1.0
 c		WEI(11)= 1.0
@@ -128,7 +128,7 @@ c		WEI(21)= 1.0
 c		WEI(22)= 1.0
 c		WEI(23)= 1.0
 c		WEI(24)= 1.0
-c
+
 		RETURN
       ENDIF
 

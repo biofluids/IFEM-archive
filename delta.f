@@ -16,59 +16,80 @@ c 3. Original delta function for uniform spacing
      +	data_fluids,nn_fluids,
      +	ndelta,shrknode,cnn,ncnn,maxconn,dv,ibuf)
 
-c      implicit real*8 (a-h,o-z)
-c      include 'main_common'
-	 
       integer ibuf,ndelta,maxconn
-	parameter (maxnn_solids=1000)
+	parameter (maxnn_solids=20000)
 	real* 8 shrknode(maxconn,maxnn_solids)
 
 	!solids variables
       integer nn_solids
 	integer ncnn(maxnn_solids),cnn(maxconn,maxnn_solids)
-	real* 8 coord_pt(3,nn_solids)
-c	real* 8 data_solids(3,nn_solids)
-c      dimension data_solids( ix:iz, mnelalloc:mxelalloc )
-	real*8 data_solids(1:3,1:50000)
+	real* 8 coord_pt(3,nn_solids),data_solids(3,nn_solids)
 
 	!fluids variables
 	integer nn_fluids
-      real* 8 data_fluids(3,nn_fluids)
+      real* 8 data_fluids(3,nn_fluids),dv(nn_fluids)
 
 	!local variables
-	integer i,j,k,inn,i0,j0,k0,icnn,pt
+	integer i,j,k,inn,i0,j0,k0,icnn,pt,n
 	real* 8 x(3)
-	real* 8 dv(nn_fluids)
-
+	real*8 tot_vel(nn_fluids)
 c  ibuf=1 interpolation of velocity from the fluids domain to the solids domain
 c  ibuf=2 distribution of forces from the solids domain to the fluids domain
+
+ccccccccccccccccccccccccccccccccccccccccccccc
+c Initialization of velocities and forces
+ccccccccccccccccccccccccccccccccccccccccccccc
+c      if (ibuf.eq.1) then  !velocity interpolation
+c         write(*,*) 'velocity interpolation in process'
+c      elseif (ibuf.eq.2) then !force distribution
+c         write(*,*) 'force distribution in process'
+c      endif
+
 cccccccccccccccccccccccccccccccccccccccccccccc
 c Calculate the delta functions
 cccccccccccccccccccccccccccccccccccccccccccccc
 
 c    If non-uniform grid 
-
+	n=0
+	tot_vel_fluid=0
+	tot_vel(1:nn_fluids)=0.0
       if (ndelta. eq. 1) then
          if (ibuf.eq.1) then    !velocity interpolation
 		  data_solids(:,:)=0
             do inn=1,nn_solids
+			vol_inf=0.0d0
                do icnn=1,ncnn(inn)
                   pt=cnn(icnn,inn)
                   data_solids(1:3,inn) = data_solids(1:3,inn)
      +                 + data_fluids(1:3,pt) * shrknode(icnn,inn)
-c     +*dv(pt)
+!     +/dv(pt)
+
+				tot_vel(pt)=data_fluids(1,pt)
+				vol_inf=vol_inf+dv(pt)
                enddo
+c			data_solids(1:3,inn)=data_solids(1:3,inn)/vol_inf
             enddo
+c		tot_vel_solid=sum(data_solids(1,:))
+c		tot_vel_fluid=sum(tot_vel(:))
+c		tot_vel_fluid=sum(data_fluids(1,:))
+c		write(*,*) 'total vel in solid=',tot_vel_solid
+c		write(*,*) 'total vel in fluid=',tot_vel_fluid
+
          elseif (ibuf.eq.2) then !force distribution
 		  data_fluids(:,:)=0
             do inn=1,nn_solids
                do icnn=1,ncnn(inn)
                   pt=cnn(icnn,inn)
                   data_fluids(1:3,pt) = data_fluids(1:3,pt)
-     +                + data_solids(1:3,inn) * shrknode(icnn,inn)
+     +                 + data_solids(1:3,inn) * shrknode(icnn,inn)
+c     +	/dv(pt)	
 
-               enddo
+               enddo	
             enddo
+	tot_force_solid=sum(data_solids(1,:))
+	tot_force_fluid=sum(data_fluids(1,:))
+c	write(*,*) 'total force in solid=',tot_force_solid
+	write(*,*) 'total force in fluid=',tot_force_fluid
          endif
       else
 

@@ -13,7 +13,7 @@ c	real* 8 x_temp(nsd,nn),xn_temp(nsd,nn)
 	do i=1,nn
 	   read(file,*) xn(1:3,i)
 	enddo	
-
+	close(file)
 	return
 	end
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -30,7 +30,7 @@ c	integer lock,ierr,status(MPI_STATUS_SIZE)
 	do i=1,ne
 	   read(file,*) ien(:,i)
 	enddo
-
+	close(file)
 	return
 	end
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -42,7 +42,7 @@ c	integer lock,ierr,io,status(MPI_STATUS_SIZE)
 	character*4 ifp
 	integer file,offset,endset,rng_temp(neface,ne)
 
-	file=22
+	file=26
 	open(file, FILE="mrng.dat", STATUS="old")
 	
 	do i=1,ne
@@ -62,6 +62,6 @@ c	integer lock,ierr,io,status(MPI_STATUS_SIZE)
 	   end do
 	end do
 	nrng=mynrng
-
+	close(file)
 	return
 	end

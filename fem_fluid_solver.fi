@@ -22,7 +22,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	! calculate the increment(delta_d) for each degree of freedom, dg
           call fclear(dg,ndf*nn)
           call gmres(x,d,do,id,w,p,dg,hg,ien,
-     &         z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss)
+     &         z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids)
 
 	! calculate the normalized increment, del_l
           call getnorm(dg,dg,ndf*nn,del_l)

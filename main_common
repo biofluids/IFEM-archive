@@ -1,13 +1,12 @@
 c++++++++
 c	ibd0_application_parameters.fh
 c++++++++
-!       parameter (xnmag=8.0)
-	   parameter (xnmag=0.5)
-       parameter (max_point=40000)
+	   parameter (xnmag=1.0d0)
+       parameter (max_point=20000)
        parameter (pi=3.14159265d0)
 !       parameter (pi=atan(1.0d0)*4.0d0)
-       parameter (n_pt_exp    =  90000) 	
-       parameter (n_marker_exp=  10000) 
+       parameter (n_pt_exp    =  20000) 	
+       parameter (n_marker_exp=  1000) 
        parameter (n_iter_step = 1) 
        parameter (n_lat_exp1     = 64*xnmag) 
        parameter (n_lat_exp2     = 1)  
@@ -23,7 +22,7 @@ c++++++++
        common /ws1/n_step_run,n_step_wr_ib_user_files
        common /ws2/n_step_wr_pc_file
        common /ws3/nslay
-       common /ws4/xshift,zshift
+       common /ws4/xshift,yshift,zshift
        common /ws5/r_nu, r_rho, t_step
        common /ws6/n_ibmfem,n_tec_ens,n_dispforce
        common /ws7/n_mass,n_periodicvel,n_ibmfv

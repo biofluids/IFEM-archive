@@ -22,6 +22,7 @@ c      include 'ibd0_automatic_parameters.fh'
       integer dlconshare_tail( null_de:mx_de, i_lo:i_hi )
 
       do 100 idircon = i_lo, i_hi
+	! in link6.f
         call splitlistkey(mn_pt_alloc,mx_pt_alloc,null_pt,
      $        dnext_pt,dlptlocal_number,dlptlocal_head,
      $        dlptlocal_tail,idomain_ptcon(mn_pt_alloc,idircon), 

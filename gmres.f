@@ -6,7 +6,7 @@ c Iterative Solver
 c output increment of d, dg
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine gmres(x,d,do,id,w,bg,dg,hg,ien,
-	1    z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss)
+	1    z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss,fext)
 
 	implicit none
 	include "global.h"
@@ -28,6 +28,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	real* 8 eps, rnorm, rnorm0, order
 	real* 8 gam,hsave,ysave,tmpo
 	integer i,j,k,ij,jj,i1,j1,k1,l,iqc,igmres
+	real*8 fext(nsd,nn)
 
 	eps = 1.0e-12
 	assemble = .true.
@@ -96,7 +97,7 @@ c       compute A * v_j
 c	   call gather (vloc, zg, ndf, hn, hm)
 	   call equal(zg,vloc,ndf*nn)
 	   call fclear (avloc,ndf*nn)
-	   call blockgmres(x,d,do,vloc,avloc,hg,ien)
+	   call blockgmres(x,d,do,vloc,avloc,hg,ien,fext)
 c	   call scatter(avloc, avg, ndf, assemble, hn, hm)
 	   call equal(avloc,avg,ndf*nn)
 	   call setid(avg,id,ndf)

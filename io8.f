@@ -50,6 +50,7 @@ c++++
 
 
       if (nptfile .gt. n_pt_exp) then
+	   write(*,*) 'BOOST n_pt_exp'
          stop
       endif
 
@@ -64,51 +65,55 @@ c
 c     fem to ibm coordinate transformation
 c
       if (n_ibmfem .eq. 1) then
-         do 301 i=1,nnd
-c            coor(i,1)=coor(i,1)+xnmag*xshift
-            coor(i,1)=coor(i,1)+xshift
+         do i=1,nnd
             coord_pt(1,i)=coor(i,1)
-            coord_pt(2,i)=xlay(i)
-c            coor(i,2)=coor(i,2)+xnmag*zshift
-            coor(i,2)=coor(i,2)+zshift
-            coord_pt(3,i)=coor(i,2)
- 301     continue
+            coord_pt(2,i)=coor(i,2)
+            coord_pt(3,i)=coor(i,3)
+	   enddo
          njc=0
          
-         do 37 i=1,numgb
+         do i=1,numgb
 ccccccccccccccccccccccccccccccccccccccccccc
 c     Fixed 1,2
 ccccccccccccccccccccccccccccccccccccccccccc
             if (ndirgb(i) .eq. 111111) then
-               do 38 j=1,numdir(i)
+               do j=1,numdir(i)
                   nl=nodegb(i,j)
 c
                   if (nxt(1,nl) .ne. 0) then
-                     njc=njc+1                  
+                     njc=njc+1    
+                     coord_pt(1,nnd+njc)=coord_pt(1,nl)
+     $                    +xtedis*nxt(1,nl)              
                      coord_pt(2,nnd+njc)=coord_pt(2,nl)
                      coord_pt(3,nnd+njc)=coord_pt(3,nl)
-                     coord_pt(1,nnd+njc)=coord_pt(1,nl)
-     $                    +xtedis*nxt(1,nl)
+
                   endif
 c     
+                  if (nxt(2,nl) .ne. 0) then
+                     njc=njc+1
+                     coord_pt(1,nnd+njc)=coord_pt(1,nl)
+                     coord_pt(2,nnd+njc)=coord_pt(2,nl)
+     $                    +xtedis*nxt(2,nl)
+                     coord_pt(3,nnd+njc)=coord_pt(3,nl)
+				endif
+
                   if (nxt(3,nl) .ne. 0) then
                      njc=njc+1
-                     coord_pt(2,nnd+njc)=coord_pt(2,nl)
                      coord_pt(1,nnd+njc)=coord_pt(1,nl)
+                     coord_pt(2,nnd+njc)=coord_pt(2,nl)
                      coord_pt(3,nnd+njc)=coord_pt(3,nl)
      $                    +xtedis*nxt(3,nl)
                   endif
- 38            continue
+			 enddo
             endif
- 37      continue
-
+	   enddo
 c
 c     assign pt_iptexp(ipt)
 c
 c++++ modified on Oct.22
 c         do 101 npt =1,nptfile
 c            pt_iptexp(ipt)=npt
- 101     continue
+c 101     continue
       endif
 
          nptfilea=nptfile
@@ -167,7 +172,7 @@ c
  100     continue
       endif
  210  format(i6,1x,3f13.8,1x,i4,2f13.8)
-c      write(*,*) 'ipt', ipt
+
       return
       end
 

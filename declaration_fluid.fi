@@ -37,8 +37,8 @@ c   Definition for fluid field variables
       logical assemble
       integer ierr
 
-!	real* 8 dvolume(nn)
-!	pointer (dvolumeptr,dvolume)
+	real* 8 dvolume(nn)
+	pointer (dvolumeptr,dvolume)
 c	real* 8 shrknode(maxconn,nnd)
 c	pointer (shrknodeptr,shrknode)
 c	integer ncnn(nnd),cnn(maxconn,nnd)
