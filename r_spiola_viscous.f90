@@ -7,13 +7,13 @@ subroutine r_spiola_viscous(xot,vel)
   use solid_variables, only: nen_solid,nsd => nsd_solid
   implicit none
 
-  !real*8 :: ocpp
-  !real*8 :: xmj(3),dxmj(3,6)
-  real*8,intent(in) :: xot(1:nsd,1:nsd)
-  real*8,intent(in) :: vel(1:nsd,1:nen_solid)
+  !real(8) :: ocpp
+  !real(8) :: xmj(3),dxmj(3,6)
+  real(8),intent(in) :: xot(1:nsd,1:nsd)
+  real(8),intent(in) :: vel(1:nsd,1:nen_solid)
 
   integer :: nos,isd,jsd,ksd
-  real*8 :: sigma(1:nsd,1:nsd),ui_j(1:nsd,1:nsd) !,press
+  real(8) :: sigma(1:nsd,1:nsd),ui_j(1:nsd,1:nsd) !,press
 
 
   sigma(:,:) = 0.0
@@ -37,9 +37,9 @@ subroutine r_spiola_viscous(xot,vel)
 
   do isd = 1,nsd
      do jsd = 1,nsd
-	    do ksd = 1,nsd
+        do ksd = 1,nsd
            PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) - xot(isd,ksd)*sigma(ksd,jsd)
-		enddo
+        enddo
      enddo
   enddo
 

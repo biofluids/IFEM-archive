@@ -6,17 +6,16 @@
 --------------------Configuration: main - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP151.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP10.tmp" with contents
 [
-/browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:nofileopt /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
-"C:\lucy\research\ifem\code\ifem-v2.2003\hypo.f90"
+/browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
+"D:\research\ifem\code\ifem-v3.2003\ifem.v3.2003\hypo.f90"
 ]
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP152.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP11.tmp" with contents
 [
-kernel32.lib /nologo /stack:0x2625a00,0x989680 /subsystem:console /incremental:no /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
-".\Debug\block.obj"
-".\Debug\blockgmres.obj"
+kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
 ".\Debug\correct3dl.obj"
+".\Debug\deformation_gradient.obj"
 ".\Debug\delta_nonuniform.obj"
 ".\Debug\echoinput.obj"
 ".\Debug\ensight_output.obj"
@@ -26,23 +25,24 @@ kernel32.lib /nologo /stack:0x2625a00,0x989680 /subsystem:console /incremental:n
 ".\Debug\fclear.obj"
 ".\Debug\fluid_variables.obj"
 ".\Debug\form.obj"
+".\Debug\formm.obj"
 ".\Debug\gaussj.obj"
 ".\Debug\gjinv.obj"
 ".\Debug\global_constants.obj"
 ".\Debug\global_simulation_parameter.obj"
-".\Debug\gmres.obj"
+".\Debug\gmres_fluid_ale.obj"
+".\Debug\gmres_fluid_mesh.obj"
 ".\Debug\hg.obj"
 ".\Debug\hydro.obj"
 ".\Debug\hypo.obj"
 ".\Debug\initialize.obj"
 ".\Debug\lenght.obj"
 ".\Debug\main.obj"
-".\Debug\meshgen.obj"
+".\Debug\meshgen_fluid.obj"
 ".\Debug\meshgen_solid.obj"
 ".\Debug\nondimension.obj"
 ".\Debug\norm.obj"
-".\Debug\parseinput_fluid.obj"
-".\Debug\parseinput_solid.obj"
+".\Debug\parseinput.obj"
 ".\Debug\quad2d3n.obj"
 ".\Debug\quad2d4n.obj"
 ".\Debug\quad3d4n.obj"
@@ -58,9 +58,9 @@ kernel32.lib /nologo /stack:0x2625a00,0x989680 /subsystem:console /incremental:n
 ".\Debug\r_sbpress.obj"
 ".\Debug\r_scal.obj"
 ".\Debug\r_scauchy.obj"
-".\Debug\r_sinit.obj"
 ".\Debug\r_smaterj.obj"
 ".\Debug\r_spiola.obj"
+".\Debug\r_spiola_elastic.obj"
 ".\Debug\r_spiola_viscous.obj"
 ".\Debug\r_spress.obj"
 ".\Debug\r_sreadinit.obj"
@@ -69,7 +69,7 @@ kernel32.lib /nologo /stack:0x2625a00,0x989680 /subsystem:console /incremental:n
 ".\Debug\r_stang.obj"
 ".\Debug\r_stoxc.obj"
 ".\Debug\r_timefun.obj"
-".\Debug\restart_read.obj"
+".\Debug\read.obj"
 ".\Debug\rkpmshape3d.obj"
 ".\Debug\run_variables.obj"
 ".\Debug\set.obj"
@@ -80,22 +80,19 @@ kernel32.lib /nologo /stack:0x2625a00,0x989680 /subsystem:console /incremental:n
 ".\Debug\solid_update.obj"
 ".\Debug\solid_variables.obj"
 ".\Debug\update.obj"
+".\Debug\velocity.obj"
 ".\Debug\vol.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP152.tmp"
+Creating command line "link.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP11.tmp"
 <h3>Output Window</h3>
 Compiling Fortran...
-C:\lucy\research\ifem\code\ifem-v2.2003\hypo.f90
-C:\lucy\research\ifem\code\ifem-v2.2003\hypo_declaration_solid.fi(2) : Warning: This variable has not been used.   [SOLID_SURFACE]
-  integer,dimension(1:ne_solid,1:nsurface)  :: solid_surface   !...surface element faces
------------------------------------------------^
+D:\research\ifem\code\ifem-v3.2003\ifem.v3.2003\hypo.f90
 Linking...
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP154.tmp" with contents
+Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP13.tmp" with contents
 [
 /nologo /o"Debug/main.bsc" 
-".\Debug\block.sbr"
-".\Debug\blockgmres.sbr"
 ".\Debug\correct3dl.sbr"
+".\Debug\deformation_gradient.sbr"
 ".\Debug\delta_nonuniform.sbr"
 ".\Debug\echoinput.sbr"
 ".\Debug\ensight_output.sbr"
@@ -105,23 +102,24 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP154.tmp" with con
 ".\Debug\fclear.sbr"
 ".\Debug\fluid_variables.sbr"
 ".\Debug\form.sbr"
+".\Debug\formm.sbr"
 ".\Debug\gaussj.sbr"
 ".\Debug\gjinv.sbr"
 ".\Debug\global_constants.sbr"
 ".\Debug\global_simulation_parameter.sbr"
-".\Debug\gmres.sbr"
+".\Debug\gmres_fluid_ale.sbr"
+".\Debug\gmres_fluid_mesh.sbr"
 ".\Debug\hg.sbr"
 ".\Debug\hydro.sbr"
 ".\Debug\hypo.sbr"
 ".\Debug\initialize.sbr"
 ".\Debug\lenght.sbr"
 ".\Debug\main.sbr"
-".\Debug\meshgen.sbr"
+".\Debug\meshgen_fluid.sbr"
 ".\Debug\meshgen_solid.sbr"
 ".\Debug\nondimension.sbr"
 ".\Debug\norm.sbr"
-".\Debug\parseinput_fluid.sbr"
-".\Debug\parseinput_solid.sbr"
+".\Debug\parseinput.sbr"
 ".\Debug\quad2d3n.sbr"
 ".\Debug\quad2d4n.sbr"
 ".\Debug\quad3d4n.sbr"
@@ -137,9 +135,9 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP154.tmp" with con
 ".\Debug\r_sbpress.sbr"
 ".\Debug\r_scal.sbr"
 ".\Debug\r_scauchy.sbr"
-".\Debug\r_sinit.sbr"
 ".\Debug\r_smaterj.sbr"
 ".\Debug\r_spiola.sbr"
+".\Debug\r_spiola_elastic.sbr"
 ".\Debug\r_spiola_viscous.sbr"
 ".\Debug\r_spress.sbr"
 ".\Debug\r_sreadinit.sbr"
@@ -148,7 +146,7 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP154.tmp" with con
 ".\Debug\r_stang.sbr"
 ".\Debug\r_stoxc.sbr"
 ".\Debug\r_timefun.sbr"
-".\Debug\restart_read.sbr"
+".\Debug\read.sbr"
 ".\Debug\rkpmshape3d.sbr"
 ".\Debug\run_variables.sbr"
 ".\Debug\set.sbr"
@@ -159,15 +157,16 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP154.tmp" with con
 ".\Debug\solid_update.sbr"
 ".\Debug\solid_variables.sbr"
 ".\Debug\update.sbr"
+".\Debug\velocity.sbr"
 ".\Debug\vol.sbr"]
-Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP154.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP13.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-main.exe - 0 error(s), 1 warning(s)
+main.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

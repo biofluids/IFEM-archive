@@ -4,7 +4,7 @@ subroutine setid(d,id,mn)
   implicit none
   
   integer :: mn,id(mn,nn)
-  real* 8  d(mn,nn)
+  real(8)  d(mn,nn)
 
   integer :: inc,idf
 
@@ -22,7 +22,7 @@ subroutine setd(d,f,id,mn)
   implicit none
 
   integer :: mn,id(mn,nn)
-  real* 8  d(mn,nn), f(mn,nn)
+  real(8)  d(mn,nn), f(mn,nn)
 
   integer :: inc,idf
 

@@ -1,36 +1,36 @@
-subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,&
-    solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
-  use r_common, only: xmg,density_solid,predrf,du
+subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
+       solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
+  use r_common, only: xmg,density_solid,predrf
   use solid_variables, only: nn_solid,ne_solid,nen_solid,nsd_solid,nsurface
   use solid_fem_BC
-  use run_variables, only:dt
   implicit none
 
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
 
-  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
-  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
-  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
-  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
-  real*8,dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
 
 
-  real*8,dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
+  real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
 
-  real*8,dimension(6,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
-  real*8,dimension(6,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+  real(8),dimension(6,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
+  real(8),dimension(6,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
 
   integer :: ipt
 
   write(*,*) '*** Solving Solids ***'
 
   select case (nsd_solid)
-	 case (3) ! 3D structure
+     case (3)    !...3D structure
 
      write(*,*) ' --> solving for 3-d structure'
 
     !...calculate internal + inertial forces + gravity/bouyancy forces   (initial configuration)  
-     call r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain)
+     call r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel, &
+                  solid_pave,solid_stress,solid_strain)
 
     !...calculate timefunction
      call r_timefun

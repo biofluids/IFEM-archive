@@ -38,7 +38,7 @@ subroutine r_timefun
 !     timefunction type 5
 !ccccccccccccccccccccccccccccccccc
 !      if (ntfun == 5) then
-!         if (iti .ge. 90) then
+!         if (iti >= 90) then
 !            tfun(5)=1.0d0*dsin(2.0d0*pi*(iti-90)/70.0d0)
 !         else
 !            tfun(5)=0.0d0

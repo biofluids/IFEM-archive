@@ -1,16 +1,16 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation cauchy stress
 !     
-subroutine r_scauchy(det,todet,xto,iq,ne)
+subroutine r_scauchy(det,todet,xto,cstr_element)
   use r_common
   implicit none 
 
-  real*8,intent(in) :: det,todet
-  real*8 xto(3,3)
-  integer,intent(in) :: iq,ne
+  real(8),intent(in) :: det,todet
+  real(8) xto(3,3)
+  real(8) :: cstr_element(6)  !...Cauchy stress
   
-  !real*8 :: ssb(3,3)
-  real*8 :: ss(3,3)
+  !real(8) :: ssb(3,3)
+  real(8) :: ss(3,3)
   integer :: isd,jsd
 
   ss(1,1)=PK2str(1)
@@ -23,17 +23,17 @@ subroutine r_scauchy(det,todet,xto,iq,ne)
   ss(2,1)=PK2str(6)
   ss(3,3)=PK2str(3)
 
-  cstr(1:6,ne,iq) = 0.0d0
+  cstr_element(1:6) = 0.0d0
   
   do isd=1,3
      do jsd=1,3
-        cstr(1,ne,iq)=cstr(1,ne,iq) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
-        cstr(2,ne,iq)=cstr(2,ne,iq) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
-        cstr(3,ne,iq)=cstr(3,ne,iq) + todet/det*xto(3,isd)*ss(isd,jsd)*xto(3,jsd)
-        cstr(4,ne,iq)=cstr(4,ne,iq) + todet/det*xto(3,isd)*ss(isd,jsd)*xto(2,jsd)
-	    cstr(5,ne,iq)=cstr(5,ne,iq) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(3,jsd)
-        cstr(6,ne,iq)=cstr(6,ne,iq) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(2,jsd)
-	 enddo
+        cstr_element(1)=cstr_element(1) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
+        cstr_element(2)=cstr_element(2) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
+        cstr_element(3)=cstr_element(3) + todet/det*xto(3,isd)*ss(isd,jsd)*xto(3,jsd)
+        cstr_element(4)=cstr_element(4) + todet/det*xto(3,isd)*ss(isd,jsd)*xto(2,jsd)
+        cstr_element(5)=cstr_element(5) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(3,jsd)
+        cstr_element(6)=cstr_element(6) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(2,jsd)
+     enddo
   enddo
 
   return

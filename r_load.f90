@@ -6,7 +6,7 @@ subroutine r_load
   implicit none
 
   integer :: i
-  real*8 :: xtime
+  real(8) :: xtime
 
 
   xtime=tfun(ntfun)
@@ -17,11 +17,11 @@ subroutine r_load
      boupo(i,3)=boup(i,3)*xtime
   enddo
 
- !...concentrated load  
+ !...concentrated load
   do i=1,numfn
      fnodo(nodefn(i),ndirfn(i))=fnod(nodefn(i),ndirfn(i))*xtime
   enddo
-  
+
   return
 end subroutine r_load
 

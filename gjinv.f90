@@ -21,11 +21,11 @@ subroutine gjinv(a,ainv,n,np,det,flag)
   implicit none
 
   integer n,np
-  real*8 a(np,np),ainv(np,np),b(10,20)
-  real*8 det, flag
+  real(8) a(np,np),ainv(np,np),b(10,20)
+  real(8) det, flag
 
 
-  real*8 :: eps,sa,p,aik
+  real(8) :: eps,sa,p,aik
 
   integer :: i,j,k,np1,npn,ipt,kp1,km1
 
@@ -34,14 +34,15 @@ subroutine gjinv(a,ainv,n,np,det,flag)
 
 
   if (n .gt. np)  then
-     pause 'dimension range error !' 
-	 go to 999
+     write(*,*) 'dimension range error !'
+     stop
+     go to 999
   endif
 
   do i = 1,n
      do j= 1, n
-	    b(i,j) = a(i,j)
-	 enddo
+        b(i,j) = a(i,j)
+     enddo
   enddo
 
   np1 = n + 1
@@ -50,12 +51,12 @@ subroutine gjinv(a,ainv,n,np,det,flag)
   do i = 1,n
      do j = np1, npn
         b(i,j) = 0.0
-	 enddo
+     enddo
   enddo
 
   do i = 1,n
      j = n + i
-	 b(i,j) = 1.0
+     b(i,j) = 1.0
   enddo
 
   do k = 1,n
@@ -69,7 +70,8 @@ subroutine gjinv(a,ainv,n,np,det,flag)
 
      if (dabs(b(ipt,k)) .le. eps ) then
         flag = - flag
-        pause 'inversion fails'
+        write(*,*) 'inversion fails'
+        stop
         go to 999
      endif
 
@@ -77,30 +79,30 @@ subroutine gjinv(a,ainv,n,np,det,flag)
 
      do j = k, npn
         sa       = b(k,j)
-	    b(k,j)   = b(ipt,j)
-	    b(ipt,j) = sa
-	 enddo
+        b(k,j)   = b(ipt,j)
+        b(ipt,j) = sa
+     enddo
 
   500     do j = kp1, npn
-	     b(k,j) = b(k,j)/b(k,k)
-	 enddo
+         b(k,j) = b(k,j)/b(k,k)
+     enddo
 
-	 if ( k .eq. 1) go to 600
-	 km1 = k -1
+     if ( k .eq. 1) go to 600
+     km1 = k -1
 
      do i = 1, km1
         do j = kp1, npn
            b(i,j) = b(i,j) - b(i,k)*b(k,j)
         enddo
-	 enddo
+     enddo
 
-	 if (k .eq. n) go to 700
+     if (k .eq. n) go to 700
 
   600    do i = kp1, n
-	    do j = kp1, npn
-	       b(i,j) = b(i,j) - b(i,k)*b(k,j)
-	    enddo
-	 enddo
+        do j = kp1, npn
+           b(i,j) = b(i,j) - b(i,k)*b(k,j)
+        enddo
+     enddo
   enddo
 
   
@@ -115,25 +117,25 @@ subroutine gjinv(a,ainv,n,np,det,flag)
 !
   det = 1.0
   do k = 1, n
-	 p = a(k,k)
-	 do j = k, n
-	    a(k,j) = a(k,j)/p
-	 enddo
+     p = a(k,k)
+     do j = k, n
+        a(k,j) = a(k,j)/p
+     enddo
 
-	 do i = 1, n
+     do i = 1, n
         if(i-k .lt. 0) then
-	       aik = a(i,k)
-	    elseif(i-k .eq. 0) then
-	       go to 800
-	    elseif(i-k .gt. 0) then
-	       aik = a(i,k)
-	    endif
+           aik = a(i,k)
+        elseif(i-k .eq. 0) then
+           go to 800
+        elseif(i-k .gt. 0) then
+           aik = a(i,k)
+        endif
 
-	    do j = k,n
-	       a(i,j) = a(i,j) - aik*a(k,j)
-	    enddo
+        do j = k,n
+           a(i,j) = a(i,j) - aik*a(k,j)
+        enddo
  800 enddo   
-	 det = det * p
+     det = det * p
   enddo
 
   999  return

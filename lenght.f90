@@ -5,17 +5,17 @@ subroutine lenght(xloc,ien,hg)
   use fluid_variables
   implicit none
 
-  integer ien(nen,ne)
-  real* 8 xloc(nsd,nn),x(nsdpad,nenpad)
-  real* 8 hg(ne)
+  integer :: ien(nen,ne)
+  real(8) :: xloc(nsd,nn),x(nsdpad,nenpad)
+  real(8) :: hg(ne)
 
-  real* 8 eft0,det
-  real* 8 sh(0:nsdpad,nenpad)
-  real* 8 xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
+  real(8) :: eft0,det
+  real(8) :: sh(0:nsdpad,nenpad)
+  real(8) :: xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
 
-  real* 8 evol
-  real* 8 gmin,gmax,lmin,lmax
-  integer inl,ie,iq,isd
+  real(8) :: evol
+  real(8) :: gmin,gmax,lmin,lmax
+  integer :: inl,ie,iq,isd
 
   !integer ierr,status(MPI_STATUS_SIZE)
 
@@ -25,40 +25,40 @@ subroutine lenght(xloc,ien,hg)
   hmax = -10000000.0
 
   do ie=1,ne
-
+  
      do inl=1,nen
         do isd=1,nsd
            x(isd,inl) = xloc(isd,ien(inl,ie))
-	    enddo
-	 enddo
+        enddo
+     enddo
 
-	 evol = 0.0
-	 do iq=1,nquad
-	    if (nen.eq.4) then
-	       include "sh3d4n.h"
-	    else if (nen.eq.8) then
-		   include "sh3d8n.h"
-	    end if
+     evol = 0.0
+     do iq=1,nquad
+        if (nen.eq.4) then
+           include "sh3d4n.h"
+        else if (nen.eq.8) then
+           include "sh3d8n.h"
+        end if
 
-	    eft0 = abs(det) * wq(iq)  
-	    evol = evol + eft0
-	 enddo
+        eft0 = abs(det) * wq(iq)  
+        evol = evol + eft0
+     enddo
 
-	 vmin = min(vmin,evol)
-	 vmax = max(vmax,evol)
+     vmin = min(vmin,evol)
+     vmax = max(vmax,evol)
 
-	 if(hg_vol) then
-	    hg(ie) = evol**(1.0/3.0)
-	    if(twod) hg(ie) = sqrt(evol)
-	    if(nen.eq.4) hg(ie) = (8.0*evol)**(1.0/3.0)
-	 else
-	    call get_hg(x, hg(ie))
-	 endif
+     if(hg_vol) then
+        hg(ie) = evol**(1.0/3.0)
+        if(twod) hg(ie) = sqrt(evol)
+        if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
+     else
+        call get_hg(x, hg(ie))
+     endif
 
-	 hg(ie) = delta(0)*hg(ie)
+     hg(ie) = delta(0)*hg(ie)
 
-	 hmin = min(hmin,hg(ie))
-	 hmax = max(hmax,hg(ie))
+     hmin = min(hmin,hg(ie))
+     hmax = max(hmax,hg(ie))
 
   enddo
 
@@ -68,14 +68,14 @@ subroutine lenght(xloc,ien,hg)
 
   gmin = lmin
   gmax = lmax
-!c	if (myid.eq.0) then
-!c	   do i=1,numproc-1
-!c	      call MPI_RECV(lmax,1,MPI_DOUBLE_PRECISION,i,101,
-!c	1	   MPI_COMM_WORLD,status,ierr)
-!c	      call MPI_RECV(lmin,1,MPI_DOUBLE_PRECISION,i,102,
-!c	1	   MPI_COMM_WORLD,status,ierr)
-	      gmax = max(gmax,lmax)
-	      gmin = min(gmin,lmin)
+!c  if (myid.eq.0) then
+!c     do i=1,numproc-1
+!c        call MPI_RECV(lmax,1,MPI_DOUBLE_PRECISION,i,101,
+!c  1      MPI_COMM_WORLD,status,ierr)
+!c        call MPI_RECV(lmin,1,MPI_DOUBLE_PRECISION,i,102,
+!c  1      MPI_COMM_WORLD,status,ierr)
+          gmax = max(gmax,lmax)
+          gmin = min(gmin,lmin)
 !c	   end do
 !c	else
 !c	   call MPI_SEND(lmax,1,MPI_DOUBLE_PRECISION,0,101,
@@ -103,8 +103,8 @@ subroutine lenght(xloc,ien,hg)
 !c	1	   MPI_COMM_WORLD,status,ierr)
 !c	      call MPI_RECV(lmin,1,MPI_DOUBLE_PRECISION,i,102,
 !c	1	   MPI_COMM_WORLD,status,ierr)
-	      gmax = max(gmax,lmax)
-	      gmin = min(gmin,lmin)
+          gmax = max(gmax,lmax)
+          gmin = min(gmin,lmin)
 !c	   end do
 !c	else
 !c	   call MPI_SEND(lmax,1,MPI_DOUBLE_PRECISION,0,101,
@@ -122,6 +122,6 @@ subroutine lenght(xloc,ien,hg)
   vmax = gmax
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	
+
   return
 end subroutine lenght

@@ -6,10 +6,10 @@ subroutine r_bdpd_init(xji)
   use r_common
   implicit none
 
-  real*8 :: xji(3,3)
+  real(8) :: xji(3,3)
 
   integer :: i,j,k
-  real*8 :: dumcd
+  real(8) :: dumcd
 
  !...compute the bd matrix-> strain displacement matrix
   do i=1,nen_solid

@@ -5,7 +5,7 @@ subroutine r_sbpress(dxmj,ddxmj,xmj)
   use r_common
   implicit none 
 
-  real*8 :: xmj(3),dxmj(3,6),ddxmj(3,6,6)
+  real(8) :: xmj(3),dxmj(3,6),ddxmj(3,6,6)
 
   integer :: i,j
 

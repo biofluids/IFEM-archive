@@ -1,10 +1,8 @@
 subroutine getnorm(v1,v2,mn,norm)
   implicit none
 
-  integer i,mn
-  real*8 v1(mn),v2(mn),norm
-  !real*8 mynorm,sdot
-  !integer ierr
+  integer :: i,mn
+  real(8) :: v1(mn),v2(mn),norm
 
   norm = 0.0
   do i=1,mn

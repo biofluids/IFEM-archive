@@ -13,18 +13,33 @@
 ! n_tec_ens =0  :  ensight output
 !
 
-	if (its==0 .or. mod(its,ntsbout) == 0) then
-	  write(*,*) "generating the output"	    
-        if( n_tec_ens == 0) then   !ensight output
+       !currentstep = klok/n_step_wr_ib_user_files
+       !time_value(currentstep) = klok * td
 
-           call zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
-           call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,&
-		    solid_accel,solid_pave,solid_stress,solid_strain,klok)
-           call zfem_ensCase(dt, its,ntsbout)
-!           write(333,'(I4,3F22.14)') its,solid_force_FSI(1:nsd_solid,210)
+       if (its == 0) then
 
-	    endif
+          write(*,*) "generating the output"
 
-	 endif
+          if( n_tec_ens == 0) then   !ensight output
+
+             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
+             call zfem_ensCase(dt,its,ntsbout)
+
+          endif
+
+       elseif (mod(its,ntsbout) == 0) then
+
+          write(*,*) "generating the output"
+
+          if( n_tec_ens == 0) then   !ensight output
+
+             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
+             call zfem_ensCase(dt,its,ntsbout)
+
+          endif
+
+       endif
 
 

@@ -5,10 +5,10 @@ subroutine r_spress(rs,ne)
   use r_common
   implicit none 
 
-  real*8 :: rs(3)
+  real(8) :: rs(3)
   integer,intent(in) :: ne
 
-  real*8 :: r,s,t
+  real(8) :: r,s,t
   integer :: i,ntt
 
   r=rs(1)

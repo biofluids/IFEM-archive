@@ -6,26 +6,26 @@
 !     dxmj(i,j)      ------ i is xmj(i)=>invariance
 !     ddxmj(i,j,k)   ------ i is xmj(i)
 !-----------------------------------------------
-!	2-D				3-D
-!     1-- 11			1 -> 11
-!     2-- 22			2 -> 22
-!     3-- 12			3 -> 33
-!     4-- 33			4 -> 23
-!					5 -> 13
-!					6 -> 12
+!   2-D             3-D
+!     1-- 11            1 -> 11
+!     2-- 22            2 -> 22
+!     3-- 12            3 -> 33
+!     4-- 33            4 -> 23
+!                   5 -> 13
+!                   6 -> 12
 !cccccccccccccccccccccccccccccccccccccccccccccc
 
 subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
   use r_common
   implicit none
 
-  real*8 :: wto
-  real*8 :: toc(3,3),xmi(3),xmj(3),dxmj(3,6),ddxmj(3,6,6)
+  real(8) :: wto
+  real(8) :: toc(3,3),xmi(3),xmj(3),dxmj(3,6),ddxmj(3,6,6)
   
-  real*8 :: dli(3,6),ddli(3,6,6)
-  real*8 :: cc
+  real(8) :: dli(3,6),ddli(3,6,6)
+  real(8) :: cc
   integer :: i,j,m
-  real*8 :: xmi1,xmi2,xmi4,xmi5,xmi7,xmi8
+  real(8) :: xmi1,xmi2,xmi4,xmi5,xmi7,xmi8
 
   cc=0.0d0
   do i=1,3
@@ -53,7 +53,7 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
   xmj(1)=xmi(1)*xmi1
   xmj(2)=xmi(2)*xmi2
   xmj(3)=dsqrt(xmi(3))
-	
+    
 !ccccccccccccccccccccccccccccccc
 !     strain energy
 !ccccccccccccccccccccccccccccccc
@@ -65,7 +65,7 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
         do m=1,6
            ddli(i,m,j)=0.0d0
         enddo
-	 enddo
+     enddo
   enddo
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     first derivative of I => dI/dA
@@ -143,11 +143,13 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 !ccccccccccccccccccccccccccccccccccccccc
   do i=1,6
      do j=1,6
-        ddxmj(1,i,j) = -x13*xmi4*(dli(1,i)*dli(3,j) + dli(1,j)*dli(3,i) + ddli(3,i,j)*xmi(1)) + x49*dli(3,j)*dli(3,i)*xmi7*xmi(1)
-        ddxmj(2,i,j) = ddli(2,i,j)*xmi2 - xmi5*x23*(dli(2,i)*dli(3,j) + dli(2,j)*dli(3,i) + ddli(3,i,j)*xmi(2)) &
-		              + dli(3,j)*dli(3,i)*xmi8*xmi(2)*x109
-        ddxmj(3,i,j) = -0.25d0*dli(3,i)*dli(3,j)/xmi(3)/dsqrt(xmi(3)) + 0.5d0*ddli(3,i,j)/dsqrt(xmi(3))
-	 enddo
+        ddxmj(1,i,j) = -x13*xmi4*(dli(1,i)*dli(3,j) + dli(1,j)*dli(3,i)  &
+                       + ddli(3,i,j)*xmi(1)) + x49*dli(3,j)*dli(3,i)*xmi7*xmi(1)
+        ddxmj(2,i,j) = ddli(2,i,j)*xmi2 - xmi5*x23*(dli(2,i)*dli(3,j)    &
+                       + dli(2,j)*dli(3,i) + ddli(3,i,j)*xmi(2)) + dli(3,j)*dli(3,i)*xmi8*xmi(2)*x109
+        ddxmj(3,i,j) = -0.25d0*dli(3,i)*dli(3,j)/xmi(3)/dsqrt(xmi(3))    &
+                       + 0.5d0*ddli(3,i,j)/dsqrt(xmi(3))
+     enddo
   enddo
   
   return

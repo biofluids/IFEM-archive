@@ -7,9 +7,9 @@ subroutine r_element(rs)
   use r_common, only: h,r_p
   implicit none
 
-  real*8 :: rs(3)
+  real(8) :: rs(3)
 
-  real*8 :: r,s,t
+  real(8) :: r,s,t
 
   r=rs(1)
   s=rs(2)
