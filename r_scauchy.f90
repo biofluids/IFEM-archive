@@ -1,66 +1,47 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation cauchy stress
 !     
-subroutine r_scauchy(det,todet,xto,cstr_element)
+subroutine r_scauchy(det,todet,xto,lx,ly,lz,ne)
   use r_common
-  use solid_variables, only: nsd_solid
   implicit none 
 
-  real(8),intent(in) :: det,todet
-  real(8) xto(3,3)
-  real(8) :: cstr_element(6)  !...Cauchy stress
+  real*8,intent(in) :: det,todet
+  real*8 xto(3,3)
+  integer,intent(in) :: lx,ly,lz,ne
   
-  !real(8) :: ssb(3,3)
-  real(8) :: ss(3,3)
-  integer :: isd,jsd
+  real*8 :: ssb(3,3),ss(3,3),tt(3,3)
+  integer :: i,j,m,n
 
-  threedim: if (nsd_solid .eq. 3) then 
+  ss(1,1)=tos(1)
+  ss(2,2)=tos(2)
+  ss(1,3)=tos(5)
+  ss(3,1)=tos(5)
+  ss(2,3)=tos(4)
+  ss(3,2)=tos(4)
+  ss(1,2)=tos(6)
+  ss(2,1)=tos(6)
+  ss(3,3)=tos(3)
 
-  ss(1,1)=PK2str(1)
-  ss(2,2)=PK2str(2)
-  ss(1,3)=PK2str(5)
-  ss(3,1)=PK2str(5)
-  ss(2,3)=PK2str(4)
-  ss(3,2)=PK2str(4)
-  ss(1,2)=PK2str(6)
-  ss(2,1)=PK2str(6)
-  ss(3,3)=PK2str(3)
+  do i=1,6
+     cstr(i,ne,lx,ly,lz)=0.0d0
+  enddo
 
-  cstr_element(1:6) = 0.0d0
-  
-  do isd=1,3
-     do jsd=1,3
-        cstr_element(1)=cstr_element(1) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
-        cstr_element(2)=cstr_element(2) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
-        cstr_element(3)=cstr_element(3) + todet/det*xto(3,isd)*ss(isd,jsd)*xto(3,jsd)
-        cstr_element(4)=cstr_element(4) + todet/det*xto(3,isd)*ss(isd,jsd)*xto(2,jsd)
-        cstr_element(5)=cstr_element(5) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(3,jsd)
-        cstr_element(6)=cstr_element(6) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(2,jsd)
+  do i=1,3
+     do j=1,3
+		tt(i,j)=xto(i,j)
      enddo
   enddo
 
-  endif  threedim
-
-  twodim: if (nsd_solid .eq. 2) then 
-
-  ss(1,1)=PK2str(1)
-  ss(2,2)=PK2str(2)
-  ss(1,2)=PK2str(3)
-  ss(2,1)=PK2str(3)
-
-  cstr_element(1:nsd_solid*2) = 0.0d0
-  
-  do isd=1,2
-     do jsd=1,2
-        cstr_element(1)=cstr_element(1) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
-        cstr_element(2)=cstr_element(2) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
-        cstr_element(3)=cstr_element(3) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
-        cstr_element(4)=cstr_element(4) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
-		write(*,*) 'here we are',todet,det,xto(1,isd),ss(isd,jsd),xto(1,jsd)
-     enddo
+  do m=1,3
+     do n=1,3
+        cstr(1,ne,lx,ly,lz)=cstr(1,ne,lx,ly,lz) + todet/det*tt(1,m)*ss(m,n)*tt(1,n)
+        cstr(2,ne,lx,ly,lz)=cstr(2,ne,lx,ly,lz) + todet/det*tt(2,m)*ss(m,n)*tt(2,n)
+        cstr(3,ne,lx,ly,lz)=cstr(3,ne,lx,ly,lz) + todet/det*tt(3,m)*ss(m,n)*tt(3,n)
+        cstr(4,ne,lx,ly,lz)=cstr(4,ne,lx,ly,lz) + todet/det*tt(3,m)*ss(m,n)*tt(2,n)
+	    cstr(5,ne,lx,ly,lz)=cstr(5,ne,lx,ly,lz) + todet/det*tt(1,m)*ss(m,n)*tt(3,n)
+        cstr(6,ne,lx,ly,lz)=cstr(6,ne,lx,ly,lz) + todet/det*tt(1,m)*ss(m,n)*tt(2,n)
+	 enddo
   enddo
-
-	endif twodim
 
   return
 end subroutine r_scauchy

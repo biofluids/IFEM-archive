@@ -1,46 +1,48 @@
+!   preparation stuff
+      call error("initialization",-999,.false.)
+      tt = t_start
+      call error("read ien",-999,.false.)
+      ienptr = malloc(nen*ne*isize)
+      call readien(ien)
+
+      !...allocate the memory for pointers      
+      include "hypo_pointer.fi"
+
+      call error("read x",-999,.false.)
+      call readx(xn)
+      call error("read rng",-999,.false.)
+      call readrng(rng)
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      call error("form d and id",-999,.false.)
+      call formid(id,rng,ien)
+      call formd (xn,fn,rng,ien)
+      call equal(fn ,dn ,ndf*nn)
+      if(restart) then
+        call error("restart",-999,.false.)
+!        call diskin(dn,dd)
+      endif	
+      call setd(dn ,fn ,id ,ndf)
+      call error("diskout",-999,.false.)
+
+!      call diskout(dn,dd)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-   call error("local shape functions",-999,.false.)
-   if (nsd==3) call shape
-   if (nsd==2) call shape2d
+      call error("local shape functions",-999,.false.)
+      call shape
+      call shape2d
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      call equal(xn,x,nsd*nn)
+      call equal(dn,d,ndf*nn)
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      call error("mesh information",-999,.false.)
+      call vol(x,ien)
+      write(7,*)' '
+      write(7,'(" Volume of liquid......... = ",e15.8)') liq
+	  call lenght(x,ien,hg)
+      write(7,'(" Minimum element lenght... = ",e15.8)') hmin
+      write(7,'(" Maximum element lenght... = ",e15.8)') hmax
+      write(7,'(" Minimum element volume... = ",e15.8)') vmin
+      write(7,'(" Maximum element volume... = ",e15.8)') vmax
 
-   call error("initialization",-999,.false.)
-   call error("read ien",-999,.false.)
-   call readien(ien)
-
-   call error("read x",-999,.false.)
-   call readx(xref)
-   x = xref
-   call error("read rng",-999,.false.)
-   call readrng(rng)
-
-   !...formd done each time step in hypo_fluid_solver
-   call error("form d and id",-999,.false.)
-
-   meshvel = 0.0d0
-   d = 0.0d0
-   call formid(id,rng,ien)
-!   call formd(d,meshvel,rng,ien)
-   call formd(d,rng,ien)
-
-   call error("mesh information",-999,.false.)
-   !call vol(x,ien)
-   call vol(xref,ien)
-      
-   write(7,*)' '
-   write(7,'(" Volume of liquid......... = ",e15.8)') liq
-   call lenght(xref,ien,hg)
-   write(7,'(" Minimum element lenght... = ",e15.8)') hmin
-   write(7,'(" Maximum element lenght... = ",e15.8)') hmax
-   write(7,'(" Minimum element volume... = ",e15.8)') vmin
-   write(7,'(" Maximum element volume... = ",e15.8)') vmax
-
-   !...initialize variables
-   refvel(1:nsd,1:nquad,1:ne) = 0.0d0
-   jac(1:nquad,1:ne) = 1.0d0
-   f_fluids(1:nsd,1:nn) = 0.0d0
-   fluid_mesh_force(1:nsd,1:nn) = 0.0d0
-   disp = 0.0d0
-
-
-! 101  format(/"Number of equations for Flow.........(nq) = ",i10)
- 102  format("Iteration",i3,':  ',4e14.7)
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!c      write (7,101) nq
+!c101	format('number of equations in flow....nq=',i5)

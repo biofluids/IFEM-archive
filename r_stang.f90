@@ -1,234 +1,158 @@
-subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain)
-  use run_variables, only: ntsbout,its
-  use solid_variables, only: nsd_solid,ne_solid,nn_solid,nen_solid,nsurface,nquad_solid,xq_solid,wq_solid,nquadpad_solid
+subroutine r_stang
+  use solid_variables
   use r_common
   implicit none
 
-  integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
+  real*8 x(3,9),toc(3,3),xto(3,3),xot(3,3),xj(3,3),xji(3,3),rs(3),toxj(3,3),toxji(3,3)
+  real*8 xmj(3),xmi(3),dxmj(3,6),ddxmj(3,6,6),obc(6,6),ocuu(6,6),ocup(6)
+  real*8 xfrtem(6,6),tem(6),ten(6),ttm(6)
 
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
+  integer :: ine,i,j,m,k,nu1,mu1
 
-  real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
-
-  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
-  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
-
-  !...ox means X
-  !... x means x
-  real(8) :: x(nsd_solid,nen_solid)    !...element nodes initial position
-  real(8) :: y(nsd_solid,nen_solid)    !...element nodes current position
-  real(8) :: vel(nsd_solid,nen_solid)  !...element nodes velocity
-  real(8) :: acc(nsd_solid,nen_solid)  !...element nodes acceleration
-  real(8) :: toc(nsd_solid,nsd_solid)  !...Cauchy Green Deformation Tensor at t=0
-  real(8) :: xto(nsd_solid,nsd_solid)  !...F    = dx/dX
-  real(8) :: xot(nsd_solid,nsd_solid)  !...F^-1 = dX/dx
-  real(8) :: xj(nsd_solid,nsd_solid)   !...
-  real(8) :: xji(nsd_solid,nsd_solid)  !...
-  real(8) :: rs(nsd_solid)             !...iso-parametric shapefunction value at quadrature point
-  real(8) :: toxj(nsd_solid,nsd_solid)
-  real(8) :: toxji(nsd_solid,nsd_solid)
-  real(8) :: xmj(3),xmi(3),dxmj(3,6),ddxmj(3,6,6),obc(6,6),ocuu(6,6),ocup(6)
-  real(8) :: xfrtem(6,6),tem(6),ten(6),ttm(6)
-
-  real(8) :: xkup(3*nen_solid,nup,ne_solid)
-  real(8) :: xkpp(nup,nup,ne_solid)
-  real(8) :: xfp(nup,ne_solid)
-
-  real(8) :: ge(1:nsd_solid*2,ne_solid,nquadpad_solid)    !...Green strain
-  real(8) :: cstr(1:nsd_solid*2,ne_solid,nquadpad_solid)  !...Cauchy stress
-  real(8) :: cstr_element(1:nsd_solid*2)   !...Cauchy stress in element
-  real(8) :: pre(nup,ne_solid) !...pressure in solid (only used for almost compressible material)
+  real*8 :: w,wp,tot_vol,body_force
+  integer :: nos,ntem
+  integer :: ixq,iyq,izq,isd
+  real*8 :: det,todet,wto,ocpp
 
 
-  real(8) :: tot_vol_init,tot_vol_curr
+  write(*,*) "start r_stang"
 
-  real(8) :: det    !...Jacobian Determinante of Deformation Gradient
-  real(8) :: todet  !...Jacobian Determinante of Deformation Gradient at t=0
-  real(8) :: w_init !...Gauss weight pluss Jacobien Det
-  real(8) :: w_curr !...Gauss weight pluss Jacobien Det
-  real(8) :: wto    !...Potential W
-  real(8) :: ocpp
-
-  integer :: nos,ntem         !...counter
-  integer :: isd,iq  !...counter
-  integer :: ine,in,nu1,mu1,ip,jp   !...counter
-
-  write(*,*) " calculate internal + inertial forces (r_stang)"
-
-
-
-  predrf(1:3*nn_solid) = 0.0d0
-
-  tot_vol_init = 0.0d0
-  tot_vol_curr = 0.0d0
-
-
+  do i=1,3*nn_solid
+     predrf2(i) = predrf(i)
+     predrf(i) = 0.0d0
+     drf2(i) = drf(i)
+  enddo
+    
+  tot_vol=0.0
+  body_force=0.0
   element: do ine=1,ne_solid
-
-     xfp(1:nump,ine)=0.0d0
-     xkup(1:3*nen_solid,1:nump,ine)=0.0d0
-     xkpp(1:nump,1:nump,ine)=0.0d0
-        
-     do nos=1,nen_solid
-        ntem=solid_fem_con(ine,nos) !...connectivity
-        x(1:nsd_solid,nos)   = solid_coor_init(1:nsd_solid,ntem)
-        y(1:nsd_solid,nos)   = solid_coor_curr(1:nsd_solid,ntem)
-        vel(1:nsd_solid,nos) = solid_vel(1:nsd_solid,ntem)
-        acc(1:nsd_solid,nos) = solid_accel(1:nsd_solid,ntem)
+ !...position
+     do j=1,nump
+        xfp(j,ine)=0.0d0
+        do i=1,nis
+           xkup(i,j,ine)=0.0d0
+           xkup(i+nis,j,ine)=0.0d0
+	       xkup(i+2*nis,j,ine)=0.0d0
+	    enddo
+        do i=1,nump
+           xkpp(i,j,ine)=0.0d0
+	    enddo
+	 enddo
+     
+     do nos=1,nis
+        ntem=nea(ine,nos) !...connectivity
+        do isd=1,3
+           x(isd,nos)=solid_coor_init(isd,ntem)
+		   y(isd,nos)=solid_coor_curr(isd,ntem)
+           !y(isd,nos)=coor(ntem,isd)+dis(isd,ntem)
+        enddo
      enddo
     !...gauss integration
-    !...update 06.03.2003, Axel G.: can handle tetrahedral elements as well
-    !...       07.07.2003, Axel G.: integration and shape function the same as fluid
-     gauss_int: do iq = 1,nquad_solid
-
-        rs(1:nsd_solid) = xq_solid(1:nsd_solid,iq)
-
+    !...update 06.03.2002, Axel G.: can handle tetrahedral elements as well
+     int_x: do ixq=1,nint
+	    select case (nis)
+	       case (8); rs(1)=xg(ixq,nint)
+	       case (4); rs(1)=xg_tetra(ixq,nint)
+	    end select
+        !rs(1)=xg(ixq,nint)
+	    int_y: do iyq=1,nint
+		   select case (nis)
+	          case (8); rs(2)=xg(iyq,nint)
+	          case (4); rs(2)=xg_tetra(iyq,nint)
+	       end select
+		   !rs(2)=xg(iyq,nint)
+		   int_z: do izq=1,nint
+		      select case (nis)
+	             case (8); rs(3)=xg(izq,nint)
+	             case (4); rs(3)=xg_tetra(izq,nint)
+	          end select
+			  !rs(3)=xg(izq,nint)
+	          !write(*,*) rs
+	          !write(*,*) "nis = ",nis
 !     isoparametric interpolation
-        call r_element(rs)
+              call r_element(rs)
 !     y-(r,s)
-        call r_jacob(y,xj,xji,det)
+              call r_jacob(y,xj,xji,det)
 !     x-(r,s)
-        call r_jacob(x,toxj,toxji,todet)
-!     derivative about ox and x
-        call r_bdpd_curr(xji)
-        call r_bdpd_init(toxji)
+              call r_jacob(x,toxj,toxji,todet)
+	          !write(*,*) det,todet
+!     derivative about ox
+              call r_bdpd(toxji)
 !     deformation gradient
-        call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc)
-!================================================
-! Hyperelastic Material --> Option material_type=1
-	if (material_type==1) then
+              call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc)
+	          !write(*,*) xto,xot
 !     material j
-		call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
+              call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 !     discretized pressure
-		call r_spress(rs,ine)
+              call r_spress(rs,ine)
 !     continuous pressure
-        call r_sbpress(dxmj,ddxmj,xmj)
+              call r_sbpress(dxmj,ddxmj,xmj)
 !     material c
-        call r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)
+              call r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)
 !     strain
-        call r_sstrain(toc,xto,iq,ine,ge)
-!     First Piola-Kirchoff stress - P
-        call r_spiola(ocpp,xmj,dxmj,xto) !hyperelastic material
-!     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
-!     calculate cauchy stress for output
-!     ! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
-      if (mod(its,ntsbout) == 0) then
-        call r_scauchy(det,todet,xto,cstr_element)
-        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
-      endif
-!==========================================================
-! Linear elastic Cauchy stress - sigma
-	elseif (material_type==2) then
-!     strain
-        call r_sstrain(toc,xto,iq,ine,ge)
-!	  Calculate cauchy stress then transform to 1st PK stress
-		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
-!     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
-!     assemble cauchy stress for output
-      if (mod(its,ntsbout) == 0) then
-        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
-      endif
-	endif
-!===========================================================
+              call r_sstrain(toc,xto,ixq,iyq,izq,ine)
+!     stress
+              call r_spiola(ocpp,xmj,dxmj)
+!     discretized pressure
+              select case (nis)
+	          case (8)
+                 wp = wgt(ixq,nint) * wgt(iyq,nint) * wgt(izq,nint)
+	             w = wp * todet
+	          case (4)
+                 wp = wgt_tetra(ixq,nint) * wgt_tetra(iyq,nint) * wgt_tetra(izq,nint)
+	             w = wp * todet / 6  !...integral in tetraheder V_tetra = 1/6 V_cube
+              end select
 
-!     gauss weight and volume
-        w_init = wq_solid(iq) * todet
-        w_curr = wq_solid(iq) * det
-!     volume
-        tot_vol_init = tot_vol_init + w_init
-        tot_vol_curr = tot_vol_curr + w_curr
-!     internal force and stiffness matrix
-        call r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ine,w_init,toxj,vel,acc,solid_fem_con,cstr_element)
+	          !write(*,'("wp=",f9.6," det=",f9.6," todet=",f9.6)') wp,det,todet
+	
+	          tot_vol=tot_vol+w
+              call r_sstif(ocpp,ocuu,ocup,ine,w,toxj,body_force)
+ 
+              call r_scauchy(det,todet,xto,ixq,iyq,izq,ine)
 
-
-     enddo gauss_int  
+		   enddo int_z
+		enddo int_y
+	 enddo int_x   
   enddo element
-
-  write(*,'("  total solid volume (init) = ",f12.6)') tot_vol_init
-  write(*,'("  total solid volume (curr) = ",f12.6)') tot_vol_curr
-
+  write(*,'(" total solid volume = ",f12.6)') tot_vol
+  !write(*,*) 'body force=',body_force
 
  !
  !     pressure condensation, inverse kpp
  !
-  if (1 == 0) then !!!!!!!!!!!!
-
   do ine=1,ne_solid
+     do i=1,nump
+        tem(i)=xfp(i,ine)
+        do j=1,nump
+           xfrtem(i,j)=xkpp(i,j,ine)
+ 	    enddo
+	 enddo
 
-     tem(1:nump) = xfp(1:nump,ine)
-     xfrtem(1:nump,1:nump) = xkpp(1:nump,1:nump,ine)
+     call gaussj(xfrtem,nump,6,tem,1,1)
 
-     call gaussj(xfrtem,nump,nsd_solid*2,tem,1,1)
-
-     do ip=1,nump
-        ttm(ip)=0.0d0
-        do nos=1,nen_solid
-           do isd=1,nsd_solid
-              nu1 = (isd-1)*nn_solid + solid_fem_con(ine,nos)
-              mu1 = (isd-1)*nen_solid + nos
-              ttm(ip) = ttm(ip) + xkup(mu1,ip,ine)*du(isd,solid_fem_con(ine,nos))
-              predrf(nu1) = predrf(nu1) + xkup(mu1,ip,ine)*tem(ip)
-              write(*,*) xkup(mu1,ip,ine)*tem(ip)
-           enddo
-        enddo
+     do i=1,nump
+        ttm(i)=0.0d0
+        do k=1,nis
+           do m=1,3
+              nu1 = (m-1)*nn_solid + nea(ine,k)
+              mu1 = (m-1)*nis + k
+              ttm(i) = ttm(i) + xkup(mu1,i,ine)*du(m,nea(ine,k))
+              predrf(nu1) = predrf(nu1) + xkup(mu1,i,ine)*tem(i)
+		   enddo
+	    enddo
      enddo
-
-!...  storage
-
-     do ip=1,nump
-        ten(ip) = 0.0d0
-        do jp=1,nump
-           ten(ip) = ten(ip)+xfrtem(ip,jp)*ttm(jp)
-        enddo
-        pre(ip,ine) = -tem(ip)-ten(ip)
-     enddo
+!
+!     storage
+!
+     do i=1,nump
+        ten(i)=0.0d0
+        do j=1,nump
+           ten(i)=ten(i)+xfrtem(i,j)*ttm(j)
+	    enddo
+        pre(i,ine)=-tem(i)-ten(i)
+	 enddo
   enddo
 
-  endif
-
-
- !...calculate pressure and stress for the structure output
-  if (mod(its,ntsbout) == 0) then
-
-   write(*,*) "  calculate stress and strain for output"
-   do in=1,nn_solid
-    
-     solid_stress(1:nsd_solid*2,in)=0.0d0
-     solid_strain(1:nsd_solid*2,in)=0.0d0
-
-     ntem=0
-     solid_pave(in)=0
-     if (nsd_solid .ne. 0) then  !do not calculate if it is a point
-        do ine = 1,ne_solid
-           do nos=1,nen_solid
-              if (solid_fem_con(ine,nos) == in) then
-                 ntem = ntem + 1
-                 solid_pave(in) = solid_pave(in) + pre(1,ine)
-                 
-                 solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + cstr(1:nsd_solid*2,ine,1) !...constant stress and strain in element
-                 solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + ge(1:nsd_solid*2,ine,1)
-                 
-                 goto 541
-              endif
-           enddo
- 541    enddo
-
-        solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in)/ntem
-        solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in)/ntem
-
-        solid_pave(in) = solid_pave(in)/ntem
-     endif
-
-   enddo
-
-  endif
-
-
-  write(*,*) " done                                 (r_stang)"
+  write(*,*) "end r_stang"
   return
-end subroutine r_stang
+ end subroutine r_stang

@@ -6,22 +6,84 @@
 --------------------Configuration: main - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP44.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP87.tmp" with contents
 [
-/browser:"Debug/" /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:truncated_source /warn:unused /module:"Debug/" /object:"Debug/" 
-"D:\research\ifem\code\ifem-v4-testing\blockgmres.f90"
+/browser:"Debug/" /check:bounds /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:nofileopt /warn:truncated_source /module:"Debug/" /object:"Debug/" 
+"C:\lucy\research\ifem\code\ifem-revised\fluid_variables.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_common.f90"
+"C:\lucy\research\ifem\code\ifem-revised\solid_variables.f90"
+"C:\lucy\research\ifem\code\ifem-revised\zfem_ensGeo.f90"
+"C:\lucy\research\ifem\code\ifem-revised\zfem_ensFluid.f90"
+"C:\lucy\research\ifem\code\ifem-revised\zfem_ensCase.f90"
+"C:\lucy\research\ifem\code\ifem-revised\vol.f"
+"C:\lucy\research\ifem\code\ifem-revised\update.f90"
+"C:\lucy\research\ifem\code\ifem-revised\solid_femcalcptforce.f90"
+"C:\lucy\research\ifem\code\ifem-revised\sharp.f90"
+"C:\lucy\research\ifem\code\ifem-revised\shape.f"
+"C:\lucy\research\ifem\code\ifem-revised\set.f"
+"C:\lucy\research\ifem\code\ifem-revised\rkpmshape3d.f"
+"C:\lucy\research\ifem\code\ifem-revised\global_constants.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_timefun.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_stoxc.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_stang.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_sstrain.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_sstif.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_sreadinit.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_spress.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_spiola.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_smaterj.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_sinit.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_scauchy.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_scal.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_sbpress.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_sboc.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_nodalf.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_load.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_jacob.f90"
+"C:\lucy\research\ifem\code\ifem-revised\delta_nonuniform.f90"
+"C:\lucy\research\ifem\code\ifem-revised\error_memory.f90"
+"C:\lucy\research\ifem\code\ifem-revised\global_simulation_parameter.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_input.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_element.f90"
+"C:\lucy\research\ifem\code\ifem-revised\r_bdpd.f90"
+"C:\lucy\research\ifem\code\ifem-revised\quad3d8n.f"
+"C:\lucy\research\ifem\code\ifem-revised\quad3d4n.f"
+"C:\lucy\research\ifem\code\ifem-revised\quad2d4n.f"
+"C:\lucy\research\ifem\code\ifem-revised\quad2d3n.f"
+"C:\lucy\research\ifem\code\ifem-revised\parseinput_fluid.f"
+"C:\lucy\research\ifem\code\ifem-revised\norm.f"
+"C:\lucy\research\ifem\code\ifem-revised\nondimension.f"
+"C:\lucy\research\ifem\code\ifem-revised\meshgen.f"
+"C:\lucy\research\ifem\code\ifem-revised\main.f90"
+"C:\lucy\research\ifem\code\ifem-revised\lenght.f"
+"C:\lucy\research\ifem\code\ifem-revised\initialize.f"
+"C:\lucy\research\ifem\code\ifem-revised\form.f90"
+"C:\lucy\research\ifem\code\ifem-revised\hypo.f90"
+"C:\lucy\research\ifem\code\ifem-revised\hydro.f"
+"C:\lucy\research\ifem\code\ifem-revised\hg.f"
+"C:\lucy\research\ifem\code\ifem-revised\gmres.f"
+"C:\lucy\research\ifem\code\ifem-revised\gjinv.f90"
+"C:\lucy\research\ifem\code\ifem-revised\gaussj.f"
+"C:\lucy\research\ifem\code\ifem-revised\fclear.f"
+"C:\lucy\research\ifem\code\ifem-revised\facemap.f90"
+"C:\lucy\research\ifem\code\ifem-revised\error.f"
+"C:\lucy\research\ifem\code\ifem-revised\equal.f"
+"C:\lucy\research\ifem\code\ifem-revised\echoinput.f"
+"C:\lucy\research\ifem\code\ifem-revised\correct3dl.f"
+"C:\lucy\research\ifem\code\ifem-revised\blockgmres.f"
+"C:\lucy\research\ifem\code\ifem-revised\block.f"
 ]
-Creating temporary file "C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP45.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP88.tmp" with contents
 [
-kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
+kernel32.lib /nologo /stack:0x1e8480 /subsystem:console /incremental:yes /pdb:"Debug/main.pdb" /debug /machine:I386 /out:"Debug/main.exe" /pdbtype:sept 
 ".\Debug\block.obj"
 ".\Debug\blockgmres.obj"
-".\Debug\correct.obj"
+".\Debug\correct3dl.obj"
 ".\Debug\delta_nonuniform.obj"
 ".\Debug\echoinput.obj"
-".\Debug\ensight_output.obj"
 ".\Debug\equal.obj"
 ".\Debug\error.obj"
+".\Debug\error_memory.obj"
 ".\Debug\facemap.obj"
 ".\Debug\fclear.obj"
 ".\Debug\fluid_variables.obj"
@@ -37,19 +99,18 @@ kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:n
 ".\Debug\initialize.obj"
 ".\Debug\lenght.obj"
 ".\Debug\main.obj"
-".\Debug\meshgen_fluid.obj"
-".\Debug\meshgen_solid.obj"
+".\Debug\meshgen.obj"
 ".\Debug\nondimension.obj"
 ".\Debug\norm.obj"
-".\Debug\parseinput.obj"
+".\Debug\parseinput_fluid.obj"
 ".\Debug\quad2d3n.obj"
 ".\Debug\quad2d4n.obj"
 ".\Debug\quad3d4n.obj"
 ".\Debug\quad3d8n.obj"
-".\Debug\r_bdpd_curr.obj"
-".\Debug\r_bdpd_init.obj"
+".\Debug\r_bdpd.obj"
 ".\Debug\r_common.obj"
 ".\Debug\r_element.obj"
+".\Debug\r_input.obj"
 ".\Debug\r_jacob.obj"
 ".\Debug\r_load.obj"
 ".\Debug\r_nodalf.obj"
@@ -57,10 +118,9 @@ kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:n
 ".\Debug\r_sbpress.obj"
 ".\Debug\r_scal.obj"
 ".\Debug\r_scauchy.obj"
+".\Debug\r_sinit.obj"
 ".\Debug\r_smaterj.obj"
 ".\Debug\r_spiola.obj"
-".\Debug\r_spiola_elastic.obj"
-".\Debug\r_spiola_viscous.obj"
 ".\Debug\r_spress.obj"
 ".\Debug\r_sreadinit.obj"
 ".\Debug\r_sstif.obj"
@@ -68,33 +128,159 @@ kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:n
 ".\Debug\r_stang.obj"
 ".\Debug\r_stoxc.obj"
 ".\Debug\r_timefun.obj"
-".\Debug\read.obj"
-".\Debug\rkpmshape2d.obj"
 ".\Debug\rkpmshape3d.obj"
-".\Debug\run_variables.obj"
 ".\Debug\set.obj"
 ".\Debug\shape.obj"
 ".\Debug\sharp.obj"
-".\Debug\solid_fem_BC.obj"
-".\Debug\solid_solver.obj"
-".\Debug\solid_update.obj"
+".\Debug\solid_femcalcptforce.obj"
 ".\Debug\solid_variables.obj"
 ".\Debug\update.obj"
 ".\Debug\vol.obj"
+".\Debug\zfem_ensCase.obj"
+".\Debug\zfem_ensFluid.obj"
+".\Debug\zfem_ensGeo.obj"
 ]
-Creating command line "link.exe @C:\DOCUME~1\LUCYZH~1\LOCALS~1\Temp\RSP45.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP88.tmp"
 <h3>Output Window</h3>
 Compiling Fortran...
-D:\research\ifem\code\ifem-v4-testing\blockgmres.f90
-D:\research\ifem\code\ifem-v4-testing\blockgmres.f90(35) : Warning: This variable has not been used.   [RES_Q]
-  real* 8 res_c,res_q,res_a(nsd),res_t(nsd)
-----------------^
+C:\lucy\research\ifem\code\ifem-revised\fluid_variables.f90
+C:\lucy\research\ifem\code\ifem-revised\r_common.f90
+C:\lucy\research\ifem\code\ifem-revised\solid_variables.f90
+C:\lucy\research\ifem\code\ifem-revised\zfem_ensGeo.f90
+C:\lucy\research\ifem\code\ifem-revised\zfem_ensFluid.f90
+C:\lucy\research\ifem\code\ifem-revised\zfem_ensCase.f90
+C:\lucy\research\ifem\code\ifem-revised\vol.f
+C:\lucy\research\ifem\code\ifem-revised\update.f90
+C:\lucy\research\ifem\code\ifem-revised\solid_femcalcptforce.f90
+C:\lucy\research\ifem\code\ifem-revised\sharp.f90
+C:\lucy\research\ifem\code\ifem-revised\shape.f
+C:\lucy\research\ifem\code\ifem-revised\set.f
+C:\lucy\research\ifem\code\ifem-revised\rkpmshape3d.f
+C:\lucy\research\ifem\code\ifem-revised\global_constants.f90
+C:\lucy\research\ifem\code\ifem-revised\r_timefun.f90
+C:\lucy\research\ifem\code\ifem-revised\r_stoxc.f90
+C:\lucy\research\ifem\code\ifem-revised\r_stang.f90
+C:\lucy\research\ifem\code\ifem-revised\r_sstrain.f90
+C:\lucy\research\ifem\code\ifem-revised\r_sstif.f90
+C:\lucy\research\ifem\code\ifem-revised\r_sreadinit.f90
+C:\lucy\research\ifem\code\ifem-revised\r_spress.f90
+C:\lucy\research\ifem\code\ifem-revised\r_spiola.f90
+C:\lucy\research\ifem\code\ifem-revised\r_smaterj.f90
+C:\lucy\research\ifem\code\ifem-revised\r_sinit.f90
+C:\lucy\research\ifem\code\ifem-revised\r_scauchy.f90
+C:\lucy\research\ifem\code\ifem-revised\r_scal.f90
+C:\lucy\research\ifem\code\ifem-revised\r_sbpress.f90
+C:\lucy\research\ifem\code\ifem-revised\r_sboc.f90
+C:\lucy\research\ifem\code\ifem-revised\r_nodalf.f90
+C:\lucy\research\ifem\code\ifem-revised\r_load.f90
+C:\lucy\research\ifem\code\ifem-revised\r_jacob.f90
+C:\lucy\research\ifem\code\ifem-revised\delta_nonuniform.f90
+C:\lucy\research\ifem\code\ifem-revised\error_memory.f90
+C:\lucy\research\ifem\code\ifem-revised\global_simulation_parameter.f90
+C:\lucy\research\ifem\code\ifem-revised\r_input.f90
+C:\lucy\research\ifem\code\ifem-revised\r_element.f90
+C:\lucy\research\ifem\code\ifem-revised\r_bdpd.f90
+C:\lucy\research\ifem\code\ifem-revised\quad3d8n.f
+C:\lucy\research\ifem\code\ifem-revised\quad3d4n.f
+C:\lucy\research\ifem\code\ifem-revised\quad2d4n.f
+C:\lucy\research\ifem\code\ifem-revised\quad2d3n.f
+C:\lucy\research\ifem\code\ifem-revised\parseinput_fluid.f
+C:\lucy\research\ifem\code\ifem-revised\norm.f
+C:\lucy\research\ifem\code\ifem-revised\nondimension.f
+C:\lucy\research\ifem\code\ifem-revised\meshgen.f
+C:\lucy\research\ifem\code\ifem-revised\main.f90
+C:\lucy\research\ifem\code\ifem-revised\lenght.f
+C:\lucy\research\ifem\code\ifem-revised\initialize.f
+C:\lucy\research\ifem\code\ifem-revised\form.f90
+C:\lucy\research\ifem\code\ifem-revised\hypo.f90
+C:\lucy\research\ifem\code\ifem-revised\hydro.f
+C:\lucy\research\ifem\code\ifem-revised\hg.f
+C:\lucy\research\ifem\code\ifem-revised\gmres.f
+C:\lucy\research\ifem\code\ifem-revised\gjinv.f90
+C:\lucy\research\ifem\code\ifem-revised\gaussj.f
+C:\lucy\research\ifem\code\ifem-revised\fclear.f
+C:\lucy\research\ifem\code\ifem-revised\facemap.f90
+C:\lucy\research\ifem\code\ifem-revised\error.f
+C:\lucy\research\ifem\code\ifem-revised\equal.f
+C:\lucy\research\ifem\code\ifem-revised\echoinput.f
+C:\lucy\research\ifem\code\ifem-revised\correct3dl.f
+C:\lucy\research\ifem\code\ifem-revised\blockgmres.f
+C:\lucy\research\ifem\code\ifem-revised\block.f
 Linking...
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP8A.tmp" with contents
+[
+/nologo /o"Debug/main.bsc" 
+".\Debug\block.sbr"
+".\Debug\blockgmres.sbr"
+".\Debug\correct3dl.sbr"
+".\Debug\delta_nonuniform.sbr"
+".\Debug\echoinput.sbr"
+".\Debug\equal.sbr"
+".\Debug\error.sbr"
+".\Debug\error_memory.sbr"
+".\Debug\facemap.sbr"
+".\Debug\fclear.sbr"
+".\Debug\fluid_variables.sbr"
+".\Debug\form.sbr"
+".\Debug\gaussj.sbr"
+".\Debug\gjinv.sbr"
+".\Debug\global_constants.sbr"
+".\Debug\global_simulation_parameter.sbr"
+".\Debug\gmres.sbr"
+".\Debug\hg.sbr"
+".\Debug\hydro.sbr"
+".\Debug\hypo.sbr"
+".\Debug\initialize.sbr"
+".\Debug\lenght.sbr"
+".\Debug\main.sbr"
+".\Debug\meshgen.sbr"
+".\Debug\nondimension.sbr"
+".\Debug\norm.sbr"
+".\Debug\parseinput_fluid.sbr"
+".\Debug\quad2d3n.sbr"
+".\Debug\quad2d4n.sbr"
+".\Debug\quad3d4n.sbr"
+".\Debug\quad3d8n.sbr"
+".\Debug\r_bdpd.sbr"
+".\Debug\r_common.sbr"
+".\Debug\r_element.sbr"
+".\Debug\r_input.sbr"
+".\Debug\r_jacob.sbr"
+".\Debug\r_load.sbr"
+".\Debug\r_nodalf.sbr"
+".\Debug\r_sboc.sbr"
+".\Debug\r_sbpress.sbr"
+".\Debug\r_scal.sbr"
+".\Debug\r_scauchy.sbr"
+".\Debug\r_sinit.sbr"
+".\Debug\r_smaterj.sbr"
+".\Debug\r_spiola.sbr"
+".\Debug\r_spress.sbr"
+".\Debug\r_sreadinit.sbr"
+".\Debug\r_sstif.sbr"
+".\Debug\r_sstrain.sbr"
+".\Debug\r_stang.sbr"
+".\Debug\r_stoxc.sbr"
+".\Debug\r_timefun.sbr"
+".\Debug\rkpmshape3d.sbr"
+".\Debug\set.sbr"
+".\Debug\shape.sbr"
+".\Debug\sharp.sbr"
+".\Debug\solid_femcalcptforce.sbr"
+".\Debug\solid_variables.sbr"
+".\Debug\update.sbr"
+".\Debug\vol.sbr"
+".\Debug\zfem_ensCase.sbr"
+".\Debug\zfem_ensFluid.sbr"
+".\Debug\zfem_ensGeo.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP8A.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-main.exe - 0 error(s), 1 warning(s)
+main.exe - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

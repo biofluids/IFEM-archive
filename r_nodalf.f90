@@ -5,12 +5,10 @@ subroutine r_nodalf
 
   integer :: i,ni
 
-  if (numfn .gt. 0) then
-     do i=1,numfn
-        ni=(ndirfn(i)-1)*nn_solid+nodefn(i)
-        predrf(ni)=predrf(ni)+fnodo(nodefn(i),ndirfn(i))
-     enddo
-  endif
+  do i=1,numfn
+     ni=(ndirfn(i)-1)*nn_solid+nodefn(i)
+     predrf(ni)=predrf(ni)+fnodo(nodefn(i),ndirfn(i))
+  enddo
   
   return
 end subroutine r_nodalf

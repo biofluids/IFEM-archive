@@ -5,13 +5,12 @@
 ! NWU, 04/22/2003
 !
 ! contains:
-!   - variables          !...all variables related to the delta function
+!   - variables          !...all variables related to 
 !   - delta_initialize   !...calculate domain of influence for each solid node
 !   - delta_exchange     !...performs exchange of information in both directions (fluid <--> solid)
 
 module delta_nonuniform
   implicit none
-  save
 
 public
   !...use these parameters to define the direction of information flow
@@ -22,11 +21,8 @@ public
 
   integer :: ndelta !...defines type of delta function used -> right now, only "1" (RKPM) is available
 
-  real(8),allocatable :: shrknode(:,:)      !...shape function for each node, contains the weights
-  integer,allocatable :: cnn(:,:),ncnn(:)  !...connectivity arrays for domain of incluence for each solid node
-
- !...private subroutines
-  private :: getinf  !,correct3d
+  real*8,allocatable :: shrknode(:,:)    !...shape function for each node, contains the weights
+  integer,allocatable :: cnn(:,:),ncnn(:)  !...connectivity arrays for domain of incluence
 
 contains
 
@@ -41,36 +37,32 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 ! ninterpolation and distribution of the velocities and forces respectively
 ! between fluids and solids domain.
   use fluid_variables
-  implicit none
 
  !...solids variables
-  integer,intent(in)  :: nn_solids
+  integer nn_solids
 
-  real(8),intent(in)  :: x_solids(nsd,nn_solids)
+  real* 8 x_solids(nsd,nn_solids)
 
  !...fluids variables
-  real(8) :: xna(nsd,nn),xn(nsd,nen)
-  integer,intent(in)  :: ien(nen,ne)
-  real(8),intent(out) :: dwjp(nn)
-
-  real(8) :: adist(nsd,nn)
+  real* 8 xna(nsd,nn),xn(nsd,nen)
+  integer ien(nen,ne)
+  real* 8 dwjp(nn), adist(nsd,nn)
 
  !...local variables
-  real(8) :: x(nsd), y(nsd), a(nsd)
-  real(8) :: xr(nsd,nsd), cf(nsd,nsd) 
-  real(8) :: b(4), bd(nsd,4)
-  real(8) :: shp, det
-  real* 8 :: xmax(nsd),vol
-!  real(8) :: xmax,ymax,zmax,vol
-  real(8) :: coef,avginf
-  integer :: iq
-  integer :: maxinf,mininf,totinf
-  integer :: ie,inl,isd,nnum,node
-  integer :: inf(maxconn),ninf
-  integer :: i,n,error_id
+  real* 8 x(3), y(3), a(3)
+  real* 8 xr(nsd,nsd), cf(nsd,nsd) 
+  real* 8 b(4), bd(3,4)
+  real* 8 shp, shpd(3), det
+  real* 8 xmax,ymax,zmax,vol
+  real* 8 coef,avginf
+  integer iq
+  integer maxinf,mininf,nmaxinf,nmininf,navginf,totinf
+  integer ie,inl,isd,nnum,node,error_id
+  integer inf(maxconn),ninf
+  integer :: i,n
 
   
-  write(*,*) "*** Calculating RKPM delta function ***"
+  write(*,*) 'calculating RKPM delta function'
 
   if (allocated(shrknode)) then
      deallocate(shrknode)
@@ -87,14 +79,19 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
   allocate(ncnn(nn_solids)            ,stat=error_id)
 
+
+
   !coef = 0.5
-  coef = 0.9d0
+  coef = 0.6d0
   maxinf = 0
   mininf = 9999
   avginf = 0
   cnn(:,:)=0
   ncnn(:)=0
   shrknode(:,:)=0.0d0
+
+ !...Calculate element coordinates
+  call shape
 
  !...Calculate nodal weights
   dwjp(:) = 0.0
@@ -109,36 +106,31 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
         enddo
      enddo
 
-	do isd=1,nsd
-		xmax(isd) = coef*(maxval(xn(isd,1:nen)) - minval(xn(isd,1:nen)))
-	enddo
-
-!     xmax = coef*(maxval(xn(1,1:nen)) - minval(xn(1,1:nen)))
-!     ymax = coef*(maxval(xn(2,1:nen)) - minval(xn(2,1:nen)))
-!     zmax = coef*(maxval(xn(3,1:nen)) - minval(xn(3,1:nen)))
-
+     xmax = coef*(maxval(xn(1,1:nen)) - minval(xn(1,1:nen)))
+     ymax = coef*(maxval(xn(2,1:nen)) - minval(xn(2,1:nen)))
+     zmax = coef*(maxval(xn(3,1:nen)) - minval(xn(3,1:nen)))
+        
      do inl = 1,nen
         node = ien(inl,ie) 
-        adist(1:nsd,node) = max(adist(1:nsd,node),xmax(1:nsd))
-!        adist(1,node) = max(adist(1,node),xmax)
-!        adist(2,node) = max(adist(2,node),ymax)
-!        adist(3,node) = max(adist(3,node),zmax)
+        adist(1,node) = max(adist(1,node),xmax)
+        adist(2,node) = max(adist(2,node),ymax)
+        adist(3,node) = max(adist(3,node),zmax)
      enddo
 
  !...Calculate volume
-	if (nsd == 2) then
-	  if (nen == 3) include "vol2d3n.fi"
-	  if (nen == 4) include "vol2d4n.fi"
-	elseif (nsd == 3) then
-      if (nen == 4) include "vol3d4n.fi"
-      if (nen == 8) include "vol3d8n.fi"
-    endif
-
+     if (nen.eq.4) then
+        include "vol3d4n.fi"
+     else
+        include "vol3d8n.fi"
+     endif
+        
      do inl = 1,nen
         nnum = ien(inl,ie)
         dwjp(nnum) = dwjp(nnum) + vol/nen
      enddo
   enddo
+
+	
 
 ! Calculate the RKPM shape function for the solids points
   do i = 1, nn_solids
@@ -147,40 +139,29 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
-!	 write(*,*) 'ninf=',ninf, 'inf=',inf(1),inf(ninf)
      cnn(1:ninf,i)=inf(1:ninf)
      ncnn(i)=ninf
 
-     if (ninf > maxinf) maxinf = ninf
-     if (ninf < mininf) mininf = ninf
+     if (ninf .gt. maxinf) maxinf = ninf
+     if (ninf .lt. mininf) mininf = ninf
      totinf = totinf + ninf
 ! calculate the correction function
-     if (nsd==2) then 
-		call correct2d(b,bd,x,xna,adist,dwjp,nn,1,inf,ninf,maxconn)
-     elseif (nsd==3) then 
-		call correct3d(b,bd,x,xna,adist,dwjp,nn,1,inf,ninf,maxconn)
-	 endif
-
+     call correct3d(b,bd,x,xna,adist,dwjp,nn,1,inf,ninf,maxconn)
      do n = 1, ninf
         nnum = inf(n)
         do isd = 1,nsd
            y(isd) = xna(isd,nnum)
            a(isd) = adist(isd,nnum)
         enddo
-
-		 if (nsd==2) then 
-	        call RKPMshape2d(shp,b,bd,x,y,a,dwjp(nnum))
-		 elseif (nsd==3) then 
-			call RKPMshape3d(shp,b,bd,x,y,a,dwjp(nnum))
-		 endif
+        call RKPMshape3d(shp,b,bd,x,y,a,dwjp(nnum))
         shrknode(n,i)=shp
      enddo
   enddo
 
   avginf = totinf/nn_solids
-  write(6,'("  Maximum Influence Nodes = ",i7)') maxinf
-  write(6,'("  Minimum Influence Nodes = ",i7)') mininf
-  write(6,'("  Average Influence Nodes = ",f7.2)') avginf
+  write(6,'(" Maximum Influence Nodes = ",i7)') maxinf
+  write(6,'(" Minimum Influence Nodes = ",i7)') mininf
+  write(6,'(" Average Influence Nodes = ",f7.3)') avginf
 
   return
 end subroutine delta_initialize
@@ -189,14 +170,14 @@ end subroutine delta_initialize
 !c This subroutine finds the influence points of point x
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
-  implicit none
-
+  
   integer :: ninf,nn,nsd,maxconn
-  real(8) x(nsd), xna(nsd,nn), adist(nsd,nn)
-  real(8) r(nsd)
+  real*8 x(3), xna(nsd,nn), adist(nsd,nn)
+  real*8 r(nsd)
   integer inf(maxconn)
   integer i
 
+!!!! MAKE SURE MAXCONN IS DEFINED IN COMMON.H
 !cccccccccccccccccc
 !   x = the coordinate of the point to be calculated for
 !   xna = the coordinate of all points
@@ -209,17 +190,10 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   ninf = 0
   do i = 1,nn
      r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
-	 if (nsd==3) then
-		if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i)).and.(abs(r(3))<=2*adist(3,i))) then
-			ninf = ninf + 1
-			inf(ninf) = i
-		endif
-	 elseif (nsd==2) then
-		if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i))) then
-			ninf = ninf + 1
-			inf(ninf) = i
-		endif
-	 endif
+     if ((abs(r(1)).le.2*adist(1,i)).and.(abs(r(2)).le.2*adist(2,i)).and.(abs(r(3)).le.2*adist(3,i))) then
+        ninf = ninf + 1
+        inf(ninf) = i
+     endif
   enddo
 
   if (ninf > maxconn) then
@@ -233,88 +207,182 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   return
 end subroutine getinf
 
+!ccccccccccccccccccccccccccccccccccccccccccccccccccc
+!
+!......3-D correct function......
+!
+subroutine correct3d(b,bd,cpt,cjp,dcjp,dwjp,nep,iInter,inf,ninf,maxconn)
+  implicit none
+
+  integer nep,iInter
+  integer maxconn,ninf,inf(maxconn)
+  real*8 b(*),bd(3,*),cpt(3)
+  real*8 cjp(3,nep),dcjp(3,nep),dwjp(nep)
+     
+
+  if (iInter .eq. 1) then
+	 call correct3dl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
+  elseif(iInter .eq. 11)  then
+     call correct3dtl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
+  else
+     print *, 'wrong iInter'
+     stop
+  endif
+  return
+end subroutine correct3d
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!SUBROUTINE DELTA
-! Lucy Zhang
-! 11/06/02
-!
-! Northwestern University
-! This subroutine calculate the delta function which is used for both
-! interpolation and distribution of the velocities and forces respectively
-! between fluids and solids domain.
-!
-! There are 3 options for calculating
-! 1. RKPM - cubic spline for non-uniform spacing
-! 2. RKPM - cubic spline for uniform spacing
-! 3. Original delta function for uniform spacing 
+!cSUBROUTINE DELTA
+!c Lucy Zhang
+!c 11/06/02
+!c Northwestern University
 
-subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,nsd,ibuf)
+!c This subroutine calculate the delta function which is used for both
+!c interpolation and distribution of the velocities and forces respectively
+!c between fluids and solids domain.
+
+!c There are 3 options for calculating
+!c 1. RKPM - cubic spline for non-uniform spacing
+!c 2. RKPM - cubic spline for uniform spacing
+!c 3. Original delta function for uniform spacing 
+
+subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,ibuf)
   implicit none
-  integer,intent(in) :: ibuf,ndelta
-  integer nsd
+  integer ibuf,ndelta
+
  !...solids variables
-  integer,intent(in)   :: nn_solids
-  real(8),intent(inout) :: data_solids(nsd,nn_solids)
+  integer nn_solids
+  real*8 ::data_solids(3,nn_solids)
 
  !...fluids variables
-  integer,intent(in)   :: nn_fluids
-  real(8),intent(inout) :: data_fluids(nsd,nn_fluids)
-  real(8),intent(in)    :: dv(nn_fluids)
+  integer nn_fluids
+  real* 8 data_fluids(3,nn_fluids),dv(nn_fluids)
 
  !...local variables
-  integer :: inn,icnn,pt
-  real(8)  :: tot_vel(nn_fluids),tot_vel_fluid,vol_inf 
-  !real(8)  :: tot_force_solid,tot_force_fluid
+  integer inn,icnn,pt,n
+  !real* 8 x(3)
+  real*8 tot_vel(nn_fluids),tot_vel_fluid,vol_inf,tot_force_solid,tot_force_fluid
+!  ibuf=1 interpolation of velocity from the fluids domain to the solids domain
+!  ibuf=2 distribution of forces from the solids domain to the fluids domain
+
+!ccccccccccccccccccccccccccccccccccccccccccccc
+!c Initialization of velocities and forces
+!ccccccccccccccccccccccccccccccccccccccccccccc
+!c      if (ibuf.eq.1) then  !velocity interpolation
+!c         write(*,*) 'velocity interpolation in process'
+!c      elseif (ibuf.eq.2) then !force distribution
+!c         write(*,*) 'force distribution in process'
+!c      endif
+
+!cccccccccccccccccccccccccccccccccccccccccccccc
+!c Calculate the delta functions
+!cccccccccccccccccccccccccccccccccccccccccccccc
 
 
+  n=0
   tot_vel_fluid = 0
   tot_vel(1:nn_fluids)=0.0
   if (ndelta == 1) then                  !c    If non-uniform grid 
 
      if (ibuf == delta_exchange_fluid_to_solid) then  !velocity interpolation
 
-        write(*,*) '*** Interpolating Velocity onto Solid ***'
+        write(*,*) 'interpolating fluid velocity onto the solids'
 
         data_solids(:,:)=0
         do inn=1,nn_solids
            vol_inf=0.0d0
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
-              data_solids(1:nsd,inn) = data_solids(1:nsd,inn) + data_fluids(1:nsd,pt) * shrknode(icnn,inn)
-              tot_vel(pt)=data_fluids(1,pt)
-              vol_inf = vol_inf + dv(pt)
+              data_solids(1:3,inn) = data_solids(1:3,inn) + data_fluids(1:3,pt) * shrknode(icnn,inn)
+		      tot_vel(pt)=data_fluids(1,pt)
+		      vol_inf=vol_inf+dv(pt)
            enddo
+           !data_solids(1:3,inn)=data_solids(1:3,inn)/vol_inf
         enddo
-!c      tot_vel_solid=sum(data_solids(1,:))
-!c      tot_vel_fluid=sum(tot_vel(:))
-!c      tot_vel_fluid=sum(data_fluids(1,:))
-!c      write(*,*) 'total vel in solid=',tot_vel_solid
-!c      write(*,*) 'total vel in fluid=',tot_vel_fluid
+!c		tot_vel_solid=sum(data_solids(1,:))
+!c		tot_vel_fluid=sum(tot_vel(:))
+!c		tot_vel_fluid=sum(data_fluids(1,:))
+!c		write(*,*) 'total vel in solid=',tot_vel_solid
+!c		write(*,*) 'total vel in fluid=',tot_vel_fluid
 
-     elseif (ibuf == delta_exchange_solid_to_fluid) then !force distribution
-
-        write(*,*) '*** Distributing Forces onto Fluid ***'
-        data_fluids(:,:)=0
+     elseif (ibuf.eq.delta_exchange_solid_to_fluid) then !force distribution
+	    data_fluids(:,:)=0
         do inn=1,nn_solids
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
-              data_fluids(1:nsd,pt) = data_fluids(1:nsd,pt) + data_solids(1:nsd,inn) * shrknode(icnn,inn)
-           enddo    
+              data_fluids(1:3,pt) = data_fluids(1:3,pt) + data_solids(1:3,inn) * shrknode(icnn,inn)
+           enddo	
         enddo
-        !tot_force_solid=sum(data_solids(1,:))
-        !tot_force_fluid=sum(data_fluids(1,:))
+	    tot_force_solid=sum(data_solids(1,:))
+	    tot_force_fluid=sum(data_fluids(1,:))
         !write(*,*) 'total force in solid=',tot_force_solid
-        !write(*,*) ' total force in fluid=',tot_force_fluid
+	    write(*,*) 'total force in fluid=',tot_force_fluid
      endif
   else
 
-
+!c    if uniform grid
+!c         do inn=1,nn_solids
+!c            if (ndelta .eq.2) then
+!c               call delta_rkpm_uniform(deltaeachaxis,inn,
+!c     +              dlptlocal_number,coord_pt)
+!c            elseif (ndelta .eq.3) then
+!c               call delta_original(deltaeachaxis,inn,
+!c     +              dlptlocal_number,coord_pt)
+!c            endif
+!c
+!c            do k=0,n_c_del_oneaxis-1
+!c               do j=0,n_c_del_oneaxis-1
+!c                  do i=0,n_c_del_oneaxis-1
+!c                     wt_delta(i,j,k) = deltaeachaxis(i,1)
+!c     $                    * deltaeachaxis(j,2)
+!c     $                    * deltaeachaxis(k,3)
+!c                  enddo
+!c               enddo
+!c            enddo
+!c         
+!c            i0=modrealinto( coord_pt(1,ipt), mn_ce1, mx_ce1)
+!c     $           - n_lo_gc_del_oneaxis
+!c            j0=modrealinto( coord_pt(2,ipt), mn_ce2, mx_ce2)
+!c     $           - n_lo_gc_del_oneaxis
+!c            k0=modrealinto( coord_pt(3,ipt), mn_ce3, mx_ce3)
+!c     $           - n_lo_gc_del_oneaxis
+!c         
+!c            if (ibuf .eq. 2) then !force distribution
+!c               do k = 0, n_c_del_oneaxis - 1 
+!c                  do j = 0, n_c_del_oneaxis - 1 
+!c                     do i = 0, n_c_del_oneaxis - 1       
+!c                        do idim = 1,3
+!c                           data_fluids(i0+i,j0+j,k0+k,idim)
+!c     $                          = data_fluids(i0+i,j0+j,k0+k,idim)
+!c     $                          + data_solids(idim,ipt) * wt_delta(i,j,k)
+!c                        
+!c                        enddo
+!c                     enddo
+!c                  enddo
+!c               enddo
+!c            
+!c            elseif (ibuf .eq. 1) then !velocity interpolation
+!c               do k=0,n_c_del_oneaxis - 1 
+!c                  do j=0,n_c_del_oneaxis - 1 
+!c                     do i=0,n_c_del_oneaxis - 1 
+!c                        do idim = 1,3
+!c                           data_solids(idim,ipt)
+!c     $                          = data_solids(idim,ipt)
+!c     $                          + data_fluids(i0+i,j0+j,k0+k, idim)
+!c     $                          * wt_delta(i,j,k)
+!c                        enddo
+!c                     enddo
+!c                  enddo
+!c               enddo
+!c            endif 
+!c
+!c         enddo ! end of loop in nn_solids
+!c
   endif ! end of option for delta function
 
-
+      
   return
 end subroutine delta_exchange
 

@@ -1,24 +1,69 @@
-  integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
-  integer,dimension(1:ne_solid,1:nsurface)  :: solid_surface   !...surface element faces
+!      include 'ibd0_exchange_pars.fh'
+!      include 'ibg_variables_cfd.fh'
+!      include 'ibg_variables_cloud.fh'
+!      include 'ibg_variables_domain.fh'
+!      include 'ibg_variables_fluid.fh'
+!      include 'ibg_variables_marker.fh'
+!      include 'ibg_variables_point.fh'
+!      include 'ibg_variable_equivalences.fh'
+!      include 'iba_application_parameters.fh'
+!      include 'ibd0_nonzerocfddiv_vars.fh'
+!      include 'ibd0_app_vals_nonzerocfddiv.fh'
+!      include 'ibg_change_me_ptcon_var_decl.fh'
+!      include 'ibg_change_me_ptcon_var_common_equiv.fh'
+!      include 'ibg_parameters_run.fh' 
 
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_prevel      !...velocity - previous timestep
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
+!      integer  klok           
+!      real*8     td             
+!      integer  istep   
+
+!      integer time
+ !     external time
+
+!	logical    bwriteon 
+!      integer currentstep
+!      real*8 :: time_value(10000)
+      !integer :: num_point(max_point)
+
+!++++++++
+!     tecplot output variables file setting
+!++++++++
+!      character*3  tc
+!      character*5  strklok
+!      character*10  tec
+!      character*11  tecm
+!      character*11  tecf
 
 
-  real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
+!++++++++
+! gauss point weight
+!++++++++
 
-  real(8),dimension(6,nn_solid) :: solid_stress  !...solid Cauchy stress (Voigt notation)
-  real(8),dimension(6,nn_solid) :: solid_strain  !...solid strain        (Voigt notation)
 
 
-  real(8),allocatable :: coor_1(:,:)
-  integer,allocatable :: solid_fem_con_1(:,:)
-  integer,allocatable :: solid_surface_1(:,:)
 
-  !integer,dimension(1:nn_solid) :: solid_ale_boundary
- 
-  integer :: error_id,i
+
+
+
+!      data xg/ 0.d0, 0.d0, 0.d0, 0.d0, -0.577350269189626d0,
+!     1     0.577350269189626d0, 0.d0, 0.d0, -0.774596669241483d0,0.d0, 
+!     2     0.774596669241483d0,0.d0, -0.861136311594053d0,
+!     3     -0.339981043584856d0, 0.339981043584856d0, 
+!     $     0.861136311594053d0/
+!      data xg_tetra/ 0.25d0, 0.d0, 0.d0, 0.d0, -0.577350269189626d0,
+!     1     0.577350269189626d0, 0.d0, 0.d0, -0.774596669241483d0,0.d0, 
+!     2     0.774596669241483d0,0.d0, -0.861136311594053d0,
+!     3     -0.339981043584856d0, 0.339981043584856d0, 
+!     $     0.861136311594053d0/
+      
+!      data wgt/ 0.0d0, 0.d0,0.d0,0.d0,1.d0,1.d0,
+!     1     0.d0,0.d0,0.5555555555555556d0,0.8888888888888889d0,
+!     2     0.5555555555555556d0,0.d0, 0.347854845137454d0,
+!     $     0.652145154862546d0,
+!     3     0.652145154862546d0,0.347854845137454d0/
+!      data wgt_tetra/ 1.0d0, 0.d0,0.d0,0.d0,1.d0,1.d0,
+!     1     0.d0,0.d0,0.5555555555555556d0,0.8888888888888889d0,
+!     2     0.5555555555555556d0,0.d0, 0.347854845137454d0,
+!     $     0.652145154862546d0,
+!     3     0.652145154862546d0,0.347854845137454d0/
+

@@ -1,103 +1,126 @@
 
- !...shape function values
-
-  !xg(:,1) = (/  0.d0               , 0.d0               ,0.d0               ,0.d0/)
-  !xg(:,2) = (/ -0.577350269189626d0, 0.577350269189626d0,0.d0               ,0.d0/)
-  !xg(:,3) = (/ -0.774596669241483d0, 0.d0               ,0.774596669241483d0,0.d0/)
-  !xg(:,4) = (/ -0.861136311594053d0,-0.339981043584856d0,0.339981043584856d0,0.861136311594053d0/)
+      xg(:,1) = (/  0.d0               , 0.d0               ,0.d0               ,0.d0/)
+      xg(:,2) = (/ -0.577350269189626d0, 0.577350269189626d0,0.d0               ,0.d0/)
+      xg(:,3) = (/ -0.774596669241483d0, 0.d0               ,0.774596669241483d0,0.d0/)
+      xg(:,4) = (/ -0.861136311594053d0,-0.339981043584856d0,0.339981043584856d0,0.861136311594053d0/)
       
-  !wgt(:,1) = (/ 2.d0                ,0.d0                ,0.d0                ,0.d0/)
-  !wgt(:,2) = (/ 1.d0                ,1.d0                ,0.d0                ,0.d0/)
-  !wgt(:,3) = (/ 0.5555555555555556d0,0.8888888888888889d0,0.5555555555555556d0,0.d0/)
-  !wgt(:,4) = (/ 0.347854845137454d0 ,0.652145154862546d0 ,0.652145154862546d0 ,0.347854845137454d0/)
+      wgt(:,1) = (/ 2.d0                ,0.d0                ,0.d0                ,0.d0/)
+      wgt(:,2) = (/ 1.d0                ,1.d0                ,0.d0                ,0.d0/)
+      wgt(:,3) = (/ 0.5555555555555556d0,0.8888888888888889d0,0.5555555555555556d0,0.d0/)
+      wgt(:,4) = (/ 0.347854845137454d0 ,0.652145154862546d0 ,0.652145154862546d0 ,0.347854845137454d0/)
 
 
 
-  !xg_tetra(:,1) = (/ 0.25d0             , 0.d0               , 0.d0               , 0.d0                /)
-  !xg_tetra(:,2) = (/-0.577350269189626d0, 0.577350269189626d0, 0.d0               , 0.d0                /)
-  !xg_tetra(:,3) = (/-0.774596669241483d0, 0.d0               , 0.774596669241483d0, 0.d0                /)
-  !xg_tetra(:,4) = (/-0.861136311594053d0,-0.339981043584856d0, 0.339981043584856d0, 0.861136311594053d0 /)
-      
-  !wgt_tetra(:,1) = (/ 1.0d0               , 0.d0                ,0.d0                 , 0.d0                /)
-  !wgt_tetra(:,2) = (/ 1.d0                , 1.d0                ,0.d0                 , 0.d0                /)
-  !wgt_tetra(:,3) = (/ 0.5555555555555556d0, 0.8888888888888889d0, 0.5555555555555556d0, 0.d0                /)
-  !wgt_tetra(:,4) = (/ 0.347854845137454d0 , 0.652145154862546d0 , 0.652145154862546d0 , 0.347854845137454d0 /)
+!++++++++
+!     tecplot output file setting
+!++++++++
+! Lucy commented out the next 2 lines temporarily 
+!      open(5,file='tec_input',status='unknown')
+!      read(5,*) jump_frame,jump_fd,jump_mk,mk_start,mk_finish
+!      open(9000, file='tecf.dat', status='unknown')
+!      open(9001, file='tecs.dat', status='unknown')
+      open(9500, file='vel_time.m', status='unknown')
+
+!      open(9988, file='main_dat', status='old')
+!      open(223,file='rest0a',form='unformatted',status='unknown')
+!      open(224,file='rest0b',form='unformatted',status='unknown')
+!      open(25,file='rest1',form='unformatted',status='unknown')
+
+!++++++++
+!     global input file read
+!++++++++
+!      write(*,*) 'reading main_dat'
+!	call readmain
+
+!++++++++
+!     n_ibmfem 1/0 fem/ibm
+!++++++++
+
+      vnorm=0.0d0
+      !niterf=0
+      naxx1=time()
+
+      call r_input  !...reading coortable
+
+	  write(*,*) 'structure solver - FEM'
+
+
+ 10   format(a21,i4,a3,i4,a4,i4)
+
+	   write(*,*) 'nn_solid=',nn_solid
+
+	   solid_coor_curr(1,1:nn_solid) = solid_coor_init(1,1:nn_solid)
+	   solid_coor_curr(2,1:nn_solid) = solid_coor_init(2,1:nn_solid)
+	   solid_coor_curr(3,1:nn_solid) = solid_coor_init(3,1:nn_solid)
 
 
 
-  if (nsd_solid==2) then
-	if (nen_solid == 3) then
-        call quad2d3n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
-	elseif (nen_solid == 4) then
-        call quad2d4n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
-	endif
-  elseif (nsd_solid==3) then
-	if (nen_solid == 4) then
-        call quad3d4n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
-	elseif (nen_solid == 8) then
-        call quad3d8n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
-	endif
-  endif
+	   solid_force_FSI(:,:) = 0.0d0
 
 
-  allocate(solid_fem_con_1(ne_solid_1,nen_solid),stat=error_id)
-  allocate(solid_surface_1(ne_solid_1,nen_solid),stat=error_id)
-  allocate(coor_1(nn_solid_1,nsd_solid),stat=error_id)
+!      klok = 0+nt0
 
- !...read element connectivity for one structure
-  call readien_solid(solid_fem_con_1,ne_solid_1,nen_solid)
 
- !...read coordinates for one structure
-  call readx_solid(coor_1,nn_solid_1,nsd_solid)
 
- !...read surface information (which element surface is part of the structure surface
- ! Lucy commented it out
-!  call readrng_solid(solid_surface_1,ne_solid_1,nen_solid)
+!++++++++
+!     mapping of original coordinates from ibm to rubber
+!++++++++
+!      if (n_ibmfem .eq. 1) then
+    !call r_main replaced
 
-  !call read_solid_ale_boundary(solid_ale_boundary)
 
- !...scale structure
-  do i=1,nsd_solid
-     coor_1(:,i)=coor_1(:,i)*solid_scale(i)
+  x13=1.0d0/3.0d0
+  x23=2.0d0/3.0d0
+  x43=4.0d0/3.0d0
+  x53=5.0d0/3.0d0
+  x73=7.0d0/3.0d0
+  x83=8.0d0/3.0d0
+  x49=4.0d0/9.0d0
+  x109=10.0d0/9.0d0
+
+  !do i=1,nn_solid_1
+  !   write(20,*) i,solid_coor_init(1,i),solid_coor_init(2,i),solid_coor_init(3,i)
+  !enddo
+
+  !do i=1,numela
+  !   write(21,*) i,(nea(i,j),j=1,nis)
+  !enddo
+
+  !close(20)
+  !close(21)
+
+  call r_sinit
+
+  do i=1,nn_solid
+     drf(i)=0.0d0
+     drf(i +   nn_solid)=0.0d0
+     drf(i + 2*nn_solid)=0.0d0
+     do j=1,3
+!        dis(j,i)=0.0d0
+        !diso(j,i)=0.0d0
+        solid_prevel(j,i)=0.0d0
+        !prevel2_pt(j,i)=0.0d0
+        !acm(j,i)=0.0d0
+        !acm1(j,i)=0.0d0
+     enddo
   enddo
 
- !...copy the one structure to multiple (n_solid) identical structures
-  do i=1,n_solid
-      do j=1,nsd_solid
-	  solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
-	enddo
-     solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
- !    solid_surface(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_surface_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
+
+
+  do i=1,nump*ne_solid
+     prec(i)=0.0d0
+!     preco(i)=0.0d0
   enddo
-  
-  deallocate(solid_fem_con_1,stat=error_id)
-  deallocate(solid_surface_1,stat=error_id)
-  deallocate(coor_1,stat=error_id)
-  deallocate(shift,stat=error_id)  
 
- !...read essential boundary conditions (displacement)
-  call solid_fem_BC_read_essential
 
- !...initialize arrays
-  solid_coor_curr(1:nsd_solid,1:nn_solid) = solid_coor_init(1:nsd_solid,1:nn_solid)
-  solid_force_FSI(1:nsd_solid,1:nn_solid) = 0.0d0
-  solid_prevel(1:nsd_solid,1:nn_solid)    = 0.0d0
 
-  if (ninit .eq. 1) then
-     call r_sreadinit(solid_coor_init,solid_coor_curr)
+
+
+!         nts_solid=n_step_run
+!      endif
+
+  if (mno .lt. nn_solid) then
+     write(*,*) 'boost maxnn_solids in hypo.f and delta_nonuniform'
+	 stop
   endif
-  !drf(1:3*nn_solid) = 0.0d0
 
-
-
-  if (restart == 0) then
-      
-    !...output file setting for contineous writing (please comment out unused stuff)
-    !...Matlab output for falling sphere
-     open(9500, file='vel_time.m', status='replace')
-  
-  else
-
-     open(9500, file='vel_time.m', status='old')
-
-  endif

@@ -1,0 +1,45 @@
+!   Definition for fluid field variables   
+   
+      integer ien(nen,ne),rng(neface,ne)
+      real* 8 xn(nsd,nn), x(nsd,nn), hg(ne)
+      pointer (rngptr,rng),(ienptr,ien)
+      pointer (xnptr,xn),(xptr,x),(hgptr,hg)
+
+      integer id(ndf,nn) 
+      real* 8 dn(ndf,nn),fn(ndf,nn)
+      real* 8 d(ndf,nn),do(ndf,nn)
+      real* 8 bg(ndf,nn),dg(ndf,nn),p(ndf,nn)
+      real* 8 wg(ndf,nn), w(ndf,nn)
+      pointer (idptr,id),(fnptr,fn),(dnptr,dn)
+      pointer (dptr,d),(doptr,do),(uptr,u)
+      pointer (bgptr,bg),(dgptr,dg),(pptr,p)
+      pointer (wgptr,wg),(wptr,w)
+
+	real* 8 f_fluids(nsd,nn)
+	pointer (ffluidsptr,f_fluids)
+
+      real* 8 dd(ndf,nn),hn(nn),hm(nn)
+      pointer (ddptr,dd),(hnptr,hn),(hmptr,hm)
+
+      real* 8 z(ndf*nn,inner)
+      real* 8 v(ndf*nn,inner+1)
+      real* 8 zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
+      real* 8 vloc(ndf,nn),avloc(ndf,nn)
+      pointer (zptr,z),(vptr,v)
+      pointer (avgptr,avg),(zgptr,zg),(smptr,sm)
+      pointer (vlocptr,vloc),(avlocptr,avloc)
+
+      real* 8 h_gmres(inner+1,inner)
+      real* 8 y_gmres(inner+1)
+      real* 8 cc(inner), ss(inner)
+      pointer (hptr,h_gmres),(yptr,y_gmres),(ccptr,cc),(ssptr,ss)
+
+      logical assemble
+      integer ierr
+
+	real* 8 dvolume(nn)
+	pointer (dvolumeptr,dvolume)
+!	real* 8 shrknode(maxconn,nnd)
+!	pointer (shrknodeptr,shrknode)
+!	integer ncnn(nnd),cnn(maxconn,nnd)
+!	pointer (ncnnptr,ncnn),(cnnptr,cnn)

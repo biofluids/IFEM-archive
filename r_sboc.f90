@@ -10,8 +10,8 @@ subroutine r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)
   use r_common, only: rc1,rc2,rk,cpre,bpre,dbpre,ddbpre
   implicit none 
 
-  real(8) :: ocpp
-  real(8) :: obc(6,6),xmj(3),dxmj(3,6),ddxmj(3,6,6),ocuu(6,6),ocup(6)
+  real*8 :: ocpp
+  real*8 :: obc(6,6),xmj(3),dxmj(3,6),ddxmj(3,6,6),ocuu(6,6),ocup(6)
 
   integer :: i,j
 

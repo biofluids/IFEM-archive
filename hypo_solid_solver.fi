@@ -1,0 +1,128 @@
+!++++++++
+!     fem
+!++++++++ 
+
+
+  write(*,*) 'solving for 3-d structure'
+
+
+!      if (n_ibmfem .eq. 1) then !........if fem is used
+!         if (nrestart .ne. 1) then !.......if it is a new problem
+!            if (initdir .eq. 1) then !.......      !...apply Dirichlet BC to FEM structure
+!               xtime=tfun(ntfun)
+!               do k=1,numgb
+!                  if (ndirgb(k) .eq. 121111) then
+!                     do m=1,numdir(k) 
+!                        dis(1,nodegb(k,m))=
+!     $                       xtime*xindis(1,nodegb(k,m))              
+!				   enddo
+!                  endif
+!     
+!                  if (ndirgb(k) .eq. 112111) then
+!                     do m=1,numdir(k) 
+!                        dis(2,nodegb(k,m))=
+!     $                       xtime*xindis(2,nodegb(k,m))              
+!				   enddo
+!                  endif
+
+!	            if (ndirgb(k) .eq. 211111) then
+!                     do m=1,numdir(k) 
+!                        dis(3,nodegb(k,m))=
+!     $                       xtime*xindis(3,nodegb(k,m))              
+!				   enddo
+!                  endif
+!			 enddo
+!            endif
+!         else
+!            if (iti .eq. nt0+1) then
+!               do i=1,nnd
+!                  read(25) dis(1,i),dis(2,i),dis(3,i),
+!     $                 du(1,i),du(2,i),du(3,i),
+!     $                 acm(1,i),acm(2,i),acm(3,i),
+!     $                 coord_pt(1,i),coord_pt(2,i),coord_pt(3,i),
+!     $                 vel_pt(1,i),vel_pt(2,i),vel_pt(3,i),
+!     $           accel_pt(1,i),accel_pt(2,i),accel_pt(3,i),
+!     $           prevel_pt(1,i),prevel_pt(2,i),prevel_pt(3,i)
+!			 enddo
+
+!               do i=0,n_ss_alloc-1 
+!                  read(25) coord_ss(1,i),coord_ss(2,i),coord_ss(3,i)
+!                  read(25) flow_ss(i),pressure_ss(i)
+!			 enddo
+
+!               do i=1,3*nnd
+!                  read(25) predrf(i),drf(i)
+!			 enddo
+
+!               do ine=1,ne_solid
+!                  do k=1,nump
+!                     nh1=(ine-1)*nump+k
+!                     read(25) prec(nh1)
+!				enddo
+!			 enddo
+!            endif
+!         endif
+	   
+         call r_stang
+!      else
+!         if (nrestart .eq. 1) then
+!            if (iti .eq. nt0+1) then
+!               do i=1,nptibm
+!                  read(25) coord_pt(1,i),coord_pt(2,i),coord_pt(3,i), 
+!     $                 vel_pt(1,i),vel_pt(2,i),vel_pt(3,i),
+!     $                 accel_pt(1,i),accel_pt(2,i),accel_pt(3,i),
+!     $                 prevel_pt(1,i),prevel_pt(2,i),prevel_pt(3,i)
+!			 enddo
+!               do i=0,n_ss_alloc-1 
+!                  read(25) coord_ss(1,i),coord_ss(2,i),coord_ss(3,i)
+!                  read(25) flow_ss(i),pressure_ss(i)
+!			 enddo
+!            endif
+!         endif
+!      endif
+
+!      if (nrestart .eq. 1) then
+!         if (n_ibmfem .eq. 1) then
+!           if (iti .eq. nt0+1) then
+!               read(25) vnorm,viter
+!            endif
+!         endif
+!      endif
+
+
+
+!++++++++ 
+!     ** create connection lists, traversing dlist with key=idomain_ptcon.
+!   asynchronous
+!++++++++ 
+
+!                ??????????
+!         call create_conexchlists(
+!     $        dnext_pt, dlptlocal_number,
+!     $        dlptlocal_head, dlptlocal_tail,
+!     $        idomain_ptcon, dnext_con, dlconshare_number,
+!     $        dlconshare_head, dlconshare_tail)   
+	tot_force=0.0    
+
+      call solid_femcalcptforce
+
+
+	tot_force=sum(solid_force_FSI(1,:))
+	write(*,*) 'total force=',tot_force
+!++++++++
+!     calculate the applied forces
+!   n_dispforce equal to 1, use initial displacement.
+!   n_dispforce equal to 0, use external excitation force
+!++++++++
+
+!         if (n_dispforce .eq. 0) then
+!            
+!            call disturbance(u,v,w,istep,
+!     $           mn_pt_alloc, mx_pt_alloc,
+!     $           dnext_pt,dlptlocal_number, 
+!     $           dlptlocal_head, dlptlocal_tail, 
+!     $           dmnac1,dmnac2,dmnac3,dmxac1,dmxac2,dmxac3,
+!     $           dmnlc1,dmnlc2,dmnlc3,dmxlc1,dmxlc2,dmxlc3,
+!     $           vel_pt, coord_pt, force_pt, accel_pt)
+!         endif
+

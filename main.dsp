@@ -68,8 +68,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE F90 /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt
-# ADD F90 /browser /check:bounds /check:format /check:power /check:output_conversion /check:overflow /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:truncated_source /warn:unused
-# SUBTRACT F90 /check:underflow /fltconsistency /warn:declarations /warn:nofileopt
+# ADD F90 /browser /check:bounds /compile_only /nologo /optimize:5 /threads /traceback /warn:argument_checking /warn:nofileopt /warn:truncated_source
+# SUBTRACT F90 /f66 /warn:declarations /warn:unused
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
 # ADD CPP /nologo /ML /W4 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -79,8 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib /nologo /stack:0x5f5e100,0x989680 /subsystem:console /incremental:no /debug /machine:I386 /pdbtype:sept
-# SUBTRACT LINK32 /verbose /profile /pdb:none
+# ADD LINK32 kernel32.lib /nologo /stack:0x1e8480 /subsystem:console /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -90,69 +89,75 @@ LINK32=link.exe
 # Name "main - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\block.f90
+SOURCE=.\block.f
 DEP_F90_BLOCK=\
 	".\Debug\fluid_variables.mod"\
-	".\Debug\run_variables.mod"\
-	".\global_constants.mod"\
-	".\sh2d3n.h"\
-	".\sh2d4n.h"\
+	".\Debug\global_constants.mod"\
 	".\sh3d4n.h"\
 	".\sh3d8n.h"\
 	
+
+!IF  "$(CFG)" == "main - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "main - Win32 Debug"
+
+# ADD F90 /threads
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
-SOURCE=.\blockgmres.f90
+SOURCE=.\blockgmres.f
 DEP_F90_BLOCKG=\
 	".\Debug\fluid_variables.mod"\
-	".\Debug\run_variables.mod"\
-	".\global_constants.mod"\
-	".\sh2d3n.h"\
-	".\sh2d4n.h"\
+	".\Debug\global_constants.mod"\
 	".\sh3d4n.h"\
 	".\sh3d8n.h"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\correct.f90
+SOURCE=.\correct3dl.f
 # End Source File
 # Begin Source File
 
 SOURCE=.\delta_nonuniform.f90
 DEP_F90_DELTA=\
 	".\Debug\fluid_variables.mod"\
+	".\vol3d4n.fi"\
+	".\vol3d8n.fi"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\echoinput.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\ensight_output.f90
-DEP_F90_ENSIG=\
+SOURCE=.\echoinput.f
+DEP_F90_ECHOI=\
 	".\Debug\fluid_variables.mod"\
-	".\Debug\run_variables.mod"\
-	".\Debug\solid_variables.mod"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\equal.f90
+SOURCE=.\equal.f
 # End Source File
 # Begin Source File
 
-SOURCE=.\error.f90
+SOURCE=.\error.f
+# End Source File
+# Begin Source File
+
+SOURCE=.\error_memory.f90
 # End Source File
 # Begin Source File
 
 SOURCE=.\facemap.f90
+DEP_F90_FACEM=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\fclear.f90
+SOURCE=.\fclear.f
 # End Source File
 # Begin Source File
 
@@ -161,10 +166,14 @@ SOURCE=.\fluid_variables.f90
 # Begin Source File
 
 SOURCE=.\form.f90
+DEP_F90_FORM_=\
+	".\Debug\fluid_variables.mod"\
+	".\malloc.fi"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\gaussj.f90
+SOURCE=.\gaussj.f
 # End Source File
 # Begin Source File
 
@@ -180,19 +189,45 @@ SOURCE=.\global_simulation_parameter.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\gmres.f90
+SOURCE=.\gmres.f
+DEP_F90_GMRES=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\hg.f90
+SOURCE=.\hg.f
+DEP_F90_HG_Fe=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\hydro.f90
+SOURCE=.\hydro.f
+DEP_F90_HYDRO=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\hypo.f90
+DEP_F90_HYPO_=\
+	".\Debug\delta_nonuniform.mod"\
+	".\Debug\fluid_variables.mod"\
+	".\Debug\form.mod"\
+	".\Debug\global_simulation_parameter.mod"\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	".\hypo_declaration_fluid.fi"\
+	".\hypo_fluid_solver.fi"\
+	".\hypo_pointer.fi"\
+	".\hypo_prepare_fluid.fi"\
+	".\hypo_prepare_solid.fi"\
+	".\hypo_solid_solver.fi"\
+	".\hypo_solid_update.fi"\
+	".\hypo_write_output.fi"\
+	".\malloc.fi"\
+	
 # End Source File
 # Begin Source File
 
@@ -208,6 +243,14 @@ SOURCE=.\hypo_fluid_solver.fi
 # End Source File
 # Begin Source File
 
+SOURCE=.\hypo_pointer.fi
+# End Source File
+# Begin Source File
+
+SOURCE=.\hypo_postprocess_fluid.fi
+# End Source File
+# Begin Source File
+
 SOURCE=.\hypo_prepare_fluid.fi
 # End Source File
 # Begin Source File
@@ -216,15 +259,11 @@ SOURCE=.\hypo_prepare_solid.fi
 # End Source File
 # Begin Source File
 
-SOURCE=.\hypo_restart_file_check.fi
+SOURCE=.\hypo_solid_solver.fi
 # End Source File
 # Begin Source File
 
-SOURCE=.\hypo_restart_read.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_write.fi
+SOURCE=.\hypo_solid_update.fi
 # End Source File
 # Begin Source File
 
@@ -232,15 +271,19 @@ SOURCE=.\hypo_write_output.fi
 # End Source File
 # Begin Source File
 
-SOURCE=.\initialize.f90
+SOURCE=.\initialize.f
+DEP_F90_INITI=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\input_solid_BC.in
-# End Source File
-# Begin Source File
-
-SOURCE=.\lenght.f90
+SOURCE=.\lenght.f
+DEP_F90_LENGH=\
+	".\Debug\fluid_variables.mod"\
+	".\sh3d4n.h"\
+	".\sh3d8n.h"\
+	
 # End Source File
 # Begin Source File
 
@@ -248,51 +291,55 @@ SOURCE=.\main.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\meshgen_fluid.f90
+SOURCE=.\meshgen.f
+DEP_F90_MESHG=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\meshgen_solid.f90
+SOURCE=.\nondimension.f
+DEP_F90_NONDI=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\nondimension.f90
+SOURCE=.\norm.f
+DEP_F90_NORM_=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\norm.f90
+SOURCE=.\parseinput_fluid.f
+DEP_F90_PARSE=\
+	".\Debug\delta_nonuniform.mod"\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\notes.txt
+SOURCE=.\quad2d3n.f
 # End Source File
 # Begin Source File
 
-SOURCE=.\parseinput.f90
+SOURCE=.\quad2d4n.f
 # End Source File
 # Begin Source File
 
-SOURCE=.\quad2d3n.f90
+SOURCE=.\quad3d4n.f
 # End Source File
 # Begin Source File
 
-SOURCE=.\quad2d4n.f90
+SOURCE=.\quad3d8n.f
 # End Source File
 # Begin Source File
 
-SOURCE=.\quad3d4n.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\quad3d8n.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_bdpd_curr.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_bdpd_init.f90
+SOURCE=.\r_bdpd.f90
+DEP_F90_R_BDP=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -301,70 +348,129 @@ SOURCE=.\r_common.f90
 # Begin Source File
 
 SOURCE=.\r_element.f90
+DEP_F90_R_ELE=\
+	".\Debug\r_common.mod"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=.\r_input.f90
+DEP_F90_R_INP=\
+	".\Debug\delta_nonuniform.mod"\
+	".\Debug\error_memory.mod"\
+	".\Debug\global_simulation_parameter.mod"\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_jacob.f90
+DEP_F90_R_JAC=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_load.f90
+DEP_F90_R_LOA=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_nodalf.f90
+DEP_F90_R_NOD=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sboc.f90
+DEP_F90_R_SBO=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sbpress.f90
+DEP_F90_R_SBP=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_scal.f90
+DEP_F90_R_SCA=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_scauchy.f90
+DEP_F90_R_SCAU=\
+	".\Debug\r_common.mod"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=.\r_sinit.f90
+DEP_F90_R_SIN=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_smaterj.f90
+DEP_F90_R_SMA=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_spiola.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spiola_elastic.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spiola_viscous.f90
+DEP_F90_R_SPI=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_spress.f90
+DEP_F90_R_SPR=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sreadinit.f90
+DEP_F90_R_SRE=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sstif.f90
+DEP_F90_R_SST=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_sstrain.f90
+DEP_F90_R_SSTR=\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\r_stang.f90
+DEP_F90_R_STA=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -373,46 +479,43 @@ SOURCE=.\r_stoxc.f90
 # Begin Source File
 
 SOURCE=.\r_timefun.f90
+DEP_F90_R_TIM=\
+	".\Debug\global_constants.mod"\
+	".\Debug\r_common.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\read.f90
+SOURCE=.\rkpmshape3d.f
 # End Source File
 # Begin Source File
 
-SOURCE=.\rkpmshape2d.f90
+SOURCE=.\set.f
+DEP_F90_SET_F=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\rkpmshape3d.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\run_variables.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\set.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\shape.f90
+SOURCE=.\shape.f
+DEP_F90_SHAPE=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\sharp.f90
+DEP_F90_SHARP=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\solid_fem_BC.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\solid_solver.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\solid_update.f90
+SOURCE=.\solid_femcalcptforce.f90
+DEP_F90_SOLID=\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
@@ -421,18 +524,40 @@ SOURCE=.\solid_variables.f90
 # Begin Source File
 
 SOURCE=.\update.f90
+DEP_F90_UPDAT=\
+	".\Debug\fluid_variables.mod"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\vol.f90
+SOURCE=.\vol.f
+DEP_F90_VOL_F=\
+	".\Debug\fluid_variables.mod"\
+	".\sh3d4n.h"\
+	".\sh3d8n.h"\
+	
 # End Source File
 # Begin Source File
 
-SOURCE=.\vol2d3n.fi
+SOURCE=.\zfem_ensCase.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\vol2d4n.fi
+SOURCE=.\zfem_ensFluid.f90
+DEP_F90_ZFEM_=\
+	".\Debug\fluid_variables.mod"\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
+# End Source File
+# Begin Source File
+
+SOURCE=.\zfem_ensGeo.f90
+DEP_F90_ZFEM_E=\
+	".\Debug\fluid_variables.mod"\
+	".\Debug\r_common.mod"\
+	".\Debug\solid_variables.mod"\
+	
 # End Source File
 # End Target
 # End Project

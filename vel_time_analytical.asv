@@ -1,0 +1,17 @@
+mu=10; %viscosity (g/cm.s)
+dia=0.2; %diameter (cm)
+volume=pi/6*dia^3;  %volume (cm^3)
+rho_s=3.0; %density of solid (g/cm^3)
+rho_f=1.0; %density of fluid
+mass=rho_s*volume; %mass (g)
+gravity=980; %gravity
+
+%Assume Stoke's flow
+u_t=dia^2*(rho_s-rho_f)*gravity/(18*mu);
+reynold=dia*u_t*rho_f/mu;
+if reynold>0.2
+    'PARTICLE REYNOLDS NUMBER >0.2, NOT VALID FOR STOKE''S FLOW'
+end
+t=1:20; %time (s)
+u=-u_t*(exp(-3*pi*mu*dia*t/mass)-1);
+plot(t,u)
