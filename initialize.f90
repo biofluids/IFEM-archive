@@ -58,13 +58,13 @@ subroutine initialize
   conserve = .false.
 
 
-  bc(1:ndf,1:maxnsurf) = 0
-  bv(1:ndf,1:maxnsurf) = -999.0
+  bc(1:ndfpad,1:maxnsurf) = 0
+  bv(1:ndfpad,1:maxnsurf) = -999.0
 
-  bcd(1:nsd,1:maxnsurf) = 0
-  bvd(1:nsd,1:maxnsurf) = -999.0
+  bcd(1:nsdpad,1:maxnsurf) = 0
+  bvd(1:nsdpad,1:maxnsurf) = -999.0
 
-  ic(1:ndf) = -999.0
+  ic(1:ndfpad) = -999.0
 
   delta(0:21) = 0.0
 

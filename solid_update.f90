@@ -89,18 +89,15 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   viter=0.0d0
-  write(*,*) 'maximum solid velocity is =', maxval(solid_vel(1:nsd_solid,:))
-  du(1:nsd_solid,1:nn_solid)=solid_vel(1:nsd_solid,1:nn_solid)*dt
-
-!  do i=1,nn_solid
-!     do j=1,nsd_solid
-!     du(j,i)=solid_vel(j,i)*dt
-!	 enddo
-!  enddo
+  do i=1,nn_solid
+     do j=1,nsd_solid
+     du(j,i)=solid_vel(j,i)*dt
+	 enddo
+  enddo
 
   do i=1,nn_solid
      if (klok .eq. 1) then
-	    do j=1,nsd_solid
+	    do  j=1,nsd_solid
         vnorm = vnorm + du(j,i)**2
 		enddo
      else
@@ -130,8 +127,8 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 
   write(*,*) " solid position updated"
 
-!  write(*,*) 'solid_coor_curr',solid_coor_curr(1,1:4)
-!  solid_coor_curr(1,3:4) = solid_coor_curr(1,3:4)+0.01
+  write(*,*) 'solid_coor_curr',solid_coor_curr(1,1:4)
+  solid_coor_curr(1,3:4) = solid_coor_curr(1,3:4)+0.01
 
   return
 end subroutine solid_update

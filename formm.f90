@@ -34,7 +34,9 @@ subroutine formdm(x,ds,rngface,ien)
         inl = mapping(ieface,inface,etype)
         do iec=1,ne
            irng = rngface(ieface,iec)
-           if(irng.ne.0) h(irng,ien(inl,iec)) = 1  
+           if(irng.ne.0) then
+              h(irng,ien(inl,iec)) = 1  
+           endif
         enddo
      enddo
   enddo
@@ -43,7 +45,9 @@ subroutine formdm(x,ds,rngface,ien)
      do inn=1,nn
         do isd=1,nsd
            if (h(irng,inn) == 1) then
-              if (bcd(isd,irng) > 0) ds(isd,inn) = bvd(isd,irng)
+              if (bcd(isd,irng) > 0) then
+                 ds(isd,inn) = bvd(isd,irng)
+              endif
            endif
         enddo
      enddo

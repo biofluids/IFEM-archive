@@ -11,7 +11,7 @@ subroutine update(dinc, d, dg, mn)
 
   dinc(1:mn,1:nn) = dg(1:mn,1:nn)
 
-  d = d + dinc
+  d(1:mn,1:nn) = d(1:mn,1:nn) + dinc(1:mn,1:nn)
 
   return
 end subroutine update

@@ -40,7 +40,7 @@ subroutine r_sstif(ocpp,ocuu,ocup,xkup,xkpp,xfp,ne,w,toxj,vel,acc,solid_fem_con,
 !     fu
 !ccccccccccc
         call r_scalfu(fu,isd,ni)
-        !call r_scalfu_curr(fu,isd,ni,cstr_element)
+!        call r_scalfu_curr(fu,isd,ni,cstr_element)
         predrf(nu1) = predrf(nu1) + fu*w
         do nk=1,nump
            call r_scalkup(fkup,ocup,isd,nk,ni)

@@ -212,7 +212,6 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
                  
                  solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + cstr(1:nsd_solid*2,ine,1) !...constant stress and strain in element
                  solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + ge(1:nsd_solid*2,ine,1)
-                 
                  goto 541
               endif
            enddo

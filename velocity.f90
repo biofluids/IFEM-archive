@@ -51,26 +51,20 @@ subroutine velocity(xn,xnold,meshvel,refvel,finv,dloc,ien)
      enddo
 
      do iq=1,nquad
-		if (nsd==2) then
-		    if (nen.eq.3) then !calculate shape function at quad point
-			   include "sh2d3n.h"
-			elseif (nen.eq.4) then
-				include "sh2d4n.h"
-			endif
-		elseif (nsd==3) then
-		    if (nen.eq.4) then !calculate shape function at quad point
-			   include "sh3d4n.h"
-			elseif (nen.eq.8) then
-				include "sh3d8n.h"
-			endif
-		endif
+        if (nen.eq.4) then
+           include "sh3d4n.h"
+        elseif (nen.eq.8) then
+           include "sh3d8n.h"
+        endif
         eft0=abs(det)*wq(iq)
 
         do isd=1,nsd
            convel(isd)=0.0
         enddo
         do inl=1,nen
-           convel(1:nsd)=convel(1:nsd)+sh(0,inl)*diffv(1:nsd,inl)
+           convel(xsd)=convel(xsd)+sh(0,inl)*diffv(xsd,inl)
+           convel(ysd)=convel(ysd)+sh(0,inl)*diffv(ysd,inl)
+           convel(zsd)=convel(zsd)+sh(0,inl)*diffv(zsd,inl)
         enddo
 
         refvel(1:nsd,iq,ie)=0

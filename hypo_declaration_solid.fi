@@ -11,8 +11,8 @@
 
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
 
-  real(8),dimension(6,nn_solid) :: solid_stress  !...solid Cauchy stress (Voigt notation)
-  real(8),dimension(6,nn_solid) :: solid_strain  !...solid strain        (Voigt notation)
+  real(8),dimension(nsd_solid*2,nn_solid) :: solid_stress  !...solid Cauchy stress (Voigt notation)
+  real(8),dimension(nsd_solid*2,nn_solid) :: solid_strain  !...solid strain        (Voigt notation)
 
 
   real(8),allocatable :: coor_1(:,:)
@@ -21,4 +21,4 @@
 
   !integer,dimension(1:nn_solid) :: solid_ale_boundary
  
-  integer :: error_id,i
+  integer :: error_id,i,j

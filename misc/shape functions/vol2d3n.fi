@@ -1,0 +1,13 @@
+		vol = 0
+		do iq = 1,nquad
+	
+			xr(1,1) = x(1, 1) - x(1, 3) 
+			xr(1,2) = x(2, 1) - x(2, 3) 
+			xr(2,1) = x(1, 2) - x(1, 3) 
+			xr(2,2) = x(2, 2) - x(2, 3) 
+			cf(1,1) = + (xr(1,1)*xr(2,2) - xr(2,1)*xr(1,2))
+      
+			det = cf(1,1)
+
+			vol = vol + abs(det) * wq(iq);
+		end do

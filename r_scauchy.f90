@@ -7,11 +7,11 @@ subroutine r_scauchy(det,todet,xto,cstr_element)
   implicit none 
 
   real(8),intent(in) :: det,todet
-  real(8) xto(3,3)
-  real(8) :: cstr_element(6)  !...Cauchy stress
+  real(8) xto(nsd_solid,nsd_solid)
+  real(8) :: cstr_element(nsd_solid*2)  !...Cauchy stress
   
   !real(8) :: ssb(3,3)
-  real(8) :: ss(3,3)
+  real(8) :: ss(nsd_solid,nsd_solid)
   integer :: isd,jsd
 
   threedim: if (nsd_solid .eq. 3) then 
@@ -56,7 +56,6 @@ subroutine r_scauchy(det,todet,xto,cstr_element)
         cstr_element(2)=cstr_element(2) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
         cstr_element(3)=cstr_element(3) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
         cstr_element(4)=cstr_element(4) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
-		write(*,*) 'here we are',todet,det,xto(1,isd),ss(isd,jsd),xto(1,jsd)
      enddo
   enddo
 

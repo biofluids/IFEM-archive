@@ -58,6 +58,7 @@ subroutine r_scalfu_curr(fu,i,ni,cstr_element)
   !do m=1,6
      !fu=fu+PK2str(m)*dge(m,i,ni)
   !enddo
+  if (nsd_solid == 3) then
   if (i == 1) then
      fu=fu+cstr_element(1)*bd_curr(1,ni)
      fu=fu+cstr_element(6)*bd_curr(2,ni)
@@ -71,6 +72,18 @@ subroutine r_scalfu_curr(fu,i,ni,cstr_element)
      fu=fu+cstr_element(4)*bd_curr(2,ni)
      fu=fu+cstr_element(3)*bd_curr(3,ni)
   endif
+  endif
+
+  if (nsd_solid == 2) then
+  if (i == 1) then
+     fu=fu+cstr_element(1)*bd_curr(1,ni)
+     fu=fu+cstr_element(3)*bd_curr(2,ni)
+  elseif (i == 2) then
+     fu=fu+cstr_element(2)*bd_curr(1,ni)
+     fu=fu+cstr_element(3)*bd_curr(2,ni)
+  endif
+  endif
+
 
   return
 end subroutine r_scalfu_curr

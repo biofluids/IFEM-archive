@@ -1,7 +1,3 @@
-!  Y. Liu, 07/11/2004
-!  Northwestern Univeristy
-!  Revised the subroutine to array (2D,3D)
-!  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
        solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
   use r_common, only: xmg,density_solid,predrf
@@ -49,6 +45,7 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 		enddo
      enddo
 
+
     !...apply Dirichlet BC in current configuration (penalty stiffness)
      call solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_coor_curr)
 
@@ -61,7 +58,7 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
      solid_force_FSI(1:nsd_solid,1)=-xmg(1:nsd_solid)*density_solid
   end select
   
-!	 write(*,*) 'solid_force_FSI(1,4)',solid_force_FSI(1,1:4)
+	 write(*,*) 'solid_force_FSI(1,4)',solid_force_FSI(1,1:4)
   
   return
 end subroutine solid_solver
