@@ -1,0 +1,16 @@
+      integer    i_passive
+      integer    i_active
+      integer     i_funcgroup
+      integer     i_stiff0
+      integer     i_rest0
+      integer     i_timeincycle
+      integer    n_funcgroup_alloc
+
+      parameter (i_passive = 1)
+      parameter (i_active = 2)
+      parameter (i_funcgroup   = 1)
+      parameter (i_stiff0      = 2)
+      parameter (i_rest0       = 3)
+      parameter (i_timeincycle = 4)
+      parameter (n_funcgroup_alloc = 2)
+

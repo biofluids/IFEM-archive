@@ -1,0 +1,36 @@
+c   pointer allocation
+      xnptr = malloc(nn*nsd*fsize)
+      xptr = malloc(nn*nsd*fsize)
+      rngptr = malloc(ne*neface*isize)
+      hgptr = malloc(ne*fsize)
+
+      idptr = malloc(nn*ndf*isize)
+      dnptr = malloc(nn*ndf*fsize)
+      fnptr = malloc(nn*ndf*fsize)
+      bgptr = malloc(nn*ndf*fsize)
+      dgptr = malloc(nn*ndf*fsize)
+      wgptr = malloc(nn*ndf*fsize)
+      dptr = malloc(nn*ndf*fsize)
+      uptr = malloc(nn*nsd*fsize)
+      doptr = malloc(nn*ndf*fsize)
+      pptr = malloc(nn*ndf*fsize)
+      wptr = malloc(nn*ndf*fsize)
+
+      ddptr = malloc(ndf*nn*fsize)
+      hnptr = malloc(nn*fsize)
+      hmptr = malloc(nn*fsize)
+
+      hptr = malloc((inner+1)*inner*fsize)
+      yptr = malloc((inner+1)*fsize)
+      ccptr = malloc(inner*fsize)
+      ssptr = malloc(inner*fsize)
+
+      zptr = malloc(ndf*nn*inner*fsize)
+      vptr = malloc(ndf*nn*(inner+1)*fsize)
+      zgptr = malloc(ndf*nn*fsize)
+      avgptr = malloc(ndf*nn*fsize)
+      smptr = malloc(ndf*nn*fsize)
+      vlocptr = malloc(ndf*nn*fsize)
+      avlocptr = malloc(ndf*nn*fsize)
+
+	ffluidsptr=malloc(nsd*nn*fsize)

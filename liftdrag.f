@@ -15,72 +15,96 @@
           end if
         end do
       end do
-c      write(*,*) 'nqdf=',nqdf
-c      stop
+
       return
       end
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
-      subroutine getfdrag(fdrag,dn,d,xloc,shrkf,cnn,ncnn,ien,rng,hn,hm)
+      subroutine getfdrag(fdrag,d,xloc,ien,rng,hn,hm)
       
       implicit none
       include "global.h"
 
       real* 8 fdrag(nsdpad)
-      real* 8 dn(ndf,nnc),d(ndf,nn_on)
+      real* 8 d(ndf,nn_loc)
       real* 8 xloc(nsd,nn_loc)
-      real* 8 shrkf(0:nsd,maxconn,nqdf)
-      integer cnn(maxconn,nqdc),ncnn(nqdc)
       integer ien(nen,nec),rng(neface,nec)
-      real* 8 hn(nnc),hm(nn_on)
+      real* 8 hn(nnc),hm(nn_loc)
 
-      integer qp,ie,ieface,inl,node,isd,jsd,ierr
+      integer iq,ie,ieface,inl,node,isd,jsd,ierr
       real* 8 sigma(nsdpad,nsdpad),ui_j(nsdpad,nsdpad),press,mu
-      real* 8 dA,normal(nsdpad)
+      real* 8 dA,normal(nsdpad),parentarea
 
-      call grab_all(d,dn,ndf,hn,hm)
+      real* 8 eft,det
+      real* 8 sh(0:nsdpad,nenpad)      
+      real* 8 xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
+      real* 8 x(nsdpad,nenpad)
+
+      real* 8 surfacearea
 
       fdrag(:) = 0
-      qp = 0
+      surfacearea = 0
 
       do ie = 1,nec
         do ieface = 1,neface
           if (fsurf(rng(ieface,ie)).eq.1) then
-            qp = qp + 1
-            sigma(:,:) = 0
-            ui_j(:,:) = 0
-            press     = 0
-            mu = vis_liq
-            do inl = 1,ncnn(nec*nquad+qp)
-              node = cnn(inl,nec*nquad+qp)
-              do isd = 1,nsd
-                do jsd = 1,nsd
-                  ui_j(isd,jsd) = 
-     &                 ui_j(isd,jsd) + shrkf(jsd,inl,qp)*d(isd,node)
-                end do
+c           integrate over surface
+            do inl=1,nen
+              do isd=1,nsd
+                x(isd,inl) = xloc(isd,ien(inl,ie))
               end do
-              press = press + shrkf(0,inl,qp)*d(pdf,node)
-            end do
-            do isd = 1,nsd
-              do jsd = 1,nsd
-                sigma(isd,jsd) = mu*(ui_j(isd,jsd)+ui_j(jsd,isd))
-              end do
-              sigma(isd,isd) = sigma(isd,isd) - press
             end do
             call getnormal(normal,dA,ie,ieface,xloc,ien)
-            do isd = 1,nsd
-              do jsd = 1,nsd
-                fdrag(isd) = fdrag(isd)+sigma(isd,jsd)*normal(jsd)*dA
+            do iq = (nquad2d*(ieface-1)+1),(nquad2d*ieface)
+              if (nen.eq.4) then
+                include "sh3d4n.h"
+                parentarea = 0.5
+              else if (nen.eq.8) then
+                include "sh3d8n.h"
+                parentarea = 4.0
+              end if
+
+              eft = wq2d(iq) * dA/parentarea
+              surfacearea = surfacearea + eft * 1.00
+              sigma(:,:) = 0.0
+              ui_j(:,:) = 0.0
+              press = 0.0
+              mu = vis_liq
+              do inl = 1,nen
+                do isd = 1,nsd
+                  do jsd = 1,nsd
+                    ui_j(isd,jsd) =
+     &                   ui_j(isd,jsd) + sh(jsd,inl)*d(isd,ien(inl,ie))
+                  end do
+                end do
+                press = press + sh(0,inl)*d(pdf,ien(inl,ie))
+              end do
+              do isd = 1,nsd
+                do jsd = 1,nsd
+                  sigma(isd,jsd) = mu*(ui_j(isd,jsd)+ui_j(jsd,isd))
+                end do
+                sigma(isd,isd) = sigma(isd,isd) - press
+              end do
+              do isd = 1,nsd
+                do jsd = 1,nsd
+                  fdrag(isd) = fdrag(isd)+sigma(isd,jsd)*normal(jsd)*eft
+                end do
               end do
             end do
-c         if(myid.eq.1.and.ie.eq.1620) write(*,*) ui_j(1,1),ui_j(1,2)
           end if
         end do
       end do
-      if (myid.eq.1) write(*,*) d(1,ien(1,1)),d(1,ien(2,1))
+
       call MPI_ALLREDUCE(fdrag, fdrag, nsd, MPI_DOUBLE_PRECISION,
      &     MPI_SUM, MPI_COMM_WORLD,ierr)
+      
+      call MPI_ALLREDUCE(surfacearea, surfacearea, 1, 
+     &     MPI_DOUBLE_PRECISION, MPI_SUM, MPI_COMM_WORLD,ierr)
+      
+      if (myid.eq.0) then
+        write(*,*) "forced surface area = ",surfacearea
+      end if
       
       return
       end
@@ -147,7 +171,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       include "global.h"
 
-      real* 8 time, fdrag(nsdpad),deno
+      real* 8 time, fdrag(nsdpad)
       integer dcomp,lcomp
 
       integer ifpd, ifpl
@@ -161,17 +185,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       else
         FileStat = "OLD"
       end if
-c      write(*,*) time
-c      stop
       if (myid.eq.0) then
-        open(ifpd, FILE = "drag.dat", STATUS = FileStat, POSITION = "APPEND")
-        open(ifpl, FILE = "lift.dat", STATUS = FileStat, POSITION = "APPEND")
 
-c... for cylinder only
-        deno = 0.5*den_liq*ic(1)**2*4*1.5
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc        
-        write (ifpd, '(3F12.8)') time,fdrag(dcomp),fdrag(dcomp)/deno
-        write (ifpl, '(3F12.8)') time,fdrag(lcomp),fdrag(lcomp)/deno
+        open(ifpd, FILE="drag.dat", STATUS=FileStat, POSITION="APPEND")
+        open(ifpl, FILE="lift.dat", STATUS=FileStat, POSITION="APPEND")
+        
+        write (ifpd, '(2F12.8)') time,fdrag(dcomp)
+        write (ifpl, '(2F12.8)') time,fdrag(lcomp)
         
         close(ifpd)
         close(ifpl)

@@ -1,0 +1,24 @@
+      dimension  physandcfd_fluid(0:(n_ac * 7) - 1)  
+
+      dimension  timestepn_fluid(0:(n_ac * 7) - 1)  
+
+      dimension vel_fluid(
+     .          mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3, 
+     .                                                ix:iz )
+      dimension pressure_fluid(
+     .          mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+      
+      dimension force_fluid(
+     .          mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3, 
+     .                                                ix:iz )
+      dimension div_fluid(
+     .          mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+
+      dimension u( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+      dimension v( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+      dimension w( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+     
+      dimension p( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )     
+      dimension f1( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+      dimension f2( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )
+      dimension f3( mn_ac1:mx_ac1, mn_ac2:mx_ac2, mn_ac3:mx_ac3 )

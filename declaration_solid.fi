@@ -1,0 +1,48 @@
+      include 'ibd0_exchange_pars.fh'
+      include 'ibg_variables_cfd.fh'
+      include 'ibg_variables_cloud.fh'
+      include 'ibg_variables_domain.fh'
+c      include 'ibg_variables_fluid.fh'
+c      include 'ibg_variables_marker.fh'
+      include 'ibg_variables_point.fh'
+      include 'ibg_variables_run.fh'
+c      include 'ibg_variable_equivalences.fh'
+      include 'iba_application_parameters.fh'
+      include 'ibd0_nonzerocfddiv_vars.fh'
+      include 'ibd0_app_vals_nonzerocfddiv.fh'
+      include 'ibg_change_me_ptcon_var_decl.fh'
+      include 'ibg_change_me_ptcon_var_common_equiv.fh'
+      include 'ibg_parameters_run.fh' 
+
+      integer time
+      external time
+
+c++++++++
+c gauss point weight
+c++++++++
+
+      data xg/ 0.d0, 0.d0, 0.d0, 0.d0, -0.577350269189626d0,
+     1     0.577350269189626d0, 0.d0, 0.d0, -0.774596669241483d0,0.d0, 
+     2     0.774596669241483d0,0.d0, -0.861136311594053d0,
+     3     -0.339981043584856d0, 0.339981043584856d0, 
+     $     0.861136311594053d0/
+      
+      data wgt/ 2.d0, 0.d0,0.d0,0.d0,1.d0,1.d0,
+     1     0.d0,0.d0,0.5555555555555556d0,0.8888888888888889d0,
+     2     0.5555555555555556d0,0.d0, 0.347854845137454d0,
+     $     0.652145154862546d0,
+     3     0.652145154862546d0,0.347854845137454d0/
+
+      logical    bwriteon 
+      integer currentstep
+      dimension time_value(10000)
+      dimension num_point(max_point)
+
+c++++++++
+c     tecplot output variables file setting
+c++++++++
+      character*3  tc
+      character*5  strklok
+      character*10  tec
+      character*11  tecm
+      character*11  tecf

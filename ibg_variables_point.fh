@@ -1,0 +1,78 @@
+      integer    dnext_pt  
+      dimension dnext_pt( mn_point_alloc:mx_point_alloc )
+
+      integer    dlfreept_number
+      integer    dlfreept_head  
+      integer    dlfreept_tail  
+
+      integer    dlptlocal_number
+      integer    dlptlocal_head  
+      integer    dlptlocal_tail  
+
+      integer    dlptsend_number 
+      integer    dlptsend_head  
+      integer    dlptsend_tail  
+
+      dimension dlptsend_number( mn_de:mx_de )
+      dimension dlptsend_head( mn_de:mx_de )
+      dimension dlptsend_tail( mn_de:mx_de )
+
+      integer    dlptrecv_number
+      integer    dlptrecv_head  
+      integer    dlptrecv_tail  
+
+      dimension dlptrecv_number( mn_de:mx_de )
+      dimension dlptrecv_head( mn_de:mx_de )
+      dimension dlptrecv_tail( mn_de:mx_de )
+
+      integer    dlconshare_number
+      integer    dlconshare_head  
+      integer    dlconshare_tail  
+      integer    dnext_con 
+
+      dimension dlconshare_number( null_de:mx_de, i_lo:i_hi )
+      dimension dlconshare_head( null_de:mx_de, i_lo:i_hi )
+      dimension dlconshare_tail( null_de:mx_de, i_lo:i_hi )
+      dimension dnext_con( mn_point_alloc:mx_point_alloc, i_lo:i_hi )
+
+      integer    pt_iptexp 
+      integer    idomain_pt
+
+      dimension pt_iptexp( mn_point_alloc:mx_point_alloc )
+      dimension idomain_pt( mn_point_alloc:mx_point_alloc )
+
+      integer    idomain_ptcon  
+
+      dimension idomain_ptcon( mn_point_alloc:mx_point_alloc, i_lo:i_hi)
+
+      real*8       coord_pt    
+
+      dimension coord_pt( ix:iz, mn_point_alloc:mx_point_alloc )
+
+      real*8       force_pt   
+      real*8       vel_pt     
+      real*8       accel_pt
+      real*8       prevel_pt
+
+      dimension force_pt( ix:iz, mn_point_alloc:mx_point_alloc )
+      dimension vel_pt( ix:iz, mn_point_alloc:mx_point_alloc )
+      dimension accel_pt( ix:iz, mn_point_alloc:mx_point_alloc )
+      dimension prevel_pt( ix:iz, mn_point_alloc:mx_point_alloc )
+      dimension prevel2_pt( ix:iz, mn_point_alloc:mx_point_alloc )
+
+      real*8       attrib_fcu  
+
+      dimension attrib_fcu( mn_point_alloc:mx_point_alloc,
+     .              mn_attr_fcu:mx_attr_fcu, mn_con_fcu:mx_con_fcu )
+
+      real*8       coord_ptfcu 
+      real*8       forces_fcu  
+      real*8       stiffness_fcu 
+      real*8       restlength_fcu 
+
+      dimension coord_ptfcu( ix:iz, mn_point_alloc:mx_point_alloc,
+     .                                                     i_lo:i_hi)
+      dimension forces_fcu( ix:iz, mn_point_alloc:mx_point_alloc,
+     .                                                     i_lo:i_hi )
+      dimension stiffness_fcu( mn_point_alloc:mx_point_alloc )
+      dimension restlength_fcu( mn_point_alloc:mx_point_alloc )

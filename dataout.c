@@ -20,8 +20,8 @@ void HEADEROUT(_fcd title, int *nsd, int *ndf) {
     fprintf (f, "\"X\" \"Y\" \"Z\" \"U\" \"V\" \"W\" "); 
   }
   if(*ndf - *nsd == 1) {
-	fprintf (f, "\"PHI\" ");
-  } 
+	fprintf (f, "\"P\" \"PHI\" ");
+  }
   fprintf(f, "\n");
   fclose(f);
   return;
@@ -32,7 +32,6 @@ void POSTOUT(int *count, int *xn, int *dd, int *nsd,
   int i,j;
   int *xnout = xn, *ddout = dd;
   FILE *f = fopen("tecout.dat", "a");
-  *ndf = 4;
   printf("Writing file %d...\n", *count);
   if ((*count) == 0) {
     fprintf(f, "ZONE T=\"%d\", N=%d, E=%d, F=FEPOINT, ET=TETRAHEDRON\n",
@@ -49,7 +48,7 @@ void POSTOUT(int *count, int *xn, int *dd, int *nsd,
         xnout++;
       }
     }
-	for (i = 0; i < *ndf; i++) {
+	for (i = 0; i < *ndf+1; i++) {
 	  fprintf(f, "%9.5lf ", *ddout);
 	  ddout++;
 	}

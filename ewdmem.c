@@ -7,10 +7,10 @@ int *MALLOC(int *size)
 	newptr = (int *) malloc((unsigned) *size);
 	if (newptr == 0) {
 		printf("malloc: null pointer\n");
-		printf("malloc: _memerror is %d\n", _memerror);
+		/* printf("malloc: _memerror is %d\n", _memerror);*/
 		printf("malloc: see /usr/include/malloc.h for more info\n");
 		printf("malloc: called with size = %d\n", *size);
-		tracebk();
+		/* tracebk();*/
 		exit(1);
 	}
 	return(newptr);
@@ -24,10 +24,10 @@ int *REALLOC(int *ptr, int *size)
 	else newptr = (int *) realloc((char *) *ptr, (unsigned) *size);
 	if (newptr == 0) {
 		printf("realloc: null pointer\n");
-		printf("realloc: _memerror is %d\n", _memerror);
+		/*printf("realloc: _memerror is %d\n", _memerror);*/
 		printf("realloc: see /usr/include/malloc.h for more info\n");
 		printf("realloc: called with ptr = %d, size = %d\n", *ptr, *size);
-		tracebk();
+		/*tracebk();*/
 		exit(1);
 	}
 	return(newptr);
@@ -53,8 +53,4 @@ int *CALLOC(int *nelem, int *elsize)
 	return(newptr);
 }
 
-void *EWDLOC(int *ptr)
-{
-	printf("ewdloc: pointer value is %d\n", ptr);
-	return;
-}
+

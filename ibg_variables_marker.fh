@@ -1,0 +1,42 @@
+      integer   dnext_mk 
+      dimension dnext_mk( mn_marker_alloc:mx_marker_alloc)
+
+      integer   dlfreemk_number
+      integer   dlfreemk_head  
+      integer   dlfreemk_tail  
+
+      integer   dlmklocal_number 
+      integer   dlmklocal_head   
+      integer   dlmklocal_tail   
+
+      integer   dlmksend_number
+      integer   dlmksend_head  
+      integer   dlmksend_tail
+
+      dimension dlmksend_number( mn_de:mx_de )
+      dimension dlmksend_head( mn_de:mx_de )
+      dimension dlmksend_tail( mn_de:mx_de )
+
+      integer   dlmkrecv_number
+      integer   dlmkrecv_head  
+      integer   dlmkrecv_tail  
+
+      dimension dlmkrecv_number( mn_de:mx_de )
+      dimension dlmkrecv_head( mn_de:mx_de )
+      dimension dlmkrecv_tail( mn_de:mx_de )
+
+      integer   mkpin      
+      integer   idomain_mk 
+
+      dimension mkpin( mn_marker_alloc:mx_marker_alloc )
+      dimension idomain_mk( mn_marker_alloc:mx_marker_alloc)
+
+      real*8    coord_mk   
+      real*8    attrib_mk  
+
+      dimension coord_mk( ix:iz, mn_marker_alloc:mx_marker_alloc)
+      dimension attrib_mk( mn_marker_alloc:mx_marker_alloc,
+     .                      mn_attr_mk:mx_attr_mk )
+
+      real*8    vel_mk     
+      dimension vel_mk( ix:iz, mn_marker_alloc:mx_marker_alloc)

@@ -1,0 +1,10 @@
+      real*8      acttype_con        
+      real*8      stiff0_con         
+      real*8      rest0_con          
+      real*8      fix_con 
+
+      dimension acttype_con( mn_point_alloc:mx_point_alloc )
+      dimension stiff0_con( mn_point_alloc:mx_point_alloc )
+      dimension rest0_con( mn_point_alloc:mx_point_alloc )
+      dimension fix_con( mn_point_alloc:mx_point_alloc )
+

@@ -1,0 +1,15 @@
+      real*8 alpha_solid  
+      real*8 tmin1  
+      real*8 tmax1  
+      real*8 tmin2  
+      real*8 tmax2  
+
+      real*8 alpha_star 
+      real*8 tau        
+      real*8 tactive    
+      real*8 tperiod    
+      real*8 t    
+
+      common/act/alpha_solid, tmin1,tmax1,tmin2,tmax2
+      common/act/alpha_star, tau, tactive, tperiod
+      common/act/t    

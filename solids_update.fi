@@ -1,0 +1,85 @@
+c 2. Update material point displacement u(t+dt) = u(t) + dt*v(t)
+            
+            !...calculate the acceleration of material points
+            call calcaccel(klok,
+     $           mn_pt_alloc,mx_pt_alloc,
+     $           dnext_pt,
+     $           dlptlocal_number,dlptlocal_head,dlptlocal_tail,
+     $           vel_pt,prevel_pt,accel_pt)
+
+            if (n_ibmfem .eq. 1) then !...fem analysis for solid is used
+               viter=0.0d0
+               do 301 i=1,nnd
+                  if (fix_con(i) .eq. -1) then
+                     du(1,i)= 0.0d0
+                     du(2,i)= 0.0d0
+                  else
+                     du(1,i)=vel_pt(1,i)
+                     du(2,i)=vel_pt(3,i)
+                     acm(1,i)=accel_pt(1,i)
+                     acm(2,i)=accel_pt(3,i)
+                  endif
+                  dis(1,i)=dis(1,i)+du(1,i)
+                  dis(2,i)=dis(2,i)+du(2,i)
+ 
+                  if (klok .eq. 1) then
+                     vnorm=vnorm+du(1,i)**2+
+     $                    du(2,i)**2
+                  else
+                     viter=viter+du(1,i)**2+
+     $                    du(2,i)**2
+                  endif
+ 301           continue
+               
+               if (klok .eq. 1) then
+                  vnorm=dsqrt(vnorm)
+                  viter=1.0d0
+               else
+                  viter=dsqrt(viter)/vnorm
+               endif
+
+c               write(*,*) viter
+
+               if (niterf .eq. 0) then
+                  if (viter .gt. threshold) then                     
+                     do 45 i=1,nnd
+                        dis(1,i)=dis(1,i)+du(1,i)
+                        dis(2,i)=dis(2,i)+du(2,i)
+ 45                  continue
+                     
+                     do 33 nes=1,numel
+                        do 34 k=1,nump
+                           nh1=(nes-1)*nump+k
+                           prec(nh1)=prec(nh1)+
+     $                          pre(k,nes)
+ 34                     continue
+ 33                  continue
+                  else
+                     niterf=1
+                  endif
+               else
+                  write(*,*) viter,viter
+                  do 46 i=1,nnd
+                     predrf(i)=predrf2(i)
+                     predrf(i+nnd)=predrf2(i+nnd)
+                     drf(i)=drf2(i)
+                     drf(i+nnd)=drf2(i+nnd)
+                     vel_pt(1,i)=0.0d0
+                     vel_pt(3,i)=0.0d0
+ 46               continue
+               endif
+            endif
+
+        !   move the lagrangian things
+            call movepoints(
+     $           mn_pt_alloc, mx_pt_alloc,
+     $           dnext_pt,
+     $           dlptlocal_number, dlptlocal_head, dlptlocal_tail,
+     $           vel_pt, coord_pt, acttypec_con,fix_con)
+
+            !...related to source and sinks of pressure
+c            call interpssbpressure(dilocaldomain,dmnac1, dmxac1,
+c     $           dmnac2, dmxac2, dmnac3, dmxac3,pressure_ss, 
+c     $           wt_delss,ice1_delss, ice2_delss, ice3_delss, 
+c     $           pressure_bal,dbanybc, dmnbce1, dmxbce1, dmnbce2, 
+c     $           dmxbce2,dmnbce3, dmxbce3, pressure_fluid)

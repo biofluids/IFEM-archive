@@ -8,7 +8,7 @@ c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	character*3 yon
 	integer io, idelta, irng, isd, idf, i, j
 
-	if (myid.ne.0) return
+c	if (myid.ne.0) return
 
 	io = 7
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -31,8 +31,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	write(io,'(" Restart...................(restart) = ",a5)') yon(restart)
 	write(io,'(" Stokes.....................(stokes) = ",a5)') yon(stokes)
 	write(io,'(" Steady.....................(steady) = ",a5)') yon(steady)
-	write(io,'(" Readshape function......(readshape) = ",a5)') yon(readshape)
-	write(io,'(" Mass conservation........(conserve) = ",a5)') yon(conserve)
+	write(io,'(" Mass conservation........(conserve) = ",a5)') yon(conserv
+	1    e)
 	write(io,'(" Static Problem.............(static) = ",a5)') yon(static)
 	write(io,'(" Lenght based on volume.....(hg_vol) = ",a5)') yon(hg_vol)
 	write(io,'(" Dt in tau...................(taudt) = ",a5)') yon(taudt)

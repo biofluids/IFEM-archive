@@ -1,86 +1,21 @@
 restart    off
 steady     off
-stokes     off
-hg_vol     on
-taudt      on
 static     off
-readshape  off
 
-nn  38359
-ne 211364
-
-maxconn	90
-
-nrng     7
-nen      4
-ndf		4
-nsd		3
-iquad    2
-
-nit       4
-nts       60  
-ntsbout   02
-idisk     00
-inner     80
-outer     01
-iscaling  01
-
-dt       0.2    
+dt       0.1    
 t_start  0.0
-alpha    0.5
 
-fix     1 +0.0 +0.0 +0.0 -999   !! building
-fix     2 -999 +0.0 -999 -999       
-fix     3 +1.0 +0.0 +0.0 -999   !! inflow
-fix     4 -999 -999 -999 -999   !! outflow
-fix     5 -999 -999 +0.0 -999    
-fix     6 -999 -999 +0.0 -999   
-fix     7 -999 +0.0 -999 -999    
 
-initial   +1.0 +0.0 +0.0 +0.0
+
+nit       5
+nts       500  
+ntsbout   05
+ntsoutput_ibm   20
+idisk     00
+
+
+initial   +1.0 +0.0 +0.0 +0.0 +1.0
 
 gravity     0.0     0.0     0.0   
 
-vis_liq 1.2e-5   !! water 1.3e-3
-vis_gas 1.2e-5   !! gas   1.5e-5
-den_liq 7.65e-2
-den_gas 7.65e-2
-ref_lgt 50.0
-ref_vel 20
-ref_den 1 
-
-delta 0 1.0   !! hg
-delta 1 1.0   !! taum
-delta 2 2.0   !! tauc
-delta 3 2.0   !! tauf
-delta 4 0.0   !! turb
-
-turb_kappa 0.15 
-
 done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

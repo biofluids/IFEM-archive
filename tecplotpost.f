@@ -8,7 +8,7 @@ ccccccccccccccccccc
       include "malloc.h"
 
       integer ien(nen,nec)  
-      real* 8 xn(nsd,nnc), dn(ndf,nnc), dd(ndf,nnc)
+      real* 8 xn(nsd,nnc), dn(ndf,nnc), dfn(nnc), dd(ndf+1,nnc)
       integer plotmax, plotstep
       pointer (ienptr,ien),(xnptr, xn)
       pointer (dnptr,dn),(dfnptr,dfn),(ddptr,dd)
@@ -20,7 +20,7 @@ ccccccccccccccccccc
       xnptr = malloc(nnc*nsd*fsize)
       dnptr = malloc(nnc*ndf*fsize)
       dfnptr = malloc(nnc*fsize)
-      ddptr = malloc(nnc*(ndf)*fsize)
+      ddptr = malloc(nnc*(ndf+1)*fsize)
 
       ibase = ichar('0')        !! integer value for char '0'
 
@@ -34,8 +34,8 @@ ccccccccccccccccccc
       title = '3D Tet Mesh'
       call headerout(title,nsd,ndf)
 
-      plotmax = 2
-      plotstep = 1
+      plotmax = 100
+      plotstep = 5
 
       file = "data.0000"
 
@@ -57,12 +57,10 @@ ccccccccccccccccccc
 
         write (*,*) file
 
-        call postin(dn,dd,file)
+        call postin(dn,dfn,dd,file)
         call postout(i,xn,dd,nsd,ndf,nn,ne,nen)
         if (i == 0) call meshout(ien,nen,nec)
       end do
       
       end
       
-
-

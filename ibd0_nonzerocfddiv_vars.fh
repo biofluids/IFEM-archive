@@ -1,0 +1,56 @@
+      include 'ibd0_nonzerocfddiv_pars.fh'
+      character*18 ss_name      
+				
+      real*8       flow_ss        
+      real*8       pressure_ss    
+      real*8       pressure_rsrvss
+      real*8       resist_rsrvss  
+      real*8       coord_ss       
+
+      dimension  ss_name(         mn_ss_alloc:mx_ss_alloc )
+      dimension  flow_ss(         mn_ss_alloc:mx_ss_alloc )
+      dimension  pressure_ss(     mn_ss_alloc:mx_ss_alloc )
+      dimension  pressure_rsrvss( mn_ss_alloc:mx_ss_alloc )
+      dimension  resist_rsrvss(   mn_ss_alloc:mx_ss_alloc )
+      dimension  coord_ss( ix:iz, mn_ss_alloc:mx_ss_alloc )
+
+      integer    ice1_delss    
+      integer    ice2_delss    
+      integer    ice3_delss    
+
+      real*8       wt_delss   
+
+      dimension  ice1_delss( mn_wt_delss1:mx_wt_delss1,
+     .                            mn_ss_alloc:mx_ss_alloc )
+      dimension  ice2_delss( mn_wt_delss2:mx_wt_delss2,
+     .                            mn_ss_alloc:mx_ss_alloc )
+      dimension  ice3_delss( mn_wt_delss3:mx_wt_delss3,
+     .                            mn_ss_alloc:mx_ss_alloc )
+
+      dimension  wt_delss(   mn_wt_delss1:mx_wt_delss1,
+     .                       mn_wt_delss2:mx_wt_delss2,
+     .                       mn_wt_delss3:mx_wt_delss3,
+     .                            mn_ss_alloc:mx_ss_alloc )
+
+      integer    ss_nmk         
+      integer    ss_imnmk       
+      integer    ss_imxmk       
+ 
+      dimension  ss_nmk(          mn_ss_alloc:mx_ss_alloc )
+      dimension  ss_imnmk(        mn_ss_alloc:mx_ss_alloc )
+      dimension  ss_imxmk(        mn_ss_alloc:mx_ss_alloc )
+
+      real*8       coord_mkss     
+      dimension  coord_mkss( ix:iz, mn_mk_ss_alloc:mx_mk_ss_alloc )
+
+      real*8       flow_bal
+      real*8       div_bal 
+      real*8       pressure_bal   
+
+      logical    dbanybc   
+      integer    dmnbce1   
+      integer    dmxbce1   
+      integer    dmnbce2   
+      integer    dmxbce2   
+      integer    dmnbce3   
+      integer    dmxbce3   

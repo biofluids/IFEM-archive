@@ -1,0 +1,66 @@
+restart =   0
+steady =    0
+stokes =    0
+hg_vol =    1
+taudt =     1
+static =    0
+conserve =  1
+
+
+nn = 8505
+ne = 6400
+
+nrng =    6
+nen =     8
+ndf =     4
+nsd =     3
+iquad =   1
+
+nit =      04
+nts =      05 
+ntsbout =  01
+idisk =    00 
+inner =    40
+outer =    02
+iscaling = 01
+maxconn =  90
+
+dt =      0.0005
+t_start = 0.0
+alpha =   0.5
+
+fix =    1 -999 -999 -999 -999   !bottom
+fix =    2 -999 +0.0 -999 -999   !front
+fix =    3 +0.0 -999 -999 -999	 !right
+fix =    4 -999 +0.0 -999 -999	 !back
+fix =    5 +0.0 -999 -999 -999	 !left
+fix =    6 -999 -999 -999 -999 	 !top
+
+initial =  +0.0 +0.0 +0.0 +0.0
+
+gravity =    0.0    0.0     0.0
+interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
+
+surf = 1  6
+hydro = 5
+
+vis_liq = 10.0   !! water 1.3e-3
+vis_gas = 10.0   !! gas   1.5e-5
+den_liq = 1.00 
+den_gas = 1.00
+ref_lgt = 1.0
+ref_vel = 1.0
+ref_den = 1.0   !!ref_den 1000.0
+
+delta = 0 1.0   !! hg
+delta = 1 1.0   !! taum
+delta = 2 2.0   !! tauc
+delta = 3 1.0   !! ka
+delta = 4 0.0   !! turb
+delta = 5 1.5   !! smoothing
+delta = 6 0.5   !! interface (will change automatically)
+
+turb_kappa = 0.15
+
+
+

@@ -1,0 +1,24 @@
+      integer    ibd_pvmanymsg
+      integer    ibd_pvm_nobuf
+
+      parameter (ibd_pvmanymsg = -1)
+      parameter (ibd_pvm_nobuf =  0)
+
+      integer    i_domain_soloist 
+      parameter(i_domain_soloist = mn_de)
+
+      integer    ibd_domain_alive
+      integer    ibd_future_domain, ibd_change_domain
+      integer    ibd_fcu_input, ibd_fcu_forces
+      integer    ibd_fluid_force, ibd_fluid_vel
+
+      integer    ibd_max_bit_used
+
+      parameter (ibd_domain_alive     =  0)
+      parameter (ibd_future_domain  =  1)
+      parameter (ibd_change_domain  =  2)
+      parameter (ibd_fcu_input  =  3)
+      parameter (ibd_fcu_forces  =  4)
+      parameter (ibd_fluid_force  =  5)
+      parameter (ibd_fluid_vel  =  6)
+

@@ -1,35 +1,25 @@
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c	main.fcm                                                             c
 c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	  program main
-      include "global.h"
-	  integer ierr
-	  
-      call MPI_INIT( ierr )
-      call MPI_COMM_RANK( MPI_COMM_WORLD, myid, ierr)
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numproc, ierr)
-	  call initialize
-	  call parseinput
-	  call nondimension
-	  call echoinput
-      call hypo
-      call MPI_FINALIZE( ierr )
-	  
-	  end
-	  
+c   initialization for the fluid and general variables is done in main.f
+c   initialization for the solid variables (and input file reading) in hypo.f
+	program main
 
+	implicit real*8 (a-h,o-z)
+c    include "global.h"
+	include "r_common"
+	include "main_common"
+      
+c    set standard values 
+	call initialize		! for fluids
 
+c    read configuration files	  
+	call parseinput_fluid
+	call nondimension
+c    echos input data
+	call echoinput
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+c    switch to main routine	   
+	call hypo
+	stop
+	end
