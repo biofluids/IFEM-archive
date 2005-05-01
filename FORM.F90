@@ -27,6 +27,7 @@ subroutine formd(ds,rngface,ien)
   ds(:,:) = eps1
   
 
+
   do ieface=1,neface
      do inface=1,nnface
         inl = mapping(ieface,inface,etype)
@@ -39,11 +40,34 @@ subroutine formd(ds,rngface,ien)
 
   hs = h
  ! tt_ramp = -0.5
-  !if ((tt >= 0).and.(tt <= tt_ramp)) then
-  !     bv(wdf,8) = 5.0  * tt/tt_ramp
-  !elseif (tt >= tt_ramp) then
-  !     bv(wdf,8) = 5.0
-  !endif
+  !if ((tt > 0.02).and.(tt <= 0.04)) then
+!	bv(udf,1) = 0.0
+!	bv(vdf,1) = 1.0
+!	if(abs(bv(udf,1)+999.0).gt.1.0e-6) then
+!		bc(udf,1) = 1
+!		else
+!		bc(udf,1) = 0
+!	endif
+!	if(abs(bv(vdf,1)+999.0).gt.1.0e-6) then
+!		bc(vdf,1) = 1
+!	else
+!		bc(vdf,1) =0
+!	endif
+ ! elseif (tt > 0.04) then
+  !  bv(udf,1) = -999
+!	bv(vdf,1) = -999
+!	if(abs(bv(udf,1)+999.0).gt.1.0e-6) then
+!		bc(udf,1) = 1
+!	else
+!		bc(udf,1) = 0
+!	endif
+!	if(abs(bv(vdf,1)+999.0).gt.1.0e-6) then
+!		bc(vdf,1) = 1
+!	else
+!		bc(vdf,1) =0
+!	endif
+ ! endif
+
 
 
   do irng=1,nrng

@@ -52,6 +52,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
+		
 	 enddo
 
 	 hg = hk(ie)
@@ -149,6 +150,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 	    do isd = 1, nsd
 			if (nsd==2) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)-g(isd))-fq(isd)
+			  
 			elseif (nsd==3) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
 			endif

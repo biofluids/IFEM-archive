@@ -32,9 +32,10 @@ write(*,*)'nn= ', nn_solid
 
 do i=1,nn_solid
 
-	solid_coor_curr(2,i) = (solid_coor_init(2,i)-1.0) *1.4+1.0
-	solid_coor_curr(1,i) = (solid_coor_init(1,i) -1.0)*0.9+1.0 
-
+!	solid_coor_curr(2,i) = (solid_coor_init(2,i)-1.0) *1.4+1.0
+	
+	solid_coor_curr(1,i) = solid_coor_init(1,i) + 0.10 
+	solid_coor_curr(2,i) = solid_coor_init(2,i)
 
 
 ! if (solid_coor_init(1,i) .gt. 0.0) then

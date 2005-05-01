@@ -39,3 +39,9 @@ Mickael  02/20/2005
 1. Bug in hypo_declaration_solid.fi and ensight_output.f90, The variables solid_stress, 
 solid_strain, fluid_stress and fluid_strain are not defined correctly (size in 2D was wrong)
 2. In ensight_output.f90, solid_stress and solid_strain was going from 1 to 6  in 2D instead of  1 to 4
+-------------------------------
+Mickael  03/04/2005
+1. Bug in solid_update.f90: solid_vel goes from 1:nsd_solid, not 1 to 3.
+-------------------------------
+Mickael  03/14/2005
+1. Bug in r_stang.f90: solid_stress and strain were not added over the integration points

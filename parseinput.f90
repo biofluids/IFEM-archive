@@ -116,8 +116,10 @@ subroutine parseinput_solid
   enddo
 
   read(1,*) material_type !1=hyperelastic material, 2=linear elastic material  
-  read(1,*) young_mod, Poisson  ! young's modulus and Poisson ratio
-  read(1,*) rc1,rc2,rk,density_solid
+  read(1,*) young_mod, Poisson ! young's modulus, Poisson ratio
+  read(1,*) rc1,rc2,rk
+  read(1,*) density_solid
+
   if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
   if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
   write(*,*) 'Youngs modulus=', young_mod

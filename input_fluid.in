@@ -7,8 +7,8 @@ taudt =     1
 static =    0
 conserve =  1
 
- nn=        4225
- ne=        4096
+ nn=        2121
+ ne=        2000
 
 nrng =    4
 nen =     4
@@ -16,8 +16,8 @@ ndf =     3
 nsd =     2
 iquad =   2
 
-nit =      4
-nts =      5000
+nit =      6
+nts =      50
 ntsbout =  1
 idisk =    00 
 inner =    40
@@ -27,14 +27,14 @@ kouter =   02  !ALE algorithm only
 iscaling = 01
 maxconn =  60
 
-dt =      0.01
+dt =      0.05
 t_start = 0.0
 alpha =   1.0
 
-fix =    1  -999  -999  -999   !bottom
-fix =    2  -999  -999  -999   !right
-fix =    3  -999  -999  -999    !left
-fix =    4  -999  -999  -999    !top
+fix =    1 -999  -999  -999   !bottom
+fix =    2 -999  -999  -999   !right
+fix =    3 -999  -999  -999   !top
+fix =    4 -999  -999  -999 	!left
 
 fixd =    1   0.0     0.0     !ALE algorithm only
 fixd =    2   0.0     0.0       
@@ -68,3 +68,6 @@ delta = 5 1.5   !! smoothing
 delta = 6 0.5   !! interface (will change automatically)
 
 turb_kappa = 0.15
+
+
+

@@ -9,7 +9,7 @@
 
  1       /ndelta, 1=RKPM(nonuniform)->the only option for now
 
-  216  108  /nnd,numel
+  224  200  /nnd,numel
  1       /nump
  
  1.0  1.0     /solid_scale(1:nsd_solid)  !!!!
@@ -22,15 +22,16 @@
  0  0  /numfn,numeb
   
  2  /material type, 1=hyperelastic material, 2=linear elastic material
- 1.7d7  0.5	/Young's Modulus and poisson ratio
- 3000.0d3 3000.0d3 1.0d-9 1.7d0      / rc1,rc2,rk,density diff s-f
-  
+ 1.0d9  0.3	/Young's Modulus, poisson ratio and 
+ 3000.0d1 3000.0d1 1.0d-9 / rc1,rc2,rk
+ 7.0d0	density (diff s-f)
+ 
  0.0d0  /xviss
   
  1.0d0 1.0d0 1.0d-2 1.0d-2  /vnorm,fnorm,vtol,ftol
   
  0.25d0 0.5d0  /alpha,beta
   
- 0.0d0 0.0d0   /xmg(1),xmg(2),xmg(3)
+ -980.0d0 0.0d0   /xmg(1),xmg(2),xmg(3)
  0.0d0 0.0d0  /fbacc(1),fbacc(2),fbacc(3)
   

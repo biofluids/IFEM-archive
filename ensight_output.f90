@@ -319,6 +319,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
 
   integer,parameter :: ifileunit = 15
 
+
   fluid_stress(1:nsd*2,1:nn)=0.0
   fluid_strain(1:nsd*2,1:nn)=0.0
 
@@ -426,20 +427,21 @@ elseif (nsd==2) then
   write(*,*) 'writing... ', name_file3
   open(ifileunit, file=name_file3, form='formatted')
   write(ifileunit, '(A)') 'structure field: stress'  
-  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in), 0.0,           &
-                       0.0, 0.0, solid_stress(3,in), in=1,nn_solid),  &
-                       (fluid_stress(1,in),fluid_stress(2,in), 0.0,           &
-                        0.0, 0.0, fluid_stress(3,in), in=1,nn)
+ 
+  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),solid_stress(3,in),                 &
+                        solid_stress(4,in), 0.0, 0.0,in=1,nn_solid),  &
+                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),                 &
+                        fluid_stress(4,in), 0.0, 0.0,in=1,nn)
   close(ifileunit)
 
  !...Write strain output in ens_movie.strain*
   write(*,*) 'writing... ', name_file4
   open(ifileunit, file=name_file4, form='formatted')
   write(ifileunit, '(A)') 'structure field: strain'  
-  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),           &
-                        0.0, 0.0,solid_strain(4,in),in=1,nn_solid),  &
-                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),           &
-                        0.0, 0.0,fluid_strain(4,in), in=1,nn)
+  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),                 &
+                        solid_strain(4,in), 0.0, 0.0,in=1,nn_solid),  &
+                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
+                        fluid_strain(4,in), 0.0, 0.0,in=1,nn)
   close(ifileunit)
 
 

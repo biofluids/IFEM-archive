@@ -54,10 +54,12 @@ subroutine r_spiola_elastic(det,xot,ge,iq,ne,cstr_element)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    !Mickael Plane stress
    !
+   
 	cstr_element(1)= (young_mod/(1-Poisson**2))*(ge(1,ne,iq)+Poisson*ge(2,ne,iq))
 	cstr_element(2)= (young_mod/(1-Poisson**2))*(ge(2,ne,iq)+Poisson*ge(1,ne,iq))
     cstr_element(3)= (young_mod/(1+Poisson))*ge(3,ne,iq) 
     cstr_element(4)= 0.0 
+
 
 
  ! do isd=1,2
@@ -70,13 +72,12 @@ subroutine r_spiola_elastic(det,xot,ge,iq,ne,cstr_element)
   enddo
   cstr(1,2)= cstr_element(3)
   cstr(2,1)= cstr_element(3)
-
-  do isd = 1,nsd_solid
+	do isd = 1,nsd_solid
      do jsd = 1,nsd_solid
         PK1str_tens(isd,jsd) = 0.0d0
         do ksd = 1,nsd_solid
            PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) + det*xot(isd,ksd)*cstr(ksd,jsd)
-        enddo
+	    enddo
      enddo
   enddo
 

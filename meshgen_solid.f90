@@ -43,30 +43,6 @@ subroutine readien_solid(solid_con,ne,nen)
   return
 end subroutine readien_solid
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Mickael  02/15/2005
-! Read coordinates of a pre-stress structure
-subroutine readx_solid_pre_stress(xyz,nn,nsd)
-  implicit none
-
-  integer,intent(in) :: nn,nsd
-  real(8) :: xyz(nn,nsd)
-  integer :: idummy,inn,file
-
-  file=20
-  open(file, FILE="mxyz_solid_pre_stress.in", STATUS="old",action="read")
-
-  do inn=1,nn
-     read(file,*) idummy,xyz(inn,1:nsd)
-  enddo
-  close(file)
-
-  return
-end subroutine readx_solid_pre_stress
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !******************
 ! Lucy commented this out, because we are not using it.
