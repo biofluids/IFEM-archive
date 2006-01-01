@@ -10,18 +10,18 @@ conserve =  1
  nn=        2121
  ne=        2000
 
-nrng =    4
+nrng =    5
 nen =     4
 ndf =     3
 nsd =     2
 iquad =   2
 
 nit =      6
-nts =      50
+nts =      5
 ntsbout =  1
 idisk =    00 
-inner =    40
-outer =    02
+inner =    20
+outer =    01
 kinner =   30  !ALE algorithm only
 kouter =   02  !ALE algorithm only
 iscaling = 01
@@ -31,15 +31,17 @@ dt =      0.05
 t_start = 0.0
 alpha =   1.0
 
-fix =    1 -999  -999  -999   !bottom
-fix =    2 -999  -999  -999   !right
-fix =    3 -999  -999  -999   !top
-fix =    4 -999  -999  -999 	!left
+fix =    1 0.0  0.0 -999   !bottom
+fix =    2 -999 -999 -999   !right
+fix =    3 0.0  0.0  -999   !top
+fix =    4 -999 -999 -999 	!left
+fix =    5 0.0  0.0 -999 	!BC
 
 fixd =    1   0.0     0.0     !ALE algorithm only
 fixd =    2   0.0     0.0       
 fixd =    3   0.0     0.0       
 fixd =    4   0.0     0.0                
+fixd =    5   0.0     0.0                
 
 landa_over_mu = 0.01
 
@@ -51,7 +53,7 @@ interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 surf = 1  6
 hydro = 5
 
-vis_liq = 0.01    !! water 10-2g/cm.s, air 1.8e-2g/cm.s
+vis_liq = 1.0     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
 vis_gas = 1.0   
 den_liq = 1.0	!! water 1.0g/cm^3, air 1.3e-3g/cm^3
 den_gas = 1.0

@@ -1,0 +1,35 @@
+ 0 1     /ninit=0/1 no/yes apply bc;initdir=1/2=initial disp/velocity
+
+ 2 4     /iquad_solid,nen_solid
+ 2       /nsd_solid = number of dimensions in the solid domain
+ 0       /nrigid = 0/1  no/yes treat the solid as a rigid body
+
+ 1 0     /fem|ibm(1|0), tec|ens(1|0)
+
+ 1       /ndelta, 1=RKPM(nonuniform)->the only option for now
+
+  447   414  /nnd,numel
+ 1       /nump
+ 
+ 1.0  1.0     /solid_scale(1:nsd_solid)  !!!!
+ 
+ 1                /n_solid = number of the same structure
+ 1.0d0  1.0d0     /shift(1:nsd_solid,n_solid)the position of the center of the structure
+   
+ 3     /ntfun - time step
+ 
+ 0  0  /numfn,numeb
+  
+ 1  /material type, 1=hyperelastic material, 2=linear elastic material
+ 1.0d4 	/Young's Modulus, poisson ratio and 
+ 3000.0d1 3000.0d1 1.0d-9 2.0d0
+
+ 0.0d0  /xviss
+  
+ 1.0d0 1.0d0 1.0d-2 1.0d-2  /vnorm,fnorm,vtol,ftol
+  
+ 0.25d0 0.5d0  /alpha,beta
+  
+ -981.0d0 0.0d0   /xmg(1),xmg(2),xmg(3)
+ 0.0d0 0.0d0  /fbacc(1),fbacc(2),fbacc(3)
+  

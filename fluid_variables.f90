@@ -10,6 +10,7 @@ module fluid_variables
   real(8) :: sq2d(0:nsdpad,nenpad,nquadpad*6)
   real(8) :: xq2d(nsdpad,nquadpad*6),wq2d(nquadpad*6)
 
+  integer :: maxconn
 
   real(8) :: t_start,alpha,res_g,del_g,res_l,del_l,turb_kappa
 

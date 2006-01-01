@@ -4,6 +4,7 @@
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      write(*,*) "*** Solving Fluids: calculate fluid field ***"
 
+
     !...store the variables from the previous time step,dold=d 
      dold = d
      convelo = convel
@@ -12,11 +13,16 @@
      meshvel = (x - xold)/dt
  !    call formd(d,meshvel,rng,ien)
 
-     call formd(d,rng,ien)
+     call formid(id,rng,ien,nodes_BC_fluid)
+     call formd(d,rng,ien,nodes_BC_fluid)
+
+	
+	!enddo
      do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
 
+	
        !...Calculate mesh & referential velocities, vhat & w
  !       call velocity(x,xold,meshvel,refvel,finv,d,ien)
 
@@ -27,6 +33,7 @@
         !...calculate residual of each degree of freedom, p and diagonal matrix w
 !	write(*,*) '4: pdf=',pdf
 
+ 
          call block(x,d,dold,p,w,hg,ien,f_fluids,rng)
 
         !...apply boundary conditions, calculate residual with corrected BC
@@ -41,13 +48,13 @@
          dg(:,:) = 0.0d0
         call gmres(x,d,dold,id,w,p,dg,hg,ien,    &
                 z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids)
-	
 
         !...calculate the normalized increment, del_l
          call getnorm(dg,dg,ndf*nn,del_l)
          del_l = sqrt(del_l/nq)
-        !...update the calculated variables, d=d+dg
+       !...update the calculated variables, d=d+dg
          call update(p, d, dg, ndf)
+	
 
         !...output the errors in each iteration
          write(6,102) iit,res_l,del_l
@@ -55,3 +62,4 @@
       enddo
 
       write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1:nsd,:))
+				!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

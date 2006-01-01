@@ -71,10 +71,10 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
         !du(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
         !du(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
         !du(3,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(3)
-		do i=1,nsd_solid
-			 solid_vel(i,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(i)
-		enddo
-        
+
+        solid_vel(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
+        solid_vel(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
+        solid_vel(3,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(3)
      enddo
   endif
 

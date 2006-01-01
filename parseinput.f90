@@ -25,15 +25,11 @@ subroutine parseinput_solid
   open(1,file='input_solid.in',status='old',action='read')
   write(*,*) 'reading input_solid.in'
 
-  ! Initial displacement
+
   read(1,*) ninit,initdir
   if (ninit.eq.1)   write(*,*) 'apply initial condition' 
   if (initdir.eq.1) write(*,*) 'apply initial displacement'
   if (initdir.eq.2) write(*,*) 'apply initial velocity'
-
-  ! Pre-stressed structure
-  read(1,*) nprestress
-  if (nprestress.eq.1)   write(*,*) 'Pre-stressed structure' 
 
  !...Gauss integration point
   read(1,*) iquad_solid,nen_solid
@@ -116,14 +112,11 @@ subroutine parseinput_solid
   enddo
 
   read(1,*) material_type !1=hyperelastic material, 2=linear elastic material  
-  read(1,*) young_mod, Poisson ! young's modulus, Poisson ratio
-  read(1,*) rc1,rc2,rk
-  read(1,*) density_solid
-
+  read(1,*) young_mod  ! young's modulus
+  read(1,*) rc1,rc2,rk,density_solid
   if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
   if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
   write(*,*) 'Youngs modulus=', young_mod
-  write(*,*) 'Poisson ratio=', Poisson
   write(*,*) 'C1      = ',rc1
   write(*,*) 'C2      = ',rc2
   write(*,*) 'kappa   = ',rk
@@ -165,7 +158,7 @@ end subroutine parseinput_solid
 subroutine parseinput_fluid
   use run_variables
   use fluid_variables
-  use delta_nonuniform, only: maxconn
+  use delta_nonuniform
   implicit none
 
   !character*32 key, keyaux

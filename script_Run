@@ -1,0 +1,26 @@
+#!/bin/sh
+#BSUB -L /bin/sh
+#BSUB -J 2DDisk
+#BSUB -q fsi_short
+#BSUB -W 24:00
+#BSUB -o %J.out
+#BSUB -e %J.err
+#BSUB -n 2
+#BSUB -u ltzhang@tulane.edu
+
+echo Start Job
+date
+pwd
+
+cd Disk/
+bpsh $NODES ./IFEM &
+
+cd ../
+
+cd Leaflet/
+bpsh $NODES ./IFEM &
+
+
+wait
+
+echo End Job
