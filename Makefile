@@ -11,10 +11,10 @@ r_sbpress.o r_jacob.o r_load.o r_nodalf.o r_sboc.o \
 r_scal.o r_scauchy.o r_smaterj.o r_spiola.o r_spiola_viscous.o r_spiola_elastic.o\
 r_spress.o r_sreadinit.o r_sstif.o r_sstrain.o r_stang.o r_stoxc.o \
 r_timefun.o rkpmshape2d.o rkpmshape3d.o set.o shape.o sharp.o solid_solver.o \
-solid_update.o update.o velocity.o vol.o 
+NoSlip.o solid_update.o update.o velocity.o vol.o 
 
 IFEM: $(OBJ)
-	g95 -O2 -o IFEM $(OBJ)
+	g95 -o IFEM $(OBJ)
 .f90.o:
 	g95 -c $<
 clean:

@@ -31,7 +31,7 @@ public
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp,nodes_BC_solid,nodes_BC_fluid)
+subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 ! Subroutine rkpm_delta
 ! Lucy Zhang
 ! 11/06/02
@@ -47,8 +47,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp,nodes_BC_solid,nodes
   integer,intent(in)  :: nn_solids
 
   real(8),intent(in)  :: x_solids(nsd,nn_solids)
-  integer :: nodes_BC_solid(1:nn_solids)
-  integer :: nodes_BC_fluid(1:nn_solids,1:maxconn)
 
  !...fluids variables
   real(8) :: xna(nsd,nn),xn(nsd,nen)
@@ -158,29 +156,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp,nodes_BC_solid,nodes
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Mickael
-!02/24/2005
-       do k=1,nn_solids
-         if ((nodes_BC_solid(k)) == i) then
-             do j = 1, ninf
-                nodes_BC_fluid(k,j)=inf(j)
-              enddo
-          endif
-       enddo
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Mickael 
-!02/22/2005
-	! if (nodes_BC_solid(i) /= 0 ) then
-	!	do j = 1, ninf
-	!		nodes_BC_fluid(i,j)=inf(j)
-	!	enddo
-	 ! endif
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
 
 !	 write(*,*) 'ninf=',ninf, 'inf=',inf(1),inf(ninf)
