@@ -17,17 +17,17 @@ nsd =     2
 iquad =   2
 
 nit =      6
-nts =      5
-ntsbout =  1
+nts =      5000
+ntsbout =  2
 idisk =    00 
-inner =    20
-outer =    01
+inner =    40
+outer =    02
 kinner =   30  !ALE algorithm only
 kouter =   02  !ALE algorithm only
 iscaling = 01
 maxconn =  60
 
-dt =      0.05
+dt =      0.005
 t_start = 0.0
 alpha =   1.0
 

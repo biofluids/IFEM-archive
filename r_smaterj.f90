@@ -194,7 +194,7 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 
 	dli(2,1)=2.0d0*toc(2,2)
 	dli(2,2)=2.0d0*toc(1,1)
-	dli(2,3)=-toc(1,2)
+	dli(2,3)=-2.0*(toc(1,2)+toc(2,1))
 	dli(2,4)=0.0d0
 
 	dli(3,1)=2.0d0*toc(2,2)
@@ -208,27 +208,14 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 
 
 	ddli(2,1,2)=4.0d0
-	ddli(2,1,3)=0.0d0
 	ddli(2,2,1)=4.0d0
-	ddli(2,2,3)=0.0d0
-	ddli(2,3,1)=0.0d0
-	ddli(2,3,2)=0.0d0
-	ddli(2,3,3)=-2.0d0
-	ddli(2,4,4)=0.0d0
+	ddli(2,3,3)=-8.0d0
 
 	ddli(3,1,2)= 4.0d0
-	ddli(3,1,3)= 0.0d0
-	ddli(3,1,4)= 0.0d0
 
 	ddli(3,2,1)= 4.0d0
-	ddli(3,2,3)= 0.0d0
 
-	ddli(3,3,1)= 0.0d0
-	ddli(3,3,2)= 0.0d0
 	ddli(3,3,3)=-8.0d0
-
-	ddli(3,4,1)= 0.0d0
-	ddli(3,4,4)= 0.0d0
 
 	
 

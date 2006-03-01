@@ -13,8 +13,8 @@
      meshvel = (x - xold)/dt
  !    call formd(d,meshvel,rng,ien)
 
-     call formid(id,rng,ien)
-     call formd(d,rng,ien)
+     call formid(id,rng,ien,nodes_BC_fluid)
+     call formd(d,rng,ien,nodes_BC_fluid)
 
 	
 	!enddo

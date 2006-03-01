@@ -5,7 +5,7 @@ module form
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine formd(ds,rngface,ien)
+subroutine formd(ds,rngface,ien,nodes_BC_fluid)
   use global_constants
   use run_variables, only: tt
   use fluid_variables, only: nn,ne,ndf,nsd,nen,neface,nrng,nnface,mapping,bc,bv,etype,ic,static,udf,vdf,wdf, maxconn
@@ -19,6 +19,7 @@ subroutine formd(ds,rngface,ien)
   real(8) :: eps1,eps2 !,tt_ramp
   real(8) :: hs(nrng+1,nn), h(nrng+1,nn)
   integer :: T0, k
+  integer :: nodes_BC_fluid(1:nn_solid,1:maxconn)
 
   eps1 = -1000000.0 
   eps2 = -10000.0 
@@ -40,6 +41,20 @@ subroutine formd(ds,rngface,ien)
   enddo
 
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Mickael 02/28/2005
+! BC on influence nodes
+  do inn=1,nn_solid
+	do k=1,maxconn
+	  if (nodes_BC_fluid(inn,k)/=0) then
+	  	irng=nrng+1
+	    h(irng,nodes_BC_fluid(inn,k)) = h(irng,nodes_BC_fluid(inn,k)) + 1.0
+	  endif
+	enddo
+  enddo
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
   hs = h
 
 
@@ -54,6 +69,26 @@ subroutine formd(ds,rngface,ien)
         enddo
      enddo
   enddo
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Mickael 02/28/2005
+! BC on influence nodes
+  do inn=1,nn_solid
+	do k=1,maxconn
+	  if (nodes_BC_fluid(inn,k)/=0) then
+	  	irng=nrng+1
+		do idf=1,ndf
+			if (hs(irng,nodes_BC_fluid(inn,k)).gt.1.0e-8) then
+              if (bc(idf,irng) .gt. 0) then
+                ds(idf,nodes_BC_fluid(inn,k)) = bv(idf,irng)
+			  endif
+            endif
+		enddo
+	  endif
+	enddo
+  enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
   do inn=1,nn
@@ -74,7 +109,7 @@ end subroutine formd
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine formid(ids, rngface, ien)
+subroutine formid(ids, rngface, ien, nodes_BC_fluid)
   use fluid_variables
   use solid_variables, only: nn_solid
 
@@ -82,6 +117,7 @@ subroutine formid(ids, rngface, ien)
 
   integer :: ids(ndf,nn),rngface(neface,ne),ien(nen,ne)
   integer :: idf, inl, iec, irng, ieface, inface, inn,k
+  integer :: nodes_BC_fluid(1:nn_solid,1:maxconn)
 
   real(8) :: epsr,epsl
 
@@ -109,6 +145,23 @@ subroutine formid(ids, rngface, ien)
      enddo
   enddo
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Mickael 02/28/2005
+! BC on influence nodes
+  do inn=1,nn_solid
+	do k=1,maxconn
+	  if (nodes_BC_fluid(inn,k)/=0) then
+	  	irng=nrng+1
+		do idf=1,ndf
+			if(d(idf,nodes_BC_fluid(inn,k)).lt.epsr) then
+				d(idf,nodes_BC_fluid(inn,k)) = bc(idf,irng)+epsl
+    		endif
+		enddo
+	  endif
+	enddo
+  enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
   ds = d

@@ -37,3 +37,4 @@
  !write(*,*) 'shape derivatives=', sh(1,1),sh(1,2),sh(1,3), sh(1,4)
  ! write(*,*) '2nd shape derivatives=', sh(2,1),sh(2,2),sh(2,3), sh(2,4)
  !stop
+
