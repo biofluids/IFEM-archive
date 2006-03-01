@@ -71,10 +71,10 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
         !du(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
         !du(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
         !du(3,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(3)
-
-        solid_vel(1,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(1)
-        solid_vel(2,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(2)
-        solid_vel(3,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(3)
+		do i=1,nsd_solid
+			 solid_vel(i,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(i)
+		enddo
+        
      enddo
   endif
 
@@ -121,7 +121,7 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
  !...update current position
 
   do j=1,nsd_solid
-  solid_coor_curr(j,1:nn_solid) = solid_coor_curr(j,1:nn_solid) + du(j,1:nn_solid)
+	solid_coor_curr(j,1:nn_solid) = solid_coor_curr(j,1:nn_solid) + du(j,1:nn_solid)
   enddo
 
  !...write to 'vel_time.m' to plot
@@ -130,8 +130,6 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 
   write(*,*) " solid position updated"
 
-!  write(*,*) 'solid_coor_curr',solid_coor_curr(1,1:4)
-!  solid_coor_curr(1,3:4) = solid_coor_curr(1,3:4)+0.01
 
   return
 end subroutine solid_update

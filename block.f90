@@ -7,7 +7,7 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
+subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
   use global_constants
   use run_variables
   use fluid_variables
@@ -24,6 +24,8 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
   real* 8 eft0,det,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
+
+  real* 8 f_stress(nsd,nsd,nn)
 
   real* 8 drt(ndf),drs(ndf)
   real* 8 dr(nsd,ndf)
@@ -52,9 +54,13 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
+		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
 	 enddo
 
 	 hg = hk(ie)
+
+
+	 
 
 	 do iq=1,nquad  ! loop over the quadrature points in each element 
 !...  calculate the shape function and the weight at quad point
@@ -89,6 +95,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		   enddo
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
+
 
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
@@ -149,6 +156,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 	    do isd = 1, nsd
 			if (nsd==2) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)-g(isd))-fq(isd)
+			  
 			elseif (nsd==3) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
 			endif
@@ -189,6 +197,10 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		do isd = 1,nsd
 			do jsd = 1,nsd
 				tau(isd,jsd) = mu*(dr(isd,jsd) + dr(jsd,isd))
+				do inl=1,nen	
+					! Compute fluid stress
+					f_stress(isd,jsd,ien(inl,ie))= f_stress(isd,jsd,ien(inl,ie)) + tau(isd,jsd)
+				enddo
 			enddo
 		enddo
 
@@ -248,27 +260,6 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface)
 		   endif		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
 	 enddo
-!*******************************************
-! Mickael
-! add in pressure driven input
-! Added in a -999 check....Yaling
-     do isd = 1,nsd
-        p_vec(isd)=0.0
-     enddo
-     do ieface=1,neface
-        irng = rngface(ieface,ie)
-		if (irng/=0) then
-		  if (bv(ndf,irng)/=-999) then
-			p_vec(xsd)=bv(ndf,irng)*1.0 ! only for rectangle shapes
-		  endif
-        endif
-     enddo
-!*****************************************************************
-	 do inl=1,nen ! loop over number of nodes in an element
-        node=ien(inl,ie)
-		p(1:nsd,node)=p(1:nsd,node)+ph(0,inl)*p_vec(1:nsd)
-     enddo
-!***************** End of pressure implementation ****************
 
 !********************************************************
 	      ! Diagonal Preconditioner

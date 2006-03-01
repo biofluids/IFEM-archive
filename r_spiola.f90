@@ -36,10 +36,13 @@ subroutine r_spiola(xmj,dxmj,xto)
 
   twodim: if (nsd_solid .eq. 2) then 
  
+
+
 	PK2str_tens(1,1) = PK2str(1)
 	PK2str_tens(1,2) = PK2str(3)
 	PK2str_tens(2,1) = PK2str(3)
 	PK2str_tens(2,2) = PK2str(2)
+
 
   endif twodim
 

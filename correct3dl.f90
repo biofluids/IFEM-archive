@@ -1020,7 +1020,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
       if(det .le. zero) then
       print *, 'det =', det
-      print *, 'STOP! the determinat det < 0 '
+      print *, 'STOP! the determinant det < 0 '
       stop
       else
       end if

@@ -18,12 +18,10 @@
 
    meshvel = 0.0d0
    d = 0.0d0
-   call delta_initialize(nn_solid,solid_coor_curr,x,ien,dvolume,nodes_BC_solid, &
-				nodes_BC_fluid)
-
-   call formid(id,rng,ien,nodes_BC_fluid)
-   call formd(d,rng,ien,nodes_BC_fluid)
-
+   call formid(id,rng,ien)
+!   call formd(d,meshvel,rng,ien)
+   call formd(d,rng,ien)
+	
 
    call error("mesh information",-999,.false.)
    !call vol(x,ien)

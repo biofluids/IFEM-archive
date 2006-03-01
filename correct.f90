@@ -15,7 +15,7 @@ subroutine correct3d(b,bd,cpt,cjp,dcjp,dwjp,nep,iInter,inf,ninf,maxconn)
 
 ! Lucy commented it out, don't know what iInter=11 is.
 !  elseif(iInter .eq. 11)  then
-!     call correct3dtl(b,bd,cpt,cjp,dcjp,dwjp,nep,inf,ninf,maxconn)
+!     call correct3dtl(b,bd,cpt,cjp,dcjp,dwjp,nep)
 
   else
      print *, 'wrong iInter'
@@ -440,7 +440,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine correct3dtl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
+      subroutine correct3dtl(b,bd,cpt,cjp,anode,dwjp,nep)
 !
 !     This subroutine is to calculate the b vector and its
 !     derivatives,for the moving least square reproducing kernel 
@@ -545,7 +545,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
       implicit none
 !
-      integer nep,maxconn,inf(maxconn),ninf
+      integer nep
       real(8) cjp(3,nep),anode(3,nep),dwjp(nep)
       real(8) gm(7,7),gminv(7,7)
       real(8) gmdx(7,7),gmdy(7,7),gmdz(7,7)
@@ -1020,7 +1020,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
       if(det .le. zero) then
       print *, 'det =', det
-      print *, 'STOP! the determinat det < 0 '
+      print *, 'STOP! the determinant det < 0 '
       stop
       else
       end if
@@ -1343,7 +1343,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 	  real* 8 xp,yp,ha1,ha2,dsj,xj,yj,dx,dy
 	  real* 8 r10,r01,r20,r11,r02
 	  real* 8 xx,yy,aw
-	  real* 8 awdx,awdy,awdxy,awdxx,awdyy
+	  real* 8 awdx,awdy
 	  real* 8 a11,a12,a21,a13,a31,a22,a23,a32,a33,det,cdet
 
       real* 8 b(3),bd(2,3),cpt(2)
@@ -1479,7 +1479,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       zero = 0.0d0
       if(det .le. zero) then
 		print *, 'det =', det
-		print *, 'STOP! the determinat det < 0 '
+		print *, 'STOP! the determinant det < 0 '
 		print *, am00, am10, am01 
 		print *, am10, am20, am11 
 		print *, am01, am11, am02 

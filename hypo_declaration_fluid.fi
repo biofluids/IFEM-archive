@@ -13,6 +13,7 @@
     real(8) :: dg(ndf,nn)  !,kdg(nsd,nn)
     real(8) :: p(ndf,nn)   !,kp(nsd,nn)
     real(8) :: w(ndf,nn)   !,kw(nsd,nn)
+    real(8) :: f_stress(nsd,nsd,nn)
 
     real(8) :: xold(nsd,nn)          !...fluid mesh nodal position at previous time step
     real(8) :: meshvel(nsd,nn)       !...fluid mesh nodal velocity defined in spatial domain
@@ -47,5 +48,4 @@
     real(8),dimension(1:nsd,1:nn)       :: fluid_mesh_force
 
     integer :: nts_test1,nts_test2,ios1,ios2
-
 
