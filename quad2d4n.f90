@@ -1,15 +1,14 @@
-!
-	  subroutine quad2d4n(igau,ngau,gau,wei,maxnsd,maxnquad)
-!  
+subroutine quad2d4n(igau,ngau,gau,wei,maxnsd,maxnquad)
+
       real*8 gau(maxnsd,maxnquad), wei(maxnquad)
-!  
+
 	  DO I = 1,maxnquad
 		WEI(I) = 0.0
 		DO J = 1,maxnsd
 		  GAU(J,I) = 0.0
 		ENDDO
 	  ENDDO
-!  
+
       IF(IGAU.EQ.1) THEN
 		NGAU = 1
 		GAU(1,1) = 0.0
@@ -36,8 +35,9 @@
 		WEI(3)= 1.0
 		WEI(4)= 1.0
 
+
 		RETURN
       ENDIF
 
-      END
+END
  

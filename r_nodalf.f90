@@ -5,7 +5,6 @@ subroutine r_nodalf
 
   integer :: i,ni
 
-
   if (numfn .gt. 0) then
      do i=1,numfn
         ni=i

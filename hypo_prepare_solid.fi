@@ -1,30 +1,3 @@
-
- !...shape function values
-
-  !xg(:,1) = (/  0.d0               , 0.d0               ,0.d0               ,0.d0/)
-  !xg(:,2) = (/ -0.577350269189626d0, 0.577350269189626d0,0.d0               ,0.d0/)
-  !xg(:,3) = (/ -0.774596669241483d0, 0.d0               ,0.774596669241483d0,0.d0/)
-  !xg(:,4) = (/ -0.861136311594053d0,-0.339981043584856d0,0.339981043584856d0,0.861136311594053d0/)
-      
-  !wgt(:,1) = (/ 2.d0                ,0.d0                ,0.d0                ,0.d0/)
-  !wgt(:,2) = (/ 1.d0                ,1.d0                ,0.d0                ,0.d0/)
-  !wgt(:,3) = (/ 0.5555555555555556d0,0.8888888888888889d0,0.5555555555555556d0,0.d0/)
-  !wgt(:,4) = (/ 0.347854845137454d0 ,0.652145154862546d0 ,0.652145154862546d0 ,0.347854845137454d0/)
-
-
-
-  !xg_tetra(:,1) = (/ 0.25d0             , 0.d0               , 0.d0               , 0.d0                /)
-  !xg_tetra(:,2) = (/-0.577350269189626d0, 0.577350269189626d0, 0.d0               , 0.d0                /)
-  !xg_tetra(:,3) = (/-0.774596669241483d0, 0.d0               , 0.774596669241483d0, 0.d0                /)
-  !xg_tetra(:,4) = (/-0.861136311594053d0,-0.339981043584856d0, 0.339981043584856d0, 0.861136311594053d0 /)
-      
-  !wgt_tetra(:,1) = (/ 1.0d0               , 0.d0                ,0.d0                 , 0.d0                /)
-  !wgt_tetra(:,2) = (/ 1.d0                , 1.d0                ,0.d0                 , 0.d0                /)
-  !wgt_tetra(:,3) = (/ 0.5555555555555556d0, 0.8888888888888889d0, 0.5555555555555556d0, 0.d0                /)
-  !wgt_tetra(:,4) = (/ 0.347854845137454d0 , 0.652145154862546d0 , 0.652145154862546d0 , 0.347854845137454d0 /)
-
-
-
   if (nsd_solid==2) then
 	if (nen_solid == 3) then
         call quad2d3n(iquad_solid, nquad_solid, xq_solid, wq_solid, nsdpad_solid, nquadpad_solid)
@@ -39,22 +12,12 @@
 	endif
   endif
 
-
   allocate(solid_fem_con_1(ne_solid_1,nen_solid),stat=error_id)
-  allocate(solid_surface_1(ne_solid_1,nen_solid),stat=error_id)
   allocate(coor_1(nn_solid_1,nsd_solid),stat=error_id)
-
  !...read element connectivity for one structure
   call readien_solid(solid_fem_con_1,ne_solid_1,nen_solid)
-
  !...read coordinates for one structure
   call readx_solid(coor_1,nn_solid_1,nsd_solid)
-
- !...read surface information (which element surface is part of the structure surface
- ! Lucy commented it out
-!  call readrng_solid(solid_surface_1,ne_solid_1,nen_solid)
-
-  !call read_solid_ale_boundary(solid_ale_boundary)
 
  !...scale structure
   do i=1,nsd_solid
@@ -67,16 +30,11 @@
 	  solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
 	enddo
      solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
- !    solid_surface(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_surface_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
   enddo
   
   deallocate(solid_fem_con_1,stat=error_id)
-  deallocate(solid_surface_1,stat=error_id)
   deallocate(coor_1,stat=error_id)
   deallocate(shift,stat=error_id)  
-
- !...read essential boundary conditions (displacement)
-  call solid_fem_BC_read_essential
 
  !...initialize arrays
   solid_coor_curr(1:nsd_solid,1:nn_solid) = solid_coor_init(1:nsd_solid,1:nn_solid)
@@ -87,18 +45,5 @@
   if (ninit .eq. 1) then
      call r_sreadinit(solid_coor_init,solid_coor_curr)
   endif
-  !drf(1:3*nn_solid) = 0.0d0
 
 
-
-  if (restart == 0) then
-      
-    !...output file setting for contineous writing (please comment out unused stuff)
-    !...Matlab output for falling sphere
-     open(9500, file='vel_time.m', status='replace')
-  
-  else
-
-     open(9500, file='vel_time.m', status='old')
-
-  endif

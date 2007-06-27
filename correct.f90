@@ -1350,7 +1350,7 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       real* 8 cjp(2,nep),dcjp(2,nep),dwjp(nep)
       real* 8 gminv(3,3),gmdx(3,3),gmdy(3,3)
       real* 8 adx(3,3),ady(3,3)
-	  integer jpt
+	  integer jpt,j
 	  integer ninf, maxconn, inf(maxconn)
 !
 !.....set the initial value for moment and its derivatives:
@@ -1397,7 +1397,6 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       yp = cpt(2)
 
 !.....main loop: calculate moment by Trapezodial rule
-
       do 30 j = 1, ninf
 	  jpt = inf(j)
 

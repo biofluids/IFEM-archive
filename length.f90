@@ -8,16 +8,12 @@ subroutine length(xloc,ien,hg)
   integer :: ien(nen,ne)
   real(8) :: xloc(nsd,nn),x(nsdpad,nenpad)
   real(8) :: hg(ne)
-
   real(8) :: eft0,det
   real(8) :: sh(0:nsd,nen)
   real(8) :: xr(nsdpad,nsdpad),cf(nsdpad,nsdpad),sx(nsdpad,nsdpad)
-
   real(8) :: evol
   real(8) :: gmin,gmax,lmin,lmax
   integer :: inl,ie,iq,isd
-
-  !integer ierr,status(MPI_STATUS_SIZE)
 
   vmin = +10000000.0
   vmax = -10000000.0
@@ -25,7 +21,6 @@ subroutine length(xloc,ien,hg)
   hmax = -10000000.0
 
   do ie=1,ne
-  
      do inl=1,nen
         do isd=1,nsd
            x(isd,inl) = xloc(isd,ien(inl,ie))
@@ -76,62 +71,21 @@ subroutine length(xloc,ien,hg)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   lmin = hmin
   lmax = hmax
-
   gmin = lmin
   gmax = lmax
-!c  if (myid.eq.0) then
-!c     do i=1,numproc-1
-!c        call MPI_RECV(lmax,1,MPI_DOUBLE_PRECISION,i,101,
-!c  1      MPI_COMM_WORLD,status,ierr)
-!c        call MPI_RECV(lmin,1,MPI_DOUBLE_PRECISION,i,102,
-!c  1      MPI_COMM_WORLD,status,ierr)
-          gmax = max(gmax,lmax)
-          gmin = min(gmin,lmin)
-!c	   end do
-!c	else
-!c	   call MPI_SEND(lmax,1,MPI_DOUBLE_PRECISION,0,101,
-!c	1	MPI_COMM_WORLD,ierr)
-!c	   call MPI_SEND(lmin,1,MPI_DOUBLE_PRECISION,0,102,
-!c	1	MPI_COMM_WORLD,ierr)
-!c	endif
-
-
-!c	call MPI_BCAST(gmin,1,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,ierr)
-!c	call MPI_BCAST(gmax,1,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,ierr)
-!c	call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-
+  gmax = max(gmax,lmax)
+  gmin = min(gmin,lmin)
   hmin = gmin
   hmax = gmax
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
   lmin = vmin
   lmax = vmax
-
   gmin = lmin
   gmax = lmax
-!c	if (myid.eq.0) then
-!c	   do i=1,numproc-1
-!c	      call MPI_RECV(lmax,1,MPI_DOUBLE_PRECISION,i,101,
-!c	1	   MPI_COMM_WORLD,status,ierr)
-!c	      call MPI_RECV(lmin,1,MPI_DOUBLE_PRECISION,i,102,
-!c	1	   MPI_COMM_WORLD,status,ierr)
-          gmax = max(gmax,lmax)
-          gmin = min(gmin,lmin)
-!c	   end do
-!c	else
-!c	   call MPI_SEND(lmax,1,MPI_DOUBLE_PRECISION,0,101,
-!c	1	MPI_COMM_WORLD,ierr)
-!c	   call MPI_SEND(lmin,1,MPI_DOUBLE_PRECISION,0,102,
-!c	1	MPI_COMM_WORLD,ierr)
-!c	endif
-
-
-!c	call MPI_BCAST(gmin,1,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,ierr)
-!c	call MPI_BCAST(gmax,1,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD,ierr)
-!c	call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-
+  gmax = max(gmax,lmax)
+  gmin = min(gmin,lmin)
   vmin = gmin
   vmax = gmax
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
   return

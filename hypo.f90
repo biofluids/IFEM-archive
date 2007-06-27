@@ -15,36 +15,22 @@ subroutine hypo
   use r_common, only: ninit
   use meshgen_fluid
   use meshgen_solid
-  use solid_fem_BC
   use form
-!  use formm
-!  use gmres_fluid_mesh
-!  use gmres_fluid_ale
-!  use deformation_gradient
   use ensight_output
   implicit none
 
 !==============================	  
 ! Definition of variables
-
   integer :: klok,j
-
-  !integer :: naxx1,naxx2
-
-  !integer time
-  !external time
-
 
 !============================
 ! Define local variables
-
   include "hypo_declaration_solid.fi"
   include "hypo_declaration_fluid.fi"
 !===============================================================
 ! Prepare for calculation, read in inputs or restart information
 
   include "hypo_restart_file_check.fi"
-
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
 
@@ -53,8 +39,6 @@ subroutine hypo
   else
      include "hypo_restart_read.fi"
   endif
-
-  !naxx1=time()
 
 !=================================================================
 !						 time loop	
@@ -83,32 +67,26 @@ subroutine hypo
 ! Construction of the dirac deltafunctions at actual solid and fluid node positions
      call delta_initialize(nn_solid,solid_coor_curr,x,ien,dvolume)
 
-
 !=================================================================
 ! Solid solver
-
+ write(*,*) 'starting solid solver'
     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
-                      solid_pave,solid_stress,solid_strain,solid_force_FSI)
-  
+                     solid_pave,solid_stress,solid_strain,solid_force_FSI)
 
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
 !   f^fsi(t)  ->  f(t)
-
+ write(*,*) 'calculating delta'
      call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,nsd,  &
                          delta_exchange_solid_to_fluid)
 
-
 !=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
-
-
      include "hypo_fluid_solver.fi"
 
 !=================================================================
 ! Interpolation fluid velocity -> immersed material points
 !     v^f(t+dt)  ->  v^s(t+dt)
-
     call delta_exchange(solid_vel,nn_solid,d(1:nsd,:),nn,ndelta,dvolume,nsd, &
 					  delta_exchange_fluid_to_solid)
 
@@ -119,7 +97,6 @@ subroutine hypo
 
 !=================================================================
 ! Write output file every ntsbout steps
- 
      include "hypo_write_output.fi"
 
   enddo time_loop

@@ -5,47 +5,23 @@
     real(8) :: x(nsd,nn)       !...current fluid mesh nodal position  chi = psi(chi_0,t)
     real(8) :: xref(nsd,nn)    !...initial fluid mesh nodal position   X = chi_0
     real(8) :: disp(nsd,nn)    !...displacment of fluid mesh nodes u^hat = x - chi
-
     real(8) :: hg(ne)
-
     integer :: id(ndf,nn)  , kid(nsd,nn)   !...tells whether or not to update a value in the iteration  fluid / mesh
     real(8) :: d(ndf,nn),dold(ndf,nn)    !...unknown vector for current and previous time step
-    real(8) :: dg(ndf,nn)  !,kdg(nsd,nn)
-    real(8) :: p(ndf,nn)   !,kp(nsd,nn)
-    real(8) :: w(ndf,nn)   !,kw(nsd,nn)
+    real(8) :: dg(ndf,nn)  
+    real(8) :: p(ndf,nn)   
+    real(8) :: w(ndf,nn)   
     real(8) :: f_stress(nsd,nsd,nn)
-
-    real(8) :: xold(nsd,nn)          !...fluid mesh nodal position at previous time step
-    real(8) :: meshvel(nsd,nn)       !...fluid mesh nodal velocity defined in spatial domain
-    real(8) :: refvel(nsd,nquad,ne)  !...fluid mesh nodal velocity defined in computational domain
-!    real(8) :: refvelo(nsd,nquad,ne) !...fluid mesh nodal velocity defined in computational domain,previous time step
-    real(8) :: convel(nsd,nn)        !...fluid mesh nodal velocity defined in computational domain
-    real(8) :: convelo(nsd,nn)       !...fluid mesh nodal velocity defined in computational domain,previous time step
-
-!    real(8) :: f(nsd,nsd,nquad,ne)
-!    real(8) :: finv(nsd,nsd,nquad,ne)
-    real(8),dimension(nquad,ne) :: jac !,jacinv,jaco
-
-
+    real(8),dimension(nquad,ne) :: jac 
     real(8) :: f_fluids(nsd,nn)   !...interaction force as fluid body force
-
-    real(8) :: z(ndf*nn,inner)  !,kz(nsd*nn,kinner)
-    real(8) :: v(ndf*nn,inner+1)  !,kv(nsd*nn,kinner+1)
+    real(8) :: z(ndf*nn,inner)  
+    real(8) :: v(ndf*nn,inner+1) 
     real(8) :: zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
-!    real(8) :: kzg(nsd*nn),kavg(nsd*nn),ksm(nsd*nn)
     real(8) :: vloc(ndf,nn)
-    !real(8) :: kvloc(nsd,nn)
     real(8) :: avloc(ndf,nn)
-!    real(8) :: kavloc(nsd,nn)
-
-    real(8) :: h_gmres(inner+1,inner)  !,kh(kinner+1,kinner)
-    real(8) :: y_gmres(inner+1)        !,ky(kinner+1)
-    real(8) :: cc(inner), ss(inner)    !,kcc(kinner),kss(kinner)
-
+    real(8) :: h_gmres(inner+1,inner)  
+    real(8) :: y_gmres(inner+1) 
+    real(8) :: cc(inner), ss(inner)   
     real(8) :: dvolume(nn)
-
-    !real(8),dimension(1:nsd,1:nn_solid) :: solid_mesh_force
-    real(8),dimension(1:nsd,1:nn)       :: fluid_mesh_force
-
     integer :: nts_test1,nts_test2,ios1,ios2
 

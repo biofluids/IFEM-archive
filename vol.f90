@@ -5,20 +5,14 @@ subroutine vol(xloc, ien)
   use fluid_variables
   implicit none
 
-
   integer :: ien(nen,ne)
   real(8) :: xloc(nsd,nn)
   real(8) :: x(nsd,nen)
-
   real(8) :: eft0,det
   real(8) :: sh(0:nsd,nen)
   real(8) :: xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
-
   real(8) :: e_liq,p_liq
-!  real* 8 :: p_gas,e_gas
   integer :: inl,ie,iq
-
-  !integer ir,status(MPI_STATUS_SIZE)
 
   p_liq =  0.0
 

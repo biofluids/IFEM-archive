@@ -1,6 +1,4 @@
-!     
 !     bar pressure and derivative 
-!
 subroutine r_sbpress(dxmj,ddxmj,xmj)
   use r_common
   use solid_variables, only: nsd_solid

@@ -1,4 +1,3 @@
-!     
 !     bar 2nd piola-kichhoff
 !     
 subroutine r_spiola_viscous(xot,vel)
@@ -16,21 +15,17 @@ subroutine r_spiola_viscous(xot,vel)
 
   sigma(:,:) = 0.0
   ui_j(:,:) = 0.0
-  !press = 0.0
-  !mu = vis_liq
   do nos = 1,nen_solid
      do isd = 1,nsd
         do jsd = 1,nsd
            ui_j(isd,jsd) = ui_j(isd,jsd) + bd_curr(jsd,nos)*vel(isd,nos)
         end do
      end do
-     !press = press + bd_curr(0,nos)*d(pdf,ien(nos,ie))
   end do
   do isd = 1,nsd
      do jsd = 1,nsd
         sigma(isd,jsd) = mu*(ui_j(isd,jsd)+ui_j(jsd,isd))
      end do
-     !sigma(isd,isd) = sigma(isd,isd) - press
   end do
 
   do isd = 1,nsd

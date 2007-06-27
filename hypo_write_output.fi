@@ -6,15 +6,9 @@
 ! origin:  ibm code
 ! n_matlab = 1  :  matlab output
 !
-! n_ibmfem = 0  :  ibm output
-! n_ibmfem = 1  :  fem output
-!
 ! n_tec_ens =1  :  tecplot output
 ! n_tec_ens =0  :  ensight output
 !
-
-       !currentstep = klok/n_step_wr_ib_user_files
-       !time_value(currentstep) = klok * td
 
        if (its == 0) then
 

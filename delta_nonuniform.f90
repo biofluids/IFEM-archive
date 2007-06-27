@@ -45,14 +45,12 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 
  !...solids variables
   integer,intent(in)  :: nn_solids
-
   real(8),intent(in)  :: x_solids(nsd,nn_solids)
 
  !...fluids variables
   real(8) :: xna(nsd,nn),xn(nsd,nen)
   integer,intent(in)  :: ien(nen,ne)
   real(8),intent(out) :: dwjp(nn)
-
   real(8) :: adist(nsd,nn)
 
  !...local variables
@@ -61,7 +59,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   real(8) :: b(4), bd(nsd,4)
   real(8) :: shp, det
   real* 8 :: xmax(nsd),vol
-!  real(8) :: xmax,ymax,zmax,vol
   real(8) :: coef,avginf
   integer :: iq
   integer :: maxinf,mininf,totinf
@@ -87,8 +84,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(shrknode(maxconn,nn_solids),stat=error_id)
   allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
   allocate(ncnn(nn_solids)            ,stat=error_id)
-
-  !coef = 0.5
   coef = 0.9d0
   maxinf = 0
   mininf = 9999
@@ -101,7 +96,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   dwjp(:) = 0.0
   adist(:,:) = 0.0
   totinf = 0
-
   do ie = 1,ne
      do inl=1,nen
         do isd=1,nsd
@@ -114,45 +108,31 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
 		xmax(isd) = coef*(maxval(xn(isd,1:nen)) - minval(xn(isd,1:nen)))
 	enddo
 
-!     xmax = coef*(maxval(xn(1,1:nen)) - minval(xn(1,1:nen)))
-!     ymax = coef*(maxval(xn(2,1:nen)) - minval(xn(2,1:nen)))
-!     zmax = coef*(maxval(xn(3,1:nen)) - minval(xn(3,1:nen)))
-
      do inl = 1,nen
         node = ien(inl,ie) 
         adist(1:nsd,node) = max(adist(1:nsd,node),xmax(1:nsd))
-!        adist(1,node) = max(adist(1,node),xmax)
-!        adist(2,node) = max(adist(2,node),ymax)
-!        adist(3,node) = max(adist(3,node),zmax)
      enddo
 
  !...Calculate volume
-        if (nsd == 2) then
-          if (nen == 3) then
-                 include "vol2d3n.fi"
-          endif
-          if (nen == 4) then
-                 include "vol2d4n.fi"
-          endif
-        elseif (nsd == 3) then
-                if (nen == 4) then
-                         include "vol3d4n.fi"
-                endif
-               if (nen == 8) then
-                        include "vol3d8n.fi"
-               endif
+	if (nsd == 2) then
+	  if (nen == 3) then
+			include "vol2d3n.fi"
+	  elseif (nen == 4) then
+			include "vol2d4n.fi"
+	  endif
+	elseif (nsd == 3) then
+      if (nen == 4) then
+			include "vol3d4n.fi"
+      elseif (nen == 8) then 
+			include "vol3d8n.fi"
+	  endif
     endif
 
      do inl = 1,nen
         nnum = ien(inl,ie)
         dwjp(nnum) = dwjp(nnum) + vol/nen
      enddo
-
   enddo
-
-	
-
-
 
 ! Calculate the RKPM shape function for the solids points
   do i = 1, nn_solids
@@ -161,12 +141,14 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
-!	 write(*,*) 'ninf=',ninf, 'inf=',inf(1),inf(ninf)
-     cnn(1:ninf,i)=inf(1:ninf)
+    cnn(1:ninf,i)=inf(1:ninf)
      ncnn(i)=ninf
 
-     if (ninf > maxinf) maxinf = ninf
-     if (ninf < mininf) mininf = ninf
+     if (ninf > maxinf) then
+			maxinf = ninf
+     elseif (ninf < mininf) then 
+			mininf = ninf
+	 endif
      totinf = totinf + ninf
 ! calculate the correction function
      if (nsd==2) then 
@@ -191,7 +173,6 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      enddo
 
   enddo
-
   avginf = totinf/nn_solids
   write(6,'("  Maximum Influence Nodes = ",i7)') maxinf
   write(6,'("  Minimum Influence Nodes = ",i7)') mininf
@@ -236,7 +217,6 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
 		endif
 	 endif
   enddo
-
   if (ninf > maxconn) then
      write (*,*) "Too many influence nodes!"
      write (*,*) ninf
@@ -282,17 +262,12 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
  !...local variables
   integer :: inn,icnn,pt
   real(8)  :: tot_vel(nn_fluids),tot_vel_fluid,vol_inf 
-  !real(8)  :: tot_force_solid,tot_force_fluid
-
 
   tot_vel_fluid = 0
   tot_vel(1:nn_fluids)=0.0
   if (ndelta == 1) then                  !c    If non-uniform grid 
 
      if (ibuf == delta_exchange_fluid_to_solid) then  !velocity interpolation
-
-        !write(*,*) '*** Interpolating Velocity onto Solid ***'
-
         data_solids(:,:)=0
         do inn=1,nn_solids
            vol_inf=0.0d0
@@ -303,14 +278,8 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
               vol_inf = vol_inf + dv(pt)
            enddo
         enddo
-!c      tot_vel_solid=sum(data_solids(1,:))
-!c      tot_vel_fluid=sum(tot_vel(:))
-!c      tot_vel_fluid=sum(data_fluids(1,:))
-!c      write(*,*) 'total vel in solid=',tot_vel_solid
-!c      write(*,*) 'total vel in fluid=',tot_vel_fluid
 
      elseif (ibuf == delta_exchange_solid_to_fluid) then !force distribution
-
         write(*,*) '*** Distributing Forces onto Fluid ***'
         data_fluids(:,:)=0
         do inn=1,nn_solids
@@ -319,10 +288,6 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
               data_fluids(1:nsd,pt) = data_fluids(1:nsd,pt) + data_solids(1:nsd,inn) * shrknode(icnn,inn)  
 		   enddo    
         enddo
-        !tot_force_solid=sum(data_solids(1,:))
-        !tot_force_fluid=sum(data_fluids(1,:))
-        !write(*,*) 'total force in solid=',tot_force_solid
-        !write(*,*) ' total force in fluid=',tot_force_fluid
      endif
   else
 

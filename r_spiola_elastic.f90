@@ -6,15 +6,11 @@ subroutine r_spiola_elastic(det,xot,ge,iq,ne,cstr_element)
   real(8),intent(in) :: det
   real(8) xot(nsd_solid,nsd_solid)
   real(8) :: cstr_element(nsd_solid*2),ge(nsd_solid*2,ne_solid,nquadpad_solid)  !...Cauchy stress
-  
   integer :: isd,jsd,ksd,iq,ne
   real(8) :: cstr(nsd_solid,nsd_solid)
   real(8) :: tempC, tempD, tempE
  
   cstr(:,:) = 0.0d0
-
-  !cstr_element(1:nsd_solid*2)=young_mod*ge(1:nsd_solid*2,ne,iq)
-
    
   threedim: if (nsd_solid .eq. 3) then 
 
@@ -51,27 +47,21 @@ subroutine r_spiola_elastic(det,xot,ge,iq,ne,cstr_element)
   endif  threedim
 
   twodim: if (nsd_solid .eq. 2) then 
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   !Mickael Plane stress
-   !
-   
+  
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !Mickael Plane stress
 	cstr_element(1)= (young_mod/(1-Poisson**2))*(ge(1,ne,iq)+Poisson*ge(2,ne,iq))
 	cstr_element(2)= (young_mod/(1-Poisson**2))*(ge(2,ne,iq)+Poisson*ge(1,ne,iq))
     cstr_element(3)= (young_mod/(1+Poisson))*ge(3,ne,iq) 
     cstr_element(4)= 0.0 
 
-
-
- ! do isd=1,2
- !   cstr(isd,isd)=cstr_element(isd)
- ! enddo
- ! cstr(1,2)=cstr_element(3)
- ! cstr(2,1)=cstr_element(3)
   do isd=1,2
     cstr(isd,isd)=cstr_element(isd)
   enddo
   cstr(1,2)= cstr_element(3)
   cstr(2,1)= cstr_element(3)
+
+
 	do isd = 1,nsd_solid
      do jsd = 1,nsd_solid
         PK1str_tens(isd,jsd) = 0.0d0

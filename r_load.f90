@@ -1,13 +1,10 @@
-!     
 !     load assignment
-!     
 subroutine r_load
   use r_common
   implicit none
 
   integer :: i
   real(8) :: xtime
-
 
   xtime=tfun(ntfun)
   if (numfn .gt. 0) then

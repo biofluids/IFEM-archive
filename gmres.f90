@@ -10,16 +10,13 @@
       use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,iscaling
 	implicit none
 
-
 	real* 8 x(nsd,nn)
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	integer id(ndf,nn),ien(nen,ne)
-
 	real* 8 h(inner+1,inner)
 	real* 8 y(inner+1)
 	real* 8 cc(inner), ss(inner)
-	
 	real* 8 z(ndf*nn,inner)
 	real* 8 v(ndf*nn,inner+1)
 	real* 8 zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
@@ -49,10 +46,7 @@
 	endif
 
 !c       clear arrays
-	!call fclear (v,ndf*nn*(inner+1))
 	v(1:ndf*nn,1:inner+1) = 0.0d0
-
-!c       compute residual as r = W**(-1/2) * (b - A * d)
 
 	do iqc=1,ndf*nn
 	   v(iqc,1) = bg(iqc)
@@ -60,13 +54,6 @@
 	enddo
 	call getnorm(v(1,1),v(1,1),ndf*nn,rnorm0)
 	rnorm0 = sqrt(rnorm0)
-
-!c	if(rnorm0.le.eps) then
-!c	   if(myid.eq.0) write(6,102)
-!c	   if(myid.eq.0) write(7,102)
-!c	   return
-!c	endif
-
 
 !c       outer GMRES loop (igmres)
 	igmres = 0 
@@ -95,12 +82,12 @@
 	   do iqc=1,ndf*nn
 	      zg(iqc) = w(iqc) * zg(iqc)
 	   enddo
-!c	   call gather (vloc, zg, ndf, hn, hm)
+
 	   call equal(zg,vloc,ndf*nn)
-	   !call fclear (avloc,ndf*nn)
-         avloc(1:ndf,1:nn) = 0.0d0
+
+       avloc(1:ndf,1:nn) = 0.0d0
 	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext)
-!c	   call scatter(avloc, avg, ndf, assemble, hn, hm)
+
 	   call equal(avloc,avg,ndf*nn)
 	   call setid(avg,id,ndf)
 
@@ -124,9 +111,6 @@
 	   enddo
 
 	enddo			! end inner loop
-
-!c       compute y(1:inner+1) from local hessenberg linear system
-!c       H_m * y = beta * e_1
 
 !c       initialize reduced residual
 	y(1) = rnorm
