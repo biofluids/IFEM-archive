@@ -1,4 +1,6 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation of fp
+!     
 subroutine r_scalfp(fp,ocpp,i)
   use r_common, only: bpre,cpre,hp
   implicit none 
@@ -10,7 +12,10 @@ subroutine r_scalfp(fp,ocpp,i)
   return
 end subroutine r_scalfp
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation of fu
+!     
 subroutine r_scalfu(fu,isd,ni)
   use r_common
   use solid_variables, only : nsd_solid
@@ -18,16 +23,26 @@ subroutine r_scalfu(fu,isd,ni)
 
   real(8) :: fu
   integer :: isd,ni
+
+  !integer :: m
   integer :: ksd
 
   fu=0.0d0
+  !do m=1,6
+  !   fu=fu+PK2str(m)*dge(m,isd,ni)
+  !enddo
+
   do ksd = 1,nsd_solid
     fu = fu + bd(ksd,ni)*PK1str_tens(ksd,isd)
   enddo
+
   return
 end subroutine r_scalfu
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation of fu in current configuration
+!     
 subroutine r_scalfu_curr(fu,i,ni,cstr_element)
   use r_common
   use solid_variables, only : nsd_solid
@@ -37,7 +52,12 @@ subroutine r_scalfu_curr(fu,i,ni,cstr_element)
   integer :: i,ni
   real(8),intent(in) :: cstr_element(2*nsd_solid)  !...Cauchy stress
 
+  !integer :: m
+
   fu=0.0d0
+  !do m=1,6
+     !fu=fu+PK2str(m)*dge(m,i,ni)
+  !enddo
   if (i == 1) then
      fu=fu+cstr_element(1)*bd_curr(1,ni)
      fu=fu+cstr_element(6)*bd_curr(2,ni)
@@ -55,7 +75,10 @@ subroutine r_scalfu_curr(fu,i,ni,cstr_element)
   return
 end subroutine r_scalfu_curr
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
 !     calculation of kpp
+!     
 subroutine r_scalkpp(fkpp,ocpp,k,m)
   use r_common
   use solid_variables, only : nsd_solid
@@ -65,10 +88,14 @@ subroutine r_scalkpp(fkpp,ocpp,k,m)
   integer :: k,m
 
   fkpp = ocpp*hp(k)*hp(m)
+
   return
 end subroutine r_scalkpp
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation of kup
+!     
 subroutine r_scalkup(fkup,ocup,i,k,ni)
   use r_common
   use solid_variables, only : nsd_solid
@@ -76,12 +103,14 @@ subroutine r_scalkup(fkup,ocup,i,k,ni)
   
   real(8) :: fkup,ocup(2*nsd_solid)
   integer :: i,k,ni
+
   integer :: m
 
   fkup=0.0d0
   do m=1,2*nsd_solid
      fkup=fkup+ocup(m)*dge(m,i,ni)*hp(k)
   enddo
+
   return
 end subroutine r_scalkup
 

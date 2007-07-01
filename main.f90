@@ -12,8 +12,8 @@ program main
   call initialize  ! for fluids
 
  !...read configuration files
-  call parseinput_fluid  !...reading input_fluid.in
-  call parseinput_solid  !...reading input_solid.in
+  call parseinput_fluid  !...reading fluid.in
+  call parseinput_solid  !...reading coortable.in
 
   call nondimension
  !...echos input data

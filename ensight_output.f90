@@ -10,17 +10,19 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   integer :: currentStep,ntsbout
 
   integer :: numbers_of_step
-  real(8) :: time_value(100000)
+  real(8) :: time_value(10000)
 
-  character(len=13) :: file_name
-  character(len=13) :: pre_name
-  character(len=13) :: vel_name
-  character(len=13) :: FSI_name
-  character(len=16) :: stress
-  character(len=16) :: strain     
+  character(len=12) :: file_name
+  !character*13 mgeo_name
+  character(len=12) :: pre_name
+  character(len=12) :: vel_name
+  character(len=12) :: FSI_name
+  character(len=15) :: stress
+  character(len=15) :: strain     
 
   integer :: ts 
   integer :: file_start_no, file_incre
+
   integer :: i,k
 
   write(*,*) 'generate ensight case file'
@@ -40,21 +42,24 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   write(20, *) 
   write(20, '(A8)') 'GEOMETRY'
 
-  file_name = 'fem.geo******'
-  pre_name  = 'fem.pre******'
-  vel_name  = 'fem.vel******'
-  fsi_name  = 'fem.fsi******'
-  stress    = 'fem.stress******'
-  strain    = 'fem.strain******'
+  file_name = 'fem.geo*****'
+  !mgeo_name = 'fem.geo*****' 
+  pre_name  = 'fem.pre*****'
+  vel_name  = 'fem.vel*****'
+  fsi_name  = 'fem.fsi*****'
+  stress    = 'fem.stress*****'
+  strain    = 'fem.strain*****'
  
+ !5001 format(A9, 11x, i5, 5x, A13, 1x, A18)
  5002 format(A16, 1x, I2, 1x, A8, 1x, A)
+
  5100 format(A9, 21x, i5)
  5101 format(A16, 14x, i5)
  5102 format(A22, 8x, i5)
  5103 format(A19, 11x, i5)
 
       write(20, 5000) 'model:', ts, file_name, 'change_coords_only'
- 5000 format(A6, 14x, i5, 5x, A13, 1x, A18) 
+ 5000 format(A6, 14x, i5, 5x, A12, 1x, A18) 
 
   write(20, *) 
 
@@ -109,45 +114,45 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr  !...node position current
 
-  character(len =  7) :: fileroot
-  character(len = 14) :: file_name
+  character(len =  5) :: fileroot
+  character(len = 12) :: file_name
 
-  integer,parameter :: i_file_unit = 20
+  integer,parameter :: i_file_unit = 15
 
 !%%%%%%%%%%%%%%%%%%%%%%
 ! used for ensight
 !%%%%%%%%%%%%%%%%%%%%%
+  !integer sizeX, sizeY, sizeZ
   integer :: i, j
 
- 200  format(a6   )
- 201  format(a5,i1)
- 202  format(a4,i2)
- 203  format(a3,i3)
- 204  format(a2,i4)
- 205  format(a1,i5)
- 206  format(   i6)
+
+
+ 200  format(a5   )
+ 201  format(a4,i1)
+ 202  format(a3,i2)
+ 203  format(a2,i3)
+ 204  format(a1,i4)
+ 205  format(   i5)
 
   if (klok .eq. 0) then
-     write(fileroot, 200) '000000'
+     write(fileroot, 200) '00000'
   elseif (klok .lt. 10) then
-     write(fileroot, 201) '00000',klok
+     write(fileroot, 201) '0000',klok
   elseif (klok .lt. 100) then
-     write(fileroot, 202) '0000' ,klok
+     write(fileroot, 202) '000' ,klok
   elseif (klok .lt. 1000) then
-     write(fileroot, 203) '000'  ,klok
+     write(fileroot, 203) '00'  ,klok
   elseif (klok .lt. 10000) then
-     write(fileroot, 204) '00'   ,klok
-  elseif (klok .lt. 100000) then
-     write(fileroot, 205) '0'   ,klok
-  elseif (klok .lt. 1000000) then    
-     write(fileroot, 206)   ''  ,klok
+     write(fileroot, 204) '0'   ,klok
+  elseif (klok .lt. 100000) then    
+     write(fileroot, 205)   ''  ,klok
   else
-     write(0,*) 'klok >= 1000000: modify subroutine createfileroot'
+     write(0,*) 'klok >= 100000: modify subroutine createfileroot'
      call exit(1)
   endif
 
 
-  write(file_name,'(A8, A6)')  'fem.geo', fileroot
+  write(file_name,'(A7, A5)')  'fem.geo', fileroot
   write(6,*) 'writing... ', file_name 
 
   open(i_file_unit, file=file_name, form='formatted')
@@ -176,7 +181,9 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   do i=1,nn
      if (nsd==3) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),xn(3,i)
      if (nsd==2) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),0.0
+!     write(i_file_unit,101) i+nn_solid,xn(1:nsd,i)
   enddo
+
 
  !...write structure part - connectivity
   write(i_file_unit, *) 'part 1'
@@ -257,6 +264,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 	  end select
   endif
 
+
   close(i_file_unit)
 
   return
@@ -269,89 +277,75 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
   use solid_variables
-  use fluid_variables, only: nn,ndf,nsd,vis_liq
+  use fluid_variables, only: nn,ndf,nsd
   use run_variables, only: its
   implicit none
 
   real(8) :: d(ndf,nn)
   real(8) :: f_fluids(nsd,nn)
+
+  !integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
+  !integer,dimension(1:ne_solid,1:nsurface)  :: solid_surface   !...surface element faces
+
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
+  !real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_init   !...node position initial
+  !real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr   !...node position current
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
-  real(8),dimension (nsd,nsd,nn) :: f_stress
+  !real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_prevel      !...velocity - previous timestep
+  !real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel       !...acceleration
+
+
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
+
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
   integer :: klok
+  
   real(8) :: fluid_stress(1:nsd*2,nn),fluid_strain(1:nsd*2,nn)              !...fluid stress and strain (not used) empty matrix needed for Ensight input format
-  integer :: in,i
-  character(len=7 ) :: fileroot
-  character(len=14) :: name_file1
-  character(len=14) :: name_file2
-  character(len=17) :: name_file3
-  character(len=17) :: name_file4
-  character(len=14) :: name_file5
-  integer,parameter :: ifileunit = 16
+  !real(8) :: solid_stress(6,nn_solid),solid_strain(6,nn_solid)    !...solid stress and strain
 
-  ! Fluid stress and strain rate, Voigt notation
+  !real(8) :: pave(nn_solid)
+
+  integer :: in
+  !integer :: ntem
+  character(len=5 ) :: fileroot
+  character(len=12) :: name_file1
+  character(len=12) :: name_file2
+  character(len=15) :: name_file3
+  character(len=15) :: name_file4
+  character(len=12) :: name_file5
+
+  integer,parameter :: ifileunit = 15
+
+
   fluid_stress(1:nsd*2,1:nn)=0.0
   fluid_strain(1:nsd*2,1:nn)=0.0
 
-  if (nsd.eq.2) then
-	! 2 Dim
-	! Ensight Tensor Order: 1->11,2->22,3->33,4->12,5->13,6->23
-	fluid_stress(1,1:nn)=f_stress(1,1,1:nn)		
-	fluid_stress(2,1:nn)=f_stress(2,2,1:nn)		
-	fluid_stress(4,1:nn)=f_stress(1,2,1:nn)		
-	fluid_strain(1,1:nn)=f_stress(1,1,1:nn)/(2*vis_liq)			
-	fluid_strain(2,1:nn)=f_stress(2,2,1:nn)/(2*vis_liq)
-	fluid_strain(4,1:nn)=f_stress(1,2,1:nn)/(2*vis_liq)
-
-
-  else
-	! 3 Dim
-	! Ensight Tensor Order: 1->11,2->22,3->33,4->12,5->13,6->23
-	fluid_stress(1,1:nn)=f_stress(1,1,1:nn)
-	fluid_stress(2,1:nn)=f_stress(2,2,1:nn)
-	fluid_stress(3,1:nn)=f_stress(3,3,1:nn)
-	fluid_stress(4,1:nn)=f_stress(1,2,1:nn)
-	fluid_stress(5,1:nn)=f_stress(1,3,1:nn)
-	fluid_stress(6,1:nn)=f_stress(2,3,1:nn)
-
-	fluid_strain(1,1:nn)=f_stress(1,1,1:nn)/(2*vis_liq)
-	fluid_strain(2,1:nn)=f_stress(2,2,1:nn)/(2*vis_liq)
-	fluid_strain(3,1:nn)=f_stress(3,3,1:nn)/(2*vis_liq)
-	fluid_strain(4,1:nn)=f_stress(1,2,1:nn)/(2*vis_liq)
-	fluid_strain(5,1:nn)=f_stress(1,3,1:nn)/(2*vis_liq)
-	fluid_strain(6,1:nn)=f_stress(2,3,1:nn)/(2*vis_liq)
-  endif
 
   if (klok .eq. 0) then
-     write(fileroot, '(a6)') '000000'
+     write(fileroot, '(a5)') '00000'
   elseif (klok .lt. 10) then
-     write(fileroot, '(a5,i1)') '00000',klok
+     write(fileroot, '(a4,i1)') '0000',klok
   elseif (klok .lt. 100) then
-     write(fileroot, '(a4,i2)') '0000' ,klok
+     write(fileroot, '(a3,i2)') '000' ,klok
   elseif (klok .lt. 1000) then
-     write(fileroot, '(a3,i3)') '000'  ,klok
+     write(fileroot, '(a2,i3)') '00'  ,klok
   elseif (klok .lt. 10000) then
-     write(fileroot, '(a2,i4)') '00'   ,klok
-  elseif (klok .lt. 100000) then
-     write(fileroot, '(a1,i5)') '0'   ,klok
-  elseif (klok .lt. 1000000) then    
-     write(fileroot, '(i6)')   ''  ,klok
+     write(fileroot, '(a1,i4)') '0'   ,klok
+  elseif (klok .lt. 100000) then    
+     write(fileroot, '(i5)')   ''  ,klok
   else
-     write(0,*) 'klok >= 1000000: modify subroutine createfileroot'
+     write(0,*) 'klok >= 100000: modify subroutine createfileroot'
      call exit(1)
   endif
 
-
-  write(name_file1,'(A8,  A6)')  'fem.vel', fileroot
-  write(name_file2,'(A8,  A6)')  'fem.pre', fileroot
-  write(name_file3,'(A11, A6)')  'fem.stress', fileroot
-  write(name_file4,'(A11, A6)')  'fem.strain', fileroot
-  write(name_file5,'(A8,  A6)')  'fem.fsi', fileroot
+  write(name_file1,'(A7,  A5)')  'fem.vel', fileroot
+  write(name_file2,'(A7,  A5)')  'fem.pre', fileroot
+  write(name_file3,'(A10, A5)')  'fem.stress', fileroot
+  write(name_file4,'(A10, A5)')  'fem.strain', fileroot
+  write(name_file5,'(A7,  A5)')  'fem.fsi', fileroot
 
 !===========================================================================
 ! Output velocity, interaction force, pressure, stress, strain into Ensight format
@@ -386,10 +380,8 @@ if (nsd==3) then
   write(*,*) 'writing... ', name_file3
   open(ifileunit, file=name_file3, form='formatted')
   write(ifileunit, '(A)') 'structure field: stress'  
-  ! Solid solver tensor order: 1->11,2->22,3->33,4->23,5->13,6->12
-  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
   write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),solid_stress(3,in),                 &
-                        solid_stress(6,in),solid_stress(5,in),solid_stress(4,in),in=1,nn_solid),  &
+                        solid_stress(4,in),solid_stress(5,in),solid_stress(6,in),in=1,nn_solid),  &
                        (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),                 &
                         fluid_stress(4,in),fluid_stress(5,in),fluid_stress(6,in),in=1,nn)
   close(ifileunit)
@@ -398,10 +390,8 @@ if (nsd==3) then
   write(*,*) 'writing... ', name_file4
   open(ifileunit, file=name_file4, form='formatted')
   write(ifileunit, '(A)') 'structure field: strain'  
-  ! Solid solver tensor order: 1->11,2->22,3->33,4->23,5->13,6->12
-  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
   write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),                 &
-                        solid_strain(6,in),solid_strain(5,in),solid_strain(4,in),in=1,nn_solid),  &
+                        solid_strain(4,in),solid_strain(5,in),solid_strain(6,in),in=1,nn_solid),  &
                        (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
                         fluid_strain(4,in),fluid_strain(5,in),fluid_strain(6,in),in=1,nn)
   close(ifileunit)
@@ -437,20 +427,19 @@ elseif (nsd==2) then
   write(*,*) 'writing... ', name_file3
   open(ifileunit, file=name_file3, form='formatted')
   write(ifileunit, '(A)') 'structure field: stress'  
-  ! Solid solver tensor order: 1->11,2->22,3->12,4->33
-  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
-  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),0.0,solid_stress(3,in), &
-	                    0.0, 0.0,in=1,nn_solid),  &
-                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),fluid_stress(4,in),                 &
-                         0.0, 0.0,in=1,nn)
+ 
+  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),solid_stress(3,in),                 &
+                        solid_stress(4,in), 0.0, 0.0,in=1,nn_solid),  &
+                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),                 &
+                        fluid_stress(4,in), 0.0, 0.0,in=1,nn)
   close(ifileunit)
 
  !...Write strain output in ens_movie.strain*
   write(*,*) 'writing... ', name_file4
   open(ifileunit, file=name_file4, form='formatted')
   write(ifileunit, '(A)') 'structure field: strain'  
-  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),0.0,solid_strain(3,in),  &
-                        0.0, 0.0,in=1,nn_solid),  &
+  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),                 &
+                        solid_strain(4,in), 0.0, 0.0,in=1,nn_solid),  &
                        (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
                         fluid_strain(4,in), 0.0, 0.0,in=1,nn)
   close(ifileunit)

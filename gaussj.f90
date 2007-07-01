@@ -5,8 +5,10 @@ subroutine gaussj(a,n,npp,b,m,mp)
   integer,parameter :: nmax = 10000
   real(8) ::  a(npp,npp),b(npp,mp)
   integer,dimension(nmax) :: ipiv,indxr,indxc
+
   integer :: i,j,k,l,ll
   integer :: irow,icol
+
   real(8) :: big,dum,pivinv
 
   do j=1,n
@@ -14,7 +16,9 @@ subroutine gaussj(a,n,npp,b,m,mp)
   enddo
 
   do i=1,n
+     
      big=0.0d0
+
      do j=1,n
         if(ipiv(j).ne.1)then
            do k=1,n

@@ -1,4 +1,6 @@
+!     
 !     jacobian calculation
+!     
 subroutine r_jacob(x,xj,xji,det)
   use solid_variables, only:nsd_solid,nen_solid
   use r_common
@@ -6,6 +8,8 @@ subroutine r_jacob(x,xj,xji,det)
 
   real(8) :: x(nsd_solid,nen_solid),xj(nsd_solid,nsd_solid),xji(nsd_solid,nsd_solid),cf(nsd_solid,nsd_solid)
   real(8),intent(out) :: det
+
+
   real(8) :: dum
   integer :: i,j,k
 
@@ -19,6 +23,7 @@ subroutine r_jacob(x,xj,xji,det)
         xj(i,j) = dum
      enddo
   enddo
+
  !...compute the determinant of the jacobian matrix
 
   threedim: if (nsd_solid .eq. 3) then 
@@ -33,7 +38,7 @@ subroutine r_jacob(x,xj,xji,det)
   cf(3,2) = - (xj(1,1)*xj(2,3) - xj(1,3)*xj(2,1))
   cf(3,3) = + (xj(1,1)*xj(2,2) - xj(1,2)*xj(2,1))
 
-  det =( xj(1,1) * cf(1,1) + &
+  det =abs( xj(1,1) * cf(1,1) + &
          xj(1,2) * cf(1,2) + &
          xj(1,3) * cf(1,3) )
 
@@ -45,6 +50,7 @@ subroutine r_jacob(x,xj,xji,det)
 
 
 !...compute the inverse of the jacobian matrix
+
   xji(1,1) = cf(1,1)/det
   xji(1,2) = cf(2,1)/det
   xji(1,3) = cf(3,1)/det
@@ -68,12 +74,14 @@ subroutine r_jacob(x,xj,xji,det)
   endif
 	
 !...compute the inverse of the jacobian matrix
+
   xji(1,1) = xj(2,2)/det
   xji(1,2) = -xj(1,2)/det
   xji(2,1) = -xj(2,1)/det
   xji(2,2) = xj(1,1)/det
 
 	endif twodim
+
 
   return
 end subroutine r_jacob

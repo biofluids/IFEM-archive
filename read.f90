@@ -9,6 +9,7 @@ subroutine Read_Real(var,count)
       CHARACTER(len=132) :: line
 
 !  Read lines in until reaching a non-blank line that is not commented out
+
       i = 0
  10   CONTINUE
       READ(file_in,'(a132)',err=911) line

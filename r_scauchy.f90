@@ -1,4 +1,6 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     calculation cauchy stress
+!     
 subroutine r_scauchy(det,todet,xto,cstr_element)
   use r_common
   use solid_variables, only: nsd_solid
@@ -7,6 +9,8 @@ subroutine r_scauchy(det,todet,xto,cstr_element)
   real(8),intent(in) :: det,todet
   real(8) xto(3,3)
   real(8) :: cstr_element(6)  !...Cauchy stress
+  
+  !real(8) :: ssb(3,3)
   real(8) :: ss(3,3)
   integer :: isd,jsd
 
@@ -50,7 +54,9 @@ subroutine r_scauchy(det,todet,xto,cstr_element)
      do jsd=1,2
         cstr_element(1)=cstr_element(1) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
         cstr_element(2)=cstr_element(2) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
-        cstr_element(3)=cstr_element(3) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(2,jsd)
+        cstr_element(3)=cstr_element(3) + todet/det*xto(2,isd)*ss(isd,jsd)*xto(2,jsd)
+        cstr_element(4)=cstr_element(4) + todet/det*xto(1,isd)*ss(isd,jsd)*xto(1,jsd)
+!		write(*,*) 'here we are',todet,det,xto(1,isd),ss(isd,jsd),xto(1,jsd)
      enddo
   enddo
 
