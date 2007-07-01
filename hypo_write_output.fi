@@ -6,9 +6,15 @@
 ! origin:  ibm code
 ! n_matlab = 1  :  matlab output
 !
+! n_ibmfem = 0  :  ibm output
+! n_ibmfem = 1  :  fem output
+!
 ! n_tec_ens =1  :  tecplot output
 ! n_tec_ens =0  :  ensight output
 !
+
+       !currentstep = klok/n_step_wr_ib_user_files
+       !time_value(currentstep) = klok * td
 
        if (its == 0) then
 
@@ -17,7 +23,7 @@
           if( n_tec_ens == 0) then   !ensight output
 
              call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr)
-             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
              call zfem_ensCase(dt,its,ntsbout)
 
           endif
@@ -29,7 +35,7 @@
           if( n_tec_ens == 0) then   !ensight output
 
              call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr)
-             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok)
              call zfem_ensCase(dt,its,ntsbout)
 
           endif

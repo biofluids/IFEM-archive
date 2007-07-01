@@ -7,6 +7,8 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
   implicit none
 
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con    !...connectivity for solid FEM mesh
+!  real(8) :: cstr_element(1:nsd_solid*2)  !...Cauchy stress
+
   real(8) :: ocpp
   real(8) :: ocup(nsd_solid*2)
   real(8) :: xkup(3*nen_solid,nup,ne_solid)
@@ -16,6 +18,8 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
   real(8) :: vel(nsd_solid,nen_solid)  !...element nodes velocity
   real(8) :: acc(nsd_solid,nen_solid)  !...element nodes acceleration
   real(8) :: w
+!  real(8) :: toxj(nsd_solid,nsd_solid)
+  
   real(8) :: sdensit
   integer :: ni,isd,ip,jp,k,nu1,nv1,nw1,mu1,nk
   real(8) :: xac(1:nsd_solid),xve(1:nsd_solid)
@@ -23,9 +27,11 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
 
 
   sdensit=density_solid
+
 !ccccccccccc
 !     i-u
 !ccccccccccc
+
   do ni=1,nen_solid
      do isd=1,nsd_solid
         nu1 = (isd-1)*nn_solid+solid_fem_con(ne,ni)
@@ -34,6 +40,7 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
 !     fu
 !ccccccccccc
         call r_scalfu(fu,isd,ni)
+        !call r_scalfu_curr(fu,isd,ni,cstr_element)
         predrf(nu1) = predrf(nu1) + fu*w
         do nk=1,nump
            call r_scalkup(fkup,ocup,isd,nk,ni)
@@ -63,7 +70,7 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
   enddo
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
   xac(1:nsd_solid) = xac(1:nsd_solid) + xmg(1:nsd_solid)
-  
+
   totalh=0
   do ni=1,nen_solid
   	if(nsd_solid == 3) then
@@ -78,9 +85,12 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
      nv1=  nn_solid + solid_fem_con(ne,ni)
      predrf(nu1) = predrf(nu1) - w*sdensit*h(ni)*xac(1) - w*xviss*h(ni)*xve(1)
      predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
+
 	endif
+!   totalh=totalh+h(ni)
 
   enddo
+
   return
 end subroutine r_sstif
 
