@@ -18,5 +18,7 @@ subroutine error(string, param, fatal)
             	end if
          end if
 
+      	if (fatal) call exit(1)
+
       	return
 end

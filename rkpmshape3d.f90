@@ -81,17 +81,23 @@
       real(8) :: awdxy,awdyz,awdzx
       real(8) :: wjt,xx,yy,zz
       integer :: i,nn
-
+!
 !.....find the polynominal p
+!
       nn = 4
       xp = cpt(1)
       yp = cpt(2)
       zp = cpt(3)
+
       xj = cjt(1)
       yj = cjt(2)
       zj = cjt(3)
+!
 !.....weight
+!
+
 !.....assign value to working array
+!
       a1 = haj(1)
       a2 = haj(2)
       a3 = haj(3)
@@ -115,12 +121,14 @@
       pdz(2) =   0.00
       pdz(3) =   0.00
       pdz(4) = - 1.00/a3
-
+!
 !.....compute correct function  C
+!
       coref = 0.00
       do i = 1, nn
        coref = coref + p(i)*b(i)
       enddo
+
 
       cdx = 0.00
       cdy = 0.00
@@ -131,7 +139,9 @@
        cdz = cdz + pdz(i)*b(i) + p(i)*bd(3,i)
       enddo
 
+!
 !.....check whether or not the point is within the compact support
+!
       xx = abs(xj - xp)/a1
       yy = abs(yj - yp)/a2
       zz = abs(zj - zp)/a3
@@ -146,16 +156,22 @@
               awdxx,awdyy,awdzz,            &
               awdxy,awdyz,awdzx,            &
               xp,yp,zp,xj,yj,zj,a1,a2,a3)
-
+!
 !.....calculate the shape functions
+!
           shp   = coref*aw*wjt
-
+!
 !.....calculate the 1st derivatives of the shape function
+!
           shpd(1) = (cdx*aw+coref*awdx)*wjt
           shpd(2) = (cdy*aw+coref*awdy)*wjt
           shpd(3) = (cdz*aw+coref*awdz)*wjt
+
       endif
+
+
   999 continue
+
       return
       end
 
@@ -230,15 +246,17 @@
 !*************************************************************
 !
       implicit none
-
+!
 !.....global variables
+!
       real(8) aw,awdx,awdy,awdz
       real(8) awdxx,awdyy,awdzz
       real(8) awdxy,awdyz,awdzx
       real(8) a1,a2,a3
       real(8) xj,yj,zj,xp,yp,zp
-
+!
 !.....Local variables
+!
       real(8) hv,zero
       real(8) x1,x2,x3,y1,y2,y3,z1,z2,z3
       real(8) dx1,dx2,dy1,dy2,dz1,dz2
@@ -246,8 +264,9 @@
       real(8) awx,awxd,awxdd
       real(8) awy,awyd,awydd
       real(8) awz,awzd,awzdd
-
+!
 !.....normalize the argument
+!
       x1  = (xj-xp)/a1
       x2  =  x1*x1
       x3  =  x2*x1
@@ -265,8 +284,9 @@
       zero =  0.00
       onep =  1.00
       twop =  2.00
-
+!
 !.....dfx := d(xr)/dx; dfy:= d(yr)/dy
+!
       dx1  = -1.00/a1
       dx2 = dx1 * dx1
       dy1  = -1.00/a2
@@ -298,6 +318,7 @@
         awxdd = 0.00
       endif
 
+
       if((y1.ge.twon).and.(y1.lt.onen)) then
         awy   = (1.0/6.0)*(2.0 + y1)**3.
         awyd  = dy1*0.5*(2.0 + y1 )**2.
@@ -320,6 +341,7 @@
         awydd = 0.00
       endif
 
+
       if((z1.ge.twon).and.(z1.lt.onen)) then
         awz   = (1.0/6.0)*(2.0 + z1)**3.
         awzd  = dz1*0.5*(2.0 + z1 )**2.
@@ -341,6 +363,7 @@
         awzd  = 0.00 
         awzdd = 0.00
       endif
+
 
       aw    = awx*awy*awz*hv
       awdx  = awxd*awy*awz*hv

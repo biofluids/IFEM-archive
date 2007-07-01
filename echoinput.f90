@@ -4,8 +4,11 @@
       use fluid_variables
       implicit none
 
+      !character*8 date
       character(len=3) :: yon
       integer :: io,idelta,i
+
+!     if (myid.ne.0) return
 
       io = 7
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -21,6 +24,7 @@
       write(io,'(" Degrees of freedom............(ndf) = ",i5)') ndf
       WRITe(io,'(" Number of element nodes.......(nen) = ",i5)') nen
       write(io,'(" Integration points..........(iquad) = ",i5)') iquad
+      write(io,'(" Hydrostatic surface.........(hydro) = ",i5)') hydro
       write(io,'(" Scaling..................(iscaling) = ",i5)') iscaling
       write(io,'(" Inner GMRES iterations......(inner) = ",i5)') inner 
       write(io,'(" Outer GMRES iterations......(outer) = ",i5)') outer 
@@ -39,7 +43,9 @@
       write(io,'(" Reference velocity........= ",e15.8)') ref_vel 
       write(io,'(" Reference density.........= ",e15.8)') ref_den 
       write(io,'(" Density of liquid.........= ",e15.8)') den_liq 
+      write(io,'(" Density of gas............= ",e15.8)') den_gas 
       write(io,'(" Viscosity of liquid.......= ",e15.8)') vis_liq 
+      write(io,'(" Viscosity of gas..........= ",e15.8)') vis_gas 
       write(io,'(" Gravity in x..............= ",e15.8)') gravity(1)
       write(io,'(" Gravity in y..............= ",e15.8)') gravity(2)
       write(io,'(" Gravity in z..............= ",e15.8)') gravity(3)
@@ -64,16 +70,16 @@
           write(io,'(/"Boundary condition information" )')
           write(io,'( "------------------------------"/)')
       do i=1,nrng
-	      write(io,14) i,bc(1:ndf,i) 
+	      write(io,14) i,bc(1:ndf,i) !,bcf(i)
  14   format (' boundary no. ',i2,3x,5i9)
       enddo
       do i=1,nrng
-	      write(io,15) i,bv(1:ndf,i) 
+	      write(io,15) i,bv(1:ndf,i) !,bvf(i)
  15   format (' Boundary no. ',i2,3x,5f9.3)
       enddo
           write(io,'(/"Initial condition information" )')
           write(io,'( "-----------------------------"/)')
-      write(io,16) ic(1:4)
+      write(io,16) ic(1:4) !,icf
  16   format (' Initial value : ',5f9.3)
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

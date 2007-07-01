@@ -1,4 +1,7 @@
+!     
 !     material constant c,cpp,cuu,cup
+!     
+
 !cccccccccccccccccccccccccc
 !     oCUPP, oCUP, oCPP
 !cccccccccccccccccccccccccc
