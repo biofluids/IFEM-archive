@@ -46,4 +46,15 @@
      call r_sreadinit(solid_coor_init,solid_coor_curr)
   endif
 
+  if (restart == 0) then
+
+    !...output file setting for contineous writing (please comment out unused stuff)
+    !...Matlab output for falling sphere
+     open(9500, file='vel_time.m', status='replace')
+
+  else
+
+     open(9500, file='vel_time.m', status='old')
+
+  endif
 

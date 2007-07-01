@@ -186,10 +186,10 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
               if (solid_fem_con(ine,nos) == in) then
                  ntem = ntem + 1
                  solid_pave(in) = solid_pave(in) + pre(1,ine)
-		 do iq = 1,nquad_solid
-		   solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + wq_solid(iq)*cstr(1:nsd_solid*2,ine,iq) !...constant stress and strain in element
+			 	 do iq = 1,nquad_solid
+				   solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + wq_solid(iq)*cstr(1:nsd_solid*2,ine,iq) !...constant stress and strain in element
                    solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + wq_solid(iq)*ge(1:nsd_solid*2,ine,iq)
-		 enddo
+			  	 enddo
                  goto 541
               endif
            enddo

@@ -21,7 +21,6 @@ subroutine parseinput_solid
   integer,parameter :: one = 1
   integer :: file_in,echo_out
   common /filename/file_in,echo_out
-  real(8) :: shift1(nsd_solid)
 
   file_in=8
   open(file_in,file='input_solid.in',status='old',action='read')
@@ -91,8 +90,7 @@ subroutine parseinput_solid
 
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
-    CALL Read_Real(shift1,nsd_solid)
-    shift(1:nsd_solid,i)=shift1(1:nsd_solid)
+    CALL Read_Real(shift,nsd_solid)
   enddo
 
  !...time step

@@ -1,0 +1,46 @@
+ninit= 0        ! 0 not apply bc, 1 apply bc   
+initdir = 1 	! 1 initial disp, 2 intial velocity
+
+iquad_solid= 2
+nen_solid= 4
+
+nsd_solid= 2 	! number of dimensions in the solid domain
+nrigid= 0 		! 0/1 not rigid body / rigid body
+
+n_tec_ens= 0
+
+ndelta= 1 		!1=RKPM(nonuniform)->the only option for now
+
+nnd= 441		! total number of nodes
+nume1= 400		! total number of elements
+nump= 1
+
+solid_scale= 1.0 1.0	! solid scale
+
+n_solid= 1 			! number of the same structure
+shift= 0.0d0 -0.25d0 	! shift the position of the structure
+
+ntfun= 3 			! time step
+
+numfn=0
+numeb=0
+
+material_type= 2 ! 1 is hyperelastic , 2 is linear elastic material
+
+young_mod= 1.0d5	! Young modulus (elastic)
+Poisson= 0.5	! Poisson ratio (elastic)
+rc1= 3000.0d1	! C1 constant (hyperelastic)
+rc2= 3000.0d1	! C2 constant (hyperelastic)
+rk= 1.0d-9		! Ck constant (hyperelastic)
+
+density_solid= 1.0d0 	! Density solid-fluid
+
+xviss= 0.0d0
+
+vnorm= 1.0d0
+fnorm= 1.0d0
+
+xmg= 0.0d0 0.0d0
+
+
+

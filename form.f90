@@ -8,6 +8,7 @@ contains
 subroutine formd(ds,rngface,ien)
   use global_constants
   use fluid_variables, only: nn,ne,ndf,nsd,nen,neface,nrng,nnface,mapping,bc,bv,etype,ic,static,udf,vdf,wdf, maxconn
+  use run_variables, only:tt
 
   implicit none
 
@@ -33,6 +34,10 @@ subroutine formd(ds,rngface,ien)
   enddo
 
   hs = h
+!!! ADD THIS ONLY FOR BC WITH FUNCTIONS OF TIME
+bv(udf,3)=0.1*sin(2*pi/40*tt)
+!!!!!
+
 
   do irng=1,nrng
      do inn=1,nn
