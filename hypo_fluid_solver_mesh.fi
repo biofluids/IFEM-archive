@@ -1,0 +1,65 @@
+
+       xold(1:nsd,1:nn)            = x(1:nsd,1:nn)
+       refvelo(1:nsd,1:nquad,1:ne) = refvel(1:nsd,1:nquad,1:ne)
+       jaco(1:nquad,1:ne)          = jac(1:nquad,1:ne)
+
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!c   Starts Mesh Update Iteration Loop
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+       ale_mesh_update = 0
+
+       mesh_update_a: if (ale_mesh_update /= 0) then
+       mesh_update_b: if (  (mod(its,ale_mesh_update) == 0)  .or.  (its == 1)  ) then
+
+       write(*,*) "*** Solving Fluids: ALE mesh update ***"
+       
+       call error("   form dd and kid",-999,.false.)
+       call formidm(kid,rng,ien)
+       call formdm (xref,disp,rng,ien) 
+
+
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       iter_mesh: do iit=1,2        !change if necessary
+
+          kp(1:nsd,1:nn) = 0.0d0  !...set residual to zero
+          kw(1:nsd,1:nn) = 0.0d0
+
+          !call blockm(xref,disp,fluid_mesh_force,kw,kp,ien)
+          call blockm(x,disp,fluid_mesh_force,kw,kp,ien)
+
+         !...set residual to zero, if BC applied
+          call setid(kp,kid,nsd)
+
+          call getnorm(kp,kp,nsd*nn,res_l)
+
+          res_l= sqrt(res_l/nq)
+          if (res_l < epsilon) exit iter_mesh
+          write(*,*) "mesh-iteration ",iit
+
+          kdg(1:nsd,1:nn) = 0.0d0
+
+          !call gmresm(xref,kid,kw,kp,kdg,ien,hn,hm,kz,kv,kzg,avg,sm,avloc,kh,ky,kcc,kss)
+          !call gmresm(xref,kid,kw,kp,kdg,ien,kz,kv,kzg,kavg,ksm,kavloc,kh,ky,kcc,kss)
+          call gmresm(x,kid,kw,kp,kdg,ien,kz,kv,kzg,kavg,ksm,kavloc,kh,ky,kcc,kss)
+            
+          call getnorm(kdg,kdg,nsd*nn,del_l)
+          del_l = sqrt(del_l/nq)
+
+          call update(kp,disp,kdg,nsd)
+          
+          write(6,102)iit,del_l,del_g
+          write(7,102)iit,del_l,del_g
+
+       enddo iter_mesh
+
+       x(1:nsd,1:nn) = xref(1:nsd,1:nn) + disp(1:nsd,1:nn) !...update mesh position
+
+       if (its.eq.1)  xold(1:nsd,1:nn) = x(1:nsd,1:nn)
+
+      !...calculate d x/d xref , deformation gradient
+       write(*,*) "calculate deformation gradient"
+       call defgrad(x, xref,ien,f,jac,finv,jacinv)
+
+     endif mesh_update_b
+     endif mesh_update_a

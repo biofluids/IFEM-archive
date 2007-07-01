@@ -22,14 +22,14 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen),q(ndf,nen)
 
-  real* 8 eft0,det
+  real* 8 eft0,det !,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
 
   real* 8 drs(ndf),qrt(ndf),qrs(ndf)
   real* 8 dr(nsd,ndf)
   real* 8 qr(nsd,ndf)
-  real* 8 u,v,w,pp
+  real* 8 u,v,w,pp !,ug
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree, taul
   real* 8 res_c,res_a(nsd),res_t(nsd)
@@ -226,6 +226,7 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 		   elseif (nsd==3) then
 			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
 		   endif
+!		   temp=ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
 
 !.....      Continuty Equation
 		   p(pdf,node) = p(pdf,node)+ph(0,inl)*res_c

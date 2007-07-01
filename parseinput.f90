@@ -7,7 +7,6 @@ module parseinput
 contains
 
 subroutine parseinput_solid
-
   use global_simulation_parameter
   use solid_variables
   use meshgen_solid
@@ -15,38 +14,34 @@ subroutine parseinput_solid
   use r_common
   implicit none
      
+  
   real(8) :: ftemp
-  integer :: i,error_id
-  integer :: nbe(nel)
-  integer,parameter :: one = 1
-  integer :: file_in,echo_out
-  common /filename/file_in,echo_out
-  real(8) :: shift1(nsd_solid)
+  real(8) :: fbacc(3)
 
-  file_in=8
-  open(file_in,file='input_solid.in',status='old',action='read')
+  integer :: n_ibmfem,i,error_id
+  integer :: nbe(nel)
+
+
+  open(1,file='input_solid.in',status='old',action='read')
   write(*,*) 'reading input_solid.in'
 
   ! Initial displacement
-  CALL Read_Int(ninit,1)
-  CALL Read_Int(initdir,1)
-
+  read(1,*) ninit,initdir
   if (ninit.eq.1)   write(*,*) 'apply initial condition' 
   if (initdir.eq.1) write(*,*) 'apply initial displacement'
   if (initdir.eq.2) write(*,*) 'apply initial velocity'
 
  !...Gauss integration point
-  CALL Read_Int(iquad_solid,1)
-  CALL Read_Int(nen_solid,1)
+  read(1,*) iquad_solid,nen_solid
   write(*,*) 'gauss integration type     : ',iquad_solid
   write(*,*) 'number of nodes per element: ',nen_solid
 
  !...number of dimensions in the solid domain
-  CALL Read_Int(nsd_solid,1)
+  read(1,*) nsd_solid
   write(*,*) 'number of space dimensions in solid domain: ',nsd_solid
 
  !...rigid body or not
-  CALL Read_Int(nrigid,1)
+  read(1,*) nrigid
   if (nrigid.eq.1) then
      write(*,*) 'treating the solid as a RIGID BODY'
   else
@@ -55,8 +50,10 @@ subroutine parseinput_solid
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !cccccc from the original main_dat
-  CALL Read_Int(n_tec_ens,1)
-  CALL Read_Int(ndelta,1)
+  read(1,*) n_ibmfem, n_tec_ens
+
+
+  read(1,*) ndelta
   if (ndelta /= 1) then
      write(*,*) " currently, only 1 deltafunction type is implemented ..."
      stop
@@ -68,12 +65,17 @@ subroutine parseinput_solid
 !
 !     use ibm information
 !
-  CALL Read_Int(nn_solid_1,1)
-  CALL Read_Int(ne_solid_1,1)
-  CALL Read_Int(nump,1)
+  read(1,*) nn_solid_1,ne_solid_1
+  read(1,*) nump
   
-  CALL Read_Real(solid_scale,nsd_solid)
-  CALL Read_Int(n_solid,1)
+  read(1,*) solid_scale(1:nsd_solid)
+  
+  read(1,*) n_solid
+
+  !if (n_solid .gt. n_solid_max) then
+  !   write(*,*) 'BOOST n_solid_max in r_common'
+  !   stop
+  !endif
 
   nn_solid = nn_solid_1 * n_solid
   ne_solid = ne_solid_1 * n_solid
@@ -91,33 +93,28 @@ subroutine parseinput_solid
 
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
-    CALL Read_Real(shift1,nsd_solid)
-    shift(1:nsd_solid,i)=shift1(1:nsd_solid)
+     read(1,*) shift(1:nsd_solid,i)
   enddo
 
  !...time step
-  CALL Read_Int(ntfun,1)
+  read(1,*) ntfun
 
  !...pressure force
-  CALL Read_Int(numfn,1)
-  CALL Read_Int(numeb,1)
+  read(1,*) numfn,numeb      
   do i=1,numeb
-     read(8,*) nbe(i),nface(i),boup(i,1:nsd_solid)
+     read(1,*) nbe(i),nface(i),boup(i,1:nsd_solid)
   enddo
 
  !...concentrated force
   do i=1,numfn
-     read(8,*) nodefn(i),ndirfn(i),ftemp
+     read(1,*) nodefn(i),ndirfn(i),ftemp
      fnod(nodefn(i),ndirfn(i)) = ftemp*1.0d5
   enddo
 
-  CALL Read_Int(material_type,1)	!1=hyperelastic material, 2=linear elastic material  
-  CALL Read_Real(young_mod,1)		! young's modulus (elastic material)
-  CALL Read_Real(Poisson,1)			! Poisson ratio (elastic material_
-  CALL Read_Real(rc1,1)				! constants C1 (hyperelastic material)
-  CALL Read_Real(rc2,1)				! constants C2 (hyperelastic material)
-  CALL Read_Real(rk,1)				! constants Ck (hyperelastic material)
-  CALL Read_Real(density_solid,1)	! Density solid-fluid
+  read(1,*) material_type !1=hyperelastic material, 2=linear elastic material  
+  read(1,*) young_mod, Poisson ! young's modulus, Poisson ratio
+  read(1,*) rc1,rc2,rk
+  read(1,*) density_solid
 
   if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
   if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
@@ -128,20 +125,25 @@ subroutine parseinput_solid
   write(*,*) 'kappa   = ',rk
   write(*,*) 'density = ',density_solid
 
-  CALL Read_Real(xviss,1)
+  read(1,*) xviss
   write(*,*) 'xviss  = ',xviss
 
   vnorm = 0.0d0
 
-  CALL Read_Real(vnorm,1)
-  CALL Read_Real(fnorm,1)
+  read(1,*) vnorm,fnorm,vtol,ftol
+  read(1,*) alpha_solid,beta_solid
 
  !...gravity acceleration
-  CALL Read_Real(xmg,nsd_solid)
+  read(1,*) xmg(1:nsd_solid)  !gravity
   write(*,*) 'gravity acceleration'
   write(*,*) ' xmg   =',xmg(1:nsd_solid)
 
-  close(8)
+ !...body force
+  read(1,*) fbacc(1:nsd_solid)
+  write(*,*) 'body force acceleration - not activated'
+  write(*,*) ' fbacc(1) =',fbacc(1:nsd_solid)
+
+  close(1)
 
   prec(1:nump*ne_solid)=0.0d0
 
@@ -159,21 +161,27 @@ end subroutine parseinput_solid
 subroutine parseinput_fluid
   use run_variables
   use fluid_variables
+  use delta_nonuniform, only: maxconn
   implicit none
 
+  !character*32 key, keyaux
+  !character*8 onoff
+  !logical fctrl, getkey, isatty
+  !logical enough
+  !data enough /.false./
   integer :: restart_onoff, steady_onoff,hg_vol_onoff, taudt_onoff
   integer :: static_onoff, conserve_onoff, stokes_onoff
-  real(8) :: fix(5),read_delta(2)
+  real(8) :: fix(5),fixd(4),read_delta(2)
   integer :: idelta,i,ibc,idf,isd
   integer :: file_in,echo_out
   common /filename/file_in,echo_out
+
   integer,parameter :: one = 1
 
   file_in=5
   echo_out=7
   OPEN(file_in,file='input_fluid.in',STATUS='old',ACTION='read')
   OPEN(echo_out,file='summary.dat',STATUS="unknown")
-  write(*,*) 'reading input_fluid.in'
 
   CALL Read_Int(restart_onoff,1)
   if (restart_onoff.eq.1) then
@@ -183,6 +191,7 @@ subroutine parseinput_fluid
   !   restart=.FALSE.
      restart = restart_onoff
   endif
+
   CALL Read_Int(restart_freq,1)
 
   CALL Read_Int(steady_onoff,1)
@@ -251,6 +260,9 @@ subroutine parseinput_fluid
   CALL Read_Int(idisk,1)
   CALL Read_Int(inner,1)
   CALL Read_Int(outer,1)
+
+  CALL Read_Int(kinner,1)
+  CALL Read_Int(kouter,1)
   CALL Read_Int(iscaling,1)
   CALL Read_Int(maxconn,1)
 
@@ -267,12 +279,33 @@ subroutine parseinput_fluid
      enddo
   enddo
 
+  !amp = 0.4
+  !spring = 11.302
+  !damper = 2.0
+  !mass = 35
+  do i=1,nrng
+     CALL Read_Real(fixd,nsd+1)
+     ibc=int(fixd(1))
+     do isd=1,nsd
+        bvd(isd,ibc)=fixd(isd+1)
+        if(abs(bvd(isd,ibc)+999.0).gt.1.0e-6) bcd(isd,ibc) = 1
+     enddo
+  enddo
+
+
   CALL Read_Real(landa_over_mu,1)
   CALL Read_Real(ic,ndf)
+
   CALL Read_Real(gravity,nsd)
   CALL Read_Real(interface,nsd)
+
+  CALL Read_Int(surf,2)
+  CALL Read_Int(hydro,1)
+
   CALL Read_Real(vis_liq,1)
+  CALL Read_Real(vis_gas,1)
   CALL Read_Real(den_liq,1)
+  CALL Read_Real(den_gas,1)
   CALL Read_Real(ref_lgt,1)
   CALL Read_Real(ref_vel,1)
   CALL Read_Real(ref_den,1)
@@ -307,6 +340,7 @@ subroutine parseinput_fluid
 
   CALL Read_Real(turb_kappa,1)
 
+
 !       further defaults
   if (ntsbout.eq.0) ntsbout = nts + 1
   if (steady) alpha = 1.0
@@ -329,12 +363,17 @@ subroutine parseinput_fluid
      nnface = 4
   end if
 
+  !if (ndf.eq.0) ndf = 4
+  !if (nen.eq.0) nen = 8
   if ( nq.eq.0) nq  = ndf * nn
+  !if (nqf.eq.0) nqf = nn
   twod = .false.
   if((nn.gt.2*ne).and.(nen.eq.8)) then
      twod = .true.
      hg_vol = .true.
   endif
+
+
 
   CLOSE(5)
 
@@ -343,6 +382,8 @@ subroutine parseinput_fluid
   elseif(nsd.eq.2) then
 	call shape2d
   endif
+
+  write(*,*) ne,nquad
 
   return
 end subroutine parseinput_fluid

@@ -23,11 +23,15 @@ subroutine gjinv(a,ainv,n,np,det,flag)
   integer n,np
   real(8) a(np,np),ainv(np,np),b(10,20)
   real(8) det, flag
+
+
   real(8) :: eps,sa,p,aik
+
   integer :: i,j,k,np1,npn,ipt,kp1,km1
 
   flag = 1.
   eps  = 1.0e-46
+
 
   if (n .gt. np)  then
      write(*,*) 'dimension range error !'

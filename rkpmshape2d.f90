@@ -78,25 +78,32 @@
       integer i
 !
 !.....find the polynominal p
+!
       xp = cpt(1)
       yp = cpt(2)
+!
       xj = cjt(1)
       yj = cjt(2)
 !
 !.....assign value to working array
+!
       ha1    = haj(1)
       ha2    = haj(2)
+!
       p(1)   = 1.0d0
       p(2)   = (xj - xp)/ha1
       p(3)   = (yj - yp)/ha2
+!
       pdx(1) =   0.0d0
       pdx(2) = - 1.0d0/ha1
       pdx(3) =   0.0d0
+!
       pdy(1) =   0.0d0
       pdy(2) =   0.0d0
       pdy(3) = - 1.0d0/ha2
-
+!
 !.....compute correct function  C
+!
       coref = 0.0d0
       do i = 1,3
 		coref = coref + p(i)*b(i)
@@ -109,7 +116,9 @@
 		 cdy = cdy + pdy(i)*b(i) + p(i)*bd(2,i)
       enddo
 
+!
 !.....check whether or not the point is within the compact support
+!
       xx = dabs(xj - xp)/ha1
       yy = dabs(yj - yp)/ha2
 
@@ -119,15 +128,23 @@
 		  shpd(2)  = 0.00
       else
           call window(aw,awdx,awdy,awdxx,awdxy,awdyy,xp,yp,xj,yj,ha1,ha2)
+!
 !.....calculate the shape functions
+!
           shp     = coref*aw*wjt
+!
 !.....calculate the 1st derivatives of the shape function
+!
           shpd(1) = (cdx*aw+coref*awdx)*wjt
           shpd(2) = (cdy*aw+coref*awdy)*wjt
+!
       end if
+!
   999 continue
+!
       return
       end
+!
 
 
 
@@ -190,9 +207,11 @@
       x1  = (xj-xx)/a1
       x2  =  x1 * x1
       x3  =  x2 * x1
+!
       y1  = (yj-yy)/a2
       y2  =  y1 * y1
       y3  =  y2 * y1
+!
       two1 = -2.0d0
       one1 = -1.0d0
       zero =  0.0d0
@@ -200,11 +219,14 @@
       two2 =  2.0d0
 !
 !.....dfx := d(xr)/dx; dfy:= d(yr)/dy
+!
       dx1  = -1.0d0/a1
       dx2  =  dx1 * dx1
       dy1  = -1.0d0/a2
       dy2  =  dy1 * dy1
+!
       hv = 1.0d0/(a1*a2)
+!
       if((x1.ge.two1).and.(x1.lt.one1)) then
         awx   = (1.0d0/6.0d0)*(2.0d0 + x1)**3.
         awxd  = dx1*0.5d0*(2.0d0 + x1)**2.0
@@ -255,6 +277,7 @@
       awdxy = awxd*awyd*hv
       awdxx = awxdd*awy*hv
       awdyy = awx*awydd*hv
+
       return
       end
 
