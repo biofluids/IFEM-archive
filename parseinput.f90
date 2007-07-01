@@ -73,6 +73,7 @@ subroutine parseinput_solid
   CALL Read_Int(nump,1)
   
   CALL Read_Real(solid_scale,nsd_solid)
+  write(*,*) 'solid_scale=',solid_scale(1),solid_scale(2)
   CALL Read_Int(n_solid,1)
 
   nn_solid = nn_solid_1 * n_solid
@@ -94,7 +95,6 @@ subroutine parseinput_solid
     CALL Read_Real(shift1,nsd_solid)
     shift(1:nsd_solid,i)=shift1(1:nsd_solid)
   enddo
-
  !...time step
   CALL Read_Int(ntfun,1)
 

@@ -1,5 +1,5 @@
-restart =  00
-restart_freq = 2
+restart =	0
+restart_freq =	10
 steady =    0
 stokes =    0
 hg_vol =    1
@@ -17,13 +17,11 @@ nsd =     2
 iquad =   2
 
 nit =      4
-nts =      1000
+nts =     800 
 ntsbout =  10
 idisk =    00 
-inner =    30
-outer =    03
-kinner =   30  !ALE algorithm only
-kouter =   02  !ALE algorithm only
+inner =    20
+outer =    2
 iscaling = 01
 maxconn =  60
 
@@ -31,15 +29,10 @@ dt =      0.05
 t_start = 0.0
 alpha =   1.0
 
-fix =    1 0.0 0.0 -999   !bottom
-fix =    2 0.0 0.0 -999   !right
-fix =    3 1 0.0 -999   !top  0.1*sin(2*pi/(40*tt))
-fix =    4 0.0 0.0 -999 	!left
-
-fixd =    1   0.0     0.0     !ALE algorithm only
-fixd =    2   0.0     0.0       
-fixd =    3   0.0     0.0       
-fixd =    4   0.0     0.0                      
+fix =    1  0.0  0.0  -999   !bottom
+fix =    2  0.0  0.0  -999   !right
+fix =    3  0.1  0.0  -999   !top
+fix =    4  0.0  0.0  -999   !left
 
 landa_over_mu = 0.01
 
@@ -48,13 +41,8 @@ initial =  +0.0 +0.0 +0.0
 gravity =    0.0    0.0     0.0
 interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 
-surf = 1  6
-hydro = 5
-
-vis_liq = 0.01    !! water 10^(-2)g/cm.s, air 1.8e-2g/cm.s
-vis_gas = 1.0   
-den_liq = 1	!! water 1.0g/cm^3, air 1.3e-3g/cm^3
-den_gas = 1.0
+vis_liq = 0.01     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
+den_liq = 1.0	!! water 1.0g/cm^3, air 1.3e-3g/cm^3
 ref_lgt = 1.0
 ref_vel = 1.0
 ref_den = 1.0
