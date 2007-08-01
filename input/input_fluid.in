@@ -20,18 +20,18 @@ nit =      4
 nts =      2000
 ntsbout =  20
 idisk =    00 
-inner =    30
-outer =    3
+inner =    40
+outer =    4
 iscaling = 01
 maxconn =  60
 
-dt =      0.05
+dt =      0.01
 t_start = 0.0
 alpha =   1.0
 
 fix =    1  0.0  0.0  -999   !bottom
 fix =    2  0.0  0.0  -999   !right
-fix =    3  0.1  0.0  -999   !top   READING BOUNDARY CONDITION IN FORM.F
+fix =    3  0.1  0.0  -999   !top
 fix =    4  0.0  0.0  -999   !left
 
 landa_over_mu = 0.01

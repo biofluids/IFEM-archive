@@ -1,4 +1,4 @@
-! this module is used to apply boundary conditions
+!this module is used to apply boundary conditions
 module form
   implicit none
 
@@ -7,6 +7,7 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine formd(ds,rngface,ien)
   use global_constants
+  use run_variables, only: tt   ! only use if boundary condition is a function of time
   use fluid_variables, only: nn,ne,ndf,nsd,nen,neface,nrng,nnface,mapping,bc,bv,etype,ic,static,udf,vdf,wdf, maxconn
 
   implicit none
@@ -33,6 +34,9 @@ subroutine formd(ds,rngface,ien)
   enddo
 
   hs = h
+  !! ONLY ADD IF BOUNDARY CONDITION IS A FUNCTION OF TIME!!
+  bv(udf, 3) = 0.1*sin(2*pi/40*tt)
+  !!!!!!!!!!!!!!!!!!
 
   do irng=1,nrng
      do inn=1,nn

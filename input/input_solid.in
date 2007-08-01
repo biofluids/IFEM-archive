@@ -25,15 +25,15 @@ ntfun= 3 			! time step
 numfn=0
 numeb=0
 
-material_type= 1 ! 1 is hyperelastic , 2 is linear elastic material
+material_type= 2 ! 1 is hyperelastic , 2 is linear elastic material
 
 young_mod= 1.0d5	! Young modulus (elastic)
 Poisson= 0.5	! Poisson ratio (elastic)
-rc1= 3	! C1 constant (hyperelastic)
-rc2= 0.0	! C2 constant (hyperelastic)
-rk= 0.0		! Ck constant (hyperelastic)
+rc1= 3000.0d1	! C1 constant (hyperelastic)
+rc2= 3000.0d1	! C2 constant (hyperelastic)
+rk= 1.0d-9		! Ck constant (hyperelastic)
 
-density_solid= 0.0d0 	! Density solid-fluid
+density_solid= 1.0d0 	! Density solid-fluid
 
 xviss= 0.0d0
 
