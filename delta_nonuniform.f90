@@ -84,6 +84,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(shrknode(maxconn,nn_solids),stat=error_id)
   allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
   allocate(ncnn(nn_solids)            ,stat=error_id)
+
   coef = 0.9d0
   maxinf = 0
   mininf = 9999
@@ -96,6 +97,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   dwjp(:) = 0.0
   adist(:,:) = 0.0
   totinf = 0
+
   do ie = 1,ne
      do inl=1,nen
         do isd=1,nsd
@@ -141,7 +143,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      inf(:)=0
 ! get a list of influence nodes from the fluids grid
      call getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
-    cnn(1:ninf,i)=inf(1:ninf)
+     cnn(1:ninf,i)=inf(1:ninf)
      ncnn(i)=ninf
 
      if (ninf > maxinf) then
@@ -173,6 +175,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      enddo
 
   enddo
+
   avginf = totinf/nn_solids
   write(6,'("  Maximum Influence Nodes = ",i7)') maxinf
   write(6,'("  Minimum Influence Nodes = ",i7)') mininf

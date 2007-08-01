@@ -54,7 +54,7 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
  5103 format(A19, 11x, i5)
 
       write(20, 5000) 'model:', ts, file_name, 'change_coords_only'
- 5000 format(A6, 14x, i5, 5x, A13, 1x, A18) 
+ 5000 format(A6, 14x, i5, 5x, A12, 1x, A18) 
 
   write(20, *) 
 
