@@ -1,4 +1,4 @@
-subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain)
+subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,mat_part)
   use run_variables, only: ntsbout,its
   use solid_variables, only: nsd_solid,ne_solid,nn_solid,nen_solid,nsurface,nquad_solid,xq_solid,wq_solid,nquadpad_solid
   use r_common
@@ -12,6 +12,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+  integer, dimension(1:ne_solid) :: mat_part  ! ...number of materials in the solid
 
   !...ox means X
   !... x means x
@@ -73,60 +74,80 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
      gauss_int: do iq = 1,nquad_solid
 
         rs(1:nsd_solid) = xq_solid(1:nsd_solid,iq)
-
 !     isoparametric interpolation
         call r_element(rs)
 !     y-(r,s)
         call r_jacob(y,xj,xji,det)
-		
 !     x-(r,s)
         call r_jacob(x,toxj,toxji,todet)
-
 !     derivative about ox and x
         call r_bdpd_curr(xji)
         call r_bdpd_init(toxji)
 !     deformation gradient
         call r_stoxc(xto,xot,xj,xji,toxj,toxji,toc,ine)
-
-!================================================
-! Hyperelastic Material --> Option material_type=1
-	if (material_type==1) then
-!     material j
-		call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
-!     discretized pressure
-		call r_spress(rs,ine)
-!     continuous pressure
-        call r_sbpress(dxmj,ddxmj,xmj)
-!     material c
-        call r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)
-!     strain
-        call r_sstrain(toc,xto,iq,ine,ge)
-!     First Piola-Kirchoff stress - P
-        call r_spiola(xmj,dxmj,xto) !hyperelastic material
-!     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
-!     calculate cauchy stress for output
-!     ! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
-      if (mod(its,ntsbout) == 0) then
-        call r_scauchy(det,todet,xto,cstr_element)
-        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
-      endif
-!==========================================================
-! Linear elastic Cauchy stress - sigma
-	elseif (material_type==2) then
-!     strain
-        call r_sstrain(toc,xto,iq,ine,ge)
-!	  Calculate cauchy stress then transform to 1st PK stress
-		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
-!     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
-!     assemble cauchy stress for output
-        if (mod(its,ntsbout) == 0) then
+!===============================================
+! ADD options for different material types for the solid domain
+! Lucy Zhang - 2/11/08
+      if (mat_part(ine)==1) then
+	!===========
+	! Hyperelastic Material --> Option material_type=1
+	   if (material_type==1) then
+		call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)  !material j
+		call r_spress(rs,ine)   !discretized pressure
+        	call r_sbpress(dxmj,ddxmj,xmj)   !continuous pressure
+      		call r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)  !material c
+        	call r_sstrain(toc,xto,iq,ine,ge)   !strain
+        	call r_spiola(xmj,dxmj,xto) !first piola-kirchoff stress (P) hyperelastic material
+        	call r_spiola_viscous(xot,vel)  !correction for viscous fluid stress
+		!     calculate cauchy stress for output
+		!     for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
+	      	if (mod(its,ntsbout) == 0) then
+        		call r_scauchy(det,todet,xto,cstr_element)
+        		cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
+      		endif
+	!=============
+	! Linear elastic Cauchy stress - sigma
+	   elseif (material_type==2) then
+        	call r_sstrain(toc,xto,iq,ine,ge)  !strain
+		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)  !calculate cauchy stress then transform to 1st PK stress
+        	call r_spiola_viscous(xot,vel)  !correction for viscous fluid stress
+		!     assemble cauchy stress for output
+		if (mod(its,ntsbout) == 0) then
 			cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
 		endif
-	endif
-!===========================================================
+	   endif
+!==============
+      elseif (mat_part(ine)==2) then
+        ! Hyperelastic Material --> Option material_type=1
+           if (material_type==1) then  !NOT UPDATED FOR MATERIAL TYPE 2
+                call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)  !material j
+                call r_spress(rs,ine)   !discretized pressure
+                call r_sbpress(dxmj,ddxmj,xmj)   !continuous pressure
+                call r_sboc(obc,ocpp,ocuu,ocup,xmj,dxmj,ddxmj)  !material c
+                call r_sstrain(toc,xto,iq,ine,ge)   !strain
+                call r_spiola(xmj,dxmj,xto) !first piola-kirchoff stress (P) hyperelastic material
+                call r_spiola_viscous(xot,vel)  !correction for viscous fluid stress
+                !     calculate cauchy stress for output
+                !     for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
+                if (mod(its,ntsbout) == 0) then
+                        call r_scauchy(det,todet,xto,cstr_element)
+                        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
+                endif
+        !=============
+        ! Linear elastic Cauchy stress - sigma
+           elseif (material_type==2) then
+                call r_sstrain(toc,xto,iq,ine,ge)  !strain
+                call r_spiola_elastic2(det,xot,ge,iq,ine,cstr_element)  !calculate cauchy stress then transform to 1st PK stress
+                call r_spiola_viscous(xot,vel)  !correction for viscous fluid stress
+                !     assemble cauchy stress for output
+                if (mod(its,ntsbout) == 0) then
+                        cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)
+                endif
+           endif
 
+   endif ! end of the materials loop
+
+!===========================================================
 !     gauss weight and volume
         w_init = wq_solid(iq) * todet
         w_curr = wq_solid(iq) * det
@@ -186,10 +207,10 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
               if (solid_fem_con(ine,nos) == in) then
                  ntem = ntem + 1
                  solid_pave(in) = solid_pave(in) + pre(1,ine)
-		 do iq = 1,nquad_solid
-		   solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + wq_solid(iq)*cstr(1:nsd_solid*2,ine,iq) !...constant stress and strain in element
+			 	 do iq = 1,nquad_solid
+				   solid_stress(1:nsd_solid*2,in) = solid_stress(1:nsd_solid*2,in) + wq_solid(iq)*cstr(1:nsd_solid*2,ine,iq) !...constant stress and strain in element
                    solid_strain(1:nsd_solid*2,in) = solid_strain(1:nsd_solid*2,in) + wq_solid(iq)*ge(1:nsd_solid*2,ine,iq)
-		 enddo
+			  	 enddo
                  goto 541
               endif
            enddo

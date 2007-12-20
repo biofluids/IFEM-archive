@@ -1,8 +1,15 @@
-Lucy Zhang, 05/26/2008
-renamed the folder IFEM.v7.1.2007 (saved in personal computer in
-/research/IFEM/code/
-getting ready to release IFEM.v8
-------------------------------
+Lucy Zhang, 2/5/2008
+added boundary conditions in the solid mesh input files.
+in mxyz_solid.in, the columns are now:
+x y z #_of_flags boundary_flag_#s
+add two variables (n_bc(nn),bc_type(1:n_bc,nn)) in hypo_declaration_solid.fi, meshgen_solid.f90,
+hypo_prepare_solid.fi
+
+in mien_solid.in, add in the solid material part#:
+c1 c2 c3 c4 part_#
+add one variable (mat_part(ne)) in hypo_declaration_solid.fi, meshgen_solid.f90,
+hypo_prepare_solid.fi,ensight_output.f90
+---------------------------------
 Lucy Zhang, 12/21/2007
 found bugs in rigid cases:
 1. In solid_update.f90, solid density is density_solid+den_liq. Solid density read in from input_fluid.in is the density

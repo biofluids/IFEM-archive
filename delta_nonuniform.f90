@@ -84,7 +84,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(shrknode(maxconn,nn_solids),stat=error_id)
   allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
   allocate(ncnn(nn_solids)            ,stat=error_id)
-  coef = 0.9d0
+  coef = 0.5d0
   maxinf = 0
   mininf = 9999
   avginf = 0

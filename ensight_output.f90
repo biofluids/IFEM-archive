@@ -97,14 +97,15 @@ end subroutine zfem_ensCase
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ! This subroutine generates Ensight6 geometry file
 ! Lucy Zhang
+! modified (cleaned) for 3-D only, for LV with Atrium, ventricle, and PV
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
+subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mat_part)
   use solid_variables
   use fluid_variables
   implicit none
 
   integer :: klok
-  integer :: ien(nen,ne)
+  integer :: ien(nen,ne),mat_part(ne),sum_mat_1,sum_mat_2,sum_mat_3
   real(8)  :: xn(nsd,nn)
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr  !...node position current
@@ -167,63 +168,118 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
      if (nsd_solid==3) write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
                                solid_coor_curr(2,i),  &
                                solid_coor_curr(3,i)
-	 if (nsd_solid==2) write(i_file_unit, 101) i,solid_coor_curr(1,i),  &
-                               solid_coor_curr(2,i), 0.0
   enddo
 101 format(i8,3e12.5)
 
  !...write fluids coordinates
   do i=1,nn
      if (nsd==3) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),xn(3,i)
-     if (nsd==2) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),0.0
   enddo
 
  !...write structure part - connectivity
+ !... write atrium, part 1 of the solid
+  sum_mat_1=0
+  sum_mat_2=0
+  sum_mat_3=0
+ do i=1,ne_solid
+  if (mat_part(i)==1) then 
+	sum_mat_1=sum_mat_1+1
+  elseif (mat_part(i)==2) then 
+ 	sum_mat_2=sum_mat_2+1
+  elseif (mat_part(i)==3) then 
+	sum_mat_3=sum_mat_3+1
+  endif
+ enddo
   write(i_file_unit, *) 'part 1'
-  write(i_file_unit, *) ' Structure Model'
-  if (nsd_solid == 0) then
-     write(i_file_unit,'(a7)') '  point'
-     write(i_file_unit,'(i8)') nn_solid
-     do i=1,nn_solid
-        write(i_file_unit,'(2i8)') i,i
-     enddo
-  elseif (nsd_solid == 3) then
+  write(i_file_unit, *) 'Ventricle'
+  j=0
+!  write(i_file_unit, *) ' Structure Model'
+  if (nsd_solid == 3) then
      select case (nen_solid)
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  sum_mat_1   ! number of elements
         do i=1, ne_solid
-           write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   if (mat_part(i)==1) write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
         enddo     
      case (4)
         write(i_file_unit,'(a7)') ' tetra4'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  sum_mat_1   ! number of elements
         do i=1, ne_solid
-           write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+           if (mat_part(i)==1) then
+		j=j+1
+		write(i_file_unit,'(5i8)') j, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   endif
         enddo
      case default
         write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
         stop
      end select
-  elseif (nsd_solid == 2) then
-	  select case (nen_solid)
-	  case (3)
-		 write(i_file_unit, *) ' tria3'  ! element type
-		 write(i_file_unit, '(i8)')  ne_solid   ! number of elements
-		 do i=1, ne_solid
-			write(i_file_unit,'(4i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-		 enddo
-	  case (4)
-		 write(i_file_unit, *) 'quad4'    ! element type
-		 write(i_file_unit, '(I8)')  ne_solid   ! number of elements
-		 do i=1, ne_solid
-			write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-		 enddo
-	  end select
   endif
 
-    !write fluids part element connectivity
+!**********
+!... write atrium, part 2 of the solid, but mat_part is #3.
+!*********
   write(i_file_unit, *) 'part 2'
+  write(i_file_unit, *) 'Atrium'
+   j=0
+  if (nsd_solid == 3) then
+     select case (nen_solid)
+     case (8)
+        write(i_file_unit,'(a7)') '  hexa8'    ! element type
+        write(i_file_unit, '(i8)')  sum_mat_2   ! number of elements
+        do i=1, ne_solid
+           if (mat_part(i)==2) write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+        enddo
+     case (4)
+        write(i_file_unit,'(a7)') ' tetra4'    ! element type
+        write(i_file_unit, '(i8)')  sum_mat_2   ! number of elements
+        do i=1, ne_solid
+           if (mat_part(i)==2) then
+		j=j+1		
+		write(i_file_unit,'(5i8)') j, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   endif
+        enddo
+     case default
+        write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
+        stop
+     end select
+  endif
+!******
+!... write pulmonary veins, part 3 of the solid
+!*******
+  write(i_file_unit, *) 'part 3'
+  write(i_file_unit, *) 'pulmonary veins'
+  j=0
+   if (nsd_solid == 3) then
+     select case (nen_solid)
+     case (8)
+        write(i_file_unit,'(a7)') '  hexa8'    ! element type
+        write(i_file_unit, '(i8)')  sum_mat_3   ! number of elements
+        do i=1, ne_solid
+           if (mat_part(i)==3) write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid)!element connectivity
+        enddo
+     case (4)
+        write(i_file_unit,'(a7)') ' tetra4'    ! element type
+        write(i_file_unit, '(i8)')  sum_mat_3   ! number of elements
+        do i=1, ne_solid
+           if (mat_part(i)==3) then
+		j=j+1
+		write(i_file_unit,'(5i8)') j, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   endif
+        enddo
+     case default
+        write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
+        stop
+     end select
+   else
+        write(*,*) "check ensight_output.f90 for more options."
+
+   endif
+
+!**********************
+    !write fluids part element connectivity
+  write(i_file_unit, *) 'part 4'
   write(i_file_unit, *) ' Fluid Model'
   if (nsd==3) then
 	  select case (nen)
@@ -238,21 +294,6 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 		 write(i_file_unit, '(I8)')  ne   ! number of elements
 		 do i=1, ne
 			write(i_file_unit,'(9i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-		 enddo
-	  end select
-  elseif (nsd==2) then
-	  select case (nen)
-	  case (3)
-		 write(i_file_unit, *) ' tria3'  ! element type
-		 write(i_file_unit, '(i8)')  ne   ! number of elements
-		 do i=1, ne
-			write(i_file_unit,'(4i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-		 enddo
-	  case (4)
-		 write(i_file_unit, *) 'quad4'    ! element type
-		 write(i_file_unit, '(I8)')  ne   ! number of elements
-		 do i=1, ne
-			write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
 		 enddo
 	  end select
   endif

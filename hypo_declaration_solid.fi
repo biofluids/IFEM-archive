@@ -12,3 +12,6 @@
   real(8),allocatable :: coor_1(:,:)
   integer,allocatable :: solid_fem_con_1(:,:)
   integer :: error_id,i
+  integer, dimension(1:ne_solid) :: mat_part   ! material part number in solids
+  integer, dimension(1:nn_solid) :: n_bc       ! number of boundary conditions per node
+  integer, dimension(1:6,1:nn_solid) :: bc_type! boundary condition types per node

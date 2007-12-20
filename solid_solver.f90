@@ -3,9 +3,10 @@
 !  Revised the subroutine to array (2D,3D)
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
-       solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI)
+       solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,solid_force_FSI,mat_part)
   use r_common, only: xmg,density_solid,predrf,ninit
   use solid_variables, only: nn_solid,ne_solid,nen_solid,nsd_solid,nsurface
+  use solid_fem_BC  !..added by L. Zhang, Feb 13,2008
   implicit none
 
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
@@ -18,6 +19,7 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+  integer, dimension(1:ne_solid) ::mat_part  !...material part # for each element
 
   integer :: ipt,isd
   write(*,*) '*** Solving Solids ***'
@@ -25,7 +27,7 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
      case (2,3)    !...2D, 3D structure
     !...calculate internal + inertial forces + gravity/bouyancy forces   (initial configuration)  
      call r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel, &
-                  solid_pave,solid_stress,solid_strain)
+                  solid_pave,solid_stress,solid_strain,mat_part)
     !...calculate timefunction
      call r_timefun
     !...calculate nodal forces by timefunction  (initial configuration)
@@ -39,6 +41,8 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 		enddo
      enddo
 
+    !...apply Dirichlet BC in current configuration (penalty stiffness)
+     call solid_fem_BC_apply_essential(solid_force_FSI,solid_coor_init,solid_coor_curr)
      write(*,*) ' netto interaction force in solid (x-dir) =',sum(solid_force_FSI(1,:))
 
   case (0) ! 0D point

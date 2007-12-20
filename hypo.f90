@@ -17,8 +17,8 @@ subroutine hypo
   use meshgen_solid
   use form
   use ensight_output
+  use solid_fem_BC  !L. Zhang added, Feb 13, 2008
   implicit none
-
 !==============================	  
 ! Definition of variables
   integer :: klok,j
@@ -33,7 +33,7 @@ subroutine hypo
   include "hypo_restart_file_check.fi"
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
-
+  write(*,*) 'okay'
   if (restart == 0) then
      include 'hypo_write_output.fi'
   else
@@ -69,9 +69,9 @@ subroutine hypo
 
 !=================================================================
 ! Solid solver
- write(*,*) 'starting solid solver'
+    write(*,*) 'starting solid solver'
     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
-                     solid_pave,solid_stress,solid_strain,solid_force_FSI)
+                     solid_pave,solid_stress,solid_strain,solid_force_FSI,mat_part)
 
 !=================================================================
 ! Distribution of the solid forces to the fluid domain

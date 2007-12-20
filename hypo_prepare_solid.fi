@@ -15,9 +15,9 @@
   allocate(solid_fem_con_1(ne_solid_1,nen_solid),stat=error_id)
   allocate(coor_1(nn_solid_1,nsd_solid),stat=error_id)
  !...read element connectivity for one structure
-  call readien_solid(solid_fem_con_1,ne_solid_1,nen_solid)
+  call readien_solid(solid_fem_con_1,ne_solid_1,nen_solid,mat_part)
  !...read coordinates for one structure
-  call readx_solid(coor_1,nn_solid_1,nsd_solid)
+  call readx_solid(coor_1,nn_solid_1,nsd_solid,n_bc,bc_type)
 
  !...scale structure
   do i=1,nsd_solid
@@ -35,6 +35,9 @@
   deallocate(solid_fem_con_1,stat=error_id)
   deallocate(coor_1,stat=error_id)
   deallocate(shift,stat=error_id)  
+
+ !...read essential boundary conditions (displacement)
+  call solid_fem_BC_read_essential(n_bc,bc_type)
 
  !...initialize arrays
   solid_coor_curr(1:nsd_solid,1:nn_solid) = solid_coor_init(1:nsd_solid,1:nn_solid)

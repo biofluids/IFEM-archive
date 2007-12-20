@@ -104,7 +104,6 @@ subroutine parseinput_solid
   do i=1,numeb
      read(8,*) nbe(i),nface(i),boup(i,1:nsd_solid)
   enddo
-
  !...concentrated force
   do i=1,numfn
      read(8,*) nodefn(i),ndirfn(i),ftemp
@@ -144,7 +143,6 @@ subroutine parseinput_solid
   close(8)
 
   prec(1:nump*ne_solid)=0.0d0
-
   return
 end subroutine parseinput_solid
 
@@ -257,7 +255,6 @@ subroutine parseinput_fluid
   CALL Read_Real(dt,1)
   CALL Read_Real(t_start,1)
   CALL Read_Real(alpha,1)
-
   do i=1,nrng
      CALL Read_Real(fix,ndf+1)
      ibc=int(fix(1))
@@ -266,7 +263,6 @@ subroutine parseinput_fluid
         if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
      enddo
   enddo
-
   CALL Read_Real(landa_over_mu,1)
   CALL Read_Real(ic,ndf)
   CALL Read_Real(gravity,nsd)
@@ -276,7 +272,6 @@ subroutine parseinput_fluid
   CALL Read_Real(ref_lgt,1)
   CALL Read_Real(ref_vel,1)
   CALL Read_Real(ref_den,1)
-
   CALL Read_Real(read_delta,2)
   idelta=int(read_delta(1))
   delta(idelta)=read_delta(2)
@@ -304,7 +299,7 @@ subroutine parseinput_fluid
   CALL Read_Real(read_delta,2)
   idelta=int(read_delta(1))
   delta(idelta)=read_delta(2)
-
+  write(*,*) 'idelta=',idelta, delta(idelta)
   CALL Read_Real(turb_kappa,1)
 
 !       further defaults

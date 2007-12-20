@@ -20,7 +20,6 @@ subroutine r_jacob(x,xj,xji,det)
      enddo
   enddo
  !...compute the determinant of the jacobian matrix
-
   threedim: if (nsd_solid .eq. 3) then 
  !...3-D determinant
   cf(1,1) = + (xj(2,2)*xj(3,3) - xj(2,3)*xj(3,2))
@@ -33,10 +32,9 @@ subroutine r_jacob(x,xj,xji,det)
   cf(3,2) = - (xj(1,1)*xj(2,3) - xj(1,3)*xj(2,1))
   cf(3,3) = + (xj(1,1)*xj(2,2) - xj(1,2)*xj(2,1))
 
-  det =( xj(1,1) * cf(1,1) + &
+  det =-( xj(1,1) * cf(1,1) + &
          xj(1,2) * cf(1,2) + &
          xj(1,3) * cf(1,3) )
-
   if (det .lt. 1.0d-15) then
      write(*,100) 
      stop
