@@ -19,11 +19,12 @@ subroutine parseinput_solid
   integer :: i,error_id
   integer :: nbe(nel)
   integer,parameter :: one = 1
-  integer :: file_in
-  common /filename/file_in
+  integer :: file_in,echo_out
+  common /filename/file_in,echo_out
+  real(8) :: shift1(nsd_solid)
 
   file_in=8
-  open(8,file='input_solid.in',status='old',action='read')
+  open(file_in,file='input_solid.in',status='old',action='read')
   write(*,*) 'reading input_solid.in'
 
   ! Initial displacement
@@ -90,7 +91,8 @@ subroutine parseinput_solid
 
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
-    CALL Read_Real(shift,nsd_solid)
+    CALL Read_Real(shift1,nsd_solid)
+    shift(1:nsd_solid,i)=shift1(1:nsd_solid)
   enddo
 
  !...time step
@@ -171,6 +173,7 @@ subroutine parseinput_fluid
   echo_out=7
   OPEN(file_in,file='input_fluid.in',STATUS='old',ACTION='read')
   OPEN(echo_out,file='summary.dat',STATUS="unknown")
+  write(*,*) 'reading input_fluid.in'
 
   CALL Read_Int(restart_onoff,1)
   if (restart_onoff.eq.1) then
@@ -180,7 +183,6 @@ subroutine parseinput_fluid
   !   restart=.FALSE.
      restart = restart_onoff
   endif
-
   CALL Read_Int(restart_freq,1)
 
   CALL Read_Int(steady_onoff,1)

@@ -7,7 +7,7 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
+subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface,f_stress)
   use global_constants
   use run_variables
   use fluid_variables
@@ -17,16 +17,12 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
   real* 8 xloc(nsd,nn)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)
   real* 8 p(ndf,nn),q(ndf,nn),hk(ne)
-
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
-
   real* 8 eft0,det,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
-
   real* 8 f_stress(nsd,nsd,nn)
-
   real* 8 drt(ndf),drs(ndf)
   real* 8 dr(nsd,ndf)
   real* 8 u,v,w,pp,ug
@@ -38,8 +34,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
   real* 8 tempc(ndf),temp
   real* 8 dtinv,oma,ama
   integer inl, ie, isd, iq, node,jsd
-  integer ieface,irng, rngface(neface,ne) !,inface
-
+  integer ieface,irng, rngface(neface,ne)
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
 
@@ -48,19 +43,18 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
 
+
+
   do ie=1,ne		! loop over elements
      do inl=1,nen	
-	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
-		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
-		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
-		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
+	    x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
+	    fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
+	    d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
+	    d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
+	    f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
 	 enddo
 
 	 hg = hk(ie)
-
-
-	 
 
 	 do iq=1,nquad  ! loop over the quadrature points in each element 
 !...  calculate the shape function and the weight at quad point
@@ -77,8 +71,6 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 				include "sh3d8n.h"
 			endif
 		endif
-!		stop
-!	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
 	    eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
 		drs(:) = 0.0
@@ -91,13 +83,12 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 		   tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
 		   drs(1:nsd) = drs(1:nsd)+sh(0,inl)*tempc(1:nsd)
 		   do isd=1,nsd
-			 dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
+			  dr(1:nsd,isd) = dr(1:nsd,isd)+sh(1:nsd,inl)*tempc(isd)
 		   enddo
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
-
-
 !... calculate dvi/dt, p, dp/dxi
+
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
@@ -127,7 +118,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
 
-	! believe nu is calculated only for turbulent model
+! believe nu is calculated only for turbulent model
 		if (nsd==2) then
 	    nu = delta(4)*turb_kappa**2*hg**2 * sqrt(2*dr(1,1)**2+(dr(2,1)+dr(1,2))**2 &
 	                                            +2*dr(2,2)**2)
@@ -140,7 +131,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 
 !....  calculate each term in the residual equation
 	    res_c = 0.0
-		if (nsd==2) then
+	if (nsd==2) then
 		  do inl=1,nen
 		   	 res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl)
@@ -153,94 +144,82 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 		  enddo
 		endif
 
-	    do isd = 1, nsd
-			if (nsd==2) then
-			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)-g(isd))-fq(isd)
-			  
-			elseif (nsd==3) then
-			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
-			endif
-	    enddo
+    do isd = 1, nsd
+	if (nsd==2) then
+	   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)-g(isd))-fq(isd)
+	elseif (nsd==3) then
+	   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
+	endif
+    enddo
 
 		res_t(1:nsd) = dr(1:nsd,pdf) + res_a(1:nsd)
 
-		!  ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        ! Mickael 02/01/2005
-        ! TAUm, TAUc and TAUl (l for  lsic), See Tezduyar and Sathe, 2003
-
-                                
+		
+		!... Stabilization parameters (taum, tauc, taul) Mickael 02/01/2005
         vel  = sqrt(u*u+v*v+w*w)  !magnitude of the velocity
                         
         ree  = vel*hg*ro/(2.0*mu)  !Reynolds number
         if(steady.or.(.not.taudt)) then !stablization, taum
-			taum = 1.0/sqrt((2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
-		else
-			taum = 1.0/sqrt((2.0/dt)**2+(2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
+		taum = 1.0/sqrt((2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
+	else
+		taum = 1.0/sqrt((2.0/dt)**2+(2.0*vel/hg)**2+(4.0*mu/hg/hg)**2)
         endif
         tauc = taum/ro
                         
         if (ree.le.3.0) then
-			taul = hg*vel*ree/6.0
+	    	taul = hg*vel*ree/6.0
         else
             taul = hg*vel/2.0
         endif
-        !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!.....   Density optimization
-
+		!.....   Density optimization
 		ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
 	      
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!c.....   Galerkin Terms (Look at notes)
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!c....   Calculate stress tau(ij) and pressure
+		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+		!c.....   Galerkin Terms (Look at notes)
+		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+		
+		!c....   Calculate stress tau(ij) and pressure
 		do isd = 1,nsd
 			do jsd = 1,nsd
 				tau(isd,jsd) = mu*(dr(isd,jsd) + dr(jsd,isd))
-				do inl=1,nen	
-					! Compute fluid stress
-					f_stress(isd,jsd,ien(inl,ie))= f_stress(isd,jsd,ien(inl,ie)) + tau(isd,jsd)
+				do inl=1,nen
+                  ! Compute fluid stress
+	         f_stress(isd,jsd,ien(inl,ie))= f_stress(isd,jsd,ien(inl,ie)) &
++ sh(0,inl)*tau(isd,jsd)
 				enddo
 			enddo
 		enddo
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
 
-
-		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        ! Mickael 02/01/2005
-        ! TAUl (l for  lsic), See Tezduyar and Sathe, 2003
-  
+		!... Stabilization parameter, taul, Mickael 02/01/2005
         prs_c = ro*res_c*taul
-        !
-        !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 
 	    prs_cc(1:nsd) = res_t(1:nsd)*tauc	      
-!.... calculate the residual at each degree of freedom
+		
+		!.... calculate the residual at each degree of freedom
 	    do inl=1,nen ! loop over number of nodes in an element
-		 
 		   node = ien(inl,ie)
 			if (nsd==2) then
 			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl))
 			elseif (nsd==3) then
 			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
 			endif
-		! Continuty Equation
+		   ! Continuty Equation
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
-		! Momentum Equation (Euler Residual)
-
+		   ! Momentum Equation (Euler Residual)
 		   p(1:nsd,node) = p(1:nsd,node)-ph(0,inl)*res_a(1:nsd)
 
-		! Momentum Equation (C: Diffusion terms)
-		    if (nsd==2) then
+		   ! Momentum Equation (C: Diffusion terms)
+		   if (nsd==2) then
 			  do isd=1,nsd
 				p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd)
 			  enddo
-			elseif (nsd==3) then
+		    elseif (nsd==3) then
 			  do isd=1,nsd
 				p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
 										  ph(1,inl)*tau(1,isd) -  &
@@ -249,7 +228,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 			  enddo
 			endif
 
-		! Stablization with Tau_moment
+		   ! Stablization with Tau_moment
 		   if (nsd==2) then
 		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)
@@ -261,9 +240,33 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
 	 enddo
 
-!********************************************************
-	      ! Diagonal Preconditioner
-!********************************************************
+	!*******************************************
+	! Mickael
+	! add in pressure driven input
+	! Added in a -999 check....Yaling
+    do isd = 1,nsd
+        p_vec(isd)=0.0
+    enddo
+    do ieface=1,neface
+        irng = rngface(ieface,ie)
+		if (irng/=0) then
+		  if (bv(ndf,irng)/=-999) then
+			p_vec(xsd)=bv(ndf,irng)*1.0 ! only for rectangle shapes
+		  endif
+        endif
+    enddo
+	
+	!*****************************************************************
+	do inl=1,nen ! loop over number of nodes in an element
+        node=ien(inl,ie)
+		p(1:nsd,node)=p(1:nsd,node)+ph(0,inl)*p_vec(1:nsd)
+    enddo
+	!***************** End of pressure implementation ****************
+
+
+	!********************************************************
+	! Diagonal Preconditioner
+	!********************************************************
 	    effd = mu*eft0*alpha
 	    effm = taum*eft0
 	    effc = tauc*eft0

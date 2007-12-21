@@ -69,12 +69,14 @@ subroutine hypo
 
 !=================================================================
 ! Solid solver
+ write(*,*) 'starting solid solver'
     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
                      solid_pave,solid_stress,solid_strain,solid_force_FSI)
 
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
 !   f^fsi(t)  ->  f(t)
+ write(*,*) 'calculating delta'
      call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,nsd,  &
                          delta_exchange_solid_to_fluid)
 

@@ -1,6 +1,7 @@
 subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_prevel,solid_accel)
   use run_variables, only: tt,dt,its
   use solid_variables
+  use fluid_variables, only: den_liq
   use r_common
   implicit none
 
@@ -46,17 +47,15 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
 			  elseif(nsd_solid==2) then
               todet = xj(1,1) * xj(2,2) - xj(1,2)*xj(2,1)
 			  endif
-
               wp = wq_solid(iq)
-              tot_vol = tot_vol+wp*todet*density_solid
+              tot_vol = tot_vol+wp*todet*(density_solid+den_liq)
 
               do ni=1,nen_solid
                  node=solid_fem_con(ie,ni)
-                 mom(1:nsd_solid)=mom(1:nsd_solid)+wp*todet*density_solid*h(ni)*solid_vel(1:nsd_solid,node)
+                 mom(1:nsd_solid)=mom(1:nsd_solid)+wp*todet*(density_solid+den_liq)*h(ni)*solid_vel(1:nsd_solid,node)
               enddo
            enddo gauss_int
         enddo element
-        
         avgvel(1:nsd_solid)=mom(1:nsd_solid)/tot_vol  !calculate average velocity
 		do i=1,nsd_solid
 			 solid_vel(i,(i_solid-1)*nn_solid_1+1:i_solid*nn_solid_1)=avgvel(i)
@@ -64,7 +63,6 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
         
      enddo
   endif
-
  !...acceleration
   solid_accel(1:nsd_solid,1:nn_solid) = (solid_vel(1:nsd_solid,1:nn_solid) - solid_prevel(1:nsd_solid,1:nn_solid))/dt     
 
@@ -100,6 +98,10 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
   do j=1,nsd_solid
 	solid_coor_curr(j,1:nn_solid) = solid_coor_curr(j,1:nn_solid) + du(j,1:nn_solid)
   enddo
+
+ !...write to 'vel_time.m' to plot
+  write(9500,*) 'vel(',its,')=',solid_vel(1,221),';'
+  write(9500,*) 'time(',its,')=',tt,';'
 
   write(*,*) " solid position updated"
 

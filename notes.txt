@@ -1,0 +1,79 @@
+Lucy Zhang, 12/21/2007
+found bugs in rigid cases:
+1. In solid_update.f90, solid density is density_solid+den_liq. Solid density read in from input_fluid.in is the density
+difference.
+ 
+2. Added vel_time.m output in solid_update.f90 and hypo_prepare_solid.fi
+(define file name). This was in the older version. 
+
+3. In ensight_output.f90, when generating fem.case, format is wrong when
+writing the word 'fem.geo******'. Should use 'A13' instead of 'A12'.
+
+4. In parseinput.f90->subroutine 'parseinput_solid', bug found when reading
+shift, rewrite do loop, add shift1 in declaration. This is a bug when
+converting the input_solid.in to the new format.
+
+----------------------
+Lucy Zhang, 11/27/2007
+1. renamed the folder IFEM2007
+
+2. tested the code for cavity case on SCOREC machines. Succeeded. Results
+verified
+
+3. tested the code for cavity case on Mac Powerbook. Failed due to
+"segmentation fault" (limit in stack size). But cannot find a way to increase
+it on Mac.
+------------------------
+Mickael, 08/2007
+1. Organized, cleaned, and tested the IFEM code, named it
+"IFEM.2007_Fluid_deformable_solid" or "ifem.v1.2007"
+-----------------------
+Lucy Zhang, 01/2004
+1. shape.f    --> call only one time, directly after parseinput
+
+2. solids part can now handle both hyperelastic material and linear elastic material
+option 1 --> hyperelastic material
+option 2 --> linear elastic material
+
+3. fixed one bug in the /ifem_before_rkem -> doesn't take initial conditions
+uncomment ds(1:ndf,1:nn) = eps1 in subroutine formd in form.f90
+
+4. fixed one bug in r_stiff.f90 subroutine
+	predrf(nu1)=predrf(nu1)+fu*w
+	it was '-' before, but according to the equation, it should be '+'
+--------------------------
+Lucy Zhang
+ifem-v4 fix, 02/03/2005
+found bugs in fluid solver
+1. the stabilization parameter defined in the momentum term is wrong. One term multiplied by prs_c, and is now multiplied by prs_cc.
+	fixed in both block.f and blockgmres.f
+2. In form.f90, remove (if idf<ndf) statement when apply boundary conditions. 
+3. In blockgmres.f90, the statement res_c=(res_c+(...))/alpha is changed to
+     res_c=res_c+(...)/alpha
+4. in length.f90, the statement hg=V^(1/3), if(twod)hg=sqrt(V), if (nen=4) hg=(8*V)^(1/3) 
+is changed to if (nsd=3) ...and if (nen=4) hg=(8*V)^(1/3) endif, if (nsd=2) hg=sqrt(V).
+Now, now the nen=4 is included in the 3D only.
+5. quad2d4n.f90
+if (igau=1) then gau(1:3,1)=-1 is changed to gau(1:2,1)=0.00
+6.  In parseinput.f90
+ when call read_int(static_onoff,1)..... elseif (static_off=0) then...
+Before it was elseif(hg_vol_onoff=0)
+7. Cleaned all the warnings - unused variables.
+-----------------------------
+Mickael, 02/04/2005
+1. Changed the stabilization parameter of the continuity equation. Use the one from Tezduyar
+   (2003), tau(SLIC)
+-----------------------------
+Mickael, 02/09/2005
+1. Bug in quad2d3n.f90, the values for the 3 points quadratures were wrong.
+-------------------------------
+Mickael  02/20/2005
+1. Bug in hypo_declaration_solid.fi and ensight_output.f90, The variables solid_stress, 
+solid_strain, fluid_stress and fluid_strain are not defined correctly (size in 2D was wrong)
+2. In ensight_output.f90, solid_stress and solid_strain was going from 1 to 6  in 2D instead of  1 to 4
+-------------------------------
+Mickael  03/04/2005
+1. Bug in solid_update.f90: solid_vel goes from 1:nsd_solid, not 1 to 3.
+-------------------------------
+Mickael  03/14/2005
+1. Bug in r_stang.f90: solid_stress and strain were not added over the integration points
