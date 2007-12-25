@@ -17,8 +17,8 @@ nsd =     2
 iquad =   2
 
 nit =      4
-nts =      2000
-ntsbout =  20
+nts =      2
+ntsbout =  1
 idisk =    00 
 inner =    30
 outer =    3
