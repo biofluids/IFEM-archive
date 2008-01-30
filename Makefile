@@ -9,7 +9,10 @@ r_bdpd_curr.o r_bdpd_init.o r_element.o r_sbpress.o r_jacob.o r_load.o \
 r_nodalf.o r_sboc.o r_scal.o r_scauchy.o r_smaterj.o  r_spiola.o \
 r_spiola_viscous.o r_spiola_elastic.o r_spress.o r_sreadinit.o r_sstif.o \
 r_sstrain.o r_stang.o r_stoxc.o r_timefun.o rkpmshape2d.o rkpmshape3d.o \
-set.o shape.o solid_solver.o solid_update.o update.o vol.o
+set.o shape.o solid_solver.o solid_update.o update.o vol.o \
+data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
+migs.o search_inf.o
+
 
 IFEM: $(OBJ)
 	ifort -static -O2 -o IFEM $(OBJ)

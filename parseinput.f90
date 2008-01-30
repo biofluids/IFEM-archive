@@ -3,7 +3,8 @@ module parseinput
   save
 
   !Read_Real,Read_Int are stored in read.f
-
+  ! If choise has been added, to make the program have two options of data exchanging 1---rkpm 2---FEM
+  ! Febn12nd 2008 Xingshi
 contains
 
 subroutine parseinput_solid
@@ -57,11 +58,13 @@ subroutine parseinput_solid
 !cccccc from the original main_dat
   CALL Read_Int(n_tec_ens,1)
   CALL Read_Int(ndelta,1)
-  if (ndelta /= 1) then
-     write(*,*) " currently, only 1 deltafunction type is implemented ..."
-     stop
+  if (ndelta .eq. 1) then
+     write(*,*) ' RKPK data exchange method', ndelta
+
+  else if(ndelta .eq. 2) then
+     write(*,*) 'FEM data exchage method',ndelta
   else
-     write(*,*) 'ndelta=',ndelta
+     write(*,*) 'Currently we only offer these two options...'
   endif
 
 !cccccccccccccccccccccccccccccccccccccccccccccc

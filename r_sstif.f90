@@ -34,7 +34,10 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
 !     fu
 !ccccccccccc
         call r_scalfu(fu,isd,ni)
-        predrf(nu1) = predrf(nu1) + fu*w
+!=============================================
+        predrf(nu1) = predrf(nu1) - fu*w
+! =============================================
+! Origianl it is plus here
         do nk=1,nump
            call r_scalkup(fkup,ocup,isd,nk,ni)
            xkup(mu1,nk,ne) = xkup(mu1,nk,ne) + fkup*w
@@ -62,7 +65,7 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
      enddo
   enddo
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  xac(1:nsd_solid) = xac(1:nsd_solid) + xmg(1:nsd_solid)
+  xac(1:nsd_solid) = xac(1:nsd_solid) - xmg(1:nsd_solid)
   
   totalh=0
   do ni=1,nen_solid

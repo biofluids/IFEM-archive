@@ -85,13 +85,14 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
   allocate(ncnn(nn_solids)            ,stat=error_id)
   coef = 0.9d0
+  write(*,*) '***RKPM coefficient equals***', coef
   maxinf = 0
   mininf = 9999
   avginf = 0
   cnn(:,:)=0
   ncnn(:)=0
   shrknode(:,:)=0.0d0
-
+  
  !...Calculate nodal weights
   dwjp(:) = 0.0
   adist(:,:) = 0.0
@@ -177,7 +178,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   write(6,'("  Maximum Influence Nodes = ",i7)') maxinf
   write(6,'("  Minimum Influence Nodes = ",i7)') mininf
   write(6,'("  Average Influence Nodes = ",f7.2)') avginf
-
+!  write(6,'("Come up man! =",i7 )')  avaginf
   return
 end subroutine delta_initialize
 
@@ -201,7 +202,7 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
 !   ninf = total number of influence points
 !   adist = the radial distance of the influence domain
 !cccccccccccccccccc
-
+  open(unit=400, file='interface_RKPM.dat',status='unknown')
   ninf = 0
   do i = 1,nn
      r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
@@ -214,9 +215,12 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
 		if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i))) then
 			ninf = ninf + 1
 			inf(ninf) = i
+                        write(400,*) i  
+                     !   write(*,*) '****I am in getinf ****'      
 		endif
 	 endif
-  enddo
+   enddo
+  !write(*,*) 'ninf=  ', inf(1)
   if (ninf > maxconn) then
      write (*,*) "Too many influence nodes!"
      write (*,*) ninf
@@ -262,9 +266,12 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
  !...local variables
   integer :: inn,icnn,pt
   real(8)  :: tot_vel(nn_fluids),tot_vel_fluid,vol_inf 
-
+  real(8) force_solid
+  real(8) force_fluid
   tot_vel_fluid = 0
   tot_vel(1:nn_fluids)=0.0
+  force_solid=0
+  force_fluid=0
   if (ndelta == 1) then                  !c    If non-uniform grid 
 
      if (ibuf == delta_exchange_fluid_to_solid) then  !velocity interpolation
@@ -288,6 +295,23 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
               data_fluids(1:nsd,pt) = data_fluids(1:nsd,pt) + data_solids(1:nsd,inn) * shrknode(icnn,inn)  
 		   enddo    
         enddo
+       write(*,*) 'sum of solid', sum(data_solids(1,:))
+       write(*,*) 'sum of fluid', sum(data_fluids(1,:))
+       do inn=1,nn_solids
+          if (data_solids(1,inn)>0) then
+             force_solid=force_solid+data_solids(1,inn)
+          end if
+       end do
+       do inn=1,nn_fluids
+          if (data_fluids(1,inn)>0) then
+             force_fluid=force_fluid+data_fluids(1,inn)
+          end if
+       end do
+       write(*,*) 'positve force of solid', force_solid
+       write(*,*) 'positve force of fluid', force_fluid
+
+
+
      endif
   else
 
