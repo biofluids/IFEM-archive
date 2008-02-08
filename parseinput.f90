@@ -104,6 +104,7 @@ subroutine parseinput_solid
   do i=1,numeb
      read(8,*) nbe(i),nface(i),boup(i,1:nsd_solid)
   enddo
+
  !...concentrated force
   do i=1,numfn
      read(8,*) nodefn(i),ndirfn(i),ftemp
@@ -143,6 +144,7 @@ subroutine parseinput_solid
   close(8)
 
   prec(1:nump*ne_solid)=0.0d0
+
   return
 end subroutine parseinput_solid
 

@@ -19,6 +19,7 @@ subroutine hypo
   use ensight_output
   use solid_fem_BC  !L. Zhang added, Feb 13, 2008
   implicit none
+
 !==============================	  
 ! Definition of variables
   integer :: klok,j
@@ -33,7 +34,7 @@ subroutine hypo
   include "hypo_restart_file_check.fi"
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
-  write(*,*) 'okay'
+
   if (restart == 0) then
      include 'hypo_write_output.fi'
   else

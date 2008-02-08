@@ -14,9 +14,11 @@ program main
  !...read configuration files
   call parseinput_fluid  !...reading input_fluid.in
   call parseinput_solid  !...reading input_solid.in
+
   call nondimension
  !...echos input data
   call echoinput
+
  !...switch to main routine    
   call hypo
 
