@@ -1,20 +1,25 @@
+
+Xingshi Wang, 06/03/2008
+Add shx_tets.f90 to calculate 3-D tets case's shapefunction in
+data_exchange.f90.
+-------------------------------------------------
 Xingshi Wang, 05/31/2008
-1. In r_sstif.f90, changed to 'acc=acc-xmg', so that the gravity term is
-consistent with the equation.
+1) In r_sstif.f90 change 'acc=acc-xmg', so that the gravity term is
+consistent with the eqaution.
 
-2. In r_sstif.f90, changed to predrf=predrf-fu*w. The sign was originally programmed as such, but was later changed to predrf+fu*w in 1/2004, this results in wrong deformations and not usable for large moduli. The internal force should be in the opposite direction when it is distributed onto the fluid nodes. 
-In r_sstif.f90, the program does FSI=-inertial-internal+external. the internal
-term has a different sign than the formulation (23a) in the 2007 paper.  
+2) The internal force should be in the opposite direction when it is
+distributed onto the fluid nodes. Therefore, I just change the sign in
+r_sstif.f90 instead of change the sign in the interpolation codes since the
+external and acceleration terms should keep their signs. In r_sstif.f90, it is
+changed to FSI=-interal+exteranl-acceleration.  
 
-3. Add the FEM interpolation feature in the program. Now the option choices in
-the input_solid.in has 0:RKPM, 1:FEM.
-added 6 files: data_exchange_FEM.f90, migs.f90, search_3d.f90, search_inf.f90,
-determinant.f90, inverse.f90
 -----------------------------------------------------
-Xingshi Wang, 05/09/2008
-1. Fixed a bug in r_spiola_elastic.f90. Added detf=1/(det(F)) when calculating
-J, which is the determinant of F tensor. The original program calculates J
-with respect to initial configuration. 
+Xingshi Wang, 05/09/200
+In r_spiola_elastic to calculate first Piola-Kirchhoff stress, "J" should be
+the determinant of the deformation gradient matrix, but originally we use det
+which is the determinant of Jacobi to initial coordinates.
+define "detf" and call determinant to solve the determinant of xot which is
+the inverse of F.  detf=1/{det(F)}
 -----------------------------------------------------
 Lucy Zhang, 12/21/2007
 found bugs in rigid cases:

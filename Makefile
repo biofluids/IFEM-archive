@@ -11,12 +11,12 @@ r_spiola_viscous.o r_spiola_elastic.o r_spress.o r_sreadinit.o r_sstif.o \
 r_sstrain.o r_stang.o r_stoxc.o r_timefun.o rkpmshape2d.o rkpmshape3d.o \
 set.o shape.o solid_solver.o solid_update.o update.o vol.o \
 data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
-migs.o search_inf.o
+migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o
 
 
 IFEM: $(OBJ)
 	ifort -static -O2 -o IFEM $(OBJ)
 .f90.o:
-	ifort -static -c $<
+	ifort -static -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

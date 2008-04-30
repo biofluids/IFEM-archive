@@ -104,7 +104,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !     First Piola-Kirchoff stress - P
         call r_spiola(xmj,dxmj,xto) !hyperelastic material
 !     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
+!        call r_spiola_viscous(xot,vel)  
 !     calculate cauchy stress for output
 !     ! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
       if (mod(its,ntsbout) == 0) then
@@ -119,7 +119,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !	  Calculate cauchy stress then transform to 1st PK stress
 		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
 !     correction for viscous fluid stress
-        call r_spiola_viscous(xot,vel)  
+!        call r_spiola_viscous(xot,vel)  
 !     assemble cauchy stress for output
         if (mod(its,ntsbout) == 0) then
 			cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)

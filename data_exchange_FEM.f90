@@ -259,7 +259,9 @@ integer j
            end do
            end if
         else
-           ! 3-D case
+           if (nen .eq. 4) then ! 3-D tet case
+		   call shx_tets(x,xe,nsd,nen,sh)
+		   end if
 
 
 

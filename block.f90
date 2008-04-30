@@ -47,11 +47,25 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
-
+ !=================================================
+!f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
+p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+!=================================================
+!===================================================
+! f_fluids is actually the FSI force at fluid nodes,
+! then we will just subscrib it from p(!:nsd) which is the 
+! residuals for the momentum equations. 
+! 1 let fnod=0 then fndoe and fq 's effects will be canceled out
+! 2 do the subscribition after the elements loop
+! Xingshi 09/15/2008
+!===================================================
   do ie=1,ne		! loop over elements
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
+!============================================================================
+!		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
+                 fnode(:,inl)=0.0
+!============================================================================
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
 		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
@@ -230,9 +244,10 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
 		! Momentum Equation (Euler Residual)
-
+!===========================================================
+! why originally it is minus?
 		   p(1:nsd,node) = p(1:nsd,node)-ph(0,inl)*res_a(1:nsd)
-
+!=============================================================
 		! Momentum Equation (C: Diffusion terms)
 		    if (nsd==2) then
 			  do isd=1,nsd
@@ -297,7 +312,8 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 
 	 enddo ! end of qudrature pts loop
   enddo ! end of element loop
-
+ continue  
+continue
   return
 end subroutine block
 

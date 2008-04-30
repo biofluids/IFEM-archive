@@ -79,6 +79,7 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
 	elseif(nsd_solid == 2) then
      nu1=             solid_fem_con(ne,ni)
      nv1=  nn_solid + solid_fem_con(ne,ni)
+    ! write(*,*) 'predrf', predrf(nu1), 'nu1', nu1
      predrf(nu1) = predrf(nu1) - w*sdensit*h(ni)*xac(1) - w*xviss*h(ni)*xve(1)
      predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
 	endif

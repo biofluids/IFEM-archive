@@ -1,5 +1,5 @@
 restart =	0
-restart_freq =	10
+restart_freq =	2
 steady =    0
 stokes =    0
 hg_vol =    1
@@ -17,11 +17,11 @@ nsd =     2
 iquad =   2
 
 nit =      4
-nts =      2000
+nts =      1
 ntsbout =  20
 idisk =    00 
-inner =    20
-outer =    2
+inner =    30
+outer =    3
 iscaling = 01
 maxconn =  60
 

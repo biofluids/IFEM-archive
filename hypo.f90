@@ -24,7 +24,7 @@ subroutine hypo
   integer :: klok,j
 
   integer infdomain(nn_solid)
-
+  real(8) mass_center(2)
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -131,10 +131,42 @@ else if (ndelta==2) then
 end if
 
 !=================================================================
-! Update solid domain
+!uPDAte solid domain
     call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
                      solid_vel,solid_prevel,solid_accel)
 
+    open(unit=8406, file='masscenter.txt', status='unknown')
+
+    mass_center(1)=sum(solid_coor_curr(1,:))/nn_solid
+    mass_center(2)=sum(solid_coor_curr(2,:))/nn_solid
+    write(8406,*)  mass_center(:)
+!===========================================================
+! Giving solid coor
+!solid_coor_curr(1,1)=0.35d0
+!solid_coor_curr(2,1)=0.3d0
+
+!solid_coor_curr(1,2)=0.55d0
+!solid_coor_curr(2,2)=0.3d0
+
+!solid_coor_curr(1,3)=0.35d0
+!solid_coor_curr(2,3)=0.425d0
+
+!solid_coor_curr(1,4)=0.55d0
+!solid_coor_curr(2,4)=0.425d0
+
+!solid_coor_curr(1,5)=0.35d0
+!solid_coor_curr(2,5)=0.55d0
+
+!solid_coor_curr(1,6)=0.55d0
+!solid_coor_curr(2,6)=0.55d0
+!=================================================================
+! Volume correction  
+!   if (mod(its,4) .eq. 2) then
+!   call energy_solid(solid_coor_curr,nsd_solid,nen_solid,solid_fem_con,nn_solid,ne_solid, &
+!                solid_coor_init,solid_vel)
+!   write(*,*) 'energy_solid'
+!   call energy_fluid(x,d(1:nsd,:),ien)
+!   end if
 !=================================================================
 ! Write output file every ntsbout steps
      include "hypo_write_output.fi"

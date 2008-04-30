@@ -1,5 +1,5 @@
 restart =	0
-restart_freq =	10
+restart_freq =	2
 steady =    0
 stokes =    0
 hg_vol =    1
@@ -7,41 +7,41 @@ taudt =     1
 static =    0
 conserve =  1
 
- nn=        1680
- ne=        3198
+ nn=       105
+ ne=       80
 
 nrng =    4
-nen =     3
+nen =     4
 ndf =     3
 nsd =     2
 iquad =   2
 
-nit =      4
-nts =      2000
-ntsbout =  20
+nit =      6
+nts =      20
+ntsbout =  1
 idisk =    00 
 inner =    30
 outer =    3
 iscaling = 01
 maxconn =  60
 
-dt =      0.05
+dt =      0.01
 t_start = 0.0
 alpha =   1.0
 
 fix =    1  0.0  0.0  -999   !bottom
 fix =    2  0.0  0.0  -999   !right
-fix =    3  0.1  0.0  -999   !top
+fix =    3  0.0  0.0  -999   !top
 fix =    4  0.0  0.0  -999   !left
 
 landa_over_mu = 0.01
 
-initial =  +0.0 +0.0 +0.0
+initial =  +0.01 +0.0 +0.0
 
-gravity =    0.0    0.0     0.0
+gravity =    0.0    9.8     0.0
 interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 
-vis_liq = 0.01     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
+vis_liq = 1.0     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
 den_liq = 1.0	!! water 1.0g/cm^3, air 1.3e-3g/cm^3
 ref_lgt = 1.0
 ref_vel = 1.0
