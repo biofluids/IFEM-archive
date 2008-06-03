@@ -161,10 +161,10 @@ end if
 !solid_coor_curr(2,6)=0.55d0
 !=================================================================
 ! Volume correction  
-!   if (mod(its,4) .eq. 2) then
-!   call energy_solid(solid_coor_curr,nsd_solid,nen_solid,solid_fem_con,nn_solid,ne_solid, &
-!                solid_coor_init,solid_vel)
-!   write(*,*) 'energy_solid'
+!   if (mod(its,10) .eq. 9) then
+!   call volcorr(solid_coor_curr,nsd_solid,nen_solid,solid_fem_con,nn_solid,ne_solid, &
+!                solid_coor_init)
+!   write(*,*) 'volume correction applied'
 !   call energy_fluid(x,d(1:nsd,:),ien)
 !   end if
 !=================================================================

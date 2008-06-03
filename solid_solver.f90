@@ -21,6 +21,7 @@ subroutine solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,  &
 
   integer :: ipt,isd
   write(*,*) '*** Solving Solids ***'
+  predrf(:)=0.0d0
   select case (nsd_solid)
      case (2,3)    !...2D, 3D structure
     !...calculate internal + inertial forces + gravity/bouyancy forces   (initial configuration)  

@@ -157,8 +157,8 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 	
    twodim: if (nsd_solid .eq. 2) then 
 
-	xmi(1)=toc(1,1)+toc(2,2)
-	xmi(2)=0.5d0*(xmi(1)**2-cc)
+	xmi(1)=toc(1,1)+toc(2,2)+1.0d0
+	xmi(2)=0.5d0*(xmi(1)**2-cc-1.0d0)
 	xmi(3)=toc(1,1)*toc(2,2)-toc(1,2)*toc(2,1)
 	
 	!  -----
@@ -191,14 +191,14 @@ subroutine r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 	dli(1,1)=2.0d0
 	dli(1,2)=2.0d0
 
-	dli(2,1)=2.0d0*toc(2,2)
-	dli(2,2)=2.0d0*toc(1,1)
-	dli(2,3)=-2.0*(toc(1,2)+toc(2,1))
+	dli(2,1)=2.0d0*toc(2,2)+2.0d0
+	dli(2,2)=2.0d0*toc(1,1)+2.0d0
+	dli(2,3)=-1.0d0*(toc(1,2)+toc(2,1))
 	dli(2,4)=0.0d0
 
 	dli(3,1)=2.0d0*toc(2,2)
 	dli(3,2)=2.0d0*toc(1,1)
-	dli(3,3)=-4.0d0*toc(1,2)
+	dli(3,3)=-2.0d0*toc(1,2)
 	dli(3,4)=0.0d0
 
 	!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -7,8 +7,8 @@ taudt =     1
 static =    0
 conserve =  1
 
- nn=       105
- ne=       80
+ nn=       124
+ ne=       103
 
 nrng =    4
 nen =     4
@@ -17,8 +17,8 @@ nsd =     2
 iquad =   2
 
 nit =      6
-nts =      20
-ntsbout =  1
+nts =      10
+ntsbout =  2
 idisk =    00 
 inner =    30
 outer =    3
@@ -30,9 +30,9 @@ t_start = 0.0
 alpha =   1.0
 
 fix =    1  0.0  0.0  -999   !bottom
-fix =    2  0.0  0.0  -999   !right
+fix =    2  1.0  0.0  -999   !right
 fix =    3  0.0  0.0  -999   !top
-fix =    4  0.0  0.0  -999   !left
+fix =    4  -999  0.0  -999   !left
 
 landa_over_mu = 0.01
 
@@ -41,7 +41,7 @@ initial =  +0.01 +0.0 +0.0
 gravity =    0.0    9.8     0.0
 interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
 
-vis_liq = 1.0     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
+vis_liq = 0.01     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
 den_liq = 1.0	!! water 1.0g/cm^3, air 1.3e-3g/cm^3
 ref_lgt = 1.0
 ref_vel = 1.0
