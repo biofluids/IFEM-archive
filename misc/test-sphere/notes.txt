@@ -1,0 +1,12 @@
+density	2.5	g/cm3
+gravity	1000	cm/s2
+radius	1	cm
+volume	4.186666667	cm3
+elements	256	
+element volume	0.016354167	
+
+
+force density	2500	
+nodal force	40.88541667	
+
+
