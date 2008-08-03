@@ -18,6 +18,13 @@
   call readien_solid(solid_fem_con_1,ne_solid_1,nen_solid)
  !...read coordinates for one structure
   call readx_solid(coor_1,nn_solid_1,nsd_solid)
+!-------------------------------------------------
+! read in the nodes at the fluid bourdary and the number of them
+ !...read node connected with fluid boundary
+ ! node_sfcon1=219
+ ! node_sfcon=n_solid*node_sfcon1
+ ! call read_sfcon(sfcon_1,node_sfcon1)
+
 
  !...scale structure
   do i=1,nsd_solid
@@ -29,9 +36,41 @@
       do j=1,nsd_solid
 	  solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
 	enddo
-     solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
+    solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
   enddo
+
+! For special case when we want to have 2 solid symeric with respect to the centre line  
+!  i=1
+!      do j=1,nsd_solid
+!          solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
+!        enddo
+!    solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
   
+
+
+  
+!  i=2
+!      
+!          solid_coor_init(2,nn_solid_1*(i-1)+1:nn_solid_1*i) = 2.0d0-coor_1(1:nn_solid_1,2)
+!          solid_coor_init(1,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,1) 
+!  if (nen_solid==4) then
+!  do  j=1,nen_solid
+!     solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,j) = solid_fem_con_1(1:ne_solid_1,5-j) + (i-1)*nn_solid_1
+!  end do
+!  end if
+  ! Triangle mesh need other formular
+!  if (nen_solid==3) then
+!  do  j=1,nen_solid
+!     solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,j) = solid_fem_con_1(1:ne_solid_1,4-j) + (i-1)*nn_solid_1
+!  end do
+!  end if
+
+ ! Copy the node index on the fluid boundary
+ !  sfcon(1:node_sfcon1)=sfcon_1(1:node_sfcon1)
+ !  sfcon(node_sfcon1+1:node_sfcon)=sfcon_1(1:node_sfcon1)+nn_solid_1
+
+
+
   deallocate(solid_fem_con_1,stat=error_id)
   deallocate(coor_1,stat=error_id)
   deallocate(shift,stat=error_id)  

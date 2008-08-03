@@ -43,4 +43,25 @@ subroutine readien_solid(solid_con,ne,nen)
   return
 end subroutine readien_solid
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+subroutine read_sfcon(sfcon,node_sfcon)
+  implicit none
+
+  integer,intent(in) :: node_sfcon
+  integer :: sfcon(node_sfcon)
+  integer :: file,i
+
+  file=23
+  open(file, FILE="sfcon.in", STATUS="old",action="read")
+
+  do i=1,node_sfcon
+     read(file,*) sfcon(i)
+  enddo
+
+  close(file)
+
+  return
+end subroutine read_sfcon
+
+
 end module meshgen_solid

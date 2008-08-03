@@ -7,10 +7,12 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
+subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress,mdata,n_mdata)
   use global_constants
   use run_variables
   use fluid_variables
+  use solid_variables, only: nn_solid
+  use r_common, only: density_solid
   implicit none
 
   integer ien(nen,ne)
@@ -42,11 +44,51 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+  integer inn
+  real*8  leftx
+
+  integer mdata(nn_solid)
+  integer n_mdata
+  real(8) fdensity(nn)
+  real(8) local_den(nen)
 
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
+  
+    fdensity(:)=0.0
+  do ie=1,n_mdata
+     do inl=1,nen
+     fdensity(ien(inl,mdata(ie)))=density_solid
+  enddo
+  enddo
+    fdensity(:)=fdensity(:)+den_liq
+
+
+!====================================
+! Try to fix the pressure BC by using an external force to mimic the pressure
+! Make the pressure increase graduately
+!leftx = 0.0d0
+
+!if (tt .le. 0.005) then
+!do inn=1,nn
+!   if (xloc(1,inn) == leftx) then
+!      f_fluids(1,inn) = 2.0d4*tt
+!   endif
+!enddo
+!else
+!do inn=1,nn
+!   if (xloc(1,inn) == leftx) then
+!      f_fluids(1,inn) = 0.5d2
+!   endif
+!enddo
+!end if
+
+
+
+
+
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
@@ -69,6 +111,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
 		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
+!-----------------------------------------------------------------------------
+               local_den(inl)=fdensity(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -112,10 +156,13 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 
 
 !... calculate dvi/dt, p, dp/dxi
+        ro=0.0
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
-		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
+		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl) 
+!----------------------------------------------------------------------------------------
+                   ro=ro+sh(0,inl)*local_den(inl)      
 	    enddo
 
 !... define u=v1, v=v2, w=v3, pp=p
@@ -138,7 +185,7 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 
 !....  calculate liquid constant and gravity
 	    mu = vis_liq  ! liquid viscosity
-	    ro = den_liq  ! liquid density
+!	    ro = fdensity(ie)  ! liquid density
 		g  = gravity  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
@@ -150,6 +197,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	                                            +2*dr(2,2)**2+(dr(3,1)+dr(1,3))**2 &
 	                                            +2*dr(3,3)**2+(dr(3,2)+dr(2,3))**2)
 		endif
+         !---------------------------
+         ! originally we have it 
 	    mu = mu + nu*ro                   
 
 !....  calculate each term in the residual equation
@@ -273,7 +322,7 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	                                   - ph(ysd,inl)*prs_cc(vdf)  &
 	                                   - ph(zsd,inl)*prs_cc(wdf)
 		   endif		! Stablization with Tau_cont    
-		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
+		  p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
 	 enddo
 
 !********************************************************

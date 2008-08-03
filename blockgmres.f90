@@ -8,10 +8,12 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
+subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext,mdata,n_mdata)
   use global_constants
   use run_variables, only: dt
   use fluid_variables
+  use solid_variables, only: nn_solid
+  use r_common, only: density_solid
   implicit none
 
   integer ien(nen,ne)
@@ -40,6 +42,23 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
   integer inl, ie, isd, iq, node, jsd
   real*8 fext(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+!-------------------------------------------
+  integer mdata(nn_solid)
+  integer n_mdata
+  real(8) fdensity(nn)
+  real(8) local_den(nen)
+
+!---------------------------------------------
+! corresponding changes in block.f90
+fdensity(:)=0.0
+  do ie=1,n_mdata
+     do inl=1,nen
+     fdensity(ien(inl,mdata(ie)))=density_solid
+  enddo
+  enddo
+    fdensity(:)=fdensity(:)+den_liq
+
+
 
 !.....calculate 1/dt
   dtinv = 1.0/dt/alpha
@@ -57,6 +76,8 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 		 q(1:ndf,inl) =  qloc(1:ndf,ien(inl,ie))
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
+                 !-----------------------------------
+                 local_den(inl)=fdensity(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -85,13 +106,15 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 		fq(:)=0.0
 
 !....    calculate vi,dvi/dxj
+        ro=0.0
         do inl=1,nen
 		   tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
 		   drs(1:nsd) = drs(1:nsd)+sh(0,inl)*tempc(1:nsd)
 		   do isd=1,nsd
 			 dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
 		   enddo
-		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
+		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl) 
+                   ro=ro+sh(0,inl)*local_den(inl)       
 	    enddo
 
 !...     initialize delta_d, delta_p, d(delta_v)i/dxj, d(delta_v)i/dt
@@ -135,7 +158,7 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 
 !....    set liquid properties, density and viscosity
 	    mu = vis_liq
-	    ro = den_liq
+!	    ro = fdensity(ie)
               ! below is only used if turbulence is applied
 		if (nsd==2) then
 			nu = delta(4)*turb_kappa**2*hg**2 * sqrt(2*dr(1,1)**2+(dr(2,1)+dr(1,2))**2 &
@@ -145,7 +168,10 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
 	                                            +2*dr(2,2)**2+(dr(3,1)+dr(1,3))**2 &
 	                                            +2*dr(3,3)**2+(dr(3,2)+dr(2,3))**2)
 		endif
-	    mu = mu + nu*ro                   
+	 
+          !----------------------------
+          ! originally we have it
+             mu = mu + nu*ro                   
 
 !.....   calculate the delta of residuals
 	    res_c = 0.0

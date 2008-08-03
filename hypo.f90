@@ -22,9 +22,20 @@ subroutine hypo
 !==============================	  
 ! Definition of variables
   integer :: klok,j
-
+ 
   integer infdomain(nn_solid)
+ 
   real(8) mass_center(2)
+  
+  integer :: node_sfcon, node_sfcon1
+!  integer sfcon_1(219)
+!  integer sfcon(438)
+!  real(8) sfxyz(nsd,438)
+!  integer inode_sf
+
+  integer mdata(nn_solid)
+  integer n_mdata
+
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -36,10 +47,11 @@ subroutine hypo
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
 !=============================
-! define the influence domain matrix
- ! integer infdomain(nn_solid)
-  
-  
+! save the orignal position of solid nodes at fluid boundary
+ ! do inode_sf=1,node_sfcon
+ !    sfxyz(1:nsd,inode_sf)=solid_coor_init(1:nsd,sfcon(inode_sf))
+ ! end do
+!-------------------------------------------------------------  
   if (restart == 0) then
      include 'hypo_write_output.fi'
   else
@@ -66,8 +78,8 @@ subroutine hypo
      tt = tt + dt    !....update real time
      klok = klok + 1 !....update counter for output
 
-     write (6,'("  physical time = ",f7.3," s")') tt
-     write (7,'("  physical time = ",f7.3," s")') tt
+     write (6,'("  physical time = ",f9.6," s")') tt
+     write (7,'("  physical time = ",f9.6," s")') tt
 
 
 ! choise of the interpolation method
@@ -103,11 +115,26 @@ else if (ndelta==2) then
 ! Construction of the FEM influence domain
      call search_inf(solid_coor_curr,x,nn,nn_solid,nsd,ne,nen,ien,infdomain)
 
+!================================================================
+! Merge the auxillary finf array
+    call mergefinf(infdomain,nn_solid,mdata,n_mdata)
+
 !=================================================================
 ! Solid solver
  write(*,*) 'starting solid solver'
     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
                      solid_pave,solid_stress,solid_strain,solid_force_FSI)
+
+
+!=================================================================
+! Set the FSI force for the solid nodes at fluid boundary to be zero
+! do inode_sf=1,node_sfcon
+!   solid_force_FSI(1:nsd,sfcon(inode_sf))=0.0
+! end do
+!------------------------------------------------------------------
+
+
+
 
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
@@ -135,6 +162,14 @@ end if
     call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
                      solid_vel,solid_prevel,solid_accel)
 
+
+!-----------------------------------------------------------------
+! Set the solid nodes at the fluid boundary at their original position
+!  do inode_sf=1,node_sfcon
+!     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
+!  end do
+
+
     open(unit=8406, file='masscenter.txt', status='unknown')
 
     mass_center(1)=sum(solid_coor_curr(1,:))/nn_solid
@@ -161,7 +196,7 @@ end if
 !solid_coor_curr(2,6)=0.55d0
 !=================================================================
 ! Volume correction  
-!   if (mod(its,10) .eq. 9) then
+!   if (mod(its,100) .eq. 99) then
 !   call volcorr(solid_coor_curr,nsd_solid,nen_solid,solid_fem_con,nn_solid,ne_solid, &
 !                solid_coor_init)
 !   write(*,*) 'volume correction applied'

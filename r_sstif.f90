@@ -65,8 +65,9 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
      enddo
   enddo
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  xac(1:nsd_solid) = xac(1:nsd_solid) - xmg(1:nsd_solid)
-  
+!  xac(1:nsd_solid) = xac(1:nsd_solid) - xmg(1:nsd_solid)
+  xac(1:nsd_solid) = 0.0 - xmg(1:nsd_solid)
+
   totalh=0
   do ni=1,nen_solid
   	if(nsd_solid == 3) then
@@ -82,6 +83,8 @@ subroutine r_sstif(ocpp,ocup,xkup,xkpp,xfp,ne,w,vel,acc,solid_fem_con)
     ! write(*,*) 'predrf', predrf(nu1), 'nu1', nu1
      predrf(nu1) = predrf(nu1) - w*sdensit*h(ni)*xac(1) - w*xviss*h(ni)*xve(1)
      predrf(nv1) = predrf(nv1) - w*sdensit*h(ni)*xac(2) - w*xviss*h(ni)*xve(2)
+     
+
 	endif
 
   enddo

@@ -1,4 +1,21 @@
-
+Xingshi Wang 05/11/2009
+1) Set the solid boundary contacting with fluid boundary have no displacement
+and FSI force
+2) change in solid_update.f90 to solve the case solid and fluid have large
+density difference. Also acsolid_vel is calcualted based on v_2=v_1+a*dt
+F=m_fluid*a_fluid=m_solid*a_solid ---> a_solid/a_fluid=m_fluid/m_solid
+--------------------------------------------------------------
+Xingshi Wang 01/22/2009
+1) In block.f90 change the artificial force to 800 per node then it supposes
+to give me 1kPa as the incoming pressure.
+2) In hypo_prepare_solid.fi change the symetric constant to 2.0 to match the
+geometry.
+------------------------------------------------------------------
+Xingshi Wang 12/03/2008
+Change in hypo_prepare_solid.fi to let it held the case that we have 2 solid
+with the same structure but rotate 180.
+However, we lost the shift feactures
+-------------------------------------------------------
 Xingshi Wang, 06/03/2008
 Add shx_tets.f90 to calculate 3-D tets case's shapefunction in
 data_exchange.f90.

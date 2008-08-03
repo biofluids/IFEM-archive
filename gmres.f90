@@ -6,8 +6,9 @@
 !c output increment of d, dg
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine gmres(x,d,dold,id,w,bg,dg,hg,ien, &
-	    z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss,fext)
+	    z,v,zg,avg,sm,vloc,avloc,h,y,cc,ss,fext,mdata,n_mdata)
       use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,iscaling
+      use solid_variables, only: nn_solid
 	implicit none
 
 	real* 8 x(nsd,nn)
@@ -26,6 +27,13 @@
 	real* 8 gam,hsave,ysave,tmpo
 	integer i,j,k,ij,jj,i1,j1,k1,l,iqc,igmres
 	real*8 fext(nsd,nn)
+
+!-------------------------------------------------
+! corresponding changes to block.f90
+  integer mdata(nn_solid)
+  integer n_mdata  
+
+
 
 	eps = 1.0e-12
 	assemble = .true.
@@ -86,7 +94,7 @@
 	   call equal(zg,vloc,ndf*nn)
 
        avloc(1:ndf,1:nn) = 0.0d0
-	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext)
+	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext,mdata,n_mdata)
 
 	   call equal(avloc,avg,ndf*nn)
 	   call setid(avg,id,ndf)
