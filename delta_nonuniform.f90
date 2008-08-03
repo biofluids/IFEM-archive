@@ -84,7 +84,7 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   allocate(shrknode(maxconn,nn_solids),stat=error_id)
   allocate(cnn(maxconn,nn_solids)     ,stat=error_id)
   allocate(ncnn(nn_solids)            ,stat=error_id)
-  coef = 0.9d0
+  coef = 1.5d0
   write(*,*) '***RKPM coefficient equals***', coef
   maxinf = 0
   mininf = 9999
@@ -202,7 +202,7 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
 !   ninf = total number of influence points
 !   adist = the radial distance of the influence domain
 !cccccccccccccccccc
- !  open(unit=400, file='interface_RKPM.dat',status='unknown')
+  open(unit=400, file='interface_RKPM.dat',status='unknown')
   ninf = 0
   do i = 1,nn
      r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
@@ -215,7 +215,7 @@ subroutine getinf(inf,ninf,x,xna,adist,nn,nsd,maxconn)
 		if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i))) then
 			ninf = ninf + 1
 			inf(ninf) = i
-                     !   write(400,*) i  
+                        write(400,*) i  
                      !   write(*,*) '****I am in getinf ****'      
 		endif
 	 endif

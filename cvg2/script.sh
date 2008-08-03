@@ -1,5 +1,5 @@
 #!/bin/tcsh
 echo "Begin the job"
-cd /borg/xwang/IFEM.V8.1.2008/org_soft/
+cd /medusa/xwang/IFEM2007/input1/
 ./IFEM
 echo "Job ending 'date'"

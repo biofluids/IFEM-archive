@@ -17,7 +17,7 @@
 
    d = 0.0d0
    call formid(id,rng,ien)
-   call formd(d,rng,ien)
+   call formd(d,rng,ien,x)
 	
    call error("mesh information",-999,.false.)
    call vol(xref,ien)

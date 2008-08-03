@@ -1,12 +1,16 @@
-! this module is used to apply boundary conditions
+!this module is used to apply boundary conditions
 module form
   implicit none
 
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine formd(ds,rngface,ien)
+! This formd subroutine is specificly set to get the boundary condition 
+! depending on position 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+subroutine formd(ds,rngface,ien,x)
   use global_constants
+  use run_variables, only: tt   ! only use if boundary condition is a function of time
   use fluid_variables, only: nn,ne,ndf,nsd,nen,neface,nrng,nnface,mapping,bc,bv,etype,ic,static,udf,vdf,wdf, maxconn
 
   implicit none
@@ -16,6 +20,7 @@ subroutine formd(ds,rngface,ien)
   integer :: idf, inl, iec, irng, ieface, inface, inn
   real(8) :: eps1,eps2
   real(8) :: hs(nrng+1,nn), h(nrng+1,nn)
+  real(8) :: x(nsd,nn)
 
   eps1 = -1000000.0 
   eps2 = -10000.0 
@@ -33,6 +38,9 @@ subroutine formd(ds,rngface,ien)
   enddo
 
   hs = h
+  !! ONLY ADD IF BOUNDARY CONDITION IS A FUNCTION OF TIME!!
+  !bv(udf, 3) = 0.1*sin(2*pi/40*tt)
+  !!!!!!!!!!!!!!!!!!
 
   do irng=1,nrng
      do inn=1,nn
@@ -46,6 +54,33 @@ subroutine formd(ds,rngface,ien)
      enddo
   enddo
 
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !===========================
+     irng=3
+     idf=1
+  ! define the face to set
+  !===========================
+     do inn=1,nn
+        
+           if (hs(irng,inn).gt.1.0e-8) then
+              if (bc(idf,irng) .gt. 0) then
+			    if (x(1,inn) .le. 0.3d0) then
+                ds(idf,inn) = 0.5d0*(sin(pi*x(1,inn)/0.6d0)**2)
+				end if
+				if (x(1,inn) .gt. 0.3d0 .and. x(1,inn) .lt. 1.7d0) then
+                ds(idf,inn) = 0.5d0
+				end if
+				if (x(1,inn) .ge. 1.7d0) then
+                ds(idf,inn) = 0.5d0*(sin(pi*(x(1,inn)-2.0d0)/0.6d0))**2
+				end if
+
+			  endif
+           endif
+        
+     enddo
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
 
   do inn=1,nn
      do idf=1,ndf

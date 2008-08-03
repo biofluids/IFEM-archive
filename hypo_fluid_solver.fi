@@ -7,7 +7,7 @@
     !...store the variables from the previous time step,dold=d 
      dold = d
      call formid(id,rng,ien)
-     call formd(d,rng,ien)
+     call formd(d,rng,ien,x)
 
      do iit=1,nit
         p(:,:) = 0.0d0
