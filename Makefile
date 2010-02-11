@@ -1,4 +1,7 @@
 .SUFFIXES: .f90
+LIBS    = /usr/lib64/liblapack.so \
+          /usr/lib64/libblas.so
+
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o delta_nonuniform.o \
 ensight_output.o form.o block.o blockgmres.o gmres.o meshgen_solid.o \
@@ -12,12 +15,14 @@ r_sstrain.o r_stang.o r_stoxc.o r_timefun.o rkpmshape2d.o rkpmshape3d.o \
 set.o shape.o solid_solver.o solid_update.o update.o vol.o \
 data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
 migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o volcorr.o \
-cg.o
+cg.o \
+inflownode.o edgeele.o bcequation_node.o bc_shape2d_node.o \
+nature_pre.o
 
 
 IFEM: $(OBJ)
-	ifort -static -O2 -o IFEM $(OBJ)
+	ifort -O0 -o  IFEM $(OBJ) $(LIBS)
 .f90.o:
-	ifort -static -c -g $<
+	ifort -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

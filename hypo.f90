@@ -25,6 +25,11 @@ subroutine hypo
 
   integer infdomain(nn_solid)
   real(8) mass_center(2)
+
+!============================
+! Variables for boudary equations
+  integer bc4el(ne_inflow) ! 10 is the number of nodes on edge 4
+  real(8) res_bc(nsd,nn) ! residual comming from nature B.C. integration 
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -38,8 +43,11 @@ subroutine hypo
 !=============================
 ! define the influence domain matrix
  ! integer infdomain(nn_solid)
-  
-  
+!==================================
+! call the subroutine to set up ginflow and linflow
+if (edge_inflow .ne. 0) then
+call edgeele(edge_inflow,rng,neface,ne,bc4el,ne_inflow)
+end if
   if (restart == 0) then
      include 'hypo_write_output.fi'
   else
@@ -132,8 +140,8 @@ end if
 
 !=================================================================
 !uPDAte solid domain
-    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-                     solid_vel,solid_prevel,solid_accel)
+!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
+!                    solid_vel,solid_prevel,solid_accel)
 
     open(unit=8406, file='masscenter.txt', status='unknown')
 
@@ -171,6 +179,11 @@ end if
 ! Write output file every ntsbout steps
      include "hypo_write_output.fi"
 
+!===========================================
+! Just for test purpose
+! solve the boundary equation for inflow B.C
+!        call bcequation_node(x,d,ien,ginflow,linflow,nn_inflow,rng,bc4el,ne_inflow,edge_inflow)
+!==========================================
   enddo time_loop
 
 

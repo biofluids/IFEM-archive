@@ -1,4 +1,16 @@
-
+Xingshi Wang, 2/11/2010
+Add pressure boundary condition
+- This is implemented as a natural boundary condition in weak form.
+- block.f90 is modified, but blockgmres.f90 is unchanged.
+- modified input_fluid.in: add 3 lines after the BC is read
+- added inflownode.f90, nature_pre.f90, bcequation.f90bc_shape_2d_node.f90
+----------------------------------------------------------------
+Xingshi Wang, 06/03/2008
+Add options for FEM interpolation
+- add additional option in input_solid.in for FEM interpolation, RKPM=1,
+  FEM=2;
+- added search_3d.f90,search_inf.f90,sh_exchange.f90,migs.f90
+-----------------------------------------------------------------
 Xingshi Wang, 06/03/2008
 Add shx_tets.f90 to calculate 3-D tets case's shapefunction in
 data_exchange.f90.
@@ -14,12 +26,17 @@ external and acceleration terms should keep their signs. In r_sstif.f90, it is
 changed to FSI=-interal+exteranl-acceleration.  
 
 -----------------------------------------------------
-Xingshi Wang, 05/09/200
+Xingshi Wang, 05/09/2008
 In r_spiola_elastic to calculate first Piola-Kirchhoff stress, "J" should be
 the determinant of the deformation gradient matrix, but originally we use det
 which is the determinant of Jacobi to initial coordinates.
 define "detf" and call determinant to solve the determinant of xot which is
 the inverse of F.  detf=1/{det(F)}
+-----------------------------------------------------
+Xingshi Wang, 02/14/2008
+in directory 'try', just changed 'getinf' subroutine to output the
+interface of the RKPM interpoloation
+
 -----------------------------------------------------
 Lucy Zhang, 12/21/2007
 found bugs in rigid cases:

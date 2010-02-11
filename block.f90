@@ -244,6 +244,31 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
 		! Momentum Equation (Euler Residual)
+
+!===========================================================
+!???????????????????????????????????????????????????????????
+! plot every term to check why with different pressure drop the solution holds the same
+!if (node == 551) then
+!write(*,*) 'I am in block.f90 line: 251, plot on node 551'
+!write(*,*) 'res_a', res_a(:)
+!write(*,*) 'drt', drt(:)
+!write(*,*) 'd', d(:,inl)
+!write(*,*) 'd_old', d_old(:,inl)
+!write(*,*) 'u*dudx', u*dr(1,1), 'v*dudy', v*dr(2,1)
+!write(*,*) 'gravity', g(:)
+!write(*,*) 'FSI', fq(:)
+
+
+!write(*,*) 'shape function', ph(:,inl)
+!write(*,*) 'pp', pp
+!write(*,*) 'tau(1,1)', tau(1,1), 'tau(2,1)', tau(2,1)
+!write(*,*) 'tau(1,2)', tau(1,2), 'tau(2,2)', tau(2,2)
+!write(*,*) 'dp/dxi', dr(1:nsd,pdf)
+!write(*,*) 'res_t', res_t(:)
+!write(*,*) 'prs_c', prs_c
+!write(*,*) 'prs_t', prs_t(:)
+!write(*,*) 'temp', temp
+!end if
 !===========================================================
 ! why originally it is minus?
 		   p(1:nsd,node) = p(1:nsd,node)-ph(0,inl)*res_a(1:nsd)
@@ -274,9 +299,17 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	                                   - ph(zsd,inl)*prs_cc(wdf)
 		   endif		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
-	 enddo
+	
+!===========================================
+!??????????????????????????????????????????
+!if (node == 551) then
+!write(*,*) 'Residual !!!!!', p(:,node)
+!end if
+!????????????????????????????????????????????
 
-!********************************************************
+ enddo
+
+!????????????????????????????????????????????!********************************************************
 	      ! Diagonal Preconditioner
 !********************************************************
 	    effd = mu*eft0*alpha

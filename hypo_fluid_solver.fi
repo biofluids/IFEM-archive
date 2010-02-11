@@ -8,15 +8,24 @@
      dold = d
      call formid(id,rng,ien)
      call formd(d,rng,ien)
-
      do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
 
+
          call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress)
+
+!===========================================================================
+if (edge_inflow .ne. 0) then
+! Apply nature boundary condition
+write (*,*) 'Apply nature BC'
+        call nature_pre(x,d,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+        p(1,:) = p(1,:) + res_bc(1,:)
+end if 
         !...apply boundary conditions, calculate residual with corrected BC
         !...i.e. where id=0 -> p=0
          call setid(p,id,ndf)
+
 
         !...calculate the normalized error, res_l
          call getnorm(p,p,ndf*nn,res_l)
@@ -39,3 +48,4 @@
       enddo
 
       write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1:nsd,:))
+
