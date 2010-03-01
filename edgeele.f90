@@ -1,6 +1,6 @@
 subroutine edgeele(edge,mrng,neface,ne,bcel,n_bcel)
 ! Find the element index which containing part of edge and return as bcel
-! edge is from 1 to 4 fro 2-D case
+! edge is from 1 to 4 for 2-D case
 
 integer edge ! edge index what to find
 integer mrng(neface,ne) ! boundary information

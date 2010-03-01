@@ -3,7 +3,8 @@ Add pressure boundary condition
 - This is implemented as a natural boundary condition in weak form.
 - block.f90 is modified, but blockgmres.f90 is unchanged.
 - modified input_fluid.in: add 3 lines after the BC is read
-- added inflownode.f90, nature_pre.f90, bcequation.f90bc_shape_2d_node.f90
+- added inflownode.f90, nature_pre.f90,
+  bcequation.f90bc_shape_2d_node.f90,edgeele.f90
 ----------------------------------------------------------------
 Xingshi Wang, 06/03/2008
 Add options for FEM interpolation

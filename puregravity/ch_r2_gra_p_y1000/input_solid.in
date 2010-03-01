@@ -1,0 +1,46 @@
+ninit= 0        	! 0=not apply bc; 1=apply bc   
+initdir = 1		! 1=initial disp; 2=intial velocity
+
+iquad_solid= 2  	! number of qudrature points per element
+nen_solid= 4    	! number of nodes per element
+
+nsd_solid= 2 		! number of dimensions in the solid domain
+nrigid= 0 		! 0=deformable; 1=rigid body
+
+n_tec_ens= 0    	! output format: 0=ensight; 1=tecplot;(0 is only option)
+
+ndelta= 2		! 1=RKPM(nonuniform)->the only option for now
+
+nnd= 121		! total number of nodes
+nume1= 100		! total number of elements
+nump= 1			! number of pressure nodes per element
+
+solid_scale= 1.0 1.0	! scaling the solid geometry (x,y,z)
+
+n_solid= 1 		! number of the same structure
+shift= 0.49d0 0.36d0 	! shift the position of the structure (x,y,z)
+
+ntfun= 3 		! load by time function type; 
+
+numfn=0			! load assignment: 0=none, 1:apply load
+numeb=0			! number of type of loads (only if numfn>0,add more in the next lines)
+
+material_type= 2 	! 1=hyperelastic; 2=linear elastic material
+
+young_mod= 1000        ! Young modulus (elastic only)
+Poisson= 0.3		! Poisson ratio (elastic only)
+rc1= 1			! C1 constant (hyperelastic only)
+rc2= 1			! C2 constant (hyperelastic only)
+rk= 0.01			! Ck constant (hyperelastic only)
+
+density_solid= 2.0d0 	! Density different (solid-fluid)
+
+xviss= 0.0d0   		! Damping constant
+
+vnorm= 1.0d0 		! normalized velocity for all nodes
+fnorm= 1.0d0		! (not used now)
+
+xmg= 980.0d0 0.0d0	! gravity (x,y,z)
+
+
+

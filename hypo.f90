@@ -23,7 +23,7 @@ subroutine hypo
 ! Definition of variables
   integer :: klok,j
 
-  integer infdomain(nn_solid)
+  integer infdomain(nn_solid)  !define influence domain matrix
   real(8) mass_center(2)
 
 !============================
@@ -41,9 +41,6 @@ subroutine hypo
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
 !=============================
-! define the influence domain matrix
- ! integer infdomain(nn_solid)
-!==================================
 ! call the subroutine to set up ginflow and linflow
 if (edge_inflow .ne. 0) then
 call edgeele(edge_inflow,rng,neface,ne,bc4el,ne_inflow)
@@ -139,9 +136,9 @@ else if (ndelta==2) then
 end if
 
 !=================================================================
-!uPDAte solid domain
-!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-!                    solid_vel,solid_prevel,solid_accel)
+!UPDATE solid domain
+    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
+                    solid_vel,solid_prevel,solid_accel)
 
     open(unit=8406, file='masscenter.txt', status='unknown')
 
@@ -149,24 +146,6 @@ end if
     mass_center(2)=sum(solid_coor_curr(2,:))/nn_solid
     write(8406,*)  mass_center(:)
 !===========================================================
-! Giving solid coor
-!solid_coor_curr(1,1)=0.35d0
-!solid_coor_curr(2,1)=0.3d0
-
-!solid_coor_curr(1,2)=0.55d0
-!solid_coor_curr(2,2)=0.3d0
-
-!solid_coor_curr(1,3)=0.35d0
-!solid_coor_curr(2,3)=0.425d0
-
-!solid_coor_curr(1,4)=0.55d0
-!solid_coor_curr(2,4)=0.425d0
-
-!solid_coor_curr(1,5)=0.35d0
-!solid_coor_curr(2,5)=0.55d0
-
-!solid_coor_curr(1,6)=0.55d0
-!solid_coor_curr(2,6)=0.55d0
 !=================================================================
 ! Volume correction  
 !   if (mod(its,10) .eq. 9) then
@@ -178,12 +157,7 @@ end if
 !=================================================================
 ! Write output file every ntsbout steps
      include "hypo_write_output.fi"
-
 !===========================================
-! Just for test purpose
-! solve the boundary equation for inflow B.C
-!        call bcequation_node(x,d,ien,ginflow,linflow,nn_inflow,rng,bc4el,ne_inflow,edge_inflow)
-!==========================================
   enddo time_loop
 
 
