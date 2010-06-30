@@ -1,11 +1,11 @@
 .SUFFIXES: .f90
-LIBS    = /usr/lib64/liblapack.so \
-          /usr/lib64/libblas.so
 
-OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
+LIBS =/usr/lib64/liblapack.so \
+      /usr/lib64/libblas.so
+OBJ= global_constants.o global_simulation_parameter.o run_variables.o interface_variables.o\
 r_common.o fluid_variables.o solid_variables.o delta_nonuniform.o \
-ensight_output.o form.o block.o blockgmres.o gmres.o meshgen_solid.o \
-meshgen_fluid.o read.o parseinput.o correct.o  echoinput.o equal.o error.o \
+ensight_output.o form.o blockdiagstable.o blockgmresnew.o gmresnew.o meshgen_solid.o \
+meshgen_fluid.o meshgen_interface.o read.o parseinput.o correct.o  echoinput.o equal.o error.o \
 facemap.o gaussj.o gjinv.o hg.o hypo.o initialize.o length.o main.o \
 nondimension.o norm.o quad3d4n.o quad3d8n.o quad2d3n.o quad2d4n.o \
 r_bdpd_curr.o r_bdpd_init.o r_element.o r_sbpress.o r_jacob.o r_load.o \
@@ -15,13 +15,15 @@ r_sstrain.o r_stang.o r_stoxc.o r_timefun.o rkpmshape2d.o rkpmshape3d.o \
 set.o shape.o solid_solver.o solid_update.o update.o vol.o \
 data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
 migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o volcorr.o \
-cg.o \
-inflownode.o edgeele.o bcequation_node.o bc_shape2d_node.o \
-nature_pre.o
+cg.o get_inter_ele.o form_inter_ele.o form_inter_bc.o block_Laplace.o\
+scale_shift_inter.o gmres_Laplace.o blockgmres_Laplace.o \
+set_element_index.o get_interpoint_Ia.o B_Spline.o correct_Ip.o \
+search_inf_inter.o get_id_inter.o block_norm.o set_id_inter.o\
+gmres_normal.o blockgmres_norm.o \
 
 
 IFEM: $(OBJ)
-	ifort -O0 -o  IFEM $(OBJ) $(LIBS)
+	ifort -g -O0 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
 	ifort -c -g $<
 clean:

@@ -1,0 +1,40 @@
+!=============================solve Indicator===============================
+!!!!!!!!!!!!!solve Laplace eqn to get the initial indicator
+     I_fluid(:) = 0.0
+     flag = 1.0
+     call form_inter_ele(inter_ele,ne_inter,I_fluid,ien,flag)
+     flag = 0.0
+     call form_inter_bc(I_fluid,rng,ien,flag)
+
+     do iit=1,nit
+	p_inter(:) = 0.0d0
+	w_inter(:) = 0.0d0
+	call block_Laplace(x,I_fluid,p_inter,w_inter,ien,hg)
+
+	flag = 0.0
+	call form_inter_ele(inter_ele,ne_inter,p_inter,ien,flag)
+	call form_inter_bc(p_inter,rng,ien,flag)
+!!!!!!!!!!set residual at BC to be 0!!!!!!!!!!!!!!!!!!!!!
+	call getnorm(p_inter,p_inter,nn,res_l)
+
+	dg_inter(:) = 0.0d0
+	call gmres_Laplace(x,I_fluid,w_inter,p_inter,dg_inter,hg,ien,inter_ele,ne_inter,rng)
+	call getnorm(dg_inter,dg_inter,nn,del_l)
+	call update(p_inter,I_fluid,dg_inter,1)
+	write(6,102)iit,res_l,del_l
+	write(7,102)iit,res_l,del_l
+     end do
+!!!!!!!!!!solve Laplace equation to get the initial indicator!!!!!!!!!!!!!!
+!+========================================================================
+!!!!!!!!!!set indicator of outer elements to be 0!!!!!!!!!!!!!!!!!!!!!!!
+     call set_element_index(I_fluid,ne_inter,ne_inner,ne_outer,inter_ele,inner_ele,outer_ele,ien)
+!=========================================================================
+!!!!!!!!!get initial indicator at interfacial points!!!!!!!!!!!!!!!!!!!!!!!
+     call get_interpoint_Ia(x_inter,x,I_inter,I_fluid,hg,infdomain_inter)
+!==========================================================================
+!!!!!!!!!correct I_fluid with correction of Ip!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     call correct_Ip(x_inter,x,I_inter,I_fluid,hg,Ic_inter,infdomain_inter,corr_Ip)
+!=========================================================================
+!call get_interpoint_Ia(x_inter,x,I_inter,I_fluid,hg,infdomain_inter)
+!write(*,*)'I_inter=',I_inter(1:nn_inter)
+!stop

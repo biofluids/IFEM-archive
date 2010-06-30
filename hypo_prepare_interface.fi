@@ -1,0 +1,9 @@
+  call error('read coordinates of interface points',-999,.false.)
+  call readinter(x_inter)
+  call scale_shift_inter(x_inter)
+
+  Ic_inter=0.0     !innitialize constant interface indicator
+  norm_inter(:,:) = 0.0
+  corr_Ip(:) = 0.0
+  nn_inter_regen = 0
+  x_inter_regen(:,:) = 0.0

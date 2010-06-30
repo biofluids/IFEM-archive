@@ -42,7 +42,6 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
-
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
@@ -244,9 +243,7 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
 		! Momentum Equation (Euler Residual)
-
-!===========================================================
-!===========================================================
+!===========================================================
 ! why originally it is minus?
 		   p(1:nsd,node) = p(1:nsd,node)-ph(0,inl)*res_a(1:nsd)
 !=============================================================
@@ -276,12 +273,9 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	                                   - ph(zsd,inl)*prs_cc(wdf)
 		   endif		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
-	
-!===========================================
+	 enddo
 
- enddo
-
-!????????????????????????????????????????????!********************************************************
+!********************************************************
 	      ! Diagonal Preconditioner
 !********************************************************
 	    effd = mu*eft0*alpha

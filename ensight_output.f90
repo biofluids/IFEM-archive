@@ -17,7 +17,9 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   character(len=13) :: vel_name
   character(len=13) :: FSI_name
   character(len=16) :: stress
-  character(len=16) :: strain     
+  character(len=16) :: strain 
+  character(len=16) :: indicator
+  character(len=16) :: normal    
 
   integer :: ts 
   integer :: file_start_no, file_incre
@@ -46,15 +48,19 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   fsi_name  = 'fem.fsi******'
   stress    = 'fem.stress******'
   strain    = 'fem.strain******'
+  indicator = 'fem.ind******'
+  normal    = 'fem.nor******'
  
  5002 format(A16, 1x, I2, 1x, A8, 1x, A)
  5100 format(A9, 21x, i5)
  5101 format(A16, 14x, i5)
  5102 format(A22, 8x, i5)
  5103 format(A19, 11x, i5)
+ 5999 format(A16, 1x, I2, 1x, A9, 1x, A)
+ 5998 format(A16, 1x, I2, 1x, A6, 1x, A)
 
-      write(20, 5000) 'model:', ts, file_name, 'change_coords_only'
- 5000 format(A6, 14x, i5, 5x, A13, 1x, A18) 
+      write(20, 5000) 'model:', ts, file_name
+ 5000 format(A6, 14x, i5, 5x, A13) 
 
   write(20, *) 
 
@@ -62,6 +68,8 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   write(20, 5002) 'scalar per node:', ts, 'pressure', pre_name 
   write(20, 5002) 'vector per node:', ts, 'velocity', vel_name
   write(20, 5002) 'vector per node:', ts, 'forceFSI', FSI_name
+  write(20, 5999) 'scalar per node:', ts, 'indicator', indicator
+  write(20, 5998) 'vector per node:', ts, 'normal', normal
 
   write(20, 5003) ts, stress
   write(20, 5004) ts, strain 
@@ -98,14 +106,16 @@ end subroutine zfem_ensCase
 ! This subroutine generates Ensight6 geometry file
 ! Lucy Zhang
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
+subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter)
   use solid_variables
   use fluid_variables
+  use interface_variables
   implicit none
 
   integer :: klok
   integer :: ien(nen,ne)
   real(8)  :: xn(nsd,nn)
+  real(8) :: x_inter(nsd,maxmatrix)
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr  !...node position current
 
@@ -158,7 +168,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   write(i_file_unit, *) 'node id given'
   write(i_file_unit, *) 'element id given'
   write(i_file_unit, *) 'coordinates'
-  write(i_file_unit, '(I8)') nn_solid + nn
+  write(i_file_unit, '(I8)') nn_solid + nn +nn_inter
   
 !--> node id, x, y, x
 !-->
@@ -177,7 +187,11 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
      if (nsd==3) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),xn(3,i)
      if (nsd==2) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),0.0
   enddo
-
+ !...write interface coordinates
+  do i=1,nn_inter
+     if (nsd==3) write(i_file_unit,101) i+nn_solid+nn,x_inter(1,i),x_inter(2,i),x_inter(3,i)
+     if (nsd==2) write(i_file_unit,101) i+nn_solid+nn,x_inter(1,i),x_inter(2,i),0.0
+  end do
  !...write structure part - connectivity
   write(i_file_unit, *) 'part 1'
   write(i_file_unit, *) ' Structure Model'
@@ -256,6 +270,16 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 		 enddo
 	  end select
   endif
+
+!...write interface part
+  write(i_file_unit,*) 'part 3'
+  write(i_file_unit,*) ' Interface Model'
+
+  write(i_file_unit,'(a7)') '  point'
+  write(i_file_unit,'(i8)') nn_inter
+  do i=1,nn_inter
+     write(i_file_unit,'(2i8)')i,i+nn_solid+nn
+  end do
 
   close(i_file_unit)
 
@@ -461,5 +485,78 @@ endif
   return
 end subroutine zfem_ensFluid
 
+subroutine zfem_ensInter(I_fluid,norm_fluid,norm_inter,Ic_inter,klok)
+  use solid_variables
+  use fluid_variables,only:nn,nsd
+  use interface_variables
+  use run_variables, only: its
+  
+  real(8) I_fluid(nn)
+  real(8) norm_fluid(nsd,nn)
+  real(8) norm_inter(nsd,maxmatrix)
+  real(8) tmp_solid(nn_solid)
+  real(8) tmp_inter(nn_inter)
+  real(8) Ic_inter
+  integer klok 
+  integer in,i
+  character(len=7)  :: fileroot
+  character(len=14) :: name_file1
+  character(len=14) :: name_file2
+  integer ifileunit
+
+  ifileunit = 17  
+  tmp_solid(:) = 0.0 
+  tmp_inter(:) = Ic_inter
+     
+  if (klok .eq. 0) then
+     write(fileroot, '(a6)') '000000'
+  elseif (klok .lt. 10) then
+     write(fileroot, '(a5,i1)') '00000',klok
+  elseif (klok .lt. 100) then
+     write(fileroot, '(a4,i2)') '0000' ,klok
+  elseif (klok .lt. 1000) then
+     write(fileroot, '(a3,i3)') '000'  ,klok
+  elseif (klok .lt. 10000) then  
+     write(fileroot, '(a2,i4)') '00'   ,klok
+  elseif (klok .lt. 100000) then
+     write(fileroot, '(a1,i5)') '0'   ,klok
+  elseif (klok .lt. 1000000) then
+     write(fileroot, '(i6)')   ''  ,klok
+  else
+     write(0,*) 'klok >= 1000000: modify subroutine createfileroot'
+     call exit(1)
+  endif
+  
+  write(name_file1,'(A8,  A6)')  'fem.ind', fileroot
+  write(name_file2,'(A8,  A6)')  'fem.nor', fileroot
+     
+  if (nsd==3) then
+     write(*,*)'writing...',name_file2
+     open(ifileunit,file=name_file2,form='formatted')
+     write(ifileunit, '(A)')  'stru,fluid and interface: normal vector'
+     write(ifileunit,110) (tmp_solid(in), 0.0, 0.0, in=1,nn_solid), &
+           (norm_fluid(1,in),norm_fluid(2,in),norm_fluid(3,in),in=1,nn), &
+           (norm_inter(1,in),norm_inter(2,in),norm_inter(3,in),in=1,nn_inter)
+     close(ifileunit)
+  else if (nsd == 2) then
+     write(*,*)'writing...',name_file2
+     open(ifileunit,file=name_file2,form='formatted')
+     write(ifileunit, '(A)')  'stru,fluid and interface: normal vector'
+     write(ifileunit,110) (tmp_solid(in), 0.0, 0.0, in=1,nn_solid), &
+           (norm_fluid(1,in),norm_fluid(2,in),0.0,in=1,nn), &
+           (norm_inter(1,in),norm_inter(2,in),0.0,in=1,nn_inter)
+     close(ifileunit)
+  end if
+
+
+     write(*,*) 'writing...',name_file1
+     open(ifileunit,file=name_file1,form='formatted')
+     write(ifileunit, '(A)') 'stru,fluid and interface: indicator'
+     write(ifileunit, 110) (tmp_solid(in),in=1,nn_solid), &
+                (I_fluid(in),in=1,nn),(tmp_inter(in),in=1,nn_inter)
+     close(ifileunit)
+110  format(6e12.5)
+
+end subroutine zfem_ensInter
 
 end module ensight_output

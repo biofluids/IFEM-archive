@@ -14,6 +14,7 @@ program main
  !...read configuration files
   call parseinput_fluid  !...reading input_fluid.in
   call parseinput_solid  !...reading input_solid.in
+  call parseinput_interface !...reading input_inter.in
 
   call nondimension
  !...echos input data
