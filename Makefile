@@ -1,10 +1,10 @@
 .SUFFIXES: .f90
-LIBS    = /usr/lib64/liblapack.so \
-          /usr/lib64/libblas.so
 
+LIBS =/usr/lib64/liblapack.so \
+      /usr/lib64/libblas.so
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o delta_nonuniform.o \
-ensight_output.o form.o block.o blockgmres.o gmres.o meshgen_solid.o \
+ensight_output.o form.o blockdiagstable.o blockgmresnew.o gmresnew.o meshgen_solid.o \
 meshgen_fluid.o read.o parseinput.o correct.o  echoinput.o equal.o error.o \
 facemap.o gaussj.o gjinv.o hg.o hypo.o initialize.o length.o main.o \
 nondimension.o norm.o quad3d4n.o quad3d8n.o quad2d3n.o quad2d4n.o \
@@ -16,12 +16,11 @@ set.o shape.o solid_solver.o solid_update.o update.o vol.o \
 data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
 migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o volcorr.o \
 cg.o \
-inflownode.o edgeele.o bcequation_node.o bc_shape2d_node.o \
-nature_pre.o
+givens.o
 
 
 IFEM: $(OBJ)
-	ifort -O0 -o  IFEM $(OBJ) $(LIBS)
+	ifort -g -O0 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
 	ifort -c -g $<
 clean:

@@ -1,3 +1,6 @@
 .git*            export-ignore
 
+*.dsp           -crlf
+*.dsw           -crlf
 *.sh             crlf=input
+script_Deformable-ARES  crlf=input

@@ -269,11 +269,7 @@ subroutine parseinput_fluid
         if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
      enddo
   enddo
-! Read in the nature boundary condition
-  call Read_Int(edge_inflow,1)
-  call Read_Int(ne_inflow,1)
-  call Read_Real(pin,1)
-!======================================
+
   CALL Read_Real(landa_over_mu,1)
   CALL Read_Real(ic,ndf)
   CALL Read_Real(gravity,nsd)

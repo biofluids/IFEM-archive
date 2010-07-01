@@ -23,13 +23,12 @@ subroutine hypo
 ! Definition of variables
   integer :: klok,j
 
-  integer infdomain(nn_solid)  !define influence domain matrix
+  integer infdomain(nn_solid)
   real(8) mass_center(2)
-
-!============================
-! Variables for boudary equations
-  integer bc4el(ne_inflow) ! 10 is the number of nodes on edge 4
-  real(8) res_bc(nsd,nn) ! residual comming from nature B.C. integration 
+  integer time_arrary_0(8)
+  integer time_arrary_1(8)
+  real(8) start_time
+  real(8) end_time
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -41,10 +40,10 @@ subroutine hypo
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
 !=============================
-! call the subroutine to set up ginflow and linflow
-if (edge_inflow .ne. 0) then
-call edgeele(edge_inflow,rng,neface,ne,bc4el,ne_inflow)
-end if
+! define the influence domain matrix
+ ! integer infdomain(nn_solid)
+  
+  
   if (restart == 0) then
      include 'hypo_write_output.fi'
   else
@@ -96,6 +95,7 @@ if (ndelta==1) then
 
 !=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
+f_fluids(:,:)=0.0d0
      include "hypo_fluid_solver.fi"
 
 !=================================================================
@@ -124,7 +124,14 @@ else if (ndelta==2) then
 
 !=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
+        call date_and_time(values=time_arrary_0)
+
      include "hypo_fluid_solver.fi"
+
+        call date_and_time(values=time_arrary_1)
+        start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
+        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
+        write(*,*) 'Time for fluid solver', end_time-start_time
 
 !=================================================================
 ! Interpolation fluid velocity -> immersed material points
@@ -136,9 +143,9 @@ else if (ndelta==2) then
 end if
 
 !=================================================================
-!UPDATE solid domain
-    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-                    solid_vel,solid_prevel,solid_accel)
+!uPDAte solid domain
+!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
+!                     solid_vel,solid_prevel,solid_accel)
 
     open(unit=8406, file='masscenter.txt', status='unknown')
 
@@ -146,6 +153,24 @@ end if
     mass_center(2)=sum(solid_coor_curr(2,:))/nn_solid
     write(8406,*)  mass_center(:)
 !===========================================================
+! Giving solid coor
+!solid_coor_curr(1,1)=0.35d0
+!solid_coor_curr(2,1)=0.3d0
+
+!solid_coor_curr(1,2)=0.55d0
+!solid_coor_curr(2,2)=0.3d0
+
+!solid_coor_curr(1,3)=0.35d0
+!solid_coor_curr(2,3)=0.425d0
+
+!solid_coor_curr(1,4)=0.55d0
+!solid_coor_curr(2,4)=0.425d0
+
+!solid_coor_curr(1,5)=0.35d0
+!solid_coor_curr(2,5)=0.55d0
+
+!solid_coor_curr(1,6)=0.55d0
+!solid_coor_curr(2,6)=0.55d0
 !=================================================================
 ! Volume correction  
 !   if (mod(its,10) .eq. 9) then
@@ -157,7 +182,7 @@ end if
 !=================================================================
 ! Write output file every ntsbout steps
      include "hypo_write_output.fi"
-!===========================================
+
   enddo time_loop
 
 

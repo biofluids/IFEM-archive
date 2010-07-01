@@ -11,7 +11,7 @@
 	implicit none
 
 	real* 8 x(nsd,nn)
-	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne)
+	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),dd(ndf,nn)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	integer id(ndf,nn),ien(nen,ne)
 	real* 8 h(inner+1,inner)
@@ -50,7 +50,7 @@
 
 	do iqc=1,ndf*nn
 	   v(iqc,1) = bg(iqc)
-	   v(iqc,1) = w(iqc) * v(iqc,1)
+	  ! v(iqc,1) = w(iqc) * v(iqc,1)
 	enddo
 	call getnorm(v(1,1),v(1,1),ndf*nn,rnorm0)
 	rnorm0 = sqrt(rnorm0)
@@ -86,13 +86,16 @@
 	   call equal(zg,vloc,ndf*nn)
 
        avloc(1:ndf,1:nn) = 0.0d0
-	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext)
-
+       dd(:,:)=d(:,:)+eps*vloc(:,:)
+!	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext)
+           call blockgmresnew(x,dd,dold,avloc,hg,ien,fext)
+            
 	   call equal(avloc,avg,ndf*nn)
+           avg(:)=(-avg(:)+bg(:))/eps
 	   call setid(avg,id,ndf)
 
 	   do iqc=1,ndf*nn
-	      avg(iqc) = w(iqc) * avg(iqc)
+	   !   avg(iqc) = w(iqc) * avg(iqc)
 	      v(iqc,j+1) = avg(iqc)
 	   enddo
 	   do i=1,j
