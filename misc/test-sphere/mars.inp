@@ -1,0 +1,72 @@
+Impact bullet slab
+//----------------------------------------------------
+ControlParameters {
+  Units CGS 
+//  TerminationTime 100.0 ms
+//  MaximumTimeStep 0.0003 ms
+//  TimeStepScalingFactor 0.8
+//  Monitor Frequency 1000 // print progress line every 10 steps
+//  Flush every 0.001 ms
+// GoI every 0.002 ms
+//  PlottingDefaults {
+//    X-DisplacementScalingFactor 1
+//    Y-DisplacementScalingFactor 1
+//    Z-DisplacementScalingFactor 1
+//  }
+//  WritePlotDataFile plot.dat Every 0.002 ms
+}
+Gravity 10.0 m/s2 Direction 0. 0. -1.
+//
+//----------------------------------------------------
+//
+Material CONC Elastic {
+   Density 2500.00 kg/m3
+   YoungModulus 30000.00 MPa
+   PoissonsRatio 0.2
+}
+//
+//----------------------------------------------------
+//
+HexSolidList BALL 8IP {
+  Material CONC
+  Color rust
+  ReadFile ballmesh.mrs
+  NodeList {
+    Select all
+    Set X-Velocity 0.0 m/s
+    Set Y-Velocity 0.0 m/s
+    Set Z-Velocity 0.0 m/s
+  }
+}
+//
+//----------------------------------------------------
+//   O U T P U T
+//----------------------------------------------------
+//
+TimeHistoryList Hist {
+  dt 0.01 ms
+  nd-BALL cl 0 cm 0 cm 0 cm vx
+  nd-BALL cl 0 cm 0 cm 0 cm cx D
+  nd-BALL cl 0 cm 0 cm 0 cm vy
+  nd-BALL cl 0 cm 0 cm 0 cm cy D
+  nd-BALL cl 0 cm 0 cm 0 cm vz
+  nd-BALL cl 0 cm 0 cm 0 cm cz D
+  hxL-BALL Volume
+  // Energy quantities
+  ke // kinetic energy
+  ie // elastic energy
+  eb // energy ballance
+  ew // esternal work
+  iw S -1 // internal work
+}
+//
+//----------------------------------------------------------------------
+//
+PlotList PLOT {
+  dt 10.0 ms
+  All
+  DeleteAllFiles
+}
+fdL Ball {
+}
+EOF

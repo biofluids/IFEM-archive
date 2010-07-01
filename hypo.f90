@@ -21,7 +21,7 @@ subroutine hypo
 
 !==============================	  
 ! Definition of variables
-  integer :: klok,j
+  integer :: klok,j,hh
 
   integer infdomain(nn_solid)  !define influence domain matrix
   real(8) mass_center(2)
@@ -41,6 +41,11 @@ subroutine hypo
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
 !=============================
+  open(100,file='avoc_gm',status='unknown')
+  open(102,file='p_fsolver',status='unknown')
+  open(119,file='p_inf_fsolver',status='unknown')
+  open(120,file='f_fluids_fsolver',status='unknown')
+  open(121,file='solid_force_fsi',status='unknown')
 ! call the subroutine to set up ginflow and linflow
 if (edge_inflow .ne. 0) then
 call edgeele(edge_inflow,rng,neface,ne,bc4el,ne_inflow)
@@ -86,7 +91,11 @@ if (ndelta==1) then
  write(*,*) 'starting solid solver'
     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
                      solid_pave,solid_stress,solid_strain,solid_force_FSI)
-
+  write(121,*)'its',its
+  do hh=1,nn_solid
+    write(121,*) 'solid_force_FSI',solid_force_FSI(:,hh)
+  end do
+  
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
 !   f^fsi(t)  ->  f(t)
@@ -160,6 +169,9 @@ end if
 !===========================================
   enddo time_loop
 
-
-
+  close(100)
+  close(102)
+  close(119)
+  close(120)
+  close(121)
 end subroutine hypo

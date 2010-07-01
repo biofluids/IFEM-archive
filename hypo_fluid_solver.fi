@@ -11,10 +11,18 @@
      do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
+        p_inf(:,:) =0.0d0
 
-
-         call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress)
-
+         call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,p_inf)
+!ll     write(102,*)'I am here'
+!ll     do lh=1,nn
+!ll       write(102,*)'node',lh,';p',p(:,lh)
+!ll     end do
+!ll     write(119,*) 'I am here'
+!ll     do lh=1,nn
+!ll       write(119,*) 'node',lh,';p_inf',p_inf(:,lh)
+!ll     end do
+       
 !===========================================================================
 if (edge_inflow .ne. 0) then
 ! Apply nature boundary condition
@@ -46,6 +54,20 @@ end if
          write(6,102) iit,res_l,del_l
          write(7,102) iit,res_l,del_l
       enddo
+      
+!L             write(102,*)'I am here'
+!L     do lh=1,nn
+!L       write(102,*)'node',lh,';p',p(:,lh)
+!L     end do
+!L     write(119,*) 'I am here'
+!L     do lh=1,nn
+!L       write(119,*) 'node',lh,';p_inf',p_inf(:,lh)
+!L     end do
+!L     write(120,*) 'I am here'
+!L         do lh=1,nn
+!L       write(120,*) 'node',lh,';f_fluids',f_fluids(:,lh)
+!L     end do
+
 
       write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1:nsd,:))
 

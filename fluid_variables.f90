@@ -22,7 +22,7 @@ module fluid_variables
   real(8) :: interface(1:nsdpad),gravity(1:nsdpad),delta(0:21)
   integer :: etype,inner,outer,iscaling,kinner,kouter
   logical :: hg_vol,static,taudt,stokes,steady,conserve
-  integer :: restart
+  integer :: restart,lh
   logical :: twod
   logical :: calcforce
   integer :: nn,ne,nq,nen,ndf,nsd,nrng,neface,nnface

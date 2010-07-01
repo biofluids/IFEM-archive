@@ -25,7 +25,7 @@
 	real* 8 eps, rnorm, rnorm0, order
 	real* 8 gam,hsave,ysave,tmpo
 	integer i,j,k,ij,jj,i1,j1,k1,l,iqc,igmres
-	real*8 fext(nsd,nn)
+	real*8 fext(nsd,nn),g
 
 	eps = 1.0e-12
 	assemble = .true.
@@ -87,6 +87,10 @@
 
        avloc(1:ndf,1:nn) = 0.0d0
 	   call blockgmres(x,d,dold,vloc,avloc,hg,ien,fext)
+!L           write(100,*) 'I am here'
+!L             do g=1,nn
+!L              write(100,*) 'node',g,';avloc',avloc(:,g)
+!L             end do
 
 	   call equal(avloc,avg,ndf*nn)
 	   call setid(avg,id,ndf)

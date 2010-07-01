@@ -9,7 +9,7 @@
     integer :: id(ndf,nn)  , kid(nsd,nn)   !...tells whether or not to update a value in the iteration  fluid / mesh
     real(8) :: d(ndf,nn),dold(ndf,nn)    !...unknown vector for current and previous time step
     real(8) :: dg(ndf,nn)  
-    real(8) :: p(ndf,nn)   
+    real(8) :: p(ndf,nn),p_inf(ndf,nn)   
     real(8) :: w(ndf,nn)   
     real(8) :: f_stress(nsd,nsd,nn)
     real(8),dimension(nquad,ne) :: jac 

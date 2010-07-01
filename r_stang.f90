@@ -77,7 +77,9 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !     isoparametric interpolation
         call r_element(rs)
 !     y-(r,s)
+!L        write(*,*)'in r_stang, before r_jacob,element',ine
         call r_jacob(y,xj,xji,det)
+!L        write(*,*)'in r_stang, after r_jacob,element',ine
 		
 !     x-(r,s)
         call r_jacob(x,toxj,toxji,todet)
@@ -119,7 +121,7 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !	  Calculate cauchy stress then transform to 1st PK stress
 		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
 !     correction for viscous fluid stress
-!        call r_spiola_viscous(xot,vel)  
+        call r_spiola_viscous(xot,vel)  
 !     assemble cauchy stress for output
         if (mod(its,ntsbout) == 0) then
 			cstr(1:nsd_solid*2,ine,iq) = cstr_element(1:nsd_solid*2)

@@ -7,7 +7,7 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
+subroutine block(xloc, dloc,doloc,p,q,hk,ien,f_fluids,rngface,f_stress,p_inf)
   use global_constants
   use run_variables
   use fluid_variables
@@ -16,7 +16,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
   integer ien(nen,ne)
   real* 8 xloc(nsd,nn)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)
-  real* 8 p(ndf,nn),q(ndf,nn),hk(ne)
+  real* 8 p(ndf,nn),q(ndf,nn),hk(ne),p_inf(ndf,nn)
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
@@ -317,6 +317,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 
 	 enddo ! end of qudrature pts loop
   enddo ! end of element loop
+  p_inf(1:nsd,1:nn)=p(1:nsd,1:nn)-f_fluids(1:nsd,1:nn)
+
  continue  
 continue
   return
