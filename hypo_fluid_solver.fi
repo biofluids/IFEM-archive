@@ -2,8 +2,9 @@
 !   FEM Navier Stokes fluid solver
 !     incompressible, implicit
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+	if (myid == 0) then
      write(*,*) "*** Solving Fluids: calculate fluid field ***"
-
+	end if
     !...store the variables from the previous time step,dold=d 
      dold = d
      call formid(id,rng,ien)
@@ -12,29 +13,49 @@
      do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
-         call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress)
+	p_local(:,:)=0.0d0
+	w_local(:,:)=0.0d0
+         call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,ne_intlocal,ien_intlocal,mdata,n_mdata)
+	
+	call communicate_res(global_com,nn_global_com,local_com,nn_local_com,p,ndf,nn)
+        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,w,ndf,nn)
+
+
+!===========================================================================
+if (edge_inflow .ne. 0) then
+! Apply nature boundary condition
+if (myid == 0) then
+write (*,*) 'Apply nature BC'
+end if
+        call nature_pre(x,d,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+        p(1,:) = p(1,:) + res_bc(1,:)
+end if
 
         !...apply boundary conditions, calculate residual with corrected BC
         !...i.e. where id=0 -> p=0
+ 
          call setid(p,id,ndf)
         !...calculate the normalized error, res_l
-         call getnorm(p,p,ndf*nn,res_l)
+         call getnorm_pa(p,ndf,nn,node_local,nn_local,res_l)
          res_l= sqrt(res_l)
-write(*,*) 'Norm', res_l
         !...calculate the increment(delta_d) for each degree of freedom, dg
          dg(:,:) = 0.0d0
-        !call gmres(x,d,dold,id,w,p,dg,hg,ien,    &
-        !        z,v,zg,avg,sm,vloc,avloc,h_gmres,y_gmres,cc,ss,f_fluids)
-	call gmres(x,d,dold,w,p,dg,hg,ien,f_fluids,id)
+        call gmres(x,d,dold,w,p,dg,hg,ien,f_fluids,id, &
+		   ne_intlocal,ien_intlocal,mdata,n_mdata,node_local,nn_local, &
+		   global_com,nn_global_com,local_com,nn_local_com) 	
         !...calculate the normalized increment, del_l
-         call getnorm(dg,dg,ndf*nn,del_l)
-         del_l = sqrt(del_l/nq)
+         call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
+         del_l = sqrt(del_l)
         !...update the calculated variables, d=d+dg
-         call update(p, d, dg, ndf)
+	        call mpi_barrier(mpi_comm_world,ierror)
 
+         call update(p, d, dg, ndf)
+	if (myid == 0 ) then
         !...output the errors in each iteration
          write(6,102) iit,res_l,del_l
          write(7,102) iit,res_l,del_l
+	end if
       enddo
-
-      write(*,'("  maximum fluid velocity (x dir) = ",f8.5)') maxval(d(1:nsd,:))
+	if (myid ==0) then
+      write(*,'("  maximum fluid velocity (x dir) = ",f13.5)') maxval(d(1:nsd,:))
+	end if

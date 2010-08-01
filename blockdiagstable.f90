@@ -7,10 +7,14 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress)
+subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,&
+		ne_local,ien_local,mdata,n_mdata)
   use global_constants
   use run_variables
   use fluid_variables
+  use solid_variables, only: nn_solid
+  use r_common, only: density_solid, vis_solid
+  use mpi_variables
   implicit none
 
   integer ien(nen,ne)
@@ -42,21 +46,52 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress)
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+!======================================
+! Defined by Chu
   real* 8 q_d(ndf,nen)
   real* 8 q_res_c(nen)
   real* 8 q_p(ndf,nn)
   real* 8 q_res_a(nsd,nen)
   real* 8 diag(12)
+!======================================
+! Define by Xingshi
+! MPI varialbes & implicit FSI force
+  integer mdata(nn_solid)
+  integer n_mdata
+  real(8) fdensity(nn)
+  real(8) local_den(nen)
+  real(8) fvis(ne)
+!======================================
+! varibles for mpi implementation
+        integer ne_local ! # of element on each processor
+        integer ien_local(ne_local) ! subregion-->whole region element index
+        integer ie_local ! loop parameter
 
+!--------------------------------------------------
   q_res_a(1:nsd,1:nen) = 0
   q_p(1:ndf,1:nn) = 0
   q_d(1:ndf,1:nen) = 1 !set each ndf for each node as 1
   q_res_c(1:nen) = 0
-
+!---------------------------------------------------
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
+
+!--------------------------------------------------
+! Set density distribution
+    fdensity(:)=0.0
+    fvis(:)=vis_liq
+  do ie=1,n_mdata
+     do inl=1,nen
+     fdensity(ien(inl,mdata(ie)))=density_solid
+     enddo
+!     fdensity(mdata(ie))=density_solid
+     fvis(mdata(ie))=vis_solid
+  enddo
+    fdensity(:)=fdensity(:)+den_liq
+
+
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
@@ -69,7 +104,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 ! 2 do the subscribition after the elements loop
 ! Xingshi 09/15/2008
 !===================================================
-  do ie=1,ne		! loop over elements
+  do ie_local=1,ne_local		! loop over subregion elements
+        ie=ien_local(ie_local)
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -79,6 +115,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
 		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
+!-----------------------------------------------------------------------------
+               local_den(inl)=fdensity(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -120,14 +158,15 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
 
-
+        ro=0.0
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
 		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
+!----------------------------------------------------------------------------------------                   
+		   ro=ro+sh(0,inl)*local_den(inl)
 	    enddo
-
 !... define u=v1, v=v2, w=v3, pp=p
 		if (nsd==2) then
 		    u = drs(udf)
@@ -147,8 +186,7 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	    endif
 
 !....  calculate liquid constant and gravity
-	    mu = vis_liq  ! liquid viscosity
-	    ro = den_liq  ! liquid density
+            mu = fvis(ie)  ! liquid viscosity
 		g  = gravity  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
@@ -319,7 +357,6 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
   enddo ! end of element loop
 !write(*,*)q_p(:,:)
 
- continue  
 continue
 !write(*,*)q_p(:,:)
 !write(*,*)d(:,:)

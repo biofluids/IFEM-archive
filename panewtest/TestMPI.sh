@@ -15,7 +15,7 @@ fi
 echo 'Starting job'
 date
 
-/usr/local/mpich/latest/ch_p4/bin/mpirun -machinefile $HOSTFILE -np $SLURM_NPROCS /verytmp/xwang/IFEM.pa.new/panewtest/IFEM
+/usr/local/mpich/latest/ch_p4/bin/mpirun -machinefile $HOSTFILE -np $SLURM_NPROCS /borg/xwang/IFEM.GMRES.GIVENS.DIAG.pa/panewtest/IFEM
 
 cat /tmp/hosts.$SLURM_JOB_ID
 rm /tmp/hosts.$SLURM_JOB_ID
