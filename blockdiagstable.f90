@@ -8,7 +8,7 @@
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,&
-		ne_local,ien_local,mdata,n_mdata)
+		ne_local,ien_local,mdata,n_mdata, node_local,nn_local)
   use global_constants
   use run_variables
   use fluid_variables
@@ -46,6 +46,8 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+  integer nn_local
+  integer node_local(nn_local)
 !======================================
 ! Defined by Chu
   real* 8 q_d(ndf,nen)
@@ -66,7 +68,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
         integer ne_local ! # of element on each processor
         integer ien_local(ne_local) ! subregion-->whole region element index
         integer ie_local ! loop parameter
-
+	integer icount
 !--------------------------------------------------
   q_res_a(1:nsd,1:nen) = 0
   q_p(1:ndf,1:nn) = 0
@@ -94,7 +96,10 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
 
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+do icount=1, nn_local
+	node=node_local(icount)
+p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
+end do
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,

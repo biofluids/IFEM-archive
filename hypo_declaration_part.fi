@@ -28,3 +28,10 @@ integer :: nn_global_com
 integer :: nn_local_com
 integer , dimension(:),allocatable :: global_com
 integer , dimension(:),allocatable :: local_com
+
+integer :: nei_max
+integer , dimension(:,:),allocatable :: local_nei
+integer , dimension(:,:),allocatable :: global_nei
+integer :: ad_length
+integer , dimension(:,:),allocatable :: send_address
+

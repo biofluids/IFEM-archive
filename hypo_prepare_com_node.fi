@@ -23,6 +23,11 @@ nn_global_com=count
 
 allocate(global_com(nn_global_com))
 
+!=======================================
+! Find nei_max : max # of proc's sharing one node
+nei_max = maxval(node_test_g(:))
+if (myid == 0) write(*,*) 'nei_max', nei_max
+
 
 count=0
 do icount=1,nn
@@ -69,19 +74,50 @@ end do
 ! local index in the communication region on each processor
 
 
+!==========================================
+! Give the dimenstion of local_nei matrix
+allocate(local_nei(nn_local_com,nei_max+1))
+allocate(global_nei(nn_global_com,nei_max))
+local_nei(:,:)=-999
+
+call setnei(global_com,nn_global_com,local_com,nn_local_com, &
+            local_nei,nei_max,global_nei,ad_length)
+
+allocate(send_address(ad_length,2))
+kcount=0
+do icount=1,nn_local_com
+	do jcount=2,nei_max+1
+		if ((local_nei(icount,jcount) .ne. myid) .and. (local_nei(icount,jcount) .ne. -999 )) then
+		kcount=kcount+1
+		send_address(kcount,1)=local_nei(icount,jcount)
+		send_address(kcount,2)=local_nei(icount,1)
+		end if
+	end do
+end do
+
+!do icount=1,nn
+!p(:,icount)=1.0d0*icount
+!end do
+
+!write(*,*) 'call test communicate_res_ad', myid
+!call mpi_barrier(mpi_comm_world,ierror)
+
+!call communicate_res_ad(p,ndf,nn,send_address,ad_length)
 
 if (myid ==0) then
  open(unit=8411, file='global_com', status='unknown')
 do icount=1,nn_global_com
-write(8411,*) global_com(icount)
+write(8411,*) global_com(icount), global_nei(icount,:)
 end do
 end if
 
 
 if (myid ==0) then
- open(unit=8413, file='local_com', status='unknown')
+ open(unit=8413, file='address', status='unknown')
 
-do icount=1,nn_local_com
-write(8413,*) local_com(icount), myid
+do icount=1,ad_length
+write(8413,*) send_address(icount,:), myid
 end do
 end if
+
+

@@ -27,11 +27,11 @@ subroutine hypo
   integer infdomain(nn_solid)
   real(8) mass_center(2)
 ! Variables for fixed solid points on fluid boundary
-!  integer :: node_sfcon, node_sfcon1  
-!  integer sfcon_1(201) 
-!  integer sfcon(402)
-!  real(8) sfxyz(nsd,402)
-!  integer inode_sf
+  integer :: node_sfcon, node_sfcon1  
+  integer sfcon_1(125) 
+  integer sfcon(250)
+  real(8) sfxyz(nsd,250)
+  integer inode_sf
 ! Variables for different fluid density using by implicit form  
   integer mdata(nn_solid)
   integer n_mdata
@@ -47,6 +47,7 @@ subroutine hypo
   integer bc4el(ne_inflow) ! 10 is the number of nodes on edge 4
   real(8) res_bc(nsd,nn) ! residual comming from nature B.C. integration 
   real(8) time
+  real(8) time_com
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -80,6 +81,12 @@ subroutine hypo
 if (edge_inflow .ne. 0) then
 call edgeele(edge_inflow,rng,neface,ne,bc4el,ne_inflow)
 end if
+
+!===================================
+! save the orignal position of solid nodes at fluid boundary
+  do inode_sf=1,node_sfcon
+     sfxyz(1:nsd,inode_sf)=solid_coor_init(1:nsd,sfcon(inode_sf))
+  end do
 
   if (restart == 0) then
 	if (myid == 0) then
@@ -172,21 +179,15 @@ else if (ndelta==2) then
 ! Solid solver
 !if (myid ==0) then
 ! write(*,*) 'starting solid solver'
-! write(*,*) 'nen', nen
-! write(*,*) 'ien_local', ien_local(:)
-! write(*,*) 'node_local', node_local(:)
-! write(*,*) 'mien', ien(1,:)
-! write(*,*) 'n_mdata', n_mdata
-! write(*,*) 'mdata', mdata(:)
 !end if
     call solid_solver(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,  &
                      solid_pave,solid_stress,solid_strain,solid_force_FSI,mtype)
 
 !=================================================================
 ! Set the FSI force for the solid nodes at fluid boundary to be zero
- !do inode_sf=1,node_sfcon
- !  solid_force_FSI(1:nsd,sfcon(inode_sf))=0.0
- !end do
+ do inode_sf=1,node_sfcon
+   solid_force_FSI(1:nsd,sfcon(inode_sf))=0.0
+ end do
 
 
 !=================================================================
@@ -194,7 +195,6 @@ else if (ndelta==2) then
 !   f^fsi(t)  ->  f(t)
 if (myid ==0) then
  write(*,*) 'calculating delta'
-! write(*,*) 'solid fsi force', solid_force_FSI(1,:)
 end if
      call data_exchange_FEM(solid_force_FSI,nn_solid,f_fluids,nn,dvolume,nsd,  &
                          2,ne,nen,ne_solid,nen_solid,&
@@ -202,7 +202,6 @@ end if
 !=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
       call mpi_barrier(mpi_comm_world,ierror)
-f_fluids(:,:)=0.0d0
 time=mpi_wtime()
      include "hypo_fluid_solver.fi"
 time=mpi_wtime()-time
@@ -219,14 +218,18 @@ end if
 
 !=================================================================
 !uPDAte solid domain
-    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-                     solid_vel,solid_prevel,solid_accel)
+!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
+!                     solid_vel,solid_prevel,solid_accel)
+
+	include "solid_update_new.fi"
+
+
 
 !-----------------------------------------------------------------
 ! Set the solid nodes at the fluid boundary at their original position
-!  do inode_sf=1,node_sfcon
-!     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
-!  end do
+  do inode_sf=1,node_sfcon
+     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
+  end do
 !    open(unit=8406, file='masscenter.txt', status='unknown')
 
 !    mass_center(1)=sum(solid_coor_curr(1,:))/nn_solid

@@ -7,7 +7,7 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,mdata,n_mdata)
+subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,mdata,n_mdata,node_local,nn_local)
   use global_constants
   use run_variables
   use fluid_variables
@@ -43,7 +43,8 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
-
+  integer nn_local
+  integer node_local(nn_local)
 !-------------------------------------------
   integer mdata(nn_solid)
   integer n_mdata
@@ -56,7 +57,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   integer ne_local ! # of element on each processor
   integer ien_local(ne_local) ! subregion-->wholeregion element index
   integer ie_local ! loop parameter
-
+  integer icount
 !---------------------------------------------
 ! corresponding changes in block.f90
 fdensity(:)=0.0
@@ -77,7 +78,11 @@ fvis(:)=vis_liq
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+do icount=1, nn_local
+        node=node_local(icount)
+p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
+end do
+
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,

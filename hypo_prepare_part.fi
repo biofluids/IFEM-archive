@@ -31,8 +31,8 @@ do count = 1,nn
 end do
 
 	allocate(node_local(nn_local))
-	allocate(p_local(ndf,nn_local))
-	allocate(w_local(ndf,nn_local))
+	allocate(p_local(ndf,nn))
+	allocate(w_local(ndf,nn))
 	allocate(dg_local(ndf,nn_local))
 	allocate(dg_tmp(ndf,nn))
 nn_local=0

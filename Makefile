@@ -20,7 +20,8 @@ cg.o mergefinf.o readpart.o setnqloc.o search_inf_pa.o getinf_el_3d_pa.o \
 edgeele.o nature_pre.o \
 givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
-blockdiagstable.o gmresnew.o blockgmresnew.o
+blockdiagstable.o gmresnew.o blockgmresnew.o \
+setnei.o communicate_res_nei.o communicate_res_ad.o setid_pa.o
 IFEM: $(OBJ)
 	mpiifort -g -O0 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
