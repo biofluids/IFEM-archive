@@ -14,3 +14,6 @@
   integer :: error_id,i
   integer,dimension(1:ne_solid) :: mtype ! solid material type index
   integer,allocatable :: mtype1(:)
+  real(8) x_solidtmp1(nsd_solid,nn_solid)
+  real(8) x_solidtmp2(nsd_solid,nn_solid)
+

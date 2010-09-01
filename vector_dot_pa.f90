@@ -25,8 +25,8 @@ do i=1,nn_local
 		tmp=tmp+x(j,node)*y(j,node)
 	end do
 end do
-
-           call mpi_barrier(mpi_comm_world,ierror)
-           call mpi_reduce(tmp,z,1,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror) 
-           call mpi_bcast(z,1,mpi_double_precision,0,mpi_comm_world,ierror)
+	   z=tmp
+!           call mpi_barrier(mpi_comm_world,ierror)
+!           call mpi_reduce(tmp,z,1,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror) 
+!           call mpi_bcast(z,1,mpi_double_precision,0,mpi_comm_world,ierror)
 end subroutine vector_dot_pa

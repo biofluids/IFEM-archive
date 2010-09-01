@@ -48,6 +48,13 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
   integer local_com(nn_local_com)  ! local index in the communication region on each processor
   integer flag
   real(8) dg_sent(ndf*nn)
+  real(8) space1(inner)
+  real(8) space2(inner)
+        integer time_arrary_0(8)
+        integer time_arrary_1(8)
+        real(8) start_time
+        real(8) end_time
+
 !---------------------------------------------
 
 
@@ -142,7 +149,13 @@ vloc(:,:)=vloc(:,:)+d(:,:)
 !----------------------------------------------------------------------------------------------
 ! ???????????????????????????????????????????????????????????
 		av_tmp(:,:) = 0.0d0
-		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,mdata,n_mdata)
+
+
+		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,mdata,n_mdata,node_local,nn_local)
+
+
+
+
                 call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
 !           call mpi_barrier(mpi_comm_world,ierror)
 !           call mpi_reduce(av_tmp(1,1),avloc(1),ndf*nn,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
@@ -174,11 +187,22 @@ avloc(:)=0.0d0
 !end if
 
 		call setid(avloc,id,ndf)
-
+                space1(:)=0.0d0
+                space2(:)=0.0d0
+end_time=mpi_wtime()
 	      do i=1,j
-		call vector_dot_pa(avloc,Vm(:,i),ndf,nn,nn_local,node_local,Hm(i,j))
+		call vector_dot_pa(avloc,Vm(:,i),ndf,nn,nn_local,node_local,space1(i))
 		! Do the vector product of v_i * v_i set it to be h_i,j
 	      end do  ! construct AVj and hi,j
+
+                call mpi_barrier(mpi_comm_world,ierror)
+                call mpi_reduce(space1(1),space2(1),j,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
+                call mpi_bcast(space2(1),j,mpi_double_precision,0,mpi_comm_world,ierror)
+end_time=mpi_wtime()-end_time
+if (myid == 0) write(*,*) 'Time for get one hm vector', end_time
+
+                Hm(1:j,j)=space2(1:j)
+
 	      do icount = 1, nn_local
 		node=node_local(icount)
 		do jcount=1,ndf
@@ -209,6 +233,8 @@ avloc(:)=0.0d0
  			Vm(kcount,j+1)=Vm(kcount,j+1)/Hm(j+1,j)
 		end do
 	      end do
+
+
 	  end do  ! end inner loop
 
 !if (myid == 1) write(*,*) 'Hm', Hm(:,:)
@@ -249,7 +275,7 @@ avloc(:)=0.0d0
 	vloc(:,:) = vloc(:,:)+d(:,:)
 
 	av_tmp(:,:) = 0.0d0
-	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,mdata,n_mdata)
+	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,mdata,n_mdata,node_local,nn_local)
         call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
 avloc(:)=0.0d0
        call equal_pa(av_tmp,avloc,ndf,nn,node_local,nn_local)
