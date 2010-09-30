@@ -4,7 +4,7 @@
 !!!!get the correction of Ig for fluid nodes!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine correct_Ip(xp,xg,Ip,Ig,hg,I_c,infdomain_cI,corr_Ip)
+subroutine correct_Ip(xp,xg,Ip,Ig,hg,I_c,infdomain_cI,corr_Ip,flag)
 
   use interface_variables
   use fluid_variables, only:nsd,ne,nn
@@ -31,18 +31,30 @@ subroutine correct_Ip(xp,xg,Ip,Ig,hg,I_c,infdomain_cI,corr_Ip)
   real(8) Sp
   integer IPIV(nn_inter)
   integer INFO
+  integer flag
+  real(8) support
   A(:,:) = 0.0
-  if (I_c.lt.1.0e-6) then
+  if (I_c.lt.-1.0e2) then
+     I_c=0.0
      do i=1,nn_inter
 	I_c=I_c+Ip(i)
      end do
      I_c=I_c/nn_inter
-  end if 
+  end if
+!I_c=0.0
+write(*,*)'Ic=',I_c
+!		write(*,*)'err_regen=',err
+!I_c=0.44842005
 ! if Ic=0.0, then calculate the initial Ic
 ! Ic is a constant over time
+  if(flag==1)then
+    support=1.0
+  else if(flag==2) then
+    support=1.0
+  end if
      
   do i=1,nn_inter
-     hs=hg(infdomain_cI(i))
+     hs=hg(infdomain_cI(i))/support
      do j=1,nn_inter
 	dx(:)=abs(xp(:,i)-xp(:,j))
 	call B_Spline(dx,hs,nsd,Sp)
@@ -55,13 +67,13 @@ subroutine correct_Ip(xp,xg,Ip,Ig,hg,I_c,infdomain_cI,corr_Ip)
   end do ! construct B matrix
 
   call DGESV(nn_inter,1,A,nn_inter,IPIV,B,nn_inter,INFO)
-
+write(*,*)'INFO=',INFO
   corr_Ip(1:nn_inter) = B(1:nn_inter)
 
   do i=1,nn
      Ig_n = 0.0
      do j=1,nn_inter
-	hs=hg(infdomain_cI(j))
+	hs=hg(infdomain_cI(j))/support
 	dx(:)=abs(xg(:,i)-xp(:,j))
 	call B_Spline(dx,hs,nsd,Sp)
 	Ig_n=Ig_n+B(j)*Sp
@@ -69,8 +81,6 @@ subroutine correct_Ip(xp,xg,Ip,Ig,hg,I_c,infdomain_cI,corr_Ip)
      Ig(i)=Ig(i)+Ig_n
   end do
 
-write(*,*)'corr_Ip=',corr_Ip(1:nn_inter)
-stop
 
 end subroutine correct_Ip
 

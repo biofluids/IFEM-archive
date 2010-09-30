@@ -1,31 +1,32 @@
 
 
-subroutine gmres_Laplace(x,d,w,bg,dg,hg,ien,inter_ele,ne_inter,rng)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
+subroutine gmres_Laplace(x,d,w,bg,dg,ien,inter_ele,ne_inter,rng,ien_center)
+	use fluid_variables, only: nsd,inner,outer,nen,ne,neface
+	use centermesh_variables
 	use interface_variables
 	implicit none
 
-	real* 8 x(nsd,nn)
-	real* 8 d(nn),hg(ne)
-	real* 8 bg(nn), dg(nn), w(nn)
+	real* 8 x(nsd,nn_center)
+	real* 8 d(nn_center)
+	real* 8 bg(nn_center), dg(nn_center), w(nn_center)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
-	real* 8 Vm(nn, inner+1) ! Krylov space matrix
-	integer rng(neface,ne),ien(nen,ne)
+	real* 8 Vm(nn_center, inner+1) ! Krylov space matrix
+	integer rng(neface,ne),ien(nen,ne),ien_center(nen_center,ne_center)
 	integer ne_inter
-	integer inter_ele(nn)
+	integer inter_ele(ne)
 	real* 8 flag
 
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
-	real* 8 x0(nn)
+	real* 8 x0(nn_center)
 	real* 8 beta(inner+1)
 	real* 8 eps
-	real* 8 r0(nn)
+	real* 8 r0(nn_center)
 	real* 8 rnorm, rnorm0,err
-        real* 8 dv(nn)
-	real* 8 Vy(nn)
-        real* 8 avloc(nn)
-	real* 8 temp(nn)
+        real* 8 dv(nn_center)
+	real* 8 Vy(nn_center)
+        real* 8 avloc(nn_center)
+	real* 8 temp(nn_center)
 	character(1) TRAN
 	real* 8 workls(2*inner)
 
@@ -38,15 +39,15 @@ subroutine gmres_Laplace(x,d,w,bg,dg,hg,ien,inter_ele,ne_inter,rng)
 	TRAN = 'N'
 	avloc(:) = 0
 !	w(:) = 1
-        call getnorm(r0,r0,nn,rnorm0)
+        call getnorm(r0,r0,nn_center,rnorm0)
         rnorm = sqrt(rnorm0)
 
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-9))
 
 	Vm(:,:) = 0
-	do icount = 1, nn
+	do icount = 1, nn_center
 	   Vm(icount,1) = r0(icount)/rnorm
 	end do ! get V1
 
@@ -56,40 +57,40 @@ subroutine gmres_Laplace(x,d,w,bg,dg,hg,ien,inter_ele,ne_inter,rng)
 	   do j=1,inner
 	  
 
-		 do icount=1, nn
-		    dv(icount) = eps/w(icount)*Vm(icount,j)
+		 do icount=1, nn_center
+		    dv(icount) = 1/w(icount)*Vm(icount,j)
 		 end do!!!!!!!!!!calcule eps*inv(P)*V1
-		dv(:) = dv(:)+d(:)
+		
 		avloc(:) = 0.0d0
-		call blockgmres_Laplace(x,dv,avloc,ien,hg)
-		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
+		call blockgmres_Laplace(x,dv,avloc,ien_center)
+!		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
 		flag = 0.0
 		call form_inter_ele(inter_ele,ne_inter,avloc,ien,flag)
 		call form_inter_bc(avloc,rng,ien,flag) !set bc
 
 	      do i=1,j
-		do icount = 1, nn
+		do icount = 1, nn_center
 		   Hm(i,j)=Hm(i,j)+avloc(icount)*Vm(icount,i)
 		 
 		end do
 	      end do  ! construct AVj and hi,j
 
 	         
-	      do icount = 1, nn
+	      do icount = 1, nn_center
 		 do i=1,j
 		   Vm(icount,j+1) = Vm(icount,j+1)-Hm(i,j)*Vm(icount,i)
 		 end do
 		 Vm(icount,j+1)=Vm(icount,j+1)+avloc(icount)
 	      end do  ! construct v(j+1)
 
-	      do icount = 1, nn
+	      do icount = 1, nn_center
 		 temp(icount)=Vm(icount,j+1)
 	      end do
-	      call getnorm(temp, temp, nn,rnorm0)
+	      call getnorm(temp, temp, nn_center,rnorm0)
 
 	      Hm(j+1,j) = sqrt(rnorm0)
 
-	      do icount = 1, nn
+	      do icount = 1, nn_center
  		 Vm(icount,j+1)=Vm(icount,j+1)/Hm(j+1,j)
 	      end do
 	  end do  ! end inner loop
@@ -97,32 +98,32 @@ subroutine gmres_Laplace(x,d,w,bg,dg,hg,ien,inter_ele,ne_inter,rng)
 	call DGELS(TRAN,inner+1,inner,1,Hm,inner+1,beta,inner+1,workls,2*inner,INFO)
 !!!!!!!!!!!!beta(1:inner) is ym, the solution!!!!!!!!!!!!!!!!!!!!!!!!!
 	Vy(:) = 0
-	do icount=1,nn
+	do icount=1,nn_center
 	   do i=1,inner
 	      Vy(icount)=Vy(icount)+Vm(icount,i)*beta(i)
 	   end do
 	   x0(icount)=x0(icount)+Vy(icount)
 	end do ! calculate Xm
 !write(*,*)'x0=',x0(:)
-	do icount = 1, nn
-	   dv(icount) = eps/w(icount)*x0(icount)
+	do icount = 1, nn_center
+	   dv(icount) = 1/w(icount)*x0(icount)
 	end do
 
 !write(*,*) dv(:)
 
-	dv(:) = dv(:)+d(:)
+	
 	avloc(:) = 0.0d0
-	call blockgmres_Laplace(x,dv,avloc,ien,hg)
-	avloc(:) = (-avloc(:)+bg(:))/eps
+	call blockgmres_Laplace(x,dv,avloc,ien_center)
+!	avloc(:) = (-avloc(:)+bg(:))/eps
 
 	flag = 0.0
 	call form_inter_ele(inter_ele,ne_inter,avloc,ien,flag)
 	call form_inter_bc(avloc,rng,ien,flag)
 !!!!!!!!!!calculate AXm
-	do icount=1,nn
+	do icount=1,nn_center
 	   r0(icount) = bg(icount)-avloc(icount)
 	end do !update r0=f-AX0
-	call getnorm(r0,r0,nn,rnorm0)
+	call getnorm(r0,r0,nn_center,rnorm0)
 	err = sqrt(rnorm0)
 
 	rnorm = sqrt(rnorm0)

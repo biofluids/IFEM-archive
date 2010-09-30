@@ -1,33 +1,46 @@
 !   Definition for interface variables
-
+    integer :: bc_inter
     integer :: ne_inter                        !# of interface elements
     integer :: ne_inner                        !# of innner elements
     integer :: ne_outer                        !# of outer elements
     real(8) :: x_inter(nsd,maxmatrix)          !Coordinates of interface points
-    integer :: infdomain_inter(maxmatrix)      !The elements that each points belongs to
-    integer :: inter_ele(nn)                   !interfacial elements index
-    integer :: inner_ele(nn)                   !inner elements index
-    integer :: outer_ele(nn)                   !outer elements index
+    real(8) :: x_inter_ini(nsd,maxmatrix)      !corrdinates of inter points before regeneration
+    integer :: nn_inter_ini                    !number of inter points before regeneration
+    integer :: infdomain_inter(maxmatrix)      !The element that each point belongs to
+    integer :: inter_ele(ne)                   !interfacial elements index
+    integer :: inter_ele_nn(ne)                !# of points each iterfacial elemet contains
+    integer :: inner_ele(ne)                   !inner elements index
+    integer :: outer_ele(ne)                   !outer elements index
     real(8) :: I_inter(maxmatrix)              !indicator for interfacial points
     real(8) :: I_fluid(nn)                     !indicator for fluid nodes
+!    real(8) :: I_fluid_ini(nn)                 !used for points regen
+!equal to the indicator right after the set_element index
     real(8) :: norm_fluid(nsd,nn)              !normal for fluid nodes
     real(8) :: curv_fluid(nn)                  !curvature for fluid nodes
-    real(8) :: p_inter(nn)                     !residual for laplace eqn
-    real(8) :: w_inter(nn)                     !diag for Laplace eqn
+    real(8) :: p_inter(nn_center)                     !residual for laplace eqn
+    real(8) :: w_inter(nn_center)                     !diag for Laplace eqn
     real(8) :: flag                            !bc set
-    real(8) :: dg_inter(nn)                   
+    real(8) :: dg_inter(nn_center)                   
     real(8) :: Ic_inter                        !constant indicator at interface 
     integer :: id_inter(nn)                    !boundary id for solving normal and curv
-    real(8) :: p_norm(nsd,nn)
-    real(8) :: w_norm(nsd,nn)
-    real(8) :: dg_norm(nsd,nn)
+!    real(8) :: p_norm(nsd,nn)
+!    real(8) :: w_norm(nsd,nn)
+!    real(8) :: dg_norm(nsd,nn)
     real(8) :: norm_inter(nsd,maxmatrix)       !interface points normal
+    real(8) :: curv_inter(maxmatrix)
     real(8) :: corr_Ip(maxmatrix)              !indicator correction
     integer :: nn_inter_regen                  !# of points regenerated
     real(8) :: x_inter_regen(nsd,maxmatrix)    !coordinates of regen points
+    real(8) :: p_curv(nn)
+    real(8) :: w_curv(nn)
+    real(8) :: dg_curv(nn)
 
+    real(8) :: x_center(nsd,ne)                !element center corrdinates
+    integer :: ien_center(nen_center,ne_center)!connectivity for center mesh
+    real(8) :: I_fluid_center(ne)              !element center indicator
+    real(8) :: arc_inter(maxmatrix)            !arclength for interfacial points
+    real(8) :: sur_fluid(nsd,nn)               !surface tension for fluid nodes
+    real(8) :: vel_inter(nsd,maxmatrix)        !velocity for interfacial points
 
-
-
-
-
+!    integer :: nn_add                          !# of elements added to the interfacial elements
+!    integer :: add_ele(ne)                     !storage of add-up interfacial elements

@@ -4,7 +4,8 @@ subroutine gmres_normal(x,w,bg,dg,hg,ien,id_inter,I_fluid)
 	use fluid_variables, only: nsd,nn,ne,nen,inner,outer
 	implicit none
 
-	real* 8 x(nsd,nn),id_inter(nn)
+	real* 8 x(nsd,nn)
+        integer id_inter(nn)
 	real* 8 hg(ne),ien(nen,ne)
 	real* 8 bg(nsd*nn), dg(nsd*nn), w(nsd*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix

@@ -1,6 +1,6 @@
 
 
-subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id)
+subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id,sur_fluid,I_fluid)
 	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer
 	implicit none
 
@@ -9,6 +9,8 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
 	real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
+	real* 8 sur_fluid(nsd,nn)
+	real* 8 I_fluid(nn)
 
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
@@ -62,7 +64,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id)
 
 		vloc(:,:) = vloc(:,:)+d(:,:)  ! calculate u+eps*inv(P)*V1
 		av_tmp(:,:) = 0.0d0
-		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext)
+		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,sur_fluid,I_fluid)
 		call equal(av_tmp,avloc,ndf*nn)
 		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
 
@@ -116,7 +118,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id)
 	vloc(:,:) = vloc(:,:)+d(:,:)
 
 	av_tmp(:,:) = 0.0d0
-	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext)
+	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,sur_fluid,I_fluid)
     call equal(av_tmp,avloc,ndf*nn)
         call setid(avloc,id,ndf)
 

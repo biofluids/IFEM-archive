@@ -7,16 +7,19 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress)
+subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,sur_fluid,I_fluid)
   use global_constants
   use run_variables
   use fluid_variables
+  use interface_variables
   implicit none
 
   integer ien(nen,ne)
   real* 8 xloc(nsd,nn)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)
   real* 8 p(ndf,nn),q(ndf,nn),hk(ne)
+  real* 8 sur_fluid(nsd,nn)
+  real* 8 I_fluid(nn)
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
@@ -59,7 +62,8 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress)
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+!p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
@@ -147,9 +151,21 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	    endif
 
 !....  calculate liquid constant and gravity
-	    mu = vis_liq  ! liquid viscosity
-	    ro = den_liq  ! liquid density
+!	    mu = vis_liq  ! liquid viscosity
+!	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
+	    mu=0.0
+	    ro=0.0
+	    do inl=1,nen
+		node=ien(inl,ie)
+		if(I_fluid(node).gt.1.0)then
+		  I_fluid(node)=1.0
+		else if(I_fluid(node).lt.0.0) then
+		  I_fluid(node)=0.0
+		end if
+		mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
+		ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
+	    end do
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -318,7 +334,6 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 
   enddo ! end of element loop
 !write(*,*)q_p(:,:)
-
  continue  
 continue
 !write(*,*)q_p(:,:)

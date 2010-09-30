@@ -15,6 +15,7 @@ program main
   call parseinput_fluid  !...reading input_fluid.in
   call parseinput_solid  !...reading input_solid.in
   call parseinput_interface !...reading input_inter.in
+!  call parseinput_meshcenter !...reading input_center_mesh.in
 
   call nondimension
  !...echos input data

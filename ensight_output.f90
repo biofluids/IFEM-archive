@@ -106,16 +106,21 @@ end subroutine zfem_ensCase
 ! This subroutine generates Ensight6 geometry file
 ! Lucy Zhang
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter)
+subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter,x_center,ien_center,x_inter_ini,nn_inter_ini)
   use solid_variables
   use fluid_variables
   use interface_variables
+  use centermesh_variables
   implicit none
 
   integer :: klok
   integer :: ien(nen,ne)
+  integer :: ien_center(nen_center,ne_center)
   real(8)  :: xn(nsd,nn)
   real(8) :: x_inter(nsd,maxmatrix)
+  real(8) :: x_center(nsd,nn_center)
+  real(8) :: x_inter_ini(nsd,maxmatrix)
+  integer :: nn_inter_ini
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr  !...node position current
 
@@ -168,7 +173,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter)
   write(i_file_unit, *) 'node id given'
   write(i_file_unit, *) 'element id given'
   write(i_file_unit, *) 'coordinates'
-  write(i_file_unit, '(I8)') nn_solid + nn +nn_inter
+  write(i_file_unit, '(I8)') nn_solid + nn +nn_inter+nn_center+nn_inter_ini
   
 !--> node id, x, y, x
 !-->
@@ -191,6 +196,16 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter)
   do i=1,nn_inter
      if (nsd==3) write(i_file_unit,101) i+nn_solid+nn,x_inter(1,i),x_inter(2,i),x_inter(3,i)
      if (nsd==2) write(i_file_unit,101) i+nn_solid+nn,x_inter(1,i),x_inter(2,i),0.0
+  end do
+ !...write centermesh coordinates
+  do i=1,nn_center
+     if (nsd==3) write(i_file_unit,101) i+nn_solid+nn+nn_inter,x_center(1,i),x_center(2,i),x_center(3,i)
+     if (nsd==2) write(i_file_unit,101) i+nn_solid+nn+nn_inter,x_center(1,i),x_center(2,i),0.0
+  end do
+ !...write initial interface coordinates
+  do i=1,nn_inter_ini
+     if (nsd==3) write(i_file_unit,101) i+nn_solid+nn+nn_inter+nn_center,x_inter_ini(1,i),x_inter_ini(2,i),x_inter_ini(3,i)
+     if (nsd==2) write(i_file_unit,101) i+nn_solid+nn+nn_inter+nn_center,x_inter_ini(1,i),x_inter_ini(2,i),0.0
   end do
  !...write structure part - connectivity
   write(i_file_unit, *) 'part 1'
@@ -281,6 +296,28 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter)
      write(i_file_unit,'(2i8)')i,i+nn_solid+nn
   end do
 
+!...write centerpoint part
+  write(i_file_unit,*) 'part 4'
+  write(i_file_unit,*) ' Centermesh Model'
+  if(nsd==3) then
+    write(*,*)'no ensight output for 3d for center mesh'
+  elseif(nsd==2) then
+    write(i_file_unit,*) ' tria3' ! element type
+    write(i_file_unit,'(i8)') ne_center !number of elements
+    do i=1,ne_center
+       write(i_file_unit,'(4i8)') i, (ien_center(j,i)+nn_solid+nn+nn_inter,j=1,nen_center)
+    end do
+  end if
+
+!...write initial interface part
+  write(i_file_unit,*) 'part 5'
+  write(i_file_unit,*) ' Interface_INI Model'
+  write(i_file_unit,'(a7)') '  point'
+  write(i_file_unit,'(i8)') nn_inter_ini
+  do i=1,nn_inter_ini
+     write(i_file_unit,'(2i8)'),i,i+nn_solid+nn+nn_inter+nn_center
+  end do
+
   close(i_file_unit)
 
   return
@@ -293,14 +330,18 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress,nn_inter_ini,vel_inter)
   use solid_variables
   use fluid_variables, only: nn,ndf,nsd,vis_liq
   use run_variables, only: its
+  use interface_variables
+  use centermesh_variables
   implicit none
 
   real(8) :: d(ndf,nn)
   real(8) :: f_fluids(nsd,nn)
+  integer :: nn_inter_ini
+  real(8) :: vel_inter(nsd,maxmatrix)
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
   real(8),dimension (nsd,nsd,nn) :: f_stress
@@ -317,7 +358,9 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   character(len=17) :: name_file4
   character(len=14) :: name_file5
   integer,parameter :: ifileunit = 16
+  real(8)  temp_inter(nn_inter_ini+nn_center)
 
+  temp_inter(:) = 0.0
   ! Fluid stress and strain rate, Voigt notation
   fluid_stress(1:nsd*2,1:nn)=0.0
   fluid_strain(1:nsd*2,1:nn)=0.0
@@ -388,7 +431,9 @@ if (nsd==3) then
   open(ifileunit, file=name_file1, form='formatted')
   write(ifileunit, '(A)')   'structure and fluid field: velocity vector'
   write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),solid_vel(3,in),in=1,nn_solid), &
-                       (d(1,in),d(2,in),d(3,in),in=1,nn)
+                       (d(1,in),d(2,in),d(3,in),in=1,nn), &
+                       (vel_inter(1,in),vel_inter(2,in),vel_inter(3,in),in=1,nn_inter), &
+                       (temp_inter(in),0.0,0.0,in=1,nn_inter_ini+nn_center)
   close(ifileunit)
 
  !...Write Interaction force output in ens_movie.fsi*
@@ -439,7 +484,9 @@ elseif (nsd==2) then
   open(ifileunit, file=name_file1, form='formatted')
   write(ifileunit, '(A)')   'structure and fluid field: velocity vector'
   write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),0.0,in=1,nn_solid), &
-                       (d(1,in),d(2,in),0.0,in=1,nn)
+                       (d(1,in),d(2,in),0.0,in=1,nn), &
+                       (vel_inter(1,in),vel_inter(2,in),0.0,in=1,nn_inter), &
+                       (temp_inter(in),0.0,0.0,in=1,nn_inter_ini+nn_center)
   close(ifileunit)
 
  !...Write Interaction force output in ens_movie.fsi*
@@ -454,7 +501,7 @@ elseif (nsd==2) then
   write(*,*) 'writing... ', name_file2
   open(ifileunit, file=name_file2, form='formatted')
   write(ifileunit, '(A)') 'structure and fluid field: pressure'  
-  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn)
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn),(temp_inter(in),in=1,nn_inter+nn_center)
   close(ifileunit)
 
  !...Write stress output in ens_movie.stress*
@@ -485,19 +532,23 @@ endif
   return
 end subroutine zfem_ensFluid
 
-subroutine zfem_ensInter(I_fluid,norm_fluid,norm_inter,Ic_inter,klok)
+subroutine zfem_ensInter(I_fluid,I_fluid_center,norm_fluid,norm_inter,Ic_inter,klok,nn_inter_ini)
   use solid_variables
   use fluid_variables,only:nn,nsd
   use interface_variables
+  use centermesh_variables
   use run_variables, only: its
   
   real(8) I_fluid(nn)
+  real(8) I_fluid_center(nn_center)
   real(8) norm_fluid(nsd,nn)
   real(8) norm_inter(nsd,maxmatrix)
   real(8) tmp_solid(nn_solid)
   real(8) tmp_inter(nn_inter)
+  real(8) tmp_center(nn_center)
+  real(8) tmp_inter_ini(nn_inter_ini)
   real(8) Ic_inter
-  integer klok 
+  integer klok , nn_inter_ini
   integer in,i
   character(len=7)  :: fileroot
   character(len=14) :: name_file1
@@ -507,6 +558,8 @@ subroutine zfem_ensInter(I_fluid,norm_fluid,norm_inter,Ic_inter,klok)
   ifileunit = 17  
   tmp_solid(:) = 0.0 
   tmp_inter(:) = Ic_inter
+  tmp_center(:)=0.0
+  tmp_inter_ini(:)=0.0
      
   if (klok .eq. 0) then
      write(fileroot, '(a6)') '000000'
@@ -536,7 +589,9 @@ subroutine zfem_ensInter(I_fluid,norm_fluid,norm_inter,Ic_inter,klok)
      write(ifileunit, '(A)')  'stru,fluid and interface: normal vector'
      write(ifileunit,110) (tmp_solid(in), 0.0, 0.0, in=1,nn_solid), &
            (norm_fluid(1,in),norm_fluid(2,in),norm_fluid(3,in),in=1,nn), &
-           (norm_inter(1,in),norm_inter(2,in),norm_inter(3,in),in=1,nn_inter)
+           (norm_inter(1,in),norm_inter(2,in),norm_inter(3,in),in=1,nn_inter), &
+           (tmp_center(in),0.0,0.0,in=1,nn_center), &
+           (tmp_inter_ini(in),0.0,0.0,in=1,nn_inter_ini)
      close(ifileunit)
   else if (nsd == 2) then
      write(*,*)'writing...',name_file2
@@ -544,16 +599,20 @@ subroutine zfem_ensInter(I_fluid,norm_fluid,norm_inter,Ic_inter,klok)
      write(ifileunit, '(A)')  'stru,fluid and interface: normal vector'
      write(ifileunit,110) (tmp_solid(in), 0.0, 0.0, in=1,nn_solid), &
            (norm_fluid(1,in),norm_fluid(2,in),0.0,in=1,nn), &
-           (norm_inter(1,in),norm_inter(2,in),0.0,in=1,nn_inter)
+           (norm_inter(1,in),norm_inter(2,in),0.0,in=1,nn_inter), &
+           (tmp_center(in),0.0,0.0,in=1,nn_center), &
+           (tmp_inter_ini(in),0.0,0.0,in=1,nn_inter_ini)
      close(ifileunit)
   end if
 
 
      write(*,*) 'writing...',name_file1
      open(ifileunit,file=name_file1,form='formatted')
-     write(ifileunit, '(A)') 'stru,fluid and interface: indicator'
+     write(ifileunit, '(A)') 'stru,fluid,interface and centermesh: indicator'
      write(ifileunit, 110) (tmp_solid(in),in=1,nn_solid), &
-                (I_fluid(in),in=1,nn),(tmp_inter(in),in=1,nn_inter)
+                (I_fluid(in),in=1,nn),(tmp_inter(in),in=1,nn_inter), &
+                (I_fluid_center(in),in=1,nn_center), &
+                (tmp_inter_ini(in),in=1,nn_inter_ini)
      close(ifileunit)
 110  format(6e12.5)
 

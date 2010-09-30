@@ -357,6 +357,7 @@ end subroutine parseinput_fluid
 subroutine parseinput_interface
   use interface_variables
   use fluid_variables, only:nsd
+  use centermesh_variables
   integer file_in
   common /filename/file_in
 
@@ -366,6 +367,8 @@ subroutine parseinput_interface
 
   call Read_Int(nn_inter,1)
   call Read_Real(sur_tension,1)
+  call Read_Real(den_inter,1)
+  call Read_Real(vis_inter,1)
   call Read_Int(maxmatrix,1)
   call Read_Real(scale_inter,nsd)
   call Read_Real(shift_inter,nsd)
@@ -373,9 +376,29 @@ subroutine parseinput_interface
   write(*,*)'nn_inter=',nn_inter
   write(*,*)'surface tension = ', sur_tension
   write(*,*)'maxmatrix=',maxmatrix
+  write(*,*)'density_inter=',den_inter
+  write(*,*)'viscosity_inter=',vis_inter
   write(*,*)'scale_inter=',scale_inter(1:nsd)
   write(*,*)'shift_inter=',shift_inter(1:nsd)
   close(file_in)
+  file_in=80
+  open(file_in,file='input_center_mesh.in',status='old')
+  call Read_Int(flag_center,1)
+  call Read_Int(nn_center,1)
+  call Read_Int(ne_center,1)
+  call Read_Int(nen_center,1)
+  close(file_in)
 end subroutine parseinput_interface
+
+subroutine parseinput_meshcenter
+  use centermesh_variables,only:flag_center,nn_center,ne_center,nen_center
+  open(999,file='input_center_mesh.in',status='old')
+ write(*,*)'fuck' 
+  call Read_Int(flag_center,1)
+  call Read_Int(nn_center,1)
+  call Read_Int(ne_center,1)
+  call Read_Int(nen_center,1)
+  close(999)
+end subroutine parseinput_meshcenter
 
 end module parseinput

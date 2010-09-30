@@ -17,6 +17,8 @@
                             solid_vel, solid_prevel, solid_accel,                        &
                             nn_solid, ne_solid, nn_solid_1, ne_solid_1, nsd_solid,       &
                             n_solid, nen_solid, iquad_solid
+       !...interface data
+        write(restart_unit) nn_inter,x_inter,Ic_inter
         close(restart_unit)
 
         restart_klok = restart_klok + 1
