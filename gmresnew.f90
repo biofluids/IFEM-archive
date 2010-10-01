@@ -1,9 +1,10 @@
 
 
 subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
-		ne_local,ien_local,mdata,n_mdata,node_local,nn_local, &
-		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer
+		ne_local,ien_local,node_local,nn_local, &
+		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
+		rngface)
+	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
  	use solid_variables, only: nn_solid
         use mpi_variables
 	implicit none
@@ -12,8 +13,11 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn),ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
-	real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
-
+!=========================================================
+! reduce dimension to save memory
+	real* 8 Vm(ndf*nn_local, inner+1) ! Krylov space matrix
+!        real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
+!=========================================================
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
 	real* 8 x0(ndf*nn)
@@ -24,14 +28,16 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         real* 8 dv(ndf*nn)
 	real* 8 Vy(ndf*nn)
         real* 8 vloc(ndf,nn), avloc(ndf*nn)
-	real* 8 temp(ndf*nn)
+	integer rngface(neface,ne)
+!==============================
+! reduce dimension save memory
+!	real* 8 temp(ndf*nn)
+	real* 8 temp
+!==============================
 	character(1) TRAN
 	real* 8 workls(2*inner)
 	real* 8 av_tmp(ndf,nn)
 
-!---------------------------------------
-  integer mdata(nn_solid)
-  integer n_mdata
 !============================
 ! MPI varibalbes
   integer ne_local ! # of element on each processor
@@ -77,11 +83,14 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
 	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
 
+!==============================
 	Vm(:,:) = 0.0d0
+! Already is a local variable defined on each proc
+!===============================
 	do icount = 1, nn_local
 	   node=node_local(icount)
 	   do jcount=1,ndf
-	   	Vm((node-1)*ndf+jcount,1) = r0((node-1)*ndf+jcount)/rnorm
+	   	Vm((icount-1)*ndf+jcount,1) = r0((node-1)*ndf+jcount)/rnorm
 	   end do
 	end do ! get V1
 
@@ -94,68 +103,57 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		 do icount=1, nn_local
 		    node=node_local(icount)
 		    do jcount=1,ndf
-		    	dv((node-1)*ndf+jcount) = eps/w((node-1)*ndf+jcount)*Vm((node-1)*ndf+jcount,j)
+		    	dv((node-1)*ndf+jcount) = eps/w((node-1)*ndf+jcount)*Vm((icount-1)*ndf+jcount,j)
 		    end do
 		 end do!!!!!!!!!!calcule eps*inv(P)*V1
-		vloc(:,:) = 0.0d0
+		
+!===============================================
+!		vloc(:,:) = 0.0d0
+! Clear the matrix locally to aviod too many loops 
+		do icount=1,nn_local
+		   node=node_local(icount)
+		   vloc(1:ndf,node)=0.0d0
+		end do
+		! clear all the processor internal nodes
+		do icount=1,nn_local_com
+		   node=global_com(local_com(icount))
+		   vloc(1:ndf,node)=0.0d0
+		end do
+		! clear the processor boundary nodes
+!call getnorm(vloc,vloc,ndf*nn,rnorm)
+!if (myid ==0) write(*,*) 'after clear vloc should be zero', rnorm
 
+!===============================================
 		call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
-
-
-!           call mpi_barrier(mpi_comm_world,ierror)
-!av_tmp(:,:)=0.0d0
-!           call mpi_reduce(vloc(1,1),av_tmp(1,1),ndf*nn,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
-!if (myid == 0) then
-! open(unit=8436, file='res3.out', status='unknown')
-!write(8436,*) Vm(1:ndf*nn,j)
-!stop
-!end if
-
-
-
+!============================
+		do icount=1,nn_local
+			node=node_local(icount)
+			vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
+		end do
+! Let vloc=vloc+d first then communicate, and then it should same # of loop (avoiding loop at the whole domain)
+!=============================
 !		call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
 	        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
 
 !----------------------------------------------------------------------------------------------
-! ???????????????????????????????????????????????????????????
-
-
-!		do icount=1, nn_local ! For nodes on its own proc only and not shared by any other procs
-!		   node=node_local(icount)
-!		   do kcount=1, nn_local_com
-!			if (global_com(local_com(kcount)) == node) then
-!			   flag = 0
-!			end if
-!		   end do
-!
-!		   if (flag .ne. 0) then
-!			   do jcount=1,ndf
-!				vloc(jcount,node) = vloc(jcount,node)+d(jcount,node)  ! calculate u+eps*inv(P)*V1
-!		   	   end do
-!		    end if
-!		end do
-!
-!		do icount=1, nn_local_com ! For nodes on shared by other procs
-!			node=global_com(local_com(icount))
-!			do jcount=1,ndf
-!				vloc(jcount,node)=vloc(jcount,node)+d(jcount,node)
-!			end do
-!		end do
-
-vloc(:,:)=vloc(:,:)+d(:,:)
-!if (myid == 0) then
-! open(unit=8435, file='res2.out', status='unknown')
-!write(8435,*) vloc(1:ndf,1:nn)
-!end if
-
+!vloc(:,:)=vloc(:,:)+d(:,:)
 
 !----------------------------------------------------------------------------------------------
-! ???????????????????????????????????????????????????????????
-		av_tmp(:,:) = 0.0d0
+!=======================================
+! Clear matrix local first interal then boundary processor nodes
+		do icount=1,nn_local
+                   node=node_local(icount)
+                   av_tmp(1:ndf,node)=0.0d0
+                end do
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   av_tmp(1:ndf,node)=0.0d0
+                end do
+!		av_tmp(:,:) = 0.0d0
+!======================================
 
-
-		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,mdata,n_mdata,node_local,nn_local)
+		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,rngface)
 
 
 
@@ -163,21 +161,12 @@ vloc(:,:)=vloc(:,:)+d(:,:)
 !                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
 	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 
-!           call mpi_barrier(mpi_comm_world,ierror)
-!           call mpi_reduce(av_tmp(1,1),avloc(1),ndf*nn,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
-!if (myid == 0) then
-! open(unit=8434, file='res1.out', status='unknown')
-!write(8434,*) av_tmp(1:ndf,1:nn)
-!end if
-avloc(:)=0.0d0
+
+!===================
+! avloc(:)=0.0d0
+!==================
+
 		call equal_pa(av_tmp,avloc,ndf,nn,node_local,nn_local)
-
-!if (myid == 0) then
-! open(unit=8433, file='res.out', status='unknown')
-!write(8433,*) avloc(1:ndf*nn)
-!stop
-!end if
-
 
 
 		do icount=1, nn_local
@@ -187,19 +176,21 @@ avloc(:)=0.0d0
 				avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps ! get Av,bg=-r(u)
 			end do
 		end do
-!if (myid == 0) then
-! open(unit=8433, file='res.out', status='unknown')
-!write(8433,*) avloc(1:ndf*nn)
-!end if
 
-!		call setid(avloc,id,ndf)
+		!call setid(avloc,id,ndf)
                 call setid_pa(avloc,ndf,nn,id,node_local,nn_local)
-
                 space1(:)=0.0d0
                 space2(:)=0.0d0
 end_time=mpi_wtime()
 	      do i=1,j
-		call vector_dot_pa(avloc,Vm(:,i),ndf,nn,nn_local,node_local,space1(i))
+		 do icount=1,nn_local
+			node=node_local(icount)
+			do jcount=1,ndf
+				kcount=(node-1)*ndf+jcount
+				space1(i)=space1(i)+avloc(kcount)*Vm((icount-1)*ndf+jcount,i)
+			end do
+		 end do
+!		call vector_dot_pa(avloc,Vm(:,i),ndf,nn,nn_local,node_local,space1(i))
 		! Do the vector product of v_i * v_i set it to be h_i,j
 	      end do  ! construct AVj and hi,j
 
@@ -207,37 +198,41 @@ end_time=mpi_wtime()
                 call mpi_allreduce(space1(1),space2(1),j,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 !                call mpi_bcast(space2(1),j,mpi_double_precision,0,mpi_comm_world,ierror)
 end_time=mpi_wtime()-end_time
-if ((myid == 0) .and. (j == inner)) write(*,*) 'Time for get one hm vector', end_time
+!if ((myid == 0) .and. (j==inner)) write(*,*) 'Time for get one hm vector', end_time
 
                 Hm(1:j,j)=space2(1:j)
 
 	      do icount = 1, nn_local
 		node=node_local(icount)
 		do jcount=1,ndf
-			kcount=(node-1)*ndf+jcount
+			kcount=(icount-1)*ndf+jcount
 		
 		 	do i=1,j
 		   		Vm(kcount,j+1) = Vm(kcount,j+1)-Hm(i,j)*Vm(kcount,i)
 		 	end do
-		 	Vm(kcount,j+1)=Vm(kcount,j+1)+avloc(kcount)
+		 	Vm(kcount,j+1)=Vm(kcount,j+1)+avloc((node-1)*ndf+jcount)
 	        end do  
 	      end do  ! construct v(j+1)
-
+!
+temp=0.0d0
 	      do icount = 1, nn_local
-		node=node_local(icount)
+!		node=node_local(icount)
 		do jcount=1,ndf
-			kcount=(node-1)*ndf+jcount
-		 	temp(kcount)=Vm(kcount,j+1)
+			kcount=(icount-1)*ndf+jcount
+		 	temp=temp+Vm(kcount,j+1)*Vm(kcount,j+1)
 		end do
 	      end do
-	      call getnorm_pa(temp,ndf,nn,node_local,nn_local,rnorm0)
+		call mpi_barrier(mpi_comm_world,ierror)
+		call mpi_allreduce(temp,rnorm0,1,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
+! get norm of Vm(:,j+1)
+!	      call getnorm_pa(temp,ndf,nn,node_local,nn_local,rnorm0)
 
 	      Hm(j+1,j) = sqrt(rnorm0)
 
 	      do icount = 1, nn_local
-		node=node_local(icount)
+!		node=node_local(icount)
 		do jcount=1,ndf
-			kcount=(node-1)*ndf+jcount
+			kcount=(icount-1)*ndf+jcount
  			Vm(kcount,j+1)=Vm(kcount,j+1)/Hm(j+1,j)
 		end do
 	      end do
@@ -261,7 +256,7 @@ if ((myid == 0) .and. (j == inner)) write(*,*) 'Time for get one hm vector', end
 	   do jcount=1,ndf
 		kcount=(node-1)*ndf+jcount
 	   	do i=1,inner
-	       		 Vy(kcount)=Vy(kcount)+Vm(kcount,i)*beta(i)
+	       		 Vy(kcount)=Vy(kcount)+Vm((icount-1)*ndf+jcount,i)*beta(i)
 	        end do
 	        x0(kcount)=x0(kcount)+Vy(kcount)
 	   end do
@@ -276,18 +271,59 @@ if ((myid == 0) .and. (j == inner)) write(*,*) 'Time for get one hm vector', end
 	end do
 
 !write(*,*) dv(:)
+!============================
+! Clear matirx locally 
+                do icount=1,nn_local
+                   node=node_local(icount)
+                   vloc(1:ndf,node)=0.0d0
+                end do
+                ! clear all the processor internal nodes
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   vloc(1:ndf,node)=0.0d0
+                end do
+                ! clear the processor boundary nodes
 
-	vloc(:,:) = 0
+!	vloc(:,:) = 0
+!==============================
+
+
 	call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
+
+
+	do icount=1,nn_local
+		node=node_local(icount)
+		vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
+	end do
+
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
         call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
-	vloc(:,:) = vloc(:,:)+d(:,:)
 
-	av_tmp(:,:) = 0.0d0
-	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,mdata,n_mdata,node_local,nn_local)
+
+!==============================
+!	vloc(:,:) = vloc(:,:)+d(:,:)
+!==============================
+!===============================
+! Clear matrix local first interal then boundary processor nodes
+                do icount=1,nn_local
+                   node=node_local(icount)
+                   av_tmp(1:ndf,node)=0.0d0
+                end do
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   av_tmp(1:ndf,node)=0.0d0
+                end do
+!	av_tmp(:,:) = 0.0d0
+!================================
+
+
+	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,rngface)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
         call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
-avloc(:)=0.0d0
+!==================
+!avloc(:)=0.0d0
+!==================
+
        call equal_pa(av_tmp,avloc,ndf,nn,node_local,nn_local)
        
 !       call setid(avloc,id,ndf)
@@ -335,7 +371,6 @@ avloc(:)=0.0d0
 	call mpi_barrier(mpi_comm_world,ierror)
 	call mpi_allreduce(dg_sent(1),dg(1),ndf*nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 !	call mpi_bcast(dg(1),ndf*nn,mpi_double_precision,0,mpi_comm_world,ierror)
-        call mpi_barrier(mpi_comm_world,ierror)
 
 
 	return

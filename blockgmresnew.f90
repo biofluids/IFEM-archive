@@ -7,12 +7,12 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,mdata,n_mdata,node_local,nn_local)
+subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
+			  ne_local,ien_local,node_local,nn_local,&
+			  rngface)
   use global_constants
   use run_variables
   use fluid_variables
-  use solid_variables, only: nn_solid
-  use r_common, only: density_solid, vis_solid
   implicit none
 
   integer ien(nen,ne)
@@ -43,35 +43,18 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
-  integer nn_local
-  integer node_local(nn_local)
-!-------------------------------------------
-  integer mdata(nn_solid)
-  integer n_mdata
-  real(8) fdensity(nn)
-  real(8) local_den(nen)
-  real(8) fvis(ne)
-!---------------------------------------------
+  integer rngface(neface,ne)
 !============================
 ! MPI varibalbes
   integer ne_local ! # of element on each processor
   integer ien_local(ne_local) ! subregion-->wholeregion element index
   integer ie_local ! loop parameter
+  integer nn_local
+  integer node_local(nn_local)
   integer icount
+  real(8) tmpw(ndf,nn)
 !---------------------------------------------
 ! corresponding changes in block.f90
-fdensity(:)=0.0
-fvis(:)=vis_liq
-  do ie=1,n_mdata
-     do inl=1,nen
-     fdensity(ien(inl,mdata(ie)))=density_solid
-     enddo
-
-     fvis(mdata(ie))=vis_solid
-  enddo
-    fdensity(:)=fdensity(:)+den_liq
-
-
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
@@ -82,7 +65,6 @@ do icount=1, nn_local
         node=node_local(icount)
 p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 end do
-
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
@@ -93,7 +75,7 @@ end do
 ! Xingshi 09/15/2008
 !===================================================
   do ie_local=1,ne_local		! loop over elements
-        ie=ien_local(ie_local)
+     ie=ien_local(ie_local)
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -102,7 +84,6 @@ end do
 !============================================================================
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
-               local_den(inl)=fdensity(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -144,14 +125,12 @@ end do
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
 
-        ro=0.0
+
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
-		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)      
-!----------------------------------------------------------------------------------------                   
-                   ro=ro+sh(0,inl)*local_den(inl) 
+		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
 	    enddo
 
 !... define u=v1, v=v2, w=v3, pp=p
@@ -173,7 +152,8 @@ end do
 	    endif
 
 !....  calculate liquid constant and gravity
-            mu = fvis(ie)  ! liquid viscosity
+	    mu = vis_liq  ! liquid viscosity
+	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
@@ -311,7 +291,22 @@ end do
 	 enddo ! end of qudrature pts loop
   enddo ! end of element loop
  continue  
-continue
-  return
-end subroutine blockgmresnew
+
+if (nsd .eq. 2) then
+        if (nen .eq. 4) then
+	!=====================================
+	! Apply boundary condition du/dx=0 on outedge
+	call out2d4n(rngface,dloc,ien,xloc,p,tmpw,ne_local,ien_local)
+	end if
+		!======================================
+        if (nen .eq. 4) then
+	!======================================
+	! Apply boundary condition du/dx=0 on outedge
+	call out2d3n(rngface,dloc,ien,xloc,p,tmpw,ne_local,ien_local)
+	!======================================
+	end if
+end if
+
+return
+end subroutine 
 

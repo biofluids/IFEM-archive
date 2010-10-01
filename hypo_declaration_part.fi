@@ -4,16 +4,22 @@ integer icount
 integer jcount
 integer kcount
 
-integer :: partele(ne) ! elements part index
-integer :: partnode(nn) ! nodes part index
+! To save some space 
+integer, allocatable :: partele(:)
+integer, allocatable :: partnode(:)
+
+!integer :: partele(ne) ! elements part index
+!integer :: partnode(nn) ! nodes part index
+!---------------------------------------------
+
 integer :: nn_local ! # of nodes on each processor
 integer :: ne_local ! # of elements on each processor
 integer :: count ! temp counter
 integer :: node_global(nn) ! wholeregion-->subregion node index
-real(8), dimension(:,:), allocatable:: p_local ! subregion residuls in fluid solver
-real(8), dimension(:,:), allocatable:: w_local ! subregion weight in fluid solver
-real(8), dimension(:,:), allocatable:: dg_local ! subregion increment in fluid solver
-real(8), dimension(:,:), allocatable:: dg_tmp ! whole region increment tmp store in fluid solver for mpi_reduce
+!real(8), dimension(:,:), allocatable:: p_local ! subregion residuls in fluid solver
+!real(8), dimension(:,:), allocatable:: w_local ! subregion weight in fluid solver
+!real(8), dimension(:,:), allocatable:: dg_local ! subregion increment in fluid solver
+!real(8), dimension(:,:), allocatable:: dg_tmp ! whole region increment tmp store in fluid solver for mpi_reduce
 integer,dimension(:),allocatable :: ien_local ! subregion-->wholeregion element index
 integer,dimension(:),allocatable :: node_local ! subregion-->wholeregion node index
 
@@ -22,8 +28,16 @@ integer,dimension(:),allocatable :: node_local ! subregion-->wholeregion node in
 integer :: ne_intlocal ! # of element on each processor for FEM interpolation
 integer,dimension(:),allocatable :: ien_intlocal ! subregion-->wholeregion element index for FEM interpolation
 
-integer :: node_test(nn)
-integer :: node_test_g(nn)
+!-----------------------
+! To save some space
+integer, allocatable :: node_test(:)
+integer, allocatable :: node_test_g(:)
+integer, allocatable :: tmp_index(:)
+
+!integer :: node_test(nn)
+!integer :: node_test_g(nn)
+
+
 integer :: nn_global_com
 integer :: nn_local_com
 integer , dimension(:),allocatable :: global_com
@@ -31,7 +45,7 @@ integer , dimension(:),allocatable :: local_com
 
 integer :: nei_max
 integer , dimension(:,:),allocatable :: local_nei
-integer , dimension(:,:),allocatable :: global_nei
+!integer , dimension(:,:),allocatable :: global_nei
 integer :: ad_length
 integer , dimension(:,:),allocatable :: send_address
 

@@ -1,6 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /usr/lib64/liblapack.so \
-          /usr/lib64/libblas.so
+LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
+          /usr/opt/BLAS/blas_LINUX.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 delta_nonuniform.o \
@@ -21,10 +21,11 @@ edgeele.o nature_pre.o \
 givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
 blockdiagstable.o gmresnew.o blockgmresnew.o \
-setnei.o communicate_res_nei.o communicate_res_ad.o setid_pa.o
+setnei_new.o communicate_res_ad.o setid_pa.o \
+gmres_icom.o blockgmres_com.o  block_com.o out2d4n.o out2d3n.o
 IFEM: $(OBJ)
-	mpiifort -g -O0 -o IFEM $(OBJ) $(LIBS)
+	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpiifort -c -g $<
+	mpif90 -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

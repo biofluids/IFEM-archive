@@ -84,7 +84,7 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
      time_value(i)=dt*ntsbout*i
   enddo
   write(20,5110) 0.0,(time_value(k),k=1,numbers_of_step)
- 5110 format(5f14.10 )
+ 5110 format(5f14.6 )
 
   close(20)
 

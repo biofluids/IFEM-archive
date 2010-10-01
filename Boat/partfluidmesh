@@ -1,0 +1,4 @@
+partnmesh mien.in 16 
+mv mien.in.epart.16 partele.in
+mv mien.in.npart.16 partnode.in
+

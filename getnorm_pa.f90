@@ -26,6 +26,5 @@ end do
 
            call mpi_barrier(mpi_comm_world,ierror)
            call mpi_allreduce(tmp,norm,1,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
-!           call mpi_bcast(norm,1,mpi_double_precision,0,mpi_comm_world,ierror)
 
 end subroutine getnorm_pa

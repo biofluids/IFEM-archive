@@ -1,3 +1,9 @@
+!--------------
+!Corresponding changes to save space
+allocate (node_test(nn))
+allocate (node_test_g(nn))
+!--------------
+
 node_test(:)=0
 
 do icount=1,ne_intlocal
@@ -6,13 +12,12 @@ do icount=1,ne_intlocal
 	end do
 end do
 ! set nodes included by the elements in each processor to be 1
-!write(*,*) 'I am here', 'myid', myid 
 call mpi_reduce(node_test(1),node_test_g(1),nn,mpi_integer,mpi_sum,0,mpi_comm_world,ierror)
 call mpi_bcast(node_test_g(1),nn,mpi_integer,0,mpi_comm_world,ierror)
 call mpi_barrier(mpi_comm_world,ierror)
 ! nodes needed communication in node_test_g is larger than 1
 count=0
-write(*,*) 'I am here', 'myid', myid
+!write(*,*) 'I am here', 'myid', myid
 do icount=1,nn
 	if (node_test_g(icount) .gt. 1) then
 	count=count+1
@@ -64,6 +69,7 @@ write(*,*) 'myid', myid, 'nn_local_com',nn_local_com
 
 allocate(local_com(nn_local_com))
 
+
 count=0
 do icount=1,nn_global_com
 	if (node_test(global_com(icount)) == 1) then
@@ -77,13 +83,19 @@ end do
 !==========================================
 ! Give the dimenstion of local_nei matrix
 allocate(local_nei(nn_local_com,nei_max+1))
-allocate(global_nei(nn_global_com,nei_max))
+!allocate(global_nei(nn_global_com,nei_max))
+
+
 local_nei(:,:)=-999
 
-call setnei(global_com,nn_global_com,local_com,nn_local_com, &
-            local_nei,nei_max,global_nei,ad_length)
+call mpi_barrier(mpi_comm_world,ierror)
+
+call setnei_new(global_com,nn_global_com,local_com,nn_local_com, &
+            local_nei,nei_max,ad_length)
 
 allocate(send_address(ad_length,2))
+
+
 kcount=0
 do icount=1,nn_local_com
 	do jcount=2,nei_max+1
@@ -95,29 +107,8 @@ do icount=1,nn_local_com
 	end do
 end do
 
-!do icount=1,nn
-!p(:,icount)=1.0d0*icount
-!end do
 
-!write(*,*) 'call test communicate_res_ad', myid
-!call mpi_barrier(mpi_comm_world,ierror)
-
-!call communicate_res_ad(p,ndf,nn,send_address,ad_length)
-
-if (myid ==0) then
- open(unit=8411, file='global_com', status='unknown')
-do icount=1,nn_global_com
-write(8411,*) global_com(icount), global_nei(icount,:)
-end do
-end if
-
-
-if (myid ==0) then
- open(unit=8413, file='address', status='unknown')
-
-do icount=1,ad_length
-write(8413,*) send_address(icount,:), myid
-end do
-end if
-
-
+!-------------
+! Deallocate variables
+deallocate(node_test)
+deallocate(node_test_g)

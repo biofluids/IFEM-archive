@@ -1,5 +1,5 @@
 subroutine setnei(global_com,nn_global_com,local_com,nn_local_com, &
-		  local_nei,nei_max,nei_global,ad_length)
+		  local_nei,nei_max,ad_length)
 ! This subroutine is to get the index of processors who sharing the same node
 
 

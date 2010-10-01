@@ -26,7 +26,6 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
                               ne_solid,nen_solid,xyz_solid,ien_solid_m,xyz_fluid,ien,infdomain,pre_f,pre_inter)
    use mpi_variables ! call mpi variable module
   implicit none
-  include 'mpif.h'
   integer,intent(in) :: ibuf
   integer nsd
   integer ne
@@ -155,6 +154,7 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
               end do
            end do
            x(:)=xyz_solid(:,inn)
+
            dis_solid(:)=0
            call sh_exchange(x,xyz_el,nsd,nen,dis_solid)
            do ii =1,nen
@@ -193,8 +193,8 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
 
 
      end if
-!return
-end subroutine
+return
+end
 ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! calculate the shape function for both 2-D and 3-D case
 ! 3-D case has not been finished yet
@@ -222,12 +222,14 @@ integer j
 integer info
 integer ipiv(nen)
 real(8) work(nen)
+
         do i=1,nen
         sh1(i)=0
         do j=1,nen
         me(i,j)=0
         end do
         end do
+        
 
 
         if (nsd .eq. 2) then  ! 2-D case
@@ -237,7 +239,7 @@ real(8) work(nen)
            me1(i,2:(nsd+1))=xe(1:nsd,i)
            end do
            call determinant(me1,nen,nen,det)
-           !write(*,*)' det'
+          ! write(*,*) det
            sh(1)=(xe(1,2)*xe(2,3)-xe(1,3)*xe(2,2)+&
            (xe(2,2)-xe(2,3))*x(1)+&
            (xe(1,3)-xe(1,2))*x(2))/(det)
@@ -254,29 +256,31 @@ real(8) work(nen)
           
            else if (nen .eq. 4) then ! 2-D quadrilateral
 
+
            do i=1,nen
            me(1,i)=1.0
            me(2,i)=xe(1,i)
            me(3,i)=xe(2,i)
            me(4,i)=xe(1,i)*xe(2,i)
            end do
-           xp(1)=1.0d0
+           xp(1)=1
            xp(2)=x(1)
            xp(3)=x(2)
            xp(4)=x(1)*x(2)
 
 !           call MIGS(me,nen,invme,indx) ! get inverse
-		call DGETRF(nen,nen,me,nen,ipiv,info)
-		call DGETRI(nen,me,nen,ipiv,work,nen,info)
-           do j=1,nen
-           do i=1,nen
-           sh1(j)=sh1(j)+xp(i)*me(j,i)
-           sh(j)=sh1(j)
-           end do
-           end do                
+
+!		call DGETRF(nen,nen,me,nen,ipiv,info)
+!		call DGETRI(nen,me,nen,ipiv,work,nen,info)
+!           do j=1,nen
+!           do i=1,nen
+!           sh1(j)=sh1(j)+xp(i)*me(i,j)
+!           sh(j)=sh1(j)
+!           end do
+!           end do                
 !write(*,*) 'in data_exchange', xp(:)
-!                call DGESV(nen,nen,me,nen,ipiv,xp,nen,info)
-!		sh(:)=xp(:)
+                call DGESV(nen,nen,me,nen,ipiv,xp,nen,info)
+		sh(:)=xp(:)
            end if
         else
            if (nen .eq. 4) then ! 3-D tet case
@@ -304,9 +308,10 @@ real(8) work(nen)
           end if
        
         end do
+        
 1000    continue
 return
-end subroutine
+end
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! Manually fix the digital error in shape function

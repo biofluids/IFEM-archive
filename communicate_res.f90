@@ -28,9 +28,9 @@ end do
 ! Put value needs to be communicated on the bus
 
            call mpi_barrier(mpi_comm_world,ierror)
-           call mpi_allreduce(bus(1,1),bus_rec(1,1),ndf*nn_global_com,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
+           call mpi_reduce(bus(1,1),bus_rec(1,1),ndf*nn_global_com,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
 ! Sum up all the residuals on bus to Proc 0 
-!           call mpi_bcast(bus_rec(1,1),ndf*nn_global_com,mpi_double_precision,0,mpi_comm_world,ierror)
+           call mpi_bcast(bus_rec(1,1),ndf*nn_global_com,mpi_double_precision,0,mpi_comm_world,ierror)
 ! Set bus_res back to all processors
 
 do i=1,nn_local_com
