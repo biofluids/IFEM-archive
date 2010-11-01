@@ -10,7 +10,7 @@ module r_common
 
   integer,parameter :: nup=4,nnumr=4
   integer,parameter :: mnos=0,nels=0
-  integer,parameter :: mno=80000,mno2=3*mno,nel=206454
+  integer,parameter :: mno=24971,mno2=3*mno,nel=106454
   real(8),parameter :: x13  = 1.0d0/3.0d0
   real(8),parameter :: x23  = 2.0d0/3.0d0
   real(8),parameter :: x43  = 4.0d0/3.0d0
@@ -45,11 +45,5 @@ module r_common
   real(8) :: dge(6,3,9),ddge(6,3,3,9,9)
   real(8) :: young_mod, Poisson,rc1,rc2,rk
   integer :: material_type
-  ! add group young_mod for multisolid 
-  real(8) :: group_young(2) 
-  real(8) :: group_rc1(2)
-  real(8) :: group_rc2(2)
- ! Right now it can only handle 2 solid parts
-  real(8) :: vis_solid
 end module r_common
 

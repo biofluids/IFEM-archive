@@ -7,12 +7,10 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,&
-			ne_local,ien_local,node_local,nn_local)
+subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress)
   use global_constants
   use run_variables
   use fluid_variables
-  use mpi_variables
   implicit none
 
   integer ien(nen,ne)
@@ -49,16 +47,6 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   real* 8 q_p(ndf,nn)
   real* 8 q_res_a(nsd,nen)
   real* 8 diag(12)
-!======================================
-! varibles for mpi implementation
-        integer ne_local ! # of element on each processor
-        integer ien_local(ne_local) ! subregion-->whole region element index
-        integer ie_local ! loop parameter
-	integer nn_local
-	integer node_local(nn_local)
-	integer icount
-!--------------------------------------------------
-
 
   q_res_a(1:nsd,1:nen) = 0
   q_p(1:ndf,1:nn) = 0
@@ -71,10 +59,8 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-do icount=1, nn_local
-        node=node_local(icount)
-p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
-end do
+p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+!=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
 ! then we will just subscrib it from p(!:nsd) which is the 
@@ -83,8 +69,7 @@ end do
 ! 2 do the subscribition after the elements loop
 ! Xingshi 09/15/2008
 !===================================================
-  do ie_local=1,ne_local		! loop over elements
-     ie=ien_local(ie_local)
+  do ie=1,ne		! loop over elements
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -190,7 +175,6 @@ end do
 		     res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl) &
 	                    +sh(zsd,inl)*d(wdf,inl)
-		     q_res_c(inl) = 0
 		  enddo
 		endif
 
@@ -205,13 +189,6 @@ end do
 			   end do ! get res_a for u and v for momentum equation
 			elseif (nsd==3) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
-
-                           do inl = 1, nen
-                                q_res_a(isd,inl)=ro*(sh(0,inl)*dtinv+u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
-                           end do ! get res_a for u v and w for momentum equation
-
-
-
 			endif
 	    enddo
 
@@ -302,6 +279,10 @@ end do
 			       q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)*q_d(2,inl)+ &
 					     ph(2,inl)*(mu*sh(2,inl)*q_d(2,inl)*2)
 
+!			       diag(1+3*(inl-1))=q_p(1,node)
+!			       diag(2+3*(inl-1))=q_p(2,node)
+
+
 
 			elseif (nsd==3) then
 			  do isd=1,nsd
@@ -310,26 +291,21 @@ end do
 										  ph(2,inl)*tau(2,isd) -  &
 										  ph(3,inl)*tau(3,isd)
 			  enddo
-
-                          q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*2)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*sh(3,inl)
-                          q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*(sh(2,inl)*2)+ph(3,inl)*mu*sh(3,inl)
-                          q_p(3,node)=q_p(3,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*(sh(3,inl)*2)
-
 			endif
 
 		! Stablization with Tau_moment
 		   if (nsd==2) then
 		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)
+                      diag(inl)=p(pdf,node)
 		   	 q_p(pdf,node) = q_p(pdf,node)+tauc*(sh(1,inl)*sh(1,inl)+sh(2,inl)*sh(2,inl))*eft0
 	       elseif (nsd==3) then
 		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)  &
 	                                   - ph(zsd,inl)*prs_cc(wdf)
-                         q_p(pdf,node) = q_p(pdf,node)+tauc*(sh(1,inl)**2+sh(2,inl)**2+sh(3,inl)**2)*eft0
-
 		   endif		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
+!                   diag(inl)=p(1,node)
 		   q_p(1:nsd,node) = q_p(1:nsd,node)+taum*temp*q_res_a(1:nsd,inl)+ & 
                                      ph(1:nsd,inl)*taul*ro*sh(1:nsd,inl)
 
@@ -348,23 +324,5 @@ continue
 !write(*,*)q_p(:,:)
 !write(*,*)d(:,:)
 
-if (nsd .eq. 2) then
-	if (nen .eq. 4) then
-!=====================================
-! Apply boundary condition du/dx=0 on outedge
-call out2d4n(rngface,dloc,ien,xloc,p,q_p,ne_local,ien_local)
-	end if
-!======================================
-	if (nen .eq. 4) then
-!=====================================
-! Apply boundary condition du/dx=0 on outedge
-call out2d3n(rngface,dloc,ien,xloc,p,q_p,ne_local,ien_local)
-!======================================
-	end if
-end if
-
-
-
-
-end subroutine 
+end subroutine block
 

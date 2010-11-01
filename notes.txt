@@ -1,11 +1,4 @@
-Xingshi Wang 19/11/2009
-1) Remove the mirror feature about y=1
-2) Implicit acceleration FSI scheme, in block.f90 include various density for the whole fluid domain and in r_sstiff.f90 remove the acceleration term
-3) Since we want the implicit FSI scheme, the FEM interpolation is the only option right now
-4) The solid part still include the feature that we can have two different solid descriptions, the in mien_solid.in we have to have an additional line that describe the solid elements belong to cover or base.
-5) To use the FEM interpolation, LAPACK is required to solve a linear system in sh_exchange to get the FEM interpolation function. 
-Note: LAPACK on CCNI works well but on SOCREC requires more efforts. 
--------------------------------------------------
+
 Xingshi Wang, 06/03/2008
 Add shx_tets.f90 to calculate 3-D tets case's shapefunction in
 data_exchange.f90.

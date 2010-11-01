@@ -8,12 +8,10 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext,ne_local,ien_local,mdata,n_mdata)
+subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext)
   use global_constants
   use run_variables, only: dt
   use fluid_variables
-  use solid_variables, only: nn_solid
-  use r_common, only: density_solid, vis_solid
   implicit none
 
   integer ien(nen,ne)
@@ -42,34 +40,6 @@ subroutine blockgmres(xloc,dloc,doloc,qloc,p,hk,ien,fext,ne_local,ien_local,mdat
   integer inl, ie, isd, iq, node, jsd
   real*8 fext(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
-!-------------------------------------------
-  integer mdata(nn_solid)
-  integer n_mdata
-  real(8) fdensity(nn)
-  real(8) local_den(nen)
-  real(8) fvis(ne)
-!---------------------------------------------
-!============================
-! MPI varibalbes
-  integer ne_local ! # of element on each processor
-  integer ien_local(ne_local) ! subregion-->wholeregion element index
-  integer ie_local ! loop parameter
-
-!---------------------------------------------
-! corresponding changes in block.f90
-fdensity(:)=0.0
-fvis(:)=vis_liq
-  do ie=1,n_mdata
-     do inl=1,nen
-     fdensity(ien(inl,mdata(ie)))=density_solid
-     enddo
-
-     fvis(mdata(ie))=vis_solid
-  enddo
-    fdensity(:)=fdensity(:)+den_liq
-
-
-
 
 !.....calculate 1/dt
   dtinv = 1.0/dt/alpha
@@ -79,8 +49,7 @@ fvis(:)=vis_liq
   oma   = 1.0 -alpha
   ama   = 1.0 - oma
 
-  do ie_local=1,ne_local		! loop over the elements
-	ie=ien_local(ie_local)
+  do ie=1,ne		! loop over the elements
 !...    localize x and degrees of freedom in every node of the element
      do inl=1,nen
          x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
@@ -88,8 +57,6 @@ fvis(:)=vis_liq
 		 q(1:ndf,inl) =  qloc(1:ndf,ien(inl,ie))
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
-                 !-----------------------------------
-                 local_den(inl)=fdensity(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -118,15 +85,13 @@ fvis(:)=vis_liq
 		fq(:)=0.0
 
 !....    calculate vi,dvi/dxj
-        ro=0.0
         do inl=1,nen
 		   tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
 		   drs(1:nsd) = drs(1:nsd)+sh(0,inl)*tempc(1:nsd)
 		   do isd=1,nsd
 			 dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
 		   enddo
-		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)
-                   ro=ro+sh(0,inl)*local_den(inl)        
+		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
 
 !...     initialize delta_d, delta_p, d(delta_v)i/dxj, d(delta_v)i/dt
@@ -169,8 +134,8 @@ fvis(:)=vis_liq
 	    endif
 
 !....    set liquid properties, density and viscosity
-	    mu = fvis(ie)
-!	    ro = den_liq
+	    mu = vis_liq
+	    ro = den_liq
               ! below is only used if turbulence is applied
 		if (nsd==2) then
 			nu = delta(4)*turb_kappa**2*hg**2 * sqrt(2*dr(1,1)**2+(dr(2,1)+dr(1,2))**2 &
@@ -257,7 +222,7 @@ fvis(:)=vis_liq
 	    do inl=1,nen
 		   node = ien(inl,ie)
 		   if (nsd==2) then
-			   temp = (u*ph(xsd,inl)+v*ph(ysd,inl))
+			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl))
 		   elseif (nsd==3) then
 			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
 		   endif
@@ -314,7 +279,7 @@ fvis(:)=vis_liq
 	       do inl=1,nen
 		      node = ien(inl,ie)
 			  if (nsd==2) then
-				temp=(u*ph(xsd,inl)+v*ph(ysd,inl))
+				temp=ro*(u*ph(xsd,inl)+v*ph(ysd,inl))
 			  elseif (nsd==3) then
 			    temp=ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
 			  endif

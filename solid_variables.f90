@@ -17,6 +17,4 @@ module solid_variables
   real(8),dimension(:,:),allocatable :: solid_ess_BC
   real(8),dimension(:,:),allocatable :: shift
 
-  integer :: nep1,nep2 !number of elements for each solid parts
-
 end module solid_variables

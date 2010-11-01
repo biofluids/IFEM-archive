@@ -53,7 +53,7 @@ subroutine Read_Real(var,count)
 
  911  CONTINUE
       print*,'Read_Real error - ',i,count
- !     STOP'Read_Real error'
+      STOP'Read_Real error'
 
 end subroutine Read_Real
 
@@ -104,6 +104,6 @@ subroutine Read_Int(ivar,count)
 
   911 CONTINUE
       print*,'Read_Int error - ',i,count
-!      STOP'Read_Int error'
+      STOP'Read_Int error'
 
 end subroutine Read_Int

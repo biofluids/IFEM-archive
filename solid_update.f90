@@ -3,7 +3,6 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
   use solid_variables
   use fluid_variables, only: den_liq
   use r_common
-  use mpi_variables ! call mpi variable module
   implicit none
 
   integer :: klok
@@ -71,9 +70,7 @@ subroutine solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,solid
   solid_prevel(1:nsd_solid,1:nn_solid) = solid_vel(1:nsd_solid,1:nn_solid)
 
   viter=0.0d0
-if (myid==0) then
   write(*,*) 'maximum solid velocity is =', maxval(solid_vel(1:nsd_solid,:))
-end if
   du(1:nsd_solid,1:nn_solid)=solid_vel(1:nsd_solid,1:nn_solid)*dt
 
   do i=1,nn_solid
@@ -94,9 +91,8 @@ end if
   else
      viter=sqrt(viter)/vnorm
   endif
-if (myid ==0) then
   write(*,*) ' norm=',viter
-end if
+
  !...update current position
 
   do j=1,nsd_solid
@@ -106,9 +102,9 @@ end if
  !...write to 'vel_time.m' to plot
   write(9500,*) 'vel(',its,')=',solid_vel(1,221),';'
   write(9500,*) 'time(',its,')=',tt,';'
-if(myid ==0) then
+
   write(*,*) " solid position updated"
-end if
+
 
   return
 end subroutine solid_update

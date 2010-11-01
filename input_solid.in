@@ -9,7 +9,7 @@ nrigid= 0 		! 0=deformable; 1=rigid body
 
 n_tec_ens= 0    	! output format: 0=ensight; 1=tecplot;(0 is only option)
 
-ndelta= 2 		! 1=RKPM(nonuniform)->the only option for now
+ndelta= 1 		! 1=RKPM(nonuniform)->the only option for now
 
 nnd= 441		! total number of nodes
 nume1= 400		! total number of elements

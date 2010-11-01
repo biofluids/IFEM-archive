@@ -12,5 +12,3 @@
   real(8),allocatable :: coor_1(:,:)
   integer,allocatable :: solid_fem_con_1(:,:)
   integer :: error_id,i
-  integer,dimension(1:ne_solid) :: mtype ! solid material type index
-  integer,allocatable :: mtype1(:)

@@ -17,10 +17,10 @@ module fluid_variables
   real(8) :: bv(ndfpad,maxnsurf),ic(ndfpad)  
   integer :: bcd(nsdpad,maxnsurf)
   real(8) :: bvd(nsdpad,maxnsurf),icd(nsdpad)
-  real(8) :: landa_over_mu
+!  real(8) :: landa_over_mu
   integer :: mapping(6,8,8)
   real(8) :: interface(1:nsdpad),gravity(1:nsdpad),delta(0:21)
-  integer :: etype,inner,outer,iscaling,kinner,kouter
+  integer :: etype,inner,outer,iscaling
   logical :: hg_vol,static,taudt,stokes,steady,conserve
   integer :: restart
   logical :: twod
@@ -30,7 +30,5 @@ module fluid_variables
   integer,parameter :: tri=1,qud=2,tet=3,hex=4,tris=5,quds=6,tets=7,hexs=8
   integer :: udf,vdf,wdf,pdf
   real(8),parameter :: epsilon = 1.0e-12
-  integer :: ne_inflow, edge_inflow ! nature boundary condition
-  real(8) pin ! inflow pressure
-  integer outedge
+
 end module fluid_variables

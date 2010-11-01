@@ -1,7 +1,0 @@
-MPICH_DIR=/opt/openmpi/1.2.6-V00/gcc
-export MPICH_DIR
-PATH=$MPICH_DIR/bin:$PATH
-export PATH
-MANPATH=$MPICH_DIR/man:$MANPATH
-export MANPATH
-

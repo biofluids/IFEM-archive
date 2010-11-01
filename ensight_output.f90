@@ -98,7 +98,7 @@ end subroutine zfem_ensCase
 ! This subroutine generates Ensight6 geometry file
 ! Lucy Zhang
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,nebase)
+subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   use solid_variables
   use fluid_variables
   implicit none
@@ -108,9 +108,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
   real(8)  :: xn(nsd,nn)
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_curr  !...node position current
-  integer :: mtype(ne)       ! Materail type index
-  integer :: necover
-  integer :: nebase
+
   character(len =  7) :: fileroot
   character(len = 14) :: file_name
 
@@ -149,7 +147,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
   endif
 
 
-  write(file_name,'(A7, A6)')  'fem.geo', fileroot
+  write(file_name,'(A8, A6)')  'fem.geo', fileroot
   write(6,*) 'writing... ', file_name 
 
   open(i_file_unit, file=file_name, form='formatted')
@@ -180,9 +178,9 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
      if (nsd==2) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),0.0
   enddo
 
- !...write cover part - connectivity
+ !...write structure part - connectivity
   write(i_file_unit, *) 'part 1'
-  write(i_file_unit, *) ' Cover '
+  write(i_file_unit, *) ' Structure Model'
   if (nsd_solid == 0) then
      write(i_file_unit,'(a7)') '  point'
      write(i_file_unit,'(i8)') nn_solid
@@ -211,72 +209,21 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
 	  select case (nen_solid)
 	  case (3)
 		 write(i_file_unit, *) ' tria3'  ! element type
-		 write(i_file_unit, '(i8)')  necover   ! number of elements
+		 write(i_file_unit, '(i8)')  ne_solid   ! number of elements
 		 do i=1, ne_solid
-                    if (mtype(i)==1) then
 			write(i_file_unit,'(4i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-                    endif
 		 enddo
 	  case (4)
 		 write(i_file_unit, *) 'quad4'    ! element type
-		 write(i_file_unit, '(I8)')  necover   ! number of elements
+		 write(i_file_unit, '(I8)')  ne_solid   ! number of elements
 		 do i=1, ne_solid
-                   if (mtype(i)==1) then
 			write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-		   endif 
-                enddo
+		 enddo
 	  end select
-  endif
-! Output solid base part
- write(i_file_unit, *) 'part 2'
-  write(i_file_unit, *) ' Base '
-if (nsd_solid == 0) then
-     write(i_file_unit,'(a7)') '  point'
-     write(i_file_unit,'(i8)') nn_solid
-     do i=1,nn_solid
-        write(i_file_unit,'(2i8)') i,i
-     enddo
-  elseif (nsd_solid == 3) then
-     select case (nen_solid)
-     case (8) 
-        write(i_file_unit,'(a7)') '  hexa8'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
-        do i=1, ne_solid
-           write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-        enddo
-     case (4)
-        write(i_file_unit,'(a7)') ' tetra4'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
-        do i=1, ne_solid
-           write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-        enddo
-     case default
-        write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
-        stop
-     end select
-  elseif (nsd_solid == 2) then
-          select case (nen_solid)
-          case (3)
-                 write(i_file_unit, *) ' tria3'  ! element type
-                 write(i_file_unit, '(i8)')  nebase   ! number of elements
-                 do i=1, ne_solid
-                       if (mtype(i)==2) then
-                        write(i_file_unit,'(4i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-                       endif
-                 enddo
-          case (4)
-                 write(i_file_unit, *) 'quad4'    ! element type
-                 write(i_file_unit, '(I8)')  nebase   ! number of elements
-                 do i=1, ne_solid
-                    if (mtype(i)==2) then
-                       write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
-                    endif 
-                enddo
-          end select
   endif
 
     !write fluids part element connectivity
-  write(i_file_unit, *) 'part 3'
+  write(i_file_unit, *) 'part 2'
   write(i_file_unit, *) ' Fluid Model'
   if (nsd==3) then
 	  select case (nen)
@@ -400,11 +347,11 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   endif
 
 
-  write(name_file1,'(A7,  A6)')  'fem.vel', fileroot
-  write(name_file2,'(A7,  A6)')  'fem.pre', fileroot
-  write(name_file3,'(A10, A6)')  'fem.stress', fileroot
-  write(name_file4,'(A10, A6)')  'fem.strain', fileroot
-  write(name_file5,'(A7,  A6)')  'fem.fsi', fileroot
+  write(name_file1,'(A8,  A6)')  'fem.vel', fileroot
+  write(name_file2,'(A8,  A6)')  'fem.pre', fileroot
+  write(name_file3,'(A11, A6)')  'fem.stress', fileroot
+  write(name_file4,'(A11, A6)')  'fem.strain', fileroot
+  write(name_file5,'(A8,  A6)')  'fem.fsi', fileroot
 
 !===========================================================================
 ! Output velocity, interaction force, pressure, stress, strain into Ensight format

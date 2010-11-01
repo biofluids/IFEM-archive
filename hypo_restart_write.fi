@@ -11,7 +11,7 @@
        !...simulation data
         write(restart_unit) its,tt,klok,restart_klok
        !...fluid data
-        write(restart_unit) ien,rng,x,xref,hg,id,d
+        write(restart_unit) ien,rng,x,xref,hg,id,kid,d
        !...solid data
         write(restart_unit) solid_fem_con,solid_surface,solid_coor_init,solid_coor_curr, &
                             solid_vel, solid_prevel, solid_accel,                        &
