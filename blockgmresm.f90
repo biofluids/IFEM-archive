@@ -1,7 +1,8 @@
 !c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c	S. Aliabadi                                                          c
 !c	cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine blockgmresm(xloc,dloc,p,ien,jac)
+	subroutine blockgmresm(xloc,dloc,p,ien,jac, &
+			ne_local,ien_local)
 	use fluid_variables, only: nsd,nn,nen,ne,nquad,wq,sq
 	use ale_variables
 	use global_constants
@@ -25,12 +26,17 @@
         real* 8 mu,la
 !c	real* 8 mu,la,landa_over_mu
 	integer inl, ie, isd, idf, iq, node
-
+!============================
+! MPI varibalbes
+  integer ne_local ! # of element on each processor
+  integer ien_local(ne_local) ! subregion-->wholeregion element index
+  integer ie_local ! loop parameter
 
 
 	mu = 1.0
 	la = mu * landa_over_mu
-        do ie=1,ne 
+        do ie_local=1,ne_local
+	   ie=ien_local(ie_local) 
 	   do inl=1,nen
 	      do isd=1,nsd
 		 x(isd,inl) = xloc(isd,ien(inl,ie))

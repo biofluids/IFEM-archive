@@ -2,7 +2,7 @@
 LIBS =/usr/lib64/liblapack.so \
       /usr/lib64/libblas.so
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
-r_common.o fluid_variables.o solid_variables.o \
+r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 ale_variables.o \
 delta_nonuniform.o ensight_output.o form.o meshgen_solid.o \
 meshgen_fluid.o read.o parseinput.o correct.o  echoinput.o equal.o error.o \
@@ -16,16 +16,19 @@ set.o shape.o solid_solver.o solid_update.o update.o vol.o \
 data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
 migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o volcorr.o \
 cg.o \
-blockm.o read_alebc.o formid_ale.o innerbc_ale.o gmresm.o fclear.o blockgmresm.o \
+blockm.o read_alebc.o formid_ale.o innerbc_ale.o fclear.o blockgmresm.o \
 add.o defgrad.o \
-gmresnew.o defgrad_new.o velocity.o block_ale.o gmres_ale.o blockgmres_ale.o \
-block_newale.o blockgmres_newale.o gmres_newale.o moving_bc.o \
-givens.o
+gmresnew.o defgrad_new.o velocity.o \
+block_ale.o blockgmres_ale.o gmres_ale.o moving_bc.o \
+givens.o \
+innerbc_ale_vocaltest.o	innerbc_ale_updown.o innerbc_ale_updown_larger.o\
+inflownode.o edgeele.o bcequation_node.o bc_shape2d_node.o nature_pre.o \
+readpart.o communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o
 
 
 IFEM: $(OBJ)
-	ifort -g -O0 -o IFEM $(OBJ) $(LIBS)
+	mpiifort -g -O0 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	ifort -c -g $<
+	mpiifort -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

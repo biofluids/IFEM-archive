@@ -6,8 +6,12 @@
 
 program main
   use parseinput
+  use mpi_variables
   implicit none
-
+  include 'mpif.h'
+        call mpi_init(ierror)
+        call mpi_comm_size(mpi_comm_world,ncpus,ierror)
+        call mpi_comm_rank(mpi_comm_world,myid,ierror)
  !...set standard values 
   call initialize  ! for fluids
 
@@ -21,5 +25,5 @@ program main
 
  !...switch to main routine    
   call hypo
-
+call mpi_finalize(ierror)
 end program main

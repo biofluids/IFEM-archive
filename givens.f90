@@ -1,9 +1,9 @@
-subroutine givens(h,M,beta,x)
+subroutine givens(h,M,beta)
 ! Solve the least square problem M * x = beta 
 ! with Givens rotation and Back substitution 
 ! h is a hessenberg matrix
 ! M is dimension of h, h=dim(M+1,M)
-! x is the out puts
+! use beta as the out puts beta=x
 
 integer M
 real(8) h(M+1,M)
@@ -47,6 +47,8 @@ do j=M-1,1,-1
 	end do
 	x(j)=(beta(j)-tmp)/h(j,j);
 end do
+
+beta(:)=x(:)
 
 return
 

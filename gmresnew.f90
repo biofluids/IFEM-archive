@@ -1,8 +1,12 @@
 
 
-subroutine gmres_new(x,w,bg,dg,ien,id,jac)
+subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
+			ne_local,ien_local,node_local,nn_local, &
+			global_com,nn_global_com,local_com,nn_local_com)
 	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,nquad
+        use mpi_variables
 	implicit none
+     	 include 'mpif.h'
 ! use GMRES to solve mesh update equation  with diagonal preconditioner
 	real* 8 x(nsd,nn),id(nsd,nn)
 	real* 8 ien(nen,ne)
@@ -30,9 +34,26 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac)
         integer time_arrary_1(8)
 	real(8) start_time
 	real(8) end_time
-	real(8) h_givens(inner+1,inner)
-	real(8) x_givens(inner+1)
 	real(8) err_givens
+!============================
+! MPI varibalbes
+  integer ne_local ! # of element on each processor
+  integer ien_local(ne_local) ! subregion-->wholeregion element index
+  integer ie_local ! loop parameter
+  integer node_local(nn_local)
+  integer nn_local
+  integer jcount
+  integer kcount
+  integer node
+  integer nn_global_com
+  integer global_com(nn_global_com)  ! global node index for communication
+  integer nn_local_com
+  integer local_com(nn_local_com)  ! local index in the communication region on each processor
+  integer flag
+  real(8) dg_sent(nsd*nn)
+  real(8) space1(inner)
+  real(8) space2(inner)
+!---------------------------------------------
 	eps = 1.0e-6
 	e1(:) = 0
 	e1(1) = 1
@@ -42,123 +63,196 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac)
 	TRAN = 'N'
 	av_tmp(:,:) = 0
 	avloc(:) = 0
+	dv(:) = 0
 !	w(:) = 1.0
-        call getnorm(r0,r0,nsd*nn,rnorm0)
+        call getnorm_pa(r0,nsd,nn,node_local,nn_local,rnorm0)
         rnorm = sqrt(rnorm0)
 
-
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while(iouter .le. outer)
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
 
-	Vm(:,:) = 0
-	do icount = 1, nsd*nn
-	   Vm(icount,1) = r0(icount)/rnorm
-	end do ! get V1
+	Vm(:,:) = 0.0d0
+        do icount = 1, nn_local
+           node=node_local(icount)
+           do jcount=1,nsd
+                Vm((node-1)*nsd+jcount,1) = r0((node-1)*nsd+jcount)/rnorm
+           end do
+        end do ! get V1
 
 	   beta(:) = rnorm*e1(:) ! get beta*e1
 	   Hm(:,:) = 0
 !!!!!!!!!!!!!!!!start inner loop!!!!!!!!!!!!!
-        call date_and_time(values=time_arrary_0)  
+!        call date_and_time(values=time_arrary_0)  
 	   do j=1,inner
 	  
 
-		 do icount=1, nsd*nn
-		    dv(icount) = 1/w(icount)*Vm(icount,j)
-		 end do!!!!!!!!!!calcule eps*inv(P)*V1
+                 do icount=1, nn_local
+                    node=node_local(icount)
+                    do jcount=1,nsd
+                        dv((node-1)*nsd+jcount) = 1/w((node-1)*nsd+jcount)*Vm((node-1)*nsd+jcount,j)
+                    end do
+                 end do!!!!!!!!!!calcule eps*inv(P)*V1
+
 		vloc(:,:) = 0.0d0
-		call equal(dv,vloc,nsd*nn)
+                call equal_pa(dv,vloc,nsd,nn,node_local,nn_local)
+                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,nsd,nn)
 !		vloc(:,:) = vloc(:,:)+d(:,:)  ! calculate u+eps*inv(P)*V1
 		av_tmp(:,:) = 0.0d0
-		call blockgmresm(x,vloc,av_tmp,ien,jac)
-		call equal(av_tmp,avloc,nsd*nn)
-!		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
-		call setid(avloc,id,nsd)
-	      do i=1,j
-		do icount = 1, nsd*nn
-		   Hm(i,j)=Hm(i,j)+avloc(icount)*Vm(icount,i)
-		 
-		end do
-	      end do  ! construct AVj and hi,j
+        call date_and_time(values=time_arrary_0)
 
-	         
-	      do icount = 1, nsd*nn
-	! call equal(temp,dg,nsd*nn)
-		 do i=1,j
-		   Vm(icount,j+1) = Vm(icount,j+1)-Hm(i,j)*Vm(icount,i)
-		 end do
-		 Vm(icount,j+1)=Vm(icount,j+1)+avloc(icount)
-	      end do  ! construct v(j+1)
+		call blockgmresm(x,vloc,av_tmp,ien,jac,ne_local,ien_local)
 
-	      do icount = 1, nsd*nn
-		 temp(icount)=Vm(icount,j+1)
-	      end do
-	      call getnorm(temp, temp, nsd*nn,rnorm0)
-
-	      Hm(j+1,j) = sqrt(rnorm0)
-
-	      do icount = 1, nsd*nn
- 		 Vm(icount,j+1)=Vm(icount,j+1)/Hm(j+1,j)
-	      end do
-	  end do  ! end inner loop
-	call date_and_time(values=time_arrary_1)
-	start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
-        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
-        write(*,*) 'Inner loop time', end_time-start_time
-
-
-	call date_and_time(values=time_arrary_0)
-	write(*,*) 'time', time_arrary_0(7)
-
-	h_givens=Hm	
-!	write(*,*) 'hm-hgivens', Hm(:,:)
-	call givens(h_givens,inner,beta,x_givens)
-
-!	call DGELS(TRAN,inner+1,inner,1,Hm,inner+1,beta,inner+1,workls,2*inner,INFO)
-	
-!	err_givens=maxval(abs(beta(1:inner)-x_givens(1:inner)))
-!	write(*,*) 'givens error', err_givens
-	beta=x_givens
         call date_and_time(values=time_arrary_1)
         start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
         end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
-	write(*,*) 'LS time by lapack', end_time-start_time
+!        if (myid == 0) write(*,*) 'Block GMRESN time', end_time - start_time
+
+
+
+
+                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,nsd,nn)
+
+		avloc(:)=0.0d0
+                call equal_pa(av_tmp,avloc,nsd,nn,node_local,nn_local)
+!		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
+		call setid(avloc,id,nsd)
+
+
+        call date_and_time(values=time_arrary_0)
+		space1(:)=0.0d0
+		space2(:)=0.0d0
+	      do i=1,j
+                call vector_dot_pa(avloc,Vm(:,i),nsd,nn,nn_local,node_local,space1(i))
+!                call vector_dot_pa(avloc,Vm(:,i),nsd,nn,nn_local,node_local,Hm(i,j))
+	      end do
+		call mpi_barrier(mpi_comm_world,ierror)
+		call mpi_reduce(space1(1),space2(1),j,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
+		call mpi_bcast(space2(1),j,mpi_double_precision,0,mpi_comm_world,ierror)
+		Hm(1:j,j)=space2(1:j)
+!		if (myid == 0) write(*,*) Hm(:,:)
+        call date_and_time(values=time_arrary_1)
+        start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
+        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
+!        if (myid == 0) write(*,*) ' In GMRESN Comunicate time', end_time - start_time
+
+              do icount = 1, nn_local
+                node=node_local(icount)
+                do jcount=1,nsd
+                        kcount=(node-1)*nsd+jcount
+                
+                        do i=1,j
+                                Vm(kcount,j+1) = Vm(kcount,j+1)-Hm(i,j)*Vm(kcount,i)
+                        end do
+                        Vm(kcount,j+1)=Vm(kcount,j+1)+avloc(kcount)
+                end do
+              end do  ! construct v(j+1)
+
+              do icount = 1, nn_local
+                node=node_local(icount)
+                do jcount=1,nsd
+                        kcount=(node-1)*nsd+jcount
+                        temp(kcount)=Vm(kcount,j+1)
+                end do
+              end do
+              call getnorm_pa(temp,nsd,nn,node_local,nn_local,rnorm0)
+
+              Hm(j+1,j) = sqrt(rnorm0)
+
+              do icount = 1, nn_local
+                node=node_local(icount)
+                do jcount=1,nsd
+                        kcount=(node-1)*nsd+jcount
+                        Vm(kcount,j+1)=Vm(kcount,j+1)/Hm(j+1,j)
+                end do
+              end do
+	  end do  ! end inner loop
+
+!	call date_and_time(values=time_arrary_1)
+!	start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
+!        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
+!	if (myid == 0) write(*,*) 'Inner loop time', end_time - start_time
+
+
+!	call date_and_time(values=time_arrary_0)
+!===================================================================================
+! Use Givens rotation to solve the LS problem
+           call mpi_barrier(mpi_comm_world,ierror)
+	call givens(Hm,inner,beta)
+!====================================================================================           
+! Use lapack to solve the LS problem
+!	call DGELS(TRAN,inner+1,inner,1,Hm,inner+1,beta,inner+1,workls,2*inner,INFO)
+	
+!        call date_and_time(values=time_arrary_1)
+!        start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
+!        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
+!	write(*,*) 'LS time by lapack', end_time-start_time
 !!!!!!!!!!!!beta(1:inner) is ym, the solution!!!!!!!!!!!!!!!!!!!!!!!!!
 	Vy(:) = 0
-	do icount=1,nsd*nn
-	   do i=1,inner
-	      Vy(icount)=Vy(icount)+Vm(icount,i)*beta(i)
-	   end do
-	   x0(icount)=x0(icount)+Vy(icount)
-	end do ! calculate Xm
-	do icount = 1, nsd*nn
-	   dv(icount) = 1/w(icount)*x0(icount)
-	end do
+        do icount=1, nn_local
+           node=node_local(icount)
+           do jcount=1,nsd
+                kcount=(node-1)*nsd+jcount
+                do i=1,inner
+                         Vy(kcount)=Vy(kcount)+Vm(kcount,i)*beta(i)
+                end do
+                x0(kcount)=x0(kcount)+Vy(kcount)
+           end do
+        end do ! calculate Xm
+
+        do icount = 1, nn_local
+           node=node_local(icount)
+           do jcount=1,nsd
+                kcount=(node-1)*nsd+jcount
+                dv(kcount) = 1/w(kcount)*x0(kcount)
+           end do
+        end do
 
 	vloc(:,:) = 0
-	call equal(dv,vloc,nsd*nn)
+        call equal_pa(dv,vloc,nsd,nn,node_local,nn_local)
+        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,nsd,nn)
+
 !	vloc(:,:) = vloc(:,:)+d(:,:)
 	av_tmp(:,:) = 0.0d0
-        call blockgmresm(x,vloc,av_tmp,ien,jac)
-    call equal(av_tmp,avloc,nsd*nn)
+        call blockgmresm(x,vloc,av_tmp,ien,jac,ne_local,ien_local)
+        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,nsd,nn)
+avloc(:)=0.0d0
+       call equal_pa(av_tmp,avloc,nsd,nn,node_local,nn_local)
         call setid(avloc,id,nsd)
 
 !	avloc(:) = (-avloc(:)+bg(:))/eps
 !!!!!!!!!!calculate AXm
-	do icount=1,nsd*nn
-	   r0(icount) = bg(icount)-avloc(icount)
-	end do !update r0=f-AX0
 
-	call getnorm(r0,r0,nsd*nn,rnorm0)
-	err = sqrt(rnorm0)
+        do icount=1,nn_local
+           node=node_local(icount)
+           do jcount=1,nsd
+              kcount=(node-1)*nsd+jcount
+              r0(kcount) = bg(kcount)-avloc(kcount)
+           end do
+        end do !update r0=f-AX0
+
+        call getnorm_pa(r0,nsd,nn,node_local,nn_local,rnorm0)
+        err = sqrt(rnorm0)
+
 
 	rnorm = sqrt(rnorm0)
 	iouter = iouter + 1        
 
-	write(*,*) 'In ALE gmres new err=',err
+	if (myid == 0) write(*,*) 'Mesh GMRES ERROR =',err
 111     continue  ! end outer loop
 
+        dg_sent(:)=0.0d0
+        do icount=1, nn_local
+           node=node_local(icount)
+           do jcount=1,nsd
+              kcount=(node-1)*nsd+jcount
+              dg_sent(kcount) = 1/w(kcount)*x0(kcount) ! unscaled x0
+           end do
+        end do
+        dg(:)=0.0d0
+        call mpi_barrier(mpi_comm_world,ierror)
+        call mpi_reduce(dg_sent(1),dg(1),nsd*nn,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
+        call mpi_bcast(dg(1),nsd*nn,mpi_double_precision,0,mpi_comm_world,ierror)
+        call mpi_barrier(mpi_comm_world,ierror)
 
-	dg(:) = 1/w(:)*x0(:) ! unscaled x0
-!write(*,*) 'x0', x0(:)
 	return
 	end

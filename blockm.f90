@@ -2,10 +2,12 @@
 !c       S. K. ALIABADI
 !c       modified for linear elastic equation, Lucy Zhang 4/22/99
 !c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine blockm(xloc, eloc, dloc, w, p, ien,jac)
+	subroutine blockm(xloc, eloc, dloc, w, p, ien,jac, &
+			ne_local,ien_local)
 	use fluid_variables, only: nsd,nen,ne,nn,nquad,wq,sq
 	use global_constants
 	use ale_variables
+	use mpi_variables
 	implicit none
 
 	integer ien(nen,ne)
@@ -27,11 +29,16 @@
 !c....   stiffness matrix
 	real* 8 w(nsd,nn)  
 	integer inl, ie, isd, iq, node
-
+!======================================
+! varibles for mpi imteplation
+        integer ne_local ! # of element on each processor
+        integer ien_local(ne_local) ! subregion-->whole region element index
+        integer ie_local ! loop parameter
 
 	mu = 1.0
 	la = mu * landa_over_mu
-        do ie=1,ne 
+        do ie_local=1,ne_local
+	   ie=ien_local(ie_local) 
 	   do inl=1,nen
 	      do isd=1,nsd
 !c		 e(isd,inl) = eloc(isd,ien(inl,ie))

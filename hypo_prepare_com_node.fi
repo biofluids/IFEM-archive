@@ -1,0 +1,87 @@
+node_test(:)=0
+
+do icount=1,ne_intlocal
+	do jcount=1,nen
+	node_test(ien(jcount,ien_intlocal(icount)))=1
+	end do
+end do
+! set nodes included by the elements in each processor to be 1
+!write(*,*) 'I am here', 'myid', myid 
+call mpi_reduce(node_test(1),node_test_g(1),nn,mpi_integer,mpi_sum,0,mpi_comm_world,ierror)
+call mpi_bcast(node_test_g(1),nn,mpi_integer,0,mpi_comm_world,ierror)
+call mpi_barrier(mpi_comm_world,ierror)
+! nodes needed communication in node_test_g is larger than 1
+count=0
+write(*,*) 'I am here', 'myid', myid
+do icount=1,nn
+	if (node_test_g(icount) .gt. 1) then
+	count=count+1
+	end if
+end do
+nn_global_com=count
+! # of nodes needs communication globally
+
+allocate(global_com(nn_global_com))
+
+
+count=0
+do icount=1,nn
+        if (node_test_g(icount) .gt. 1) then
+        count=count+1
+        global_com(count)=icount
+        end if
+end do
+! global node index for communication
+call mpi_barrier(mpi_comm_world,ierror)
+
+write(*,*) 'myid', myid, 'nn_global_com',nn_global_com
+
+
+count=0
+node_test(:)=0
+do icount=1,ne_intlocal
+	jcount=ien_intlocal(icount)
+	do kcount=1,nen
+	node_test(ien(kcount,jcount))=1
+	end do
+end do
+
+do icount=1,nn_global_com
+        if (node_test(global_com(icount)) == 1) then
+        count=count+1
+        end if
+end do
+nn_local_com=count
+! # of nodes needs communication locally on each processor
+
+call mpi_barrier(mpi_comm_world,ierror)
+write(*,*) 'myid', myid, 'nn_local_com',nn_local_com
+
+allocate(local_com(nn_local_com))
+
+count=0
+do icount=1,nn_global_com
+	if (node_test(global_com(icount)) == 1) then
+	count=count+1
+	local_com(count)=icount
+	end if
+end do
+! local index in the communication region on each processor
+
+
+
+if (myid ==0) then
+ open(unit=8411, file='global_com', status='unknown')
+do icount=1,nn_global_com
+write(8411,*) global_com(icount)
+end do
+end if
+
+
+if (myid ==0) then
+ open(unit=8413, file='local_com', status='unknown')
+
+do icount=1,nn_local_com
+write(8413,*) local_com(icount), myid
+end do
+end if
