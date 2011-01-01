@@ -19,11 +19,17 @@ blockm.o read_alebc.o formid_ale.o innerbc_ale.o fclear.o blockgmresm.o \
 add.o defgrad.o innerbc_ale_re.o\
 gmresnew.o defgrad_new.o velocity.o \
 block_ale.o blockgmres_ale.o gmresnew_ale.o moving_bc.o \
-givens.o \
+givens.o defgrad_new1.o\
 innerbc_ale_vocaltest.o	innerbc_ale_updown.o innerbc_ale_updown_larger.o\
 inflownode.o edgeele.o bcequation_node.o bc_shape2d_node.o nature_pre.o \
 readpart.o communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
-setnei_new.o communicate_res_ad.o setid_pa.o
+setnei_new.o communicate_res_ad.o setid_pa.o innerbc_ale_initflatplate.o \
+naca00095aoatest1.o flatplate5aoatest1.o naca00095aoa3dtest1.o cylindertest5.o \
+flatplate0aoatest2.o \
+solve_solid_disp.o block_solid.o outnormal_2d.o outnormal_hex.o outnormal_tet.o \
+setsolid_id.o gmres_solid.o form_solidid12.o blockgmres_solid.o \
+read_solidbc.o read_solidnodebc.o apply_2ndbc_solid2d.o apply_2ndbc_solid.o \
+naca00095aoa.o
 
 
 IFEM: $(OBJ)

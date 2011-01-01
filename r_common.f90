@@ -44,6 +44,7 @@ module r_common
   real(8) :: xmg(3)
   real(8) :: dge(6,3,9),ddge(6,3,3,9,9)
   real(8) :: young_mod, Poisson,rc1,rc2,rk
+  real(8) :: group_young(2),group_rc1(2),group_rc2(2)
   integer :: material_type
 end module r_common
 

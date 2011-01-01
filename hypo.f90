@@ -41,6 +41,8 @@ real(8) kw(nsd,nn)
 real(8) e_ale(nsd,nn)
 real(8) disp_ale(nsd,nn)
 real(8) kdg(nsd,nn)
+integer qq
+real(8) initvelocity(nsd,nn)
 !========================================
 include "hypo_declaration_ale.fi"
 !============================
@@ -123,8 +125,8 @@ time=mpi_wtime()
 !----------------------------------------------------
 xold(:,:)=x(:,:) ! store previous step moving mesh
 dold(:,:)=d(:,:) ! store previous step velcotiy and pressure
-refvelo(:,:,:)=refvel(:,:,:) ! store previous step referential velocity
-jaco(:,:)=jac(:,:) ! store previous step determinant of deformation 
+!refvelo(:,:,:)=refvel(:,:,:) ! store previous step referential velocity
+!jaco(:,:)=jac(:,:) ! store previous step determinant of deformation 
 !disp_ale(:,:)=0.0d0
 !----------------------------------------------------
 kinner=inner ! using same # of inner space to solve both 2 gmres
@@ -141,41 +143,103 @@ kouter=outer ! using same # of outer space to solve both 2 gmres
 !call innerbc_ale_updown(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold) ! Apply boundary movement for rigid vocal folds 
 ! move up and down
 !call innerbc_ale_updown_larger(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold) ! Apply boundary movement for rigid vocal folds move up and down using the geometry similar as Krane's 2006 paper
-call innerbc_ale_re(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold)
+!call innerbc_ale_re(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold)
+!call innerbc_ale_initflatplate(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold)
+call naca00095aoa(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,solid_accel,initvelocity,xold)
 
 
 !do iit=1,2
-kp(:,:)=0.0d0
-kw(:,:)=0.0d0 ! clear the matrix
-e_ale(:,:)=0.0d0 ! no extern force for this case
+!kp(:,:)=0.0d0
+!kw(:,:)=0.0d0 ! clear the matrix
+!e_ale(:,:)=0.0d0 ! no extern force for this case
 
-time1_begin=mpi_wtime()
+!time1_begin=mpi_wtime()
 
-call blockm(xold,e_ale,disp_ale,kw,kp,ien,jac,ne_intlocal,ien_intlocal)
-time1_end=mpi_wtime()
-if (myid == 0) write(*,*) 'Time evaluate block', time1_end-time1_begin
+!call blockm(xold,e_ale,disp_ale,kw,kp,ien,jac,ne_intlocal,ien_intlocal)
+!time1_end=mpi_wtime()
+!if (myid == 0) write(*,*) 'Time evaluate block', time1_end-time1_begin
 
 !=====================================================================
 ! Communicate residual and diagonal preconditioner
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,kp,nsd,nn)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,kw,nsd,nn)
-      call mpi_barrier(mpi_comm_world,ierror)
-        call communicate_res_ad(kp,nsd,nn,send_address,ad_length)
-      call mpi_barrier(mpi_comm_world,ierror)
-        call communicate_res_ad(kw,nsd,nn,send_address,ad_length)
-if (myid == 0) write(*,*) 'First communication in hypo'
+!      call mpi_barrier(mpi_comm_world,ierror)
+!        call communicate_res_ad(kp,nsd,nn,send_address,ad_length)
+!      call mpi_barrier(mpi_comm_world,ierror)
+!        call communicate_res_ad(kw,nsd,nn,send_address,ad_length)
+!if (myid == 0) write(*,*) 'First communication in hypo'
 !=======================================================================
 !call setid(kp,kid,nsd)
-call setid_pa(kp,nsd,nn,kid,node_local,nn_local)
+!call setid_pa(kp,nsd,nn,kid,node_local,nn_local)
 
-call getnorm_pa(kp,nsd,nn,node_local,nn_local,res_l)
-res_l=sqrt(res_l)
-kdg(:,:)=0.0d0 ! clear matrix
-if (myid ==0) write(*,*) 'res_l', res_l, 'land-over-mu', landa_over_mu
+!call getnorm_pa(kp,nsd,nn,node_local,nn_local,res_l)
+!res_l=sqrt(res_l)
+!kdg(:,:)=0.0d0 ! clear matrix
+!if (myid ==0) write(*,*) 'res_l', res_l, 'land-over-mu', landa_over_mu
 
- call gmres_new(xold,kw,kp,kdg,ien,kid,jac, &
-                        ne_intlocal,ien_intlocal,node_local,nn_local, &
-                        global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length)
+if (its==1) then
+	solid_vel=initvelocity
+end if
+
+!if (myid ==0) then
+!do qq=1,nn
+!	if ((qq .ge. 5) .and. (qq .le. 19)) then
+!		write(*,*) 'Solid Accel'
+!		write(*,'(I, F12.4, F12.4)') qq, solid_accel(1,qq), solid_accel(2,qq)
+!	end if
+!end do
+!end if
+	
+
+call form_solidid12(id_solidbc,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid, &
+		ne_solid, solid_fem_con)
+
+solid_stress(:,:) = 0.0d0
+damp_solid=10.0
+solid_coor_pre1=solid_coor_curr
+!call solve_solid_disp(solid_coor_init,solid_coor_curr,kid, &
+!                solid_fem_con,node_sbc,solid_coor_pre1,solid_vel, &
+!                solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype)
+
+call mpi_barrier(mpi_comm_world,ierror)
+
+
+call solve_solid_disp_pa(solid_coor_init,solid_coor_curr,kid, &
+                solid_fem_con,node_sbc,solid_coor_pre1,solid_vel,&
+		solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype,&
+		ne_intlocal,ien_intlocal,nn_local,node_local,send_address,ad_length,&
+		global_com,nn_global_com,local_com,nn_local_com)
+
+call mpi_barrier(mpi_comm_world,ierror)
+
+meshvel(:,:)=solid_vel(:,:)
+x(:,:)=solid_coor_curr(:,:)
+xref(:,:)=solid_coor_init(:,:)
+
+!if (myid == 0 ) then
+!do qq=1,nn
+!	if ((qq .ge. 5) .and. (qq .le. 19)) then
+!		write(*,*) 'solid_accel'
+!		write(*,'(I, F12.4, F12.4)') qq, solid_accel(1,qq), solid_accel(2,qq)
+!	end if
+!end do
+!do qq=1,nn
+!	if ((qq .ge. 5) .and. (qq .le. 19)) then
+!		write(*,*) 'id_solidbc'
+!		write(*,'(I, F8.4, F8.4)') qq, id_solidbc(1,qq), id_solidbc(2,qq)
+!	end if
+!end do
+!do qq=1,nn
+!	if ((qq .ge. 5) .and. (qq .le. 19)) then
+!		write(*,*) 'kid'
+!		write(*,'(I, F8.4, F8.4)') qq, kid(1,qq), kid(2,qq)
+!	end if
+!end do
+!end if
+ 
+! call gmres_new(xold,kw,kp,kdg,ien,kid,jac, &
+!                        ne_intlocal,ien_intlocal,node_local,nn_local, &
+!                        global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length)
 ! call gmresm(xref,kid,kw,kp,kdg,ien,kz,kv,kzg,kavg,ksm,kavloc,kh,ky,kcc,kss)
 call getnorm_pa(kdg,nsd,nn,node_local,nn_local,del_l)
  del_l = sqrt(del_l)
@@ -193,22 +257,26 @@ if (myid == 0) write(*,*) '**********   Mesh Updated   **********'
 
 time=mpi_wtime()
 
-call add(x,xold,disp_ale,nsd)
+!call add(x,xold,disp_ale,nsd)  **CHECKING**
 !call defgrad(x,xref,ien,f,jac,finv,jacinv) ! old deformation gradient subroutine only for 3-D
-call defgrad_new(x,xref,ien,f,jac,finv,jacinv) ! works for both 2-D and 3-D
-
+!call defgrad_new(x,xref,ien,f,jac,finv,jacinv) ! works for both 2-D and 3-D
+!write(*,*) 'Enter Defgrad'
+call defgrad_new1(x,xref,ien,jac,jacinv)
 !call defgrad_new(x,xref,ien,f_new,jac_new,finv_new,jacinv_new)
 !write(*,*) 'diff between old and new in f', maxval(abs(jac_new(:,:)*jacinv_new(:,:)))
-call velocity(x,xold,meshvel,refvel,finv,d,ien)
+!call velocity(x,xold,meshvel,refvel,finv,d,ien)
+!call velocity_new(x,xold,meshvel,refvel,d,ien)
 !??????????????????
 !??? do not know what 'af' is 
 !??????????????????
 
-call formid(id,rng,ien)  ! apply essential B.C 
-call formd(d,rng,ien)
+!call formid(id,rng,ien)  ! apply essential B.C 
+!call formd(d,rng,ien)
 ! Not sure about the moving inner ALE boundary
 ! Moving inner bloundary condition
 call moving_bc(d,id,node_alebc,nn_alebc,meshvel)
+
+goto 1001
 
 ! ??????????????????????????????????????????
 f_fluids(:,:)=0.0d0
@@ -264,6 +332,8 @@ call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
 del_l = sqrt(del_l)
 call update(p,d,dg,ndf)
 
+1001 continue
+
 if (myid == 0) write(*,10)  iit, res_l, del_l
 10 format('Block RES and Nowton Iteration Error', I3, e15.7, e15.7)
 
@@ -280,6 +350,8 @@ end if
 time=mpi_wtime()-time
 if (myid == 0) write(*,*) 'Time for Outputting data', time
 
+!1001 continue
+ 
   enddo time_loop
 
 

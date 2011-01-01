@@ -8,8 +8,8 @@
 !real(8) ky(inner+1)
 !real(8) kcc(inner)
 !real(8) kss(inner) 
-real(8) f(nsd,nsd,nquad,ne)
-real(8) finv(nsd,nsd,nquad,ne)
+!real(8) f(nsd,nsd,nquad,ne)
+!real(8) finv(nsd,nsd,nquad,ne)
 real(8) jac(nquad,ne)
 real(8) jacinv(nquad,ne)
 !==============================
@@ -27,9 +27,9 @@ real(8) meshvel(nsd,nn)
 
 !==================================
 ! store previrous time step information
-real(8) jaco(nquad,ne)
+!real(8) jaco(nquad,ne)
 real(8) xold(nsd,nn)
-real(8) refvelo(nsd,nquad,ne)
+!real(8) refvelo(nsd,nquad,ne)
 
 !====================================
 ! ????????? Don't know what 'af' is

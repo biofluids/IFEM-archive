@@ -177,7 +177,6 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
      if (nsd==3) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),xn(3,i)
      if (nsd==2) write(i_file_unit,101) i+nn_solid,xn(1,i),xn(2,i),0.0
   enddo
-
  !...write structure part - connectivity
   write(i_file_unit, *) 'part 1'
   write(i_file_unit, *) ' Structure Model'
@@ -221,7 +220,6 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
 		 enddo
 	  end select
   endif
-
     !write fluids part element connectivity
   write(i_file_unit, *) 'part 2'
   write(i_file_unit, *) ' Fluid Model'

@@ -83,20 +83,30 @@ end if
   
   CALL Read_Real(solid_scale,nsd_solid)
   CALL Read_Int(n_solid,1)
+!========================================================
+! Read in the number of element for each solid part
+! Right now it is only two parts
+  Call Read_Int(nep1,1)
+  Call Read_Int(nep2,1)
+
 
   nn_solid = nn_solid_1 * n_solid
   ne_solid = ne_solid_1 * n_solid
+  nep1 = nep1*n_solid
+  nep2 = nep2*n_solid
 if (myid == 0) then
-  if (mno .lt. nn_solid) then !...see r_common.f90
-     write(*,*) 'boost mno in r_common.f'
-     stop
-  endif
+  !if (mno .lt. nn_solid) then !...see r_common.f90
+  !   write(*,*) 'boost mno in r_common.f'
+  !   stop
+  !endif
 
   write(*,*) 'number of nodes    (for one object)  = ',nn_solid_1
   write(*,*) 'number of elements (for one object)  = ',ne_solid_1
   write(*,*) 'number of multiple defined solids    = ',n_solid
   write(*,*) 'number of nodes    (all objects)     = ',nn_solid
   write(*,*) 'number of elements (all objects)     = ',ne_solid
+  write(*,*) 'number of elements for solid part I  = ',nep1
+  write(*,*) 'number of elements for solid part II = ',nep2 
 end if
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
@@ -122,20 +132,20 @@ end if
 
   CALL Read_Int(material_type,1)	!1=hyperelastic material, 2=linear elastic material  
   ! Read in 2 young's modules for 2 solid parts=====================
-  CALL Read_Real(young_mod,1)		! young's modulus (elastic material)
+  CALL Read_Real(group_young,2)		! young's modulus (elastic material)
   !============================================================
   CALL Read_Real(Poisson,1)			! Poisson ratio (elastic material_
-  CALL Read_Real(rc1,1)				! constants C1 (hyperelastic material)
-  CALL Read_Real(rc2,1)				! constants C2 (hyperelastic material)
+  CALL Read_Real(group_rc1,2)				! constants C1 (hyperelastic material)
+  CALL Read_Real(group_rc2,2)				! constants C2 (hyperelastic material)
   CALL Read_Real(rk,1)				! constants Ck (hyperelastic material)
   CALL Read_Real(density_solid,1)	! Density solid-fluid
 if (myid ==0) then
   if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
   if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
-  write(*,*) 'Youngs modulus =', young_mod
+  write(*,*) 'Youngs modulus for two solid parts I and II=', group_young(1:2)
   write(*,*) 'Poisson ratio=', Poisson
-  write(*,*) 'C1  = ', rc1
-  write(*,*) 'C2  = ', rc2
+  write(*,*) 'C1 for two solid parts I and II  = ',group_rc1(1:2)
+  write(*,*) 'C2 for two solid parts I and II  = ',group_rc2(1:2)
   write(*,*) 'kappa   = ',rk
   write(*,*) 'density = ',density_solid
 end if
@@ -154,10 +164,15 @@ if (myid ==0) then
   write(*,*) 'gravity acceleration'
   write(*,*) ' xmg   =',xmg(1:nsd_solid)
 end if
-
+        call Read_Int(ne_sbc_1,1)
+        call Read_Int(nn_sbc_1,1)
+	call Read_Int(node_sfcon_1,1)
+	ne_sbc=ne_sbc_1*n_solid
+	nn_sbc=nn_sbc_1*n_solid
+	node_sfcon=node_sfcon_1*n_solid
   close(8)
 
-  prec(1:nump*ne_solid)=0.0d0
+!  prec(1:nump*ne_solid)=0.0d0
 
   return
 end subroutine parseinput_solid

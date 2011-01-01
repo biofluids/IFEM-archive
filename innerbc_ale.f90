@@ -10,7 +10,7 @@ integer node_alebc(nn_alebc)
 integer i
 real(8) tmp
 
-tmp=0.2*(sin(5*3.14*tt)-sin(5*3.14*(tt-dt)))
+tmp=1.0*(sin(2*3.14*tt)-sin(2*3.14*(tt-dt)))
 disp(:,:)=0.0d0
 
 do i=1,nn_alebc
