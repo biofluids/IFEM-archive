@@ -195,6 +195,8 @@ end do
 		     res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl) &
 	                    +sh(zsd,inl)*d(wdf,inl)
+                     q_res_c(inl) = 0
+
 		  enddo
 		endif
 
@@ -209,6 +211,9 @@ end do
 			   end do ! get res_a for u and v for momentum equation
 			elseif (nsd==3) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
+			do inl = 1, nen
+                                q_res_a(isd,inl)=ro*(sh(0,inl)*dtinv+u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
+                           end do ! get res_a for u v and w for momentum equation
 			endif
 	    enddo
 
@@ -311,6 +316,9 @@ end do
 										  ph(2,inl)*tau(2,isd) -  &
 										  ph(3,inl)*tau(3,isd)
 			  enddo
+			  q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*2)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*sh(3,inl)
+                          q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*(sh(2,inl)*2)+ph(3,inl)*mu*sh(3,inl)
+                          q_p(3,node)=q_p(3,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*(sh(3,inl)*2)
 			endif
 
 		! Stablization with Tau_moment
@@ -323,6 +331,7 @@ end do
 		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)  &
 	                                   - ph(zsd,inl)*prs_cc(wdf)
+                         q_p(pdf,node) = q_p(pdf,node)+tauc*(sh(1,inl)**2+sh(2,inl)**2+sh(3,inl)**2)*eft0
 		   endif		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
 !                   diag(inl)=p(1,node)

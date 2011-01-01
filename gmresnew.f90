@@ -2,7 +2,7 @@
 
 subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
 			ne_local,ien_local,node_local,nn_local, &
-			global_com,nn_global_com,local_com,nn_local_com)
+			global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length)
 	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,nquad
         use mpi_variables
 	implicit none
@@ -13,7 +13,12 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
 	real* 8 bg(nsd*nn), dg(nsd*nn), w(nsd*nn)
 	real* 8 jac(nquad,ne)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
-	real* 8 Vm(nsd*nn, inner+1) ! Krylov space matrix
+!=========================================================
+! reduce dimension to save memory
+        real* 8 Vm(nsd*nn_local, inner+1) ! Krylov space matrix
+!        real* 8 Vm(nsd*nn, inner+1) ! Krylov space matrix
+!=========================================================
+
 
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
@@ -25,7 +30,12 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
         real* 8 dv(nsd*nn)
 	real* 8 Vy(nsd*nn)
         real* 8 vloc(nsd,nn), avloc(nsd*nn)
-	real* 8 temp(nsd*nn)
+!==============================
+! reduce dimension save memory
+!       real* 8 temp(ndf*nn)
+        real* 8 temp
+!==============================
+
 	character(1) TRAN
 	real* 8 workls(2*inner)
 	real* 8 av_tmp(nsd,nn)
@@ -49,6 +59,8 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
   integer global_com(nn_global_com)  ! global node index for communication
   integer nn_local_com
   integer local_com(nn_local_com)  ! local index in the communication region on each processor
+  integer ad_length
+  integer send_address(ad_length,2)
   integer flag
   real(8) dg_sent(nsd*nn)
   real(8) space1(inner)
@@ -71,11 +83,15 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
 	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
 
+!====================================
 	Vm(:,:) = 0.0d0
+! Already is a local variable defined on each proc
+!===============================
+
         do icount = 1, nn_local
            node=node_local(icount)
            do jcount=1,nsd
-                Vm((node-1)*nsd+jcount,1) = r0((node-1)*nsd+jcount)/rnorm
+                Vm((icount-1)*nsd+jcount,1) = r0((node-1)*nsd+jcount)/rnorm
            end do
         end do ! get V1
 
@@ -89,15 +105,43 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
                  do icount=1, nn_local
                     node=node_local(icount)
                     do jcount=1,nsd
-                        dv((node-1)*nsd+jcount) = 1/w((node-1)*nsd+jcount)*Vm((node-1)*nsd+jcount,j)
+                        dv((node-1)*nsd+jcount) = 1/w((node-1)*nsd+jcount)*Vm((icount-1)*nsd+jcount,j)
                     end do
                  end do!!!!!!!!!!calcule eps*inv(P)*V1
+!===============================================
+!		vloc(:,:) = 0.0d0
+! Clear the matrix locally to aviod too many loops 
+                do icount=1,nn_local
+                   node=node_local(icount)
+                   vloc(1:nsd,node)=0.0d0
+                end do
+                ! clear all the processor internal nodes
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   vloc(1:nsd,node)=0.0d0
+                end do
+                ! clear the processor boundary nodes
+!=========================================
 
-		vloc(:,:) = 0.0d0
+
                 call equal_pa(dv,vloc,nsd,nn,node_local,nn_local)
-                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,nsd,nn)
+!                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,nsd,nn)
+                call communicate_res_ad(vloc,nsd,nn,send_address,ad_length)
 !		vloc(:,:) = vloc(:,:)+d(:,:)  ! calculate u+eps*inv(P)*V1
-		av_tmp(:,:) = 0.0d0
+!===============================================
+!		av_tmp(:,:) = 0.0d0
+! Clear matrix local first interal then boundary processor nodes
+                do icount=1,nn_local
+                   node=node_local(icount)
+                   av_tmp(1:nsd,node)=0.0d0
+                end do
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   av_tmp(1:nsd,node)=0.0d0
+                end do
+!================================================
+
+
         call date_and_time(values=time_arrary_0)
 
 		call blockgmresm(x,vloc,av_tmp,ien,jac,ne_local,ien_local)
@@ -110,24 +154,31 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
 
 
 
-                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,nsd,nn)
+!                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,nsd,nn)
+                call communicate_res_ad(av_tmp,nsd,nn,send_address,ad_length)
 
-		avloc(:)=0.0d0
+!		avloc(:)=0.0d0
                 call equal_pa(av_tmp,avloc,nsd,nn,node_local,nn_local)
 !		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
-		call setid(avloc,id,nsd)
-
+!		call setid(avloc,id,nsd)
+                call setid_pa(avloc,nsd,nn,id,node_local,nn_local)
 
         call date_and_time(values=time_arrary_0)
 		space1(:)=0.0d0
 		space2(:)=0.0d0
 	      do i=1,j
-                call vector_dot_pa(avloc,Vm(:,i),nsd,nn,nn_local,node_local,space1(i))
-!                call vector_dot_pa(avloc,Vm(:,i),nsd,nn,nn_local,node_local,Hm(i,j))
+
+                 do icount=1,nn_local
+                        node=node_local(icount)
+                        do jcount=1,nsd
+                                kcount=(node-1)*nsd+jcount
+                                space1(i)=space1(i)+avloc(kcount)*Vm((icount-1)*nsd+jcount,i)
+                        end do
+                 end do
+!                call vector_dot_pa(avloc,Vm(:,i),nsd,nn,nn_local,node_local,space1(i))
 	      end do
 		call mpi_barrier(mpi_comm_world,ierror)
-		call mpi_reduce(space1(1),space2(1),j,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
-		call mpi_bcast(space2(1),j,mpi_double_precision,0,mpi_comm_world,ierror)
+		call mpi_allreduce(space1(1),space2(1),j,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 		Hm(1:j,j)=space2(1:j)
 !		if (myid == 0) write(*,*) Hm(:,:)
         call date_and_time(values=time_arrary_1)
@@ -138,30 +189,31 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
               do icount = 1, nn_local
                 node=node_local(icount)
                 do jcount=1,nsd
-                        kcount=(node-1)*nsd+jcount
+                        kcount=(icount-1)*nsd+jcount
                 
                         do i=1,j
                                 Vm(kcount,j+1) = Vm(kcount,j+1)-Hm(i,j)*Vm(kcount,i)
                         end do
-                        Vm(kcount,j+1)=Vm(kcount,j+1)+avloc(kcount)
+                        Vm(kcount,j+1)=Vm(kcount,j+1)+avloc((node-1)*nsd+jcount)
                 end do
               end do  ! construct v(j+1)
-
+temp=0.0d0
               do icount = 1, nn_local
-                node=node_local(icount)
                 do jcount=1,nsd
-                        kcount=(node-1)*nsd+jcount
-                        temp(kcount)=Vm(kcount,j+1)
+                        kcount=(icount-1)*nsd+jcount
+                        temp=temp+Vm(kcount,j+1)*Vm(kcount,j+1)
                 end do
               end do
-              call getnorm_pa(temp,nsd,nn,node_local,nn_local,rnorm0)
+                call mpi_barrier(mpi_comm_world,ierror)
+                call mpi_allreduce(temp,rnorm0,1,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
+!              call getnorm_pa(temp,nsd,nn,node_local,nn_local,rnorm0)
 
               Hm(j+1,j) = sqrt(rnorm0)
 
               do icount = 1, nn_local
-                node=node_local(icount)
+!                node=node_local(icount)
                 do jcount=1,nsd
-                        kcount=(node-1)*nsd+jcount
+                        kcount=(icount-1)*nsd+jcount
                         Vm(kcount,j+1)=Vm(kcount,j+1)/Hm(j+1,j)
                 end do
               end do
@@ -193,7 +245,7 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
            do jcount=1,nsd
                 kcount=(node-1)*nsd+jcount
                 do i=1,inner
-                         Vy(kcount)=Vy(kcount)+Vm(kcount,i)*beta(i)
+                         Vy(kcount)=Vy(kcount)+Vm((icount-1)*nsd+jcount,i)*beta(i)
                 end do
                 x0(kcount)=x0(kcount)+Vy(kcount)
            end do
@@ -207,17 +259,45 @@ subroutine gmres_new(x,w,bg,dg,ien,id,jac, &
            end do
         end do
 
-	vloc(:,:) = 0
+!============================
+! Clear matirx locally 
+                do icount=1,nn_local
+                   node=node_local(icount)
+                   vloc(1:nsd,node)=0.0d0
+                end do
+                ! clear all the processor internal nodes
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   vloc(1:nsd,node)=0.0d0
+                end do
+                ! clear the processor boundary nodes
+!	vloc(:,:) = 0
+!==========================
         call equal_pa(dv,vloc,nsd,nn,node_local,nn_local)
-        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,nsd,nn)
-
+!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,nsd,nn)
+        call communicate_res_ad(vloc,nsd,nn,send_address,ad_length)
 !	vloc(:,:) = vloc(:,:)+d(:,:)
-	av_tmp(:,:) = 0.0d0
+!===============================
+! Clear matrix local first interal then boundary processor nodes
+                do icount=1,nn_local
+                   node=node_local(icount)
+                   av_tmp(1:nsd,node)=0.0d0
+                end do
+                do icount=1,nn_local_com
+                   node=global_com(local_com(icount))
+                   av_tmp(1:nsd,node)=0.0d0
+                end do
+!	av_tmp(:,:) = 0.0d0
+!=============================
         call blockgmresm(x,vloc,av_tmp,ien,jac,ne_local,ien_local)
-        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,nsd,nn)
-avloc(:)=0.0d0
+!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,nsd,nn)
+         call communicate_res_ad(av_tmp,nsd,nn,send_address,ad_length)
+
+!avloc(:)=0.0d0
        call equal_pa(av_tmp,avloc,nsd,nn,node_local,nn_local)
-        call setid(avloc,id,nsd)
+!        call setid(avloc,id,nsd)
+         call setid_pa(avloc,nsd,nn,id,node_local,nn_local)
+
 
 !	avloc(:) = (-avloc(:)+bg(:))/eps
 !!!!!!!!!!calculate AXm
@@ -250,8 +330,8 @@ avloc(:)=0.0d0
         end do
         dg(:)=0.0d0
         call mpi_barrier(mpi_comm_world,ierror)
-        call mpi_reduce(dg_sent(1),dg(1),nsd*nn,mpi_double_precision,mpi_sum,0,mpi_comm_world,ierror)
-        call mpi_bcast(dg(1),nsd*nn,mpi_double_precision,0,mpi_comm_world,ierror)
+        call mpi_allreduce(dg_sent(1),dg(1),nsd*nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
+!        call mpi_bcast(dg(1),nsd*nn,mpi_double_precision,0,mpi_comm_world,ierror)
         call mpi_barrier(mpi_comm_world,ierror)
 
 	return

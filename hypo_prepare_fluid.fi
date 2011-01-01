@@ -41,6 +41,6 @@ end if
    !...initialize variables
    jac(1:nquad,1:ne) = 1.0d0
    f_fluids(1:nsd,1:nn) = 0.0d0
-   disp = 0.0d0
+!   disp = 0.0d0
 
  102  format("Iteration",i3,':  ',4e14.7)

@@ -23,8 +23,10 @@
 ! Xingshi Wang 2008
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,ibuf,ne,nen,&
-                              ne_solid,nen_solid,xyz_solid,ien_solid_m,xyz_fluid,ien,infdomain)
+                              ne_solid,nen_solid,xyz_solid,ien_solid_m,xyz_fluid,ien,infdomain,pre_f,pre_inter)
+   use mpi_variables ! call mpi variable module
   implicit none
+  include 'mpif.h'
   integer,intent(in) :: ibuf
   integer nsd
   integer ne
@@ -46,6 +48,9 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
   real(8) xyz_fluid(nsd, nn_fluids) !xyz coordinates for fluid points
   integer ien(nen,ne) !conectivity matrix for fluid
   
+ !... added variables to get the pressure at interface
+  real(8) pre_f(nn_fluids)
+  real(8) pre_inter(nn_solids)
 !===========================================================
   integer infdomain(nn_solids) ! influence domain matrix
   
@@ -88,15 +93,16 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
         ien_solid(ii,ie)=ien_solid_m(ie,ii)
      end do
   end do
-
+  pre_inter(:)=0.0
   if (ibuf ==1) then  !velocity interpolation
+	if (myid ==0) then
         write(*,*) '***Velocity interpolation using FEM method***'
-
+	end if
         data_solids(:,:)=0
 
-        open (unit=40, file='interface.dat', status='unknown')
-        open (unit=41, file='exchange_solid.dat', status='unknown')
-        open (unit=42, file='sh.dat', status='unknown')
+!        open (unit=40, file='interface.dat', status='unknown')
+!        open (unit=41, file='exchange_solid.dat', status='unknown')
+!        open (unit=42, file='sh.dat', status='unknown')
            do inn=1,nn_solids
 
            x(1:nsd)=xyz_solid(1:nsd,inn)
@@ -111,7 +117,7 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
           do ii=1,nen
              data_solids(1:nsd,inn) = data_solids(1:nsd,inn) +&
              data_fluids(1:nsd,inf_index(ii)) * sh(ii)
-
+             pre_inter(inn) = pre_inter(inn)+pre_f(inf_index(ii))*sh(ii)
 
           end do
 !         write(42,*) sh(:)
@@ -123,10 +129,12 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
 
 
      else if (ibuf ==2) then !force distribution
-        open(unit=43, file='dis_coe.dat', status='unknown')
-        open(unit=44, file='force_fluid.dat', status='unknown')
-        open(unit=45, file='force_solid.dat', status='unknown')
+ !       open(unit=43, file='dis_coe.dat', status='unknown')
+ !       open(unit=44, file='force_fluid.dat', status='unknown')
+ !       open(unit=45, file='force_solid.dat', status='unknown')
+	if (myid ==0) then
          write(*,*) '*** Distributing Forces onto Fluid using FEM interpolation***'
+	end if
         ! pre-step pick the element near the solid domain
         data_fluids(:,:)=0
 ! check if we lost any information when we do the distribution when needed
@@ -147,10 +155,16 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
               end do
            end do
            x(:)=xyz_solid(:,inn)
-
            dis_solid(:)=0
            call sh_exchange(x,xyz_el,nsd,nen,dis_solid)
            do ii =1,nen
+
+!if (myid ==0 ) then
+!if (index_el(ii) == 33) then
+!write(*,*) dis_solid(:)
+!end if
+!end if
+
            data_fluids(:,index_el(ii))=data_fluids(:,index_el(ii))+data_solids(:,inn)*dis_solid(ii)
            end do
         end do
@@ -179,8 +193,8 @@ subroutine data_exchange_FEM(data_solids,nn_solids,data_fluids,nn_fluids,dv,nsd,
 
 
      end if
-return
-end
+!return
+end subroutine
 ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! calculate the shape function for both 2-D and 3-D case
 ! 3-D case has not been finished yet
@@ -195,22 +209,27 @@ integer nsd
 real(8) x(nsd)
 real(8) xe(nsd,nen) ! xyz coordinates of the element nodals
 real(8) sh(nen)
-real(16) sh1(nen)
-real(16) me(nen,nen)
+real(8) sh1(nen)
+real(8) me(nen,nen)
 real(8) me1(nen,nen)
-real(16) invme(nen,nen)
+real(8) invme(nen,nen)
 real(8) det
-real(16) xp(nen)
+real(8) xp(nen)
 integer indx(nen)
 integer i ! loop variable
 integer j
+! Lapack variables
+integer info
+integer ipiv(nen)
+real(8) work(nen)
         do i=1,nen
         sh1(i)=0
         do j=1,nen
         me(i,j)=0
         end do
         end do
-        
+
+
         if (nsd .eq. 2) then  ! 2-D case
            if(nen .eq. 3) then ! 2-D triangle
            do i=1,nen
@@ -218,7 +237,7 @@ integer j
            me1(i,2:(nsd+1))=xe(1:nsd,i)
            end do
            call determinant(me1,nen,nen,det)
-          ! write(*,*) det
+           !write(*,*)' det'
            sh(1)=(xe(1,2)*xe(2,3)-xe(1,3)*xe(2,2)+&
            (xe(2,2)-xe(2,3))*x(1)+&
            (xe(1,3)-xe(1,2))*x(2))/(det)
@@ -235,28 +254,29 @@ integer j
           
            else if (nen .eq. 4) then ! 2-D quadrilateral
 
-
            do i=1,nen
-           me(i,1)=1.0
-           me(i,2)=xe(1,i)
-           me(i,3)=xe(2,i)
-           me(i,4)=xe(1,i)*xe(2,i)
+           me(1,i)=1.0
+           me(2,i)=xe(1,i)
+           me(3,i)=xe(2,i)
+           me(4,i)=xe(1,i)*xe(2,i)
            end do
-           xp(1)=1
+           xp(1)=1.0d0
            xp(2)=x(1)
            xp(3)=x(2)
            xp(4)=x(1)*x(2)
 
-           call MIGS(me,nen,invme,indx) ! get inverse
-
+!           call MIGS(me,nen,invme,indx) ! get inverse
+		call DGETRF(nen,nen,me,nen,ipiv,info)
+		call DGETRI(nen,me,nen,ipiv,work,nen,info)
            do j=1,nen
            do i=1,nen
- !          write(*,*) 'invme', invme(i,j)
-           sh1(j)=sh1(j)+xp(i)*invme(i,j)
+           sh1(j)=sh1(j)+xp(i)*me(j,i)
            sh(j)=sh1(j)
            end do
-           !write(*,*) 'shape1', sh1(j)
-           end do
+           end do                
+!write(*,*) 'in data_exchange', xp(:)
+!                call DGESV(nen,nen,me,nen,ipiv,xp,nen,info)
+!		sh(:)=xp(:)
            end if
         else
            if (nen .eq. 4) then ! 3-D tet case
@@ -284,10 +304,9 @@ integer j
           end if
        
         end do
-        
 1000    continue
 return
-end
+end subroutine
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! Manually fix the digital error in shape function

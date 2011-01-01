@@ -1,3 +1,10 @@
+!--------------
+!Corresponding changes to save space
+allocate (partele(ne))
+allocate (partnode(nn))
+allocate (tmp_index(ne))
+
+
 ! Read in partition information for connectivity matrix
 call readpartele(partele)
 ! Read in partition information for nodes
@@ -31,10 +38,10 @@ do count = 1,nn
 end do
 
 	allocate(node_local(nn_local))
-	allocate(p_local(ndf,nn_local))
-	allocate(w_local(ndf,nn_local))
-	allocate(dg_local(ndf,nn_local))
-	allocate(dg_tmp(ndf,nn))
+!	allocate(p_local(ndf,nn_local))
+!	allocate(w_local(ndf,nn_local))
+!	allocate(dg_local(ndf,nn_local))
+!	allocate(dg_tmp(ndf,nn))
 nn_local=0
 
 do count = 1,nn
@@ -85,4 +92,10 @@ node_global(:)=0
 do count = 1,nn_local
 	node_global(node_local(count))=count
 end do
-		
+
+!------------
+! Deallocate variables
+
+deallocate(partele)
+deallocate(partnode)
+deallocate(tmp_index)		

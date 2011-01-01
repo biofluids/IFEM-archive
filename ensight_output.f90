@@ -147,7 +147,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr)
   endif
 
 
-  write(file_name,'(A8, A6)')  'fem.geo', fileroot
+  write(file_name,'(A7, A6)')  'fem.geo', fileroot
   write(6,*) 'writing... ', file_name 
 
   open(i_file_unit, file=file_name, form='formatted')
@@ -347,11 +347,11 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   endif
 
 
-  write(name_file1,'(A8,  A6)')  'fem.vel', fileroot
-  write(name_file2,'(A8,  A6)')  'fem.pre', fileroot
-  write(name_file3,'(A11, A6)')  'fem.stress', fileroot
-  write(name_file4,'(A11, A6)')  'fem.strain', fileroot
-  write(name_file5,'(A8,  A6)')  'fem.fsi', fileroot
+  write(name_file1,'(A7,  A6)')  'fem.vel', fileroot
+  write(name_file2,'(A7,  A6)')  'fem.pre', fileroot
+  write(name_file3,'(A10, A6)')  'fem.stress', fileroot
+  write(name_file4,'(A10, A6)')  'fem.strain', fileroot
+  write(name_file5,'(A7,  A6)')  'fem.fsi', fileroot
 
 !===========================================================================
 ! Output velocity, interaction force, pressure, stress, strain into Ensight format

@@ -25,7 +25,7 @@ subroutine hypo
 ! Definition of variables
   integer :: klok,j
   integer ie, inen
-  integer tmp_index(ne)
+!  integer tmp_index(ne)
 !============================
 ! Variables for boudary equations
   integer bc4el(ne_inflow) ! 10 is the number of nodes on edge 4
@@ -67,6 +67,8 @@ include "hypo_declaration_ale.fi"
   write(*,*) 'myid', myid, 'nn_local', nn_local, 'ne_local', ne_local !id for debuger
 !=============================
 ! call the subroutine to set up ginflow and linflow
+
+
 if (edge_inflow .ne. 0) then
 call edgeele(edge_inflow,rng,neface,ne,bc4el,ne_inflow)
 end if  
@@ -83,7 +85,9 @@ end if
 	if (myid == 0) write(*,*) 'apply initial jac'
 jac(:,:)=1.0d0
 refvel(:,:,:)=0.0d0
-
+call read_alebc(node_alebc,nn_alebc) ! read in node index on the inner boundary
+call formid_ale(kid,rng,ien) ! fix outer boundary
+disp_ale(:,:)=0.0d0
 
 
 !=================================================================
@@ -121,19 +125,24 @@ xold(:,:)=x(:,:) ! store previous step moving mesh
 dold(:,:)=d(:,:) ! store previous step velcotiy and pressure
 refvelo(:,:,:)=refvel(:,:,:) ! store previous step referential velocity
 jaco(:,:)=jac(:,:) ! store previous step determinant of deformation 
+!disp_ale(:,:)=0.0d0
 !----------------------------------------------------
 kinner=inner ! using same # of inner space to solve both 2 gmres
 kouter=outer ! using same # of outer space to solve both 2 gmres
 !kinner=100 ! Need inputs
 !kouter=outer ! Need inputs
 
-call read_alebc(node_alebc,nn_alebc) ! read in node index on the inner boundary
-call formid_ale(kid,rng,ien) ! fix outer boundary
+!call read_alebc(node_alebc,nn_alebc) ! read in node index on the inner boundary
+!call formid_ale(kid,rng,ien) ! fix outer boundary
+
+
 !call innerbc_ale(disp_ale,kid,node_alebc,nn_alebc,nsd,nn) ! apply displacement on inner boundary
 !call innerbc_ale_vocaltest(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold) ! Apply boundary movement for test vocal case
 !call innerbc_ale_updown(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold) ! Apply boundary movement for rigid vocal folds 
 ! move up and down
-call innerbc_ale_updown_larger(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold) ! Apply boundary movement for rigid vocal folds move up and down using the geometry similar as Krane's 2006 paper
+!call innerbc_ale_updown_larger(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold) ! Apply boundary movement for rigid vocal folds move up and down using the geometry similar as Krane's 2006 paper
+call innerbc_ale_re(disp_ale,kid,node_alebc,nn_alebc,nsd,nn,xold)
+
 
 !do iit=1,2
 kp(:,:)=0.0d0
@@ -144,24 +153,29 @@ time1_begin=mpi_wtime()
 
 call blockm(xold,e_ale,disp_ale,kw,kp,ien,jac,ne_intlocal,ien_intlocal)
 time1_end=mpi_wtime()
-!if (myid == 0) write(*,*) 'Time evaluate block', time1_end-time1_begin
+if (myid == 0) write(*,*) 'Time evaluate block', time1_end-time1_begin
 
 !=====================================================================
 ! Communicate residual and diagonal preconditioner
-time1_begin=mpi_wtime()
-        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,kp,nsd,nn)
-time1_end=mpi_wtime()
-!if (myid == 0) write(*,*) 'Time communicate res', time1_end-time1_begin
-
-        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,kw,nsd,nn)
+!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,kp,nsd,nn)
+!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,kw,nsd,nn)
+      call mpi_barrier(mpi_comm_world,ierror)
+        call communicate_res_ad(kp,nsd,nn,send_address,ad_length)
+      call mpi_barrier(mpi_comm_world,ierror)
+        call communicate_res_ad(kw,nsd,nn,send_address,ad_length)
+if (myid == 0) write(*,*) 'First communication in hypo'
 !=======================================================================
-call setid(kp,kid,nsd)
+!call setid(kp,kid,nsd)
+call setid_pa(kp,nsd,nn,kid,node_local,nn_local)
+
 call getnorm_pa(kp,nsd,nn,node_local,nn_local,res_l)
 res_l=sqrt(res_l)
 kdg(:,:)=0.0d0 ! clear matrix
+if (myid ==0) write(*,*) 'res_l', res_l, 'land-over-mu', landa_over_mu
+
  call gmres_new(xold,kw,kp,kdg,ien,kid,jac, &
                         ne_intlocal,ien_intlocal,node_local,nn_local, &
-                        global_com,nn_global_com,local_com,nn_local_com)
+                        global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length)
 ! call gmresm(xref,kid,kw,kp,kdg,ien,kz,kv,kzg,kavg,ksm,kavloc,kh,ky,kcc,kss)
 call getnorm_pa(kdg,nsd,nn,node_local,nn_local,del_l)
  del_l = sqrt(del_l)
@@ -220,14 +234,22 @@ w(:,:)=0.0d0
 !call block_ale(xref,d,dold,af,p,w,hg,ien,f,finv,jac,jaco,refvel,refvelo) ! get residuals
 call block_ale(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,meshvel,ne_intlocal,ien_intlocal,node_local,nn_local)
 
-call communicate_res(global_com,nn_global_com,local_com,nn_local_com,p,ndf,nn)
-call communicate_res(global_com,nn_global_com,local_com,nn_local_com,w,ndf,nn)
+!call communicate_res(global_com,nn_global_com,local_com,nn_local_com,p,ndf,nn)
+!call communicate_res(global_com,nn_global_com,local_com,nn_local_com,w,ndf,nn)
+      call mpi_barrier(mpi_comm_world,ierror)
+        call communicate_res_ad(p,ndf,nn,send_address,ad_length)
+      call mpi_barrier(mpi_comm_world,ierror)
+        call communicate_res_ad(w,ndf,nn,send_address,ad_length)
+if(myid==0) write(*,*) 'fluid solver first communication'
+        call setid_pa(p,ndf,nn,id,node_local,nn_local)
 
 
-call setid(p,id,ndf) ! set residual be zero at essential B.C DOF
+!call setid(p,id,ndf) ! set residual be zero at essential B.C DOF
 !write(*,*) 'p', p(:,:)
 call getnorm_pa(p,ndf,nn,node_local,nn_local,res_l)
 res_l =sqrt(res_l)
+
+if(myid==0) write(*,*) 'res_l', res_l
 
 dg(:,:)=0.0d0
 
@@ -236,7 +258,7 @@ dg(:,:)=0.0d0
 
 call gmres_ale(x,d,dold,w,p,dg,hg,ien,f_fluids,id,meshvel, &
 		ne_intlocal,ien_intlocal,node_local,nn_local, &
-                global_com,nn_global_com,local_com,nn_local_com)
+                global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length)
 
 call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
 del_l = sqrt(del_l)

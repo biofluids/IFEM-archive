@@ -10,7 +10,7 @@ module r_common
 
   integer,parameter :: nup=4,nnumr=4
   integer,parameter :: mnos=0,nels=0
-  integer,parameter :: mno=24971,mno2=3*mno,nel=106454
+  integer,parameter :: mno=249,mno2=3*mno,nel=1064
   real(8),parameter :: x13  = 1.0d0/3.0d0
   real(8),parameter :: x23  = 2.0d0/3.0d0
   real(8),parameter :: x43  = 4.0d0/3.0d0

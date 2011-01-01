@@ -19,11 +19,12 @@ cg.o \
 blockm.o read_alebc.o formid_ale.o innerbc_ale.o fclear.o blockgmresm.o \
 add.o defgrad.o \
 gmresnew.o defgrad_new.o velocity.o \
-block_ale.o blockgmres_ale.o gmres_ale.o moving_bc.o \
+block_ale.o blockgmres_ale.o gmresnew_ale.o moving_bc.o \
 givens.o \
 innerbc_ale_vocaltest.o	innerbc_ale_updown.o innerbc_ale_updown_larger.o\
 inflownode.o edgeele.o bcequation_node.o bc_shape2d_node.o nature_pre.o \
-readpart.o communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o
+readpart.o communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
+setnei.o communicate_res_ad.o setid_pa.o
 
 
 IFEM: $(OBJ)

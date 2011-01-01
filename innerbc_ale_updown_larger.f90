@@ -19,15 +19,42 @@ real(8) A
 real(8) omiga
 real(8) dgap
 integer node
+real(8) tmp
 
-T=5.0
+T=5
 uplimit=13.95
-downlimit=12
+downlimit=12.56
 dgap=(28-2*downlimit)-(28-2*uplimit)
-A=0.5*dgap*3.14/T
-omiga=2*3.14/T
-vel=A*(sin(omiga*tt))
+
+A=0.25*dgap*3.14/T
+omiga=3.14/T
+
+tmp=tt
+do while (tmp .ge. T*4.0)
+tmp=tt-T*4.0
+end do
+
+if (tmp .lt. T) then
+!vel=dgap/(2*T)
+
+vel=A*(sin(omiga*tmp))
+
+else if (tmp .gt. T*3) then
+!vel=-dgap/(2*T)
+
+vel=-A*(sin(omiga*(tmp-3*T)))
+
+else
+vel=0.0d0
+end if
+
 dy=vel*dt
+!========================
+! Sin wave movement for rigid wall
+!A=0.5*dgap*3.14/T
+!omiga=2*3.14/T
+!vel=A*(sin(omiga*tt))
+!dy=vel*dt
 
 do i=1,nn_alebc
 	node=node_alebc(i)
