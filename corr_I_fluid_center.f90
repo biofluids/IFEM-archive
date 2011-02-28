@@ -32,7 +32,7 @@ subroutine corr_I_fluid_center(I_fluid_center,ne_inter,x_inter,x_center,inter_el
   end do
 
   do ie=1,ne_inter
-     hs=hg(inter_ele(ie))
+     hs=hg(inter_ele(ie))/1.0
      do icount=1,nn_inter
 	dx(1:nsd)=abs(x_center(1:nsd,inter_ele(ie))-x_inter(1:nsd,icount))
 	call B_Spline(dx,hs,nsd,Sp)

@@ -1,24 +1,23 @@
 !=============================solve Indicator===============================
 !!!!!!!!!!!!!solve Laplace eqn to get the initial indicator
-     I_fluid_center(:) = 0.0
+     I_fluid_den(:) = 0.0
      flag = 1.0
-     call form_inter_ele(inter_ele,ne_inter,I_fluid_center,ien,flag)
+     call form_inter_ele(inter_ele_den,ne_inter_den,I_fluid_den,ien_den,flag)
      flag = 0.0
-     call form_inter_bc(I_fluid_center,rng,ien,flag)
-
+     call form_inter_bc(I_fluid_den,bcnode_den,flag)
 	p_inter(:) = 0.0d0
 	w_inter(:) = 0.0d0
-	call block_Laplace(x_center,I_fluid_center,p_inter,w_inter,ien_center)
+	call block_Laplace(x_den,I_fluid_den,p_inter,w_inter,ien_den)
 
 	flag = 0.0
-	call form_inter_ele(inter_ele,ne_inter,p_inter,ien,flag)
-	call form_inter_bc(p_inter,rng,ien,flag)
+	call form_inter_ele(inter_ele_den,ne_inter_den,p_inter,ien_den,flag)
+	call form_inter_bc(p_inter,bcnode_den,flag)
 !!!!!!!!!!set residual at BC to be 0!!!!!!!!!!!!!!!!!!!!!
 
 	dg_inter(:) = 0.0d0
-	call gmres_Laplace(x_center,I_fluid_center,w_inter,p_inter,dg_inter,ien,inter_ele,ne_inter,rng,ien_center)
+	call gmres_Laplace(x_den,I_fluid_den,w_inter,p_inter,dg_inter,ien_den,inter_ele_den,ne_inter_den,bcnode_den)
 !	call update(p_inter,I_fluid,dg_inter,1)
-        I_fluid_center(:)=I_fluid_center(:)+dg_inter(:)
+        I_fluid_den(:)=I_fluid_den(:)+dg_inter(:)
 !write(*,*)I_fluid_center(:)
 !stop
 !!!!!!!!!!solve Laplace equation to get the initial indicator!!!!!!!!!!!!!!
@@ -26,7 +25,7 @@
 !!!!!!!!!!set indicator of outer elements to be 0,innter to be 1!!!!!!!!!!!!!!!!!!!!!!!
 !     I_Laplace(:)=I_fluid(:)
 !     I_Laplace_center(:)=I_fluid_center(:)
-      call set_element_index(hg,x_center,Ic_inter,ne_inter,ne_inner,ne_outer,inter_ele,inner_ele,outer_ele,I_fluid_center,ien,ne_inter_temp)
+      call set_element_index(infdomain_den,ne_inter,ne_inner,ne_outer,inter_ele,inner_ele,outer_ele,I_fluid_center,I_fluid_den,ien_den,ien,inter_ele_den,ne_inter_den)
 !      call solve_Laplace_v2(x_center,I_fluid_center,p_inter,w_inter,dg_inter,ne_outer,outer_ele,ne_inner,inner_ele,ien_center)
 !stop
 !      do icount=1,nn_add
@@ -35,17 +34,18 @@
 !     I_fluid_ini(:)=I_fluid(:)
 !      I_Laplace(:)=I_fluid(:)
 !=========================================================================
-  I_fluid_center_temp(:)=I_fluid_center(:)
+!  I_fluid_center_temp(:)=I_fluid_center(:)
 !  do icount=1,10
 !     I_fluid_center(:)=I_fluid_center_temp(:)
 !     I_fluid_temp(:)=I_fluid(:)
 !!!!!!!!!get initial indicator at interfacial points!!!!!!!!!!!!!!!!!!!!!!!
-     call get_interpoint_Ia(x_inter,x,I_inter,I_fluid,hg,infdomain_inter,I_fluid_center,x_center)
-     I_Laplace(:)=I_fluid(:)
+!     call get_interpoint_Ia(x_inter,x,I_inter,I_fluid,hg,infdomain_inter,I_fluid_center,x_center)
+
+!     I_Laplace(:)=I_fluid(:)
 !==========================================================================
 !!!!!!!!!correct I_fluid with correction of Ip!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     Ic_inter=0.0
-     call correct_Ip(x_inter,x,I_inter,I_fluid,hg,Ic_inter,infdomain_inter,corr_Ip,2)
+!     Ic_inter=0.0
+!     call correct_Ip(x_inter,x,I_inter,I_fluid,hg,Ic_inter,infdomain_inter,corr_Ip,2)
 !=========================================================================
 !     call get_centerpoint_Ia(x,I_fluid,x_center,I_fluid_center_temp,corr_Ip,x_inter,hg,infdomain_inter,ne_inter_temp,inter_ele)
 !     call getnorm(I_fluid(:)-I_fluid_temp(:),I_fluid(:)-I_fluid_temp(:),nn,res_I)

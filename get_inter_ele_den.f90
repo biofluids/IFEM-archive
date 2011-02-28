@@ -1,10 +1,10 @@
 !!!!!!!!!!!!!!!Get interface elements!!!!!!!!!!!!!!
 
 
-subroutine get_inter_ele(infdomain_sub,inter_ele,ne_inter,inter_ele_nn,nn,ne)
+subroutine get_inter_ele(infdomain_sub,inter_ele,ne_inter,inter_ele_nn)
 
   use interface_variables,only:nn_inter,maxmatrix
-!  use fluid_variables,only:nn,ne
+  use fluid_variables,only:nn,ne
 
   integer infdomain_sub(maxmatrix)
   integer inter_ele(ne)

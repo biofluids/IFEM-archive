@@ -1,6 +1,7 @@
 !   Definition for interface variables
     integer :: bc_inter
     integer :: ne_inter                        !# of interface elements
+    integer :: ne_inter_den                    !# of interface elements for dense mesh
     integer :: ne_inner                        !# of innner elements
     integer :: ne_outer                        !# of outer elements
     real(8) :: x_inter(nsd,maxmatrix)          !Coordinates of interface points
@@ -8,6 +9,8 @@
     integer :: nn_inter_ini                    !number of inter points before regeneration
     integer :: infdomain_inter(maxmatrix)      !The element that each point belongs to
     integer :: inter_ele(ne)                   !interfacial elements index
+    integer :: inter_ele_den(ne_den)           !interfacial elements index for dense mesh
+    integer :: inter_ele_nn_den(ne_den)       !# of points each dense mesh inter element contains
     integer :: inter_ele_nn(ne)                !# of points each iterfacial elemet contains
     integer :: inner_ele(ne)                   !inner elements index
     integer :: outer_ele(ne)                   !outer elements index
@@ -17,10 +20,10 @@
 !equal to the indicator right after the set_element index
     real(8) :: norm_fluid(nsd,nn)              !normal for fluid nodes
     real(8) :: curv_fluid(nn)                  !curvature for fluid nodes
-    real(8) :: p_inter(nn_center)                     !residual for laplace eqn
-    real(8) :: w_inter(nn_center)                     !diag for Laplace eqn
+    real(8) :: p_inter(nn_den)                     !residual for laplace eqn
+    real(8) :: w_inter(nn_den)                     !diag for Laplace eqn
     real(8) :: flag                            !bc set
-    real(8) :: dg_inter(nn_center)                   
+    real(8) :: dg_inter(nn_den)                   
     real(8) :: Ic_inter                        !constant indicator at interface 
     integer :: id_inter(nn)                    !boundary id for solving normal and curv
 !    real(8) :: p_norm(nsd,nn)
@@ -36,8 +39,13 @@
     real(8) :: dg_curv(nn)
 
     real(8) :: x_center(nsd,ne)                !element center corrdinates
-    integer :: ien_center(nen_center,ne_center)!connectivity for center mesh
+    real(8) :: x_den(nsd,nn_den)               !coordinates for dense mesh
+    integer :: ien_den(nen_den,ne_den)         !connectivity for dense mesh
+    integer :: bcnode_den(nbc_den)             !boundary nodes for dense mesh
+    integer :: infdomain_den(nn_den)           !inf for dense mesh in fluid element
+    integer :: infdomain_inter_den(maxmatrix)  !inf for inter points in dense mesh element
     real(8) :: I_fluid_center(ne)              !element center indicator
+    real(8) :: I_fluid_den(nn_den)             !indicator for dense mesh nodes
     real(8) :: arc_inter(maxmatrix)            !arclength for interfacial points
     real(8) :: sur_fluid(nsd,nn)               !surface tension for fluid nodes
     real(8) :: vel_inter(nsd,maxmatrix)        !velocity for interfacial points

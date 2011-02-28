@@ -15,7 +15,7 @@ subroutine point_projection(Ic_inter,xloc,x_center,I_fluid_center,x_inter,corr_I
   real(8) corr_Ip(maxmatrix)    !correction term
   real(8) hs                    !spacing
   real(8) I_can                 !indicator for candidate point
-  real(8) err_p
+  real(8) err_p,err_p1(2)
   real(8) hg(ne)
   integer infdomain_inter(maxmatrix)
 
@@ -96,7 +96,9 @@ subroutine point_projection(Ic_inter,xloc,x_center,I_fluid_center,x_inter,corr_I
 	call B_Spline(ddx,hs,nsd,temp)
 	I_can=I_can+corr_Ip(i)*temp
      end do
-err_p=abs(I_can-Ic_inter)
+ err_p1(1)=abs(I_can-Ic_inter)
+ err_p1(2)=sqrt(delta(1)**2+delta(2)**2)
+ err_p=maxval(err_p1)
 !write(*,*)'delta=',delta
 nit=nit+1
   end do ! end of loop for newton iteration

@@ -34,7 +34,8 @@ subroutine correct_Ip(xp,xg,Ip,Ig,hg,I_c,infdomain_cI,corr_Ip,flag)
   integer flag
   real(8) support
   A(:,:) = 0.0
-  if (I_c.lt.-1.0e2) then
+!  if (I_c.lt.-1.0e2) then
+   if(I_c.lt.0.001) then
      I_c=0.0
      do i=1,nn_inter
 	I_c=I_c+Ip(i)

@@ -1,7 +1,0 @@
-nn_inter  =  400
-surfacetension = 10.0
-den_inter = 0.0013 
-vis_inter = 0.00018
-maxmatrix  = 5000
-scale_inter = 0.25  1.5  1.0d0
-shift_inter = 1.12d-2  1.23d-2  0.0d0

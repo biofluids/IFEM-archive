@@ -45,7 +45,7 @@ subroutine get_surten_Bspline(x,x_inter,norm_inter,curv_inter,arc_inter,sur_flui
 	   delta=delta*Sp
 	end do     !get delta function
 !	delta=delta/(hs**nsd)
-
+!	delta=delta/hs**2
 	sur_fluid(:,i)=sur_fluid(:,i)+arc_inter(j)*sur_tension*curv_inter(j)*norm_inter(:,j)*delta
      end do
      den_f=den_liq+(den_inter-den_liq)*I_fluid(i)

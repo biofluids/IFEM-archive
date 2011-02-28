@@ -1,4 +1,4 @@
-restart =	170
+restart =	0
 restart_freq =	1
 steady =    0
 stokes =    0
@@ -17,7 +17,7 @@ nsd =     2
 iquad =   2
 
 nit =      5
-nts =      170
+nts =      35
 ntsbout =  1
 idisk =    00 
 inner =    100
@@ -25,7 +25,7 @@ outer =    5
 iscaling = 01
 maxconn =  60
 
-dt =      0.0001
+dt =      0.001
 t_start = 0.0
 alpha =   1.0
 

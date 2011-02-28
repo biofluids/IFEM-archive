@@ -44,7 +44,7 @@ subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,n
   integer flag_loc(nen),flag_sum
   nn_inter_regen=0
   x_inter_regen(:,:)=0.0
-  nn_cr=6
+  nn_cr=7
 !  write(*,*)'infdomain_inter',infdomain_inter(1:nn_inter)
 !write(*,*)'inter_ele_nn=',inter_ele_nn(1:ne_inter)
   do ie=1,ne_inter  ! loop over interfacial elements
@@ -125,8 +125,8 @@ subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,n
 !           write(*,*)'Ip_ini_can=',Ip_temp1
 !	   if( (signf*(Ip_temp1-Ic_inter) .le. 0.5*Ic_inter).and.(signf*(Ip_temp1-Ic_inter).ge.0.0)) then
 !           if(((Ip_temp1-Ic_inter).le.(0.25*Ic_inter)).and.((Ic_inter-Ip_temp1).le.(0.25*Ic_inter))) then
-         if(((Ip_temp1-Ic_inter).le.0.15).and.((Ic_inter-Ip_temp1).le.0.15)) then
-
+         if(((Ip_temp1-Ic_inter).le.0.15*Ic_inter).and.((Ic_inter-Ip_temp1).le.0.15*Ic_inter)) then
+!          if (((Ip_temp1-Ic_inter).le.0.2*Ic_inter).and.(Ip_temp1.gt.Ic_inter+0.0001)) then
 		call point_projection(Ic_inter,temp,x_center,I_fluid_center,x_inter,corr_Ip,hs,Ip_temp1,err,hg,infdomain_inter)
 !		write(*,*)'err_regen=',err
 		distance=sqrt((xlocan(1)-temp(1))**2+(xlocan(2)-temp(2))**2)
@@ -149,7 +149,7 @@ subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,n
 	nn_sub=nn_sub+4
       end do ! end of do while
 
-!write(*,*)'ie=',ie,'nn_local=',nn_local,'icount=',icount
+write(*,*)'ie=',ie,'nn_local=',nn_local,'icount=',icount
        icount=icount+1
       end do ! end of do while 2
      end if    ! end of 2d4nodes

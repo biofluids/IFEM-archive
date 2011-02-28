@@ -1,5 +1,5 @@
 restart =	0
-restart_freq =	2
+restart_freq =	1
 steady =    0
 stokes =    0
 hg_vol =    1
@@ -7,8 +7,8 @@ taudt =     1
 static =    0
 conserve =  1
 
- nn=       4225
- ne=       4096
+ nn=       1681
+ ne=       1600
 
 nrng =    4
 nen =     4
@@ -17,7 +17,7 @@ nsd =     2
 iquad =   2
 
 nit =      5
-nts =      2000
+nts =      130
 ntsbout =  1
 idisk =    00 
 inner =    100

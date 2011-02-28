@@ -2,24 +2,22 @@
 !     Regenerate interfacial points
 !======================================================
 
-subroutine points_regen(x,x_inter,x_center,x_inter_regen,&
-			inter_ele,ne_inter,Ic_inter,nn_inter_regen ,    &
+subroutine points_regen_in_ele(x,x_inter,x_center,x_inter_regen,&
+			Ic_inter,nn_inter_regen ,    &
 			I_fluid_center,corr_Ip, hg, infdomain,ien, &
-			regen_point_flag,regen_ele,nn_regen_ele)
+			ele_index)
 
   use fluid_variables, only:nsd,nn,ne,nen
   use interface_variables
 
   real(8) x(nsd,nn), x_inter(nsd,maxmatrix),x_center(nsd,ne)
   real(8) x_inter_regen(nsd,maxmatrix)
-  integer inter_ele(ne), ne_inter,nn_inter_regen
+  integer nn_inter_regen
   real(8) Ic_inter
   real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
   real(8) hg(ne)
   integer infdomain(maxmatrix),ien(nen,ne)
-  integer regen_point_flag(maxmatrix)
-  integer regen_ele(maxmatrix),nn_regen_ele
-
+  integer ele_index
 
   integer i,j,isd,inl,node,ie,icount,jcount
   real(8) x_fluid(nsd,nen)   !global coordinates of elements' nodes
@@ -43,24 +41,21 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,&
 
   integer d_flag
   real(8) d_range, A
-  integer curv_flag
-  nn_cr=8
+
+  nn_cr=10
   nn_inter_regen=0
   x_inter_regen(:,:)=0.0
 
-  regen_point_flag(:)=0
-  regen_ele(:)=0
-  nn_regen_ele=0
-  do ie=1,ne_inter
-     curv_flag=0
+!  do ie=1,ne_inter
+  ie=ele_index
      do inl=1,nen
-	node=ien(inl,inter_ele(ie))
+	node=ien(inl,ie)
 	x_fluid(1:nsd,inl)=x(1:nsd,node)
      end do   !for each element, find the global coordiates for each node
 
      nn_sub=4
      nn_local=0
-     do while((nn_local.le.nn_cr).and.(nn_sub.le.12)) !begin regeneration loop
+     do while((nn_local.le.nn_cr).and.(nn_sub.le.16)) !begin regeneration loop
 	nn_local=0  !reset nn_local
 	x_inter_regen_loc(:,:)=0.0  !reset local coordinates
 
@@ -89,7 +84,7 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,&
 	   d_flag=0
 	   do icount=1,nn_inter
 	      d_range=sqrt((xlocan(1)-x_inter(1,icount))**2+(xlocan(2)-x_inter(2,icount))**2)
-	      if(d_range.lt.hg(inter_ele(ie))/2.0) then
+	      if(d_range.lt.hg(ie)/6.0) then
 		d_flag=1
 	      end if
 	   end do
@@ -131,15 +126,10 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,&
 	A=ddI(1)/temp+dI(1)*(-0.5)/(temp**3)*(2*dI(1)*ddI(1)+2*dI(2)*ddI(3))+ &
 	  ddI(2)/temp+dI(2)*(-0.5)/(temp**3)*(2*dI(1)*ddI(3)+2*dI(2)*ddI(2))
 
-!	if(abs(A).gt.100.0) then
-!	  goto 200
-!	end if
-
         if(err_p.lt.1.0e-8) then
 	distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2)
-	if(distance.le.hg(inter_ele(ie))/real(nn_sub)) then
+	if(distance.le.hg(ie)/4.0) then
 	  if(abs(A).gt.curv_bound) then
-	    curv_flag=1
 	    goto 200
 	  end if
 	  nn_local=nn_local+1
@@ -158,16 +148,10 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,&
      x_inter_regen(1:nsd,(nn_inter_regen-nn_local+1):nn_inter_regen)= &
 			x_inter_regen_loc(1:nsd,1:nn_local)
 
-     regen_point_flag((nn_inter_regen-nn_local+1):nn_inter_regen)=inter_ele(ie)
-     if(curv_flag==1) then
-	nn_regen_ele=nn_regen_ele+1
-	regen_ele(nn_regen_ele)=inter_ele(ie)
-     end if
-
 write(*,*)'ie=',ie,'nn_local=',nn_local
-  end do ! end of loop over interfacial elements
+!  end do ! end of loop over interfacial elements
 
-end subroutine points_regen
+end subroutine points_regen_in_ele
 
 
 
