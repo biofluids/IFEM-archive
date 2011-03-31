@@ -14,50 +14,56 @@ subroutine parseinput_solid
   use meshgen_solid
   use delta_nonuniform, only: ndelta
   use r_common
+  use mpi_variables ! call mpi variable module
   implicit none
-     
+   include 'mpif.h'    
   real(8) :: ftemp
   integer :: i,error_id
   integer :: nbe(nel)
   integer,parameter :: one = 1
   integer :: file_in,echo_out
   common /filename/file_in,echo_out
-  real(8) :: shift1(nsd_solid)
+  real(8) :: shift1(3)
 
   file_in=8
   open(file_in,file='input_solid.in',status='old',action='read')
+if (myid == 0) then
   write(*,*) 'reading input_solid.in'
-
+end if
   ! Initial displacement
   CALL Read_Int(ninit,1)
   CALL Read_Int(initdir,1)
-
+if (myid == 0) then
   if (ninit.eq.1)   write(*,*) 'apply initial condition' 
   if (initdir.eq.1) write(*,*) 'apply initial displacement'
   if (initdir.eq.2) write(*,*) 'apply initial velocity'
-
+end if
  !...Gauss integration point
   CALL Read_Int(iquad_solid,1)
   CALL Read_Int(nen_solid,1)
+if (myid ==0) then
   write(*,*) 'gauss integration type     : ',iquad_solid
   write(*,*) 'number of nodes per element: ',nen_solid
-
+end if
  !...number of dimensions in the solid domain
   CALL Read_Int(nsd_solid,1)
+if (myid == 0) then
   write(*,*) 'number of space dimensions in solid domain: ',nsd_solid
-
+end if
  !...rigid body or not
   CALL Read_Int(nrigid,1)
+if (myid ==0) then
   if (nrigid.eq.1) then
      write(*,*) 'treating the solid as a RIGID BODY'
   else
      write(*,*) 'treating the solid as a DEFORMABLE BODY'
   endif
-
+end if
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !cccccc from the original main_dat
   CALL Read_Int(n_tec_ens,1)
   CALL Read_Int(ndelta,1)
+if (myid ==0) then
   if (ndelta .eq. 1) then
      write(*,*) ' RKPK data exchange method', ndelta
 
@@ -66,7 +72,7 @@ subroutine parseinput_solid
   else
      write(*,*) 'Currently we only offer these two options...'
   endif
-
+end if
 !cccccccccccccccccccccccccccccccccccccccccccccc
 !
 !     use ibm information
@@ -77,10 +83,18 @@ subroutine parseinput_solid
   
   CALL Read_Real(solid_scale,nsd_solid)
   CALL Read_Int(n_solid,1)
+!========================================================
+! Read in the number of element for each solid part
+! Right now it is only two parts
+  Call Read_Int(nep1,1)
+  Call Read_Int(nep2,1)
+
 
   nn_solid = nn_solid_1 * n_solid
   ne_solid = ne_solid_1 * n_solid
-
+  nep1 = nep1*n_solid
+  nep2 = nep2*n_solid
+if (myid == 0) then
   if (mno .lt. nn_solid) then !...see r_common.f90
      write(*,*) 'boost mno in r_common.f'
      stop
@@ -91,7 +105,9 @@ subroutine parseinput_solid
   write(*,*) 'number of multiple defined solids    = ',n_solid
   write(*,*) 'number of nodes    (all objects)     = ',nn_solid
   write(*,*) 'number of elements (all objects)     = ',ne_solid
-
+  write(*,*) 'number of elements for solid part I  = ',nep1
+  write(*,*) 'number of elements for solid part II = ',nep2 
+end if
   allocate(shift(nsd_solid,n_solid),stat=error_id)
   do i=1,n_solid
     CALL Read_Real(shift1,nsd_solid)
@@ -115,25 +131,28 @@ subroutine parseinput_solid
   enddo
 
   CALL Read_Int(material_type,1)	!1=hyperelastic material, 2=linear elastic material  
-  CALL Read_Real(young_mod,1)		! young's modulus (elastic material)
+  ! Read in 2 young's modules for 2 solid parts=====================
+  CALL Read_Real(group_young,n_solid)		! young's modulus (elastic material)
+  !============================================================
   CALL Read_Real(Poisson,1)			! Poisson ratio (elastic material_
-  CALL Read_Real(rc1,1)				! constants C1 (hyperelastic material)
-  CALL Read_Real(rc2,1)				! constants C2 (hyperelastic material)
+  CALL Read_Real(group_rc1,n_solid)				! constants C1 (hyperelastic material)
+  CALL Read_Real(group_rc2,n_solid)				! constants C2 (hyperelastic material)
   CALL Read_Real(rk,1)				! constants Ck (hyperelastic material)
   CALL Read_Real(density_solid,1)	! Density solid-fluid
-
+if (myid ==0) then
   if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
   if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
-  write(*,*) 'Youngs modulus=', young_mod
+  write(*,*) 'Youngs modulus for two solid parts I and II=', group_young(1:2)
   write(*,*) 'Poisson ratio=', Poisson
-  write(*,*) 'C1      = ',rc1
-  write(*,*) 'C2      = ',rc2
+  write(*,*) 'C1 for two solid parts I and II  = ',group_rc1(1:2)
+  write(*,*) 'C2 for two solid parts I and II  = ',group_rc2(1:2)
   write(*,*) 'kappa   = ',rk
   write(*,*) 'density = ',density_solid
-
+end if
   CALL Read_Real(xviss,1)
+if (myid ==0) then
   write(*,*) 'xviss  = ',xviss
-
+end if
   vnorm = 0.0d0
 
   CALL Read_Real(vnorm,1)
@@ -141,8 +160,10 @@ subroutine parseinput_solid
 
  !...gravity acceleration
   CALL Read_Real(xmg,nsd_solid)
+if (myid ==0) then
   write(*,*) 'gravity acceleration'
   write(*,*) ' xmg   =',xmg(1:nsd_solid)
+end if
 
   close(8)
 
@@ -162,6 +183,7 @@ end subroutine parseinput_solid
 subroutine parseinput_fluid
   use run_variables
   use fluid_variables
+  use mpi_variables ! call mpi variable module
   implicit none
 
   integer :: restart_onoff, steady_onoff,hg_vol_onoff, taudt_onoff
@@ -176,8 +198,9 @@ subroutine parseinput_fluid
   echo_out=7
   OPEN(file_in,file='input_fluid.in',STATUS='old',ACTION='read')
   OPEN(echo_out,file='summary.dat',STATUS="unknown")
+if (myid == 0) then
   write(*,*) 'reading input_fluid.in'
-
+end if
   CALL Read_Int(restart_onoff,1)
   if (restart_onoff.eq.1) then
   !   restart=.TRUE.
@@ -247,6 +270,12 @@ subroutine parseinput_fluid
 	pdf=4
   endif
 
+!write(*,*) 'nn', nn
+!write(*,*) 'ne', ne
+!write(*,*) 'nrng', nrng
+!write(*,*) 'ndf', ndf
+!write(*,*) 'nsd', nsd
+
   CALL Read_Int(iquad,1)
   CALL Read_Int(nit,1)
   CALL Read_Int(nts,1)
@@ -262,7 +291,10 @@ subroutine parseinput_fluid
   CALL Read_Real(alpha,1)
 
   do i=1,nrng
-     CALL Read_Real(fix,ndf+1)
+                do idf=1,ndf+1
+        CALL Read_Real(fix(idf),1)
+                end do
+!        write(*,*) 'fix', fix(:)
      ibc=int(fix(1))
      do idf=1,ndf
         bv(idf,ibc) = fix(idf+1)
@@ -270,9 +302,18 @@ subroutine parseinput_fluid
      enddo
   enddo
 
+! Read in the nature boundary condition
+  call Read_Int(edge_inflow,1)
+  call Read_Int(ne_inflow,1)
+  call Read_Real(pin,1)
+!======================================
+
   CALL Read_Real(landa_over_mu,1)
   CALL Read_Real(ic,ndf)
   CALL Read_Real(gravity,nsd)
+
+!        write(*,*) 'gravity', gravity(:)
+
   CALL Read_Real(interface,nsd)
   CALL Read_Real(vis_liq,1)
   CALL Read_Real(den_liq,1)
@@ -358,13 +399,15 @@ subroutine parseinput_interface
   use interface_variables
   use fluid_variables, only:nsd
   use denmesh_variables
+  use mpi_variables
   integer file_in
   common /filename/file_in
 
   file_in = 70
   open(file_in,file='input_inter.in',status='old')
+if(myid==0) then
   write(*,*)'reading input_inter.in'
-
+end if
   call Read_Int(nn_inter,1)
   call Read_Real(sur_tension,1)
   call Read_Real(den_inter,1)
@@ -372,7 +415,7 @@ subroutine parseinput_interface
   call Read_Int(maxmatrix,1)
   call Read_Real(scale_inter,nsd)
   call Read_Real(shift_inter,nsd)
-
+if(myid==0) then
   write(*,*)'nn_inter=',nn_inter
   write(*,*)'surface tension = ', sur_tension
   write(*,*)'maxmatrix=',maxmatrix
@@ -380,6 +423,7 @@ subroutine parseinput_interface
   write(*,*)'viscosity_inter=',vis_inter
   write(*,*)'scale_inter=',scale_inter(1:nsd)
   write(*,*)'shift_inter=',shift_inter(1:nsd)
+end if
   close(file_in)
   file_in=80
   open(file_in,file='input_den_mesh.in',status='old')
@@ -390,16 +434,5 @@ subroutine parseinput_interface
   call Read_Int(nbc_den,1)
   close(file_in)
 end subroutine parseinput_interface
-
-!subroutine parseinput_meshcenter
-!  use centermesh_variables,only:flag_center,nn_center,ne_center,nen_center
-!  open(999,file='input_den_mesh.in',status='old')
-!  call Read_Int(flag_den,1)
-!  call Read_Int(nn_den,1)
-!1  call Read_Int(ne_den,1)
-!  call Read_Int(nen_den,1)
-!  call Read_Int(nbc_den,1)
-!  close(999)
-!end subroutine parseinput_meshcenter
 
 end module parseinput

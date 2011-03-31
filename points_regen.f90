@@ -2,29 +2,31 @@
 !        Regenerate interface points                    !
 !=======================================================!
 
-subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,ne_inter,Ic_inter,corr_Ip,x,x_inter,ien,nn_inter_regen,x_inter_regen,hg,infdomain_inter)
+subroutine points_regen(flag_regen,part_ele_loc,I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,ne_inter_loc,Ic_inter,corr_Ip,x,x_inter,ien,nn_inter_regen_loc,x_inter_regen_loc,hg,infdomain_inter)
 
   use fluid_variables, only:nsd,nn,ne,nen
   use interface_variables
-  
+  use mpi_variables
+  integer flag_regen
   real(8) I_fluid(nn)
   integer inter_ele_nn(ne)
   real(8) I_fluid_center(ne)      !initial indicator for element center
   real(8) x_center(nsd,ne)            !coordinates for element center
   integer inter_ele(ne)           !interfacial elements index
-  integer ne_inter                !# of interfacial elements
+  integer ne_inter_loc                !# of interfacial elements
   real(8) Ic_inter                !constant interfacial indicator
   real(8) corr_Ip(maxmatrix)
   real(8) x(nsd,nn)                !fluid coordinates
 !  integer nn_inter                 !original # of interface points
   real(8) x_inter(nsd,maxmatrix)   !original coordinats of interface points
   integer ien(nen,ne)
-  integer nn_inter_regen           !new # of interface points
-  real(8) x_inter_regen(nsd,maxmatrix) !new coordinates of interface points
+  integer nn_inter_regen_loc           !new # of interface points
+  real(8) x_inter_regen_loc(nsd,maxmatrix) !new coordinates of interface points
   real(8) hg(ne)
   integer infdomain_inter(maxmatrix)
+  integer part_ele_loc
 
-  integer i,j,isd,inl,node,ie,icount,jcount
+  integer i,j,isd,inl,node,ie,icount,jcount,ie_loc
   real(8) x_fluid(nsd,nen)         !global coordinates of the nodes of each element
   integer nn_sub                   !# of candidate points per fluid element
   real(8) x_loc_can(nsd,5000)       !local coordinats of candidate points per element           
@@ -42,13 +44,16 @@ subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,n
   real(8) x_inter_regen_local(nsd,50) !#coordinates of local regen points
   real(8) err, signf
   integer flag_loc(nen),flag_sum
-  nn_inter_regen=0
-  x_inter_regen(:,:)=0.0
-  nn_cr=7
+  nn_inter_regen_loc=0
+  x_inter_regen_loc(:,:)=0.0
+  nn_cr=5
 !  write(*,*)'infdomain_inter',infdomain_inter(1:nn_inter)
 !write(*,*)'inter_ele_nn=',inter_ele_nn(1:ne_inter)
-  do ie=1,ne_inter  ! loop over interfacial elements
+  do ie_loc=1,ne_inter_loc  ! loop over interfacial elements
 !  do ie=62,62
+	ie=ie_loc+myid*part_ele_loc
+     
+
      flag_loc(1:nen)=0
      do inl=1,nen
 	node=ien(inl,inter_ele(ie))
@@ -79,15 +84,15 @@ subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,n
 	 else if(icount==2) then
             signf=-1.0
          end if
-      nn_sub=4
+      nn_sub=10
 !      x_inter_regen_local(:,:)=0.0
-      do while((nn_local.le.nn_cr).and.(nn_sub.le.30)) ! begin regeneration loop
+      do while((nn_local.le.nn_cr).and.(nn_sub.le.10)) ! begin regeneration loop
 	nn_local=0                ! reset nn_local
 	x_inter_regen_local(:,:)=0.0 ! reset local coordinates
 	do i=1,nn_sub
 	   do j=1,nn_sub
-		x_loc_can(1,nn_sub*(i-1)+j)=2.0/nn_sub*i-1.0-1.0/nn_sub
-		x_loc_can(2,nn_sub*(i-1)+j)=2.0/nn_sub*j-1.0-1.0/nn_sub
+		x_loc_can(1,nn_sub*(i-1)+j)=2.0/real(nn_sub)*i-1.0-1.0/real(nn_sub)
+		x_loc_can(2,nn_sub*(i-1)+j)=2.0/real(nn_sub)*j-1.0-1.0/real(nn_sub)
 	   end do
 	end do  ! assign local coordinates for candidate points
 	x_glo_can(:,:) = 0.0
@@ -125,45 +130,60 @@ subroutine points_regen(I_fluid,inter_ele_nn,x_center,I_fluid_center,inter_ele,n
 !           write(*,*)'Ip_ini_can=',Ip_temp1
 !	   if( (signf*(Ip_temp1-Ic_inter) .le. 0.5*Ic_inter).and.(signf*(Ip_temp1-Ic_inter).ge.0.0)) then
 !           if(((Ip_temp1-Ic_inter).le.(0.25*Ic_inter)).and.((Ic_inter-Ip_temp1).le.(0.25*Ic_inter))) then
-         if(((Ip_temp1-Ic_inter).le.0.15*Ic_inter).and.((Ic_inter-Ip_temp1).le.0.15*Ic_inter)) then
+!         if(((Ip_temp1-Ic_inter).le.0.15*Ic_inter).and.((Ic_inter-Ip_temp1).le.0.15*Ic_inter)) then
 !          if (((Ip_temp1-Ic_inter).le.0.2*Ic_inter).and.(Ip_temp1.gt.Ic_inter+0.0001)) then
+
+          if(flag_regen==1) then
+             if(Ip_temp1.gt.Ic_inter) then
+
 		call point_projection(Ic_inter,temp,x_center,I_fluid_center,x_inter,corr_Ip,hs,Ip_temp1,err,hg,infdomain_inter)
 !		write(*,*)'err_regen=',err
 		distance=sqrt((xlocan(1)-temp(1))**2+(xlocan(2)-temp(2))**2)
 		if(err .lt. 1.0e-8) then
-		  if(distance.le.(hs/nn_sub/2)) then
+		  if(distance.le.(hs/real(nn_sub)/2.0)) then
 		  nn_local=nn_local+1
 		  x_inter_regen_local(1:nsd,nn_local)=temp(1:nsd)
-		  else
-!		   write(*,*)'distance is too big'
 		  end if
-		else
-!		  write(*,*)'err is too big. newton fails. err=',err
-!		  write(*,*)'ne_inter=',ie
 		end if
-!		nn_inter_regen=nn_inter_regen+1
-!		x_inter_regen(1:nsd,nn_inter_regen)=temp(1:nsd)
-	   end if
+	      end if
+           else if(flag_regen==2) then
+                if(((Ip_temp1-Ic_inter).le.0.5*Ic_inter).and.((Ic_inter-Ip_temp1).le.0.5*Ic_inter)) then
+
+                  call point_projection(Ic_inter,temp,x_center,I_fluid_center,x_inter,corr_Ip,hs,Ip_temp1,err,hg,infdomain_inter)
+                  distance=sqrt((xlocan(1)-temp(1))**2+(xlocan(2)-temp(2))**2)
+                  if(err .lt. 1.0e-8) then
+                    if(distance.le.(hs/real(nn_sub)/2.0)) then
+                       nn_local=nn_local+1
+                       x_inter_regen_local(1:nsd,nn_local)=temp(1:nsd)
+                    end if
+                  end if
+                end if
+           end if
+
+
+
+
+
 	end do ! end of loop over the candidate points
+
 	
 	nn_sub=nn_sub+4
       end do ! end of do while
 
-write(*,*)'ie=',ie,'nn_local=',nn_local,'icount=',icount
+!write(*,*)'ie=',ie,'nn_local=',nn_local,'icount=',icount
        icount=icount+1
       end do ! end of do while 2
      end if    ! end of 2d4nodes
 
 
-      nn_inter_regen=nn_inter_regen+nn_local
-      x_inter_regen(1:nsd,(nn_inter_regen-nn_local+1):nn_inter_regen)= &
+      nn_inter_regen_loc=nn_inter_regen_loc+nn_local
+      x_inter_regen_loc(1:nsd,(nn_inter_regen_loc-nn_local+1):nn_inter_regen_loc)= &
                                 x_inter_regen_local(1:nsd,1:nn_local)
+
 
 999 continue
    end do ! end of loop over the interfacial elements
 
-write(*,*)'nn_inter_regen=',nn_inter_regen
-write(*,*)'Ic_inter=',Ic_inter
 
 end subroutine points_regen
 

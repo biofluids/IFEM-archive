@@ -3,7 +3,7 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  blockgmres_Laplace(xloc,I_fluid_den,p_inter,ien_den)
+subroutine  blockgmres_Laplace(ne_den_domain,den_domain,xloc,I_fluid_den,p_inter,ien_den)
   use global_constants
   use run_variables
   use fluid_variables,only:nsd,iquad
@@ -17,7 +17,7 @@ subroutine  blockgmres_Laplace(xloc,I_fluid_den,p_inter,ien_den)
   real(8) p_inter(nn_den)
 !  real(8) w_inter(nn)
 !  real(8) hk(ne)
-
+  integer ne_den_domain,den_domain(ne_den)
   real(8) x(nsd,nen_den),d(nen_den)
   real(8) eft0,det,effd,effm,effc
   real(8) sh(0:nsd,nen_den),ph(0:nsd,nen_den)
@@ -26,7 +26,7 @@ subroutine  blockgmres_Laplace(xloc,I_fluid_den,p_inter,ien_den)
   real(8) dr(nsd)
 !  real(8) hg
   
-  integer inl,ie,isd,node,iq
+  integer inl,ie,isd,node,iq,ine
 
   integer,parameter :: ndfpad=5,nsdpad=3,nenpad=8,nquadpad=8
   integer nquad
@@ -78,7 +78,9 @@ subroutine  blockgmres_Laplace(xloc,I_fluid_den,p_inter,ien_den)
         endif
   end do
 !==============================================================
-  do ie=1,ne_den     !loop over elements
+!  do ie=1,ne_den     !loop over elements
+   do ine=1,ne_den_domain
+      ie=den_domain(ine)
      do inl=1,nen_den
 	x(1:nsd,inl) = xloc(1:nsd,ien_den(inl,ie))
 	d(inl) = I_fluid_den(ien_den(inl,ie))

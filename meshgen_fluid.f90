@@ -13,18 +13,28 @@ subroutine readx(xyz)
 
   file=21
   open(file, FILE="mxyz.in", STATUS="old")
-
+if (nsd == 2) then
   do i=1,nn
-     read(file,*) xyz(1:nsd,i)
+     read(file,100) xyz(1:nsd,i)
   enddo
+end if
+
+if (nsd == 3) then
+  do i=1,nn
+     read(file,101) xyz(1:nsd,i)
+  enddo
+end if
+
   close(file)
+100 format(D14.10,D14.10)
+101 format(D14.10,D14.10,D14.10)
 
   return
 end subroutine readx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine readien(ien)
-  use fluid_variables, only: nen,ne
+  use fluid_variables, only: nen,ne,nsd
   implicit none
 
   integer :: ien(nen,ne)
@@ -32,17 +42,39 @@ subroutine readien(ien)
 
   file=21
   open(file, FILE="mien.in", STATUS="old")
+if (nen==3 .and. nsd==2) then
   do i=1,ne
-     read(file,*) ien(:,i)
+     read(file,100) ien(:,i)
   enddo
-  close(file)
+end if
 
+if (nen==4 .and. nsd==2) then
+  do i=1,ne
+     read(file,101) ien(:,i)
+  enddo
+end if
+
+if (nen==4 .and. nsd==3) then
+  do i=1,ne
+     read(file,101) ien(:,i)
+  enddo
+end if
+
+if (nen==8 .and. nsd==3) then
+  do i=1,ne
+     read(file,102) ien(:,i)
+  enddo
+end if
+  close(file)
+100 format(I8,I8,I8)
+101 format(I8,I8,I8,I8)
+102 format(I8,I8,I8,I8,I8,I8,I8,I8)
   return
 end subroutine readien
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine readrng(rngface)
-  use fluid_variables, only: ne,neface,nrng
+  use fluid_variables, only: ne,neface,nrng,nen
   implicit none
 
   integer :: rngface(neface,ne)
@@ -50,10 +82,23 @@ subroutine readrng(rngface)
 
   file=21
   open(file, FILE="mrng.in", STATUS="old")
-
+if (nen==3) then
   do i=1,ne
-     read(file,*) rngface(:,i)
+     read(file,100) rngface(:,i)
   enddo
+end if
+
+if (nen==4) then
+  do i=1,ne
+     read(file,101) rngface(:,i)
+  enddo
+end if
+
+if (nen==8) then
+  do i=1,ne
+     read(file,102) rngface(:,i)
+  enddo
+end if
 
   do ieface=1,neface
      do iec=1,ne
@@ -69,6 +114,9 @@ subroutine readrng(rngface)
   end do
   nrng=mynrng
   close(file)
+100 format(I8,I8,I8)
+101 format(I8,I8,I8,I8)
+102 format(I8,I8,I8,I8,I8,I8,I8,I8)
 
   return
 end subroutine readrng

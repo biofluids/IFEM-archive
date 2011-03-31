@@ -7,10 +7,12 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,sur_fluid,I_fluid)
+subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,&
+			ne_local,ien_local,node_local,nn_local,sur_fluid,I_fluid)
   use global_constants
   use run_variables
   use fluid_variables
+  use mpi_variables
   use interface_variables
   implicit none
 
@@ -50,6 +52,16 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   real* 8 q_p(ndf,nn)
   real* 8 q_res_a(nsd,nen)
   real* 8 diag(12)
+!======================================
+! varibles for mpi implementation
+        integer ne_local ! # of element on each processor
+        integer ien_local(ne_local) ! subregion-->whole region element index
+        integer ie_local ! loop parameter
+	integer nn_local
+	integer node_local(nn_local)
+	integer icount
+!--------------------------------------------------
+
 
   q_res_a(1:nsd,1:nen) = 0
   q_p(1:ndf,1:nn) = 0
@@ -62,9 +74,11 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-!p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
-p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
-!=================================================
+do icount=1, nn_local
+        node=node_local(icount)
+!p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
+p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
+end do
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
 ! then we will just subscrib it from p(!:nsd) which is the 
@@ -73,7 +87,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 ! 2 do the subscribition after the elements loop
 ! Xingshi 09/15/2008
 !===================================================
-  do ie=1,ne		! loop over elements
+  do ie_local=1,ne_local		! loop over elements
+     ie=ien_local(ie_local)
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -154,18 +169,22 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 !	    mu = vis_liq  ! liquid viscosity
 !	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
-	    mu=0.0
-	    ro=0.0
-	    do inl=1,nen
-		node=ien(inl,ie)
-		if(I_fluid(node).gt.1.0)then
-		  I_fluid(node)=1.0
-		else if(I_fluid(node).lt.0.0) then
-		  I_fluid(node)=0.0
-		end if
-		mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
-		ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
-	    end do
+
+            mu=0.0
+            ro=0.0
+            do inl=1,nen
+                node=ien(inl,ie)
+                if(I_fluid(node).gt.1.0)then
+                  I_fluid(node)=1.0
+                else if(I_fluid(node).lt.0.0) then
+                  I_fluid(node)=0.0
+                end if
+                mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
+                ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
+            end do
+
+
+
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -191,6 +210,7 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 		     res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl) &
 	                    +sh(zsd,inl)*d(wdf,inl)
+		     q_res_c(inl) = 0
 		  enddo
 		endif
 
@@ -205,6 +225,13 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 			   end do ! get res_a for u and v for momentum equation
 			elseif (nsd==3) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)+w*dr(3,isd)-g(isd))-fq(isd)
+
+                           do inl = 1, nen
+                                q_res_a(isd,inl)=ro*(sh(0,inl)*dtinv+u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
+                           end do ! get res_a for u v and w for momentum equation
+
+
+
 			endif
 	    enddo
 
@@ -295,10 +322,6 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 			       q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)*q_d(2,inl)+ &
 					     ph(2,inl)*(mu*sh(2,inl)*q_d(2,inl)*2)
 
-!			       diag(1+3*(inl-1))=q_p(1,node)
-!			       diag(2+3*(inl-1))=q_p(2,node)
-
-
 
 			elseif (nsd==3) then
 			  do isd=1,nsd
@@ -307,21 +330,26 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 										  ph(2,inl)*tau(2,isd) -  &
 										  ph(3,inl)*tau(3,isd)
 			  enddo
+
+                          q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*2)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*sh(3,inl)
+                          q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*(sh(2,inl)*2)+ph(3,inl)*mu*sh(3,inl)
+                          q_p(3,node)=q_p(3,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*(sh(3,inl)*2)
+
 			endif
 
 		! Stablization with Tau_moment
 		   if (nsd==2) then
 		   	 p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)
-                      diag(inl)=p(pdf,node)
 		   	 q_p(pdf,node) = q_p(pdf,node)+tauc*(sh(1,inl)*sh(1,inl)+sh(2,inl)*sh(2,inl))*eft0
 	       elseif (nsd==3) then
 		     p(pdf,node) = p(pdf,node) - ph(xsd,inl)*prs_cc(udf)  &
 	                                   - ph(ysd,inl)*prs_cc(vdf)  &
 	                                   - ph(zsd,inl)*prs_cc(wdf)
+                         q_p(pdf,node) = q_p(pdf,node)+tauc*(sh(1,inl)**2+sh(2,inl)**2+sh(3,inl)**2)*eft0
+
 		   endif		! Stablization with Tau_cont    
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
-!                   diag(inl)=p(1,node)
 		   q_p(1:nsd,node) = q_p(1:nsd,node)+taum*temp*q_res_a(1:nsd,inl)+ & 
                                      ph(1:nsd,inl)*taul*ro*sh(1:nsd,inl)
 
@@ -334,10 +362,11 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 
   enddo ! end of element loop
 !write(*,*)q_p(:,:)
+
  continue  
 continue
 !write(*,*)q_p(:,:)
 !write(*,*)d(:,:)
 
-end subroutine block
+end subroutine 
 

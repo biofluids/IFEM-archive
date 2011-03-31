@@ -7,10 +7,14 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
+subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress,ne_local,&
+		ien_local,mdata,n_mdata)
   use global_constants
   use run_variables
   use fluid_variables
+  use solid_variables, only: nn_solid
+  use r_common, only: density_solid, vis_solid
+  use mpi_variables
   implicit none
 
   integer ien(nen,ne)
@@ -42,13 +46,58 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress)
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+
+  integer inn
+  real*8  leftx
+
+  integer mdata(nn_solid)
+  integer n_mdata
+  real(8) fdensity(nn)
+  real(8) local_den(nen)
+  real(8) fvis(ne)
+
+
+!======================================
+! varibles for mpi imteplation
+	integer ne_local ! # of element on each processor
+	integer ien_local(ne_local) ! subregion-->whole region element index
+	integer ie_local ! loop parameter
+
+
+
+
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
+    fdensity(:)=0.0
+    fvis(:)=vis_liq
+  do ie=1,n_mdata
+     do inl=1,nen
+     fdensity(ien(inl,mdata(ie)))=density_solid
+     enddo
+!     fdensity(mdata(ie))=density_solid
+     fvis(mdata(ie))=vis_solid
+  enddo
+    fdensity(:)=fdensity(:)+den_liq
+!if (myid ==0 ) then
+!write(*,*) 'fdensity=', fdensity(:)
+!end if
+!====================================
+! Try to fix the pressure BC by using an external force to mimic the pressure
+! Make the pressure increase graduately
+!leftx = 0.0d0
+!do inn=1,nn
+!   if (xloc(1,inn) ==  leftx) then
+!      f_fluids(1,inn) = 10.0
+!   endif
+!enddo
+
+
+
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
+!p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
@@ -58,16 +107,19 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 ! 2 do the subscribition after the elements loop
 ! Xingshi 09/15/2008
 !===================================================
-  do ie=1,ne		! loop over elements
+  do ie_local=1,ne_local		! loop over subregion elements
+	ie=ien_local(ie_local)
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
-!		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
-                 fnode(:,inl)=0.0
+		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
+                 fnode(:,inl)=fnode(:,inl)/5.0d-4
 !============================================================================
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
 		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
+!-----------------------------------------------------------------------------
+               local_den(inl)=fdensity(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -109,12 +161,14 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
 
-
+	ro=0.0
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
-		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
+		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)  
+!----------------------------------------------------------------------------------------
+                   ro=ro+sh(0,inl)*local_den(inl)     
 	    enddo
 
 !... define u=v1, v=v2, w=v3, pp=p
@@ -136,8 +190,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 	    endif
 
 !....  calculate liquid constant and gravity
-	    mu = vis_liq  ! liquid viscosity
-	    ro = den_liq  ! liquid density
+	    mu = fvis(ie)  ! liquid viscosity
+!	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
@@ -235,11 +289,23 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
 		 
 		   node = ien(inl,ie)
 			if (nsd==2) then
-			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl))
+			   temp = (u*ph(xsd,inl)+v*ph(ysd,inl))
 			elseif (nsd==3) then
 			   temp = ro*(u*ph(xsd,inl)+v*ph(ysd,inl)+w*ph(zsd,inl))
 			endif
 		! Continuty Equation
+!if (myid ==0) then
+!if (node == 330) then
+!write(*,*) 'myid', myid
+!write(*,*) 'rho', ro
+!write(*,*) 'temp', temp
+!write(*,*) 'taum', taum
+!write(*,*) 'vel', vel
+!write(*,*) 'res_a', res_a(:)
+!write(*,*) 'hg', hg
+!write(*,*) 'p', p(:,node)
+!end if
+!end if
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
 		! Momentum Equation (Euler Residual)
@@ -313,6 +379,7 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
   enddo ! end of element loop
  continue  
 continue
+
   return
 end subroutine block
 

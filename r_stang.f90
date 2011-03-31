@@ -1,7 +1,8 @@
-subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain)
+subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid_accel,solid_pave,solid_stress,solid_strain,mtype)
   use run_variables, only: ntsbout,its
   use solid_variables, only: nsd_solid,ne_solid,nn_solid,nen_solid,nsurface,nquad_solid,xq_solid,wq_solid,nquadpad_solid
   use r_common
+  use mpi_variables ! call mpi variable module
   implicit none
 
   integer,dimension(1:ne_solid,1:nen_solid) :: solid_fem_con   !...connectivity for solid FEM mesh
@@ -46,9 +47,10 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
   integer :: nos,ntem         !...counter
   integer :: isd,iq  !...counter
   integer :: ine,in,nu1,mu1,ip,jp  !...counter
-
+  integer :: mtype(ne_solid)
+if (myid ==0) then
   write(*,*) " calculate internal + inertial forces (r_stang)"
-
+end if
   predrf(1:nsd_solid*nn_solid) = 0.0d0
   tot_vol_init = 0.0d0
   tot_vol_curr = 0.0d0
@@ -91,6 +93,8 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !================================================
 ! Hyperelastic Material --> Option material_type=1
 	if (material_type==1) then
+        rc1=group_rc1(mtype(ine))
+        rc2=group_rc2(mtype(ine))
 !     material j
 		call r_smaterj(wto,toc,xmi,xmj,dxmj,ddxmj)
 !     discretized pressure
@@ -102,9 +106,10 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !     strain
         call r_sstrain(toc,xto,iq,ine,ge)
 !     First Piola-Kirchoff stress - P
+
         call r_spiola(xmj,dxmj,xto) !hyperelastic material
 !     correction for viscous fluid stress
-!        call r_spiola_viscous(xot,vel)  
+        call r_spiola_viscous(xot,vel)  
 !     calculate cauchy stress for output
 !     ! for force calculation in current configuration (updated Lagrangian) -> remove "if" condition!!!
       if (mod(its,ntsbout) == 0) then
@@ -117,6 +122,9 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 !     strain
         call r_sstrain(toc,xto,iq,ine,ge)
 !	  Calculate cauchy stress then transform to 1st PK stress
+       
+          young_mod=group_young(mtype(ine))
+       
 		call r_spiola_elastic(det,xot,ge,iq,ine,cstr_element)
 !     correction for viscous fluid stress
 !        call r_spiola_viscous(xot,vel)  
@@ -138,10 +146,10 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 
      enddo gauss_int  
   enddo element
-
+if (myid ==0) then
   write(*,'("  total solid volume (init) = ",f12.6)') tot_vol_init
   write(*,'("  total solid volume (curr) = ",f12.6)') tot_vol_curr
-
+end if
  !     pressure condensation, inverse kpp
   if (1 == 0) then 
   do ine=1,ne_solid
@@ -174,7 +182,9 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 
  !...calculate pressure and stress for the structure output
   if (mod(its,ntsbout) == 0) then
+if (myid ==0) then
    write(*,*) "  calculate stress and strain for output"
+end if
    do in=1,nn_solid
      solid_stress(1:nsd_solid*2,in)=0.0d0
      solid_strain(1:nsd_solid*2,in)=0.0d0
@@ -201,6 +211,8 @@ subroutine r_stang(solid_fem_con,solid_coor_init,solid_coor_curr,solid_vel,solid
 		endif
    enddo
   endif
+if (myid ==0) then
   write(*,*) " done                                 (r_stang)"
+end if
   return
 end subroutine r_stang

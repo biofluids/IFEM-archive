@@ -33,7 +33,9 @@
     real(8) :: curv_inter(maxmatrix)
     real(8) :: corr_Ip(maxmatrix)              !indicator correction
     integer :: nn_inter_regen                  !# of points regenerated
+    integer :: nn_inter_regen_loc
     real(8) :: x_inter_regen(nsd,maxmatrix)    !coordinates of regen points
+    real(8) :: x_inter_regen_loc(nsd,maxmatrix)
     real(8) :: p_curv(nn)
     real(8) :: w_curv(nn)
     real(8) :: dg_curv(nn)
@@ -49,6 +51,11 @@
     real(8) :: arc_inter(maxmatrix)            !arclength for interfacial points
     real(8) :: sur_fluid(nsd,nn)               !surface tension for fluid nodes
     real(8) :: vel_inter(nsd,maxmatrix)        !velocity for interfacial points
+    integer :: id_den(nn_den)
+    integer :: ne_inner_den,ne_outer_den
+    integer :: inner_ele_den(ne_den),outer_ele_den(ne_den)
+    integer :: ne_den_domain, den_domain(ne_den)
+
 
 !    integer :: nn_add                          !# of elements added to the interfacial elements
 !    integer :: add_ele(ne)                     !storage of add-up interfacial elements

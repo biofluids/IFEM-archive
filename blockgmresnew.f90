@@ -7,7 +7,8 @@
 !  Tulane University
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,sur_fluid,I_fluid)
+subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
+			  ne_local,ien_local,node_local,nn_local,sur_fluid,I_fluid)
   use global_constants
   use run_variables
   use fluid_variables
@@ -44,14 +45,27 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,sur_fluid,I_flu
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+!============================
+! MPI varibalbes
+  integer ne_local ! # of element on each processor
+  integer ien_local(ne_local) ! subregion-->wholeregion element index
+  integer ie_local ! loop parameter
+  integer nn_local
+  integer node_local(nn_local)
+  integer icount
+!---------------------------------------------
+! corresponding changes in block.f90
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-!p(1:nsd,1:nn)=p(1:nsd,1:nn)+f_fluids(1:nsd,1:nn)
-p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
+do icount=1, nn_local
+        node=node_local(icount)
+!p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
+p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
+end do
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
@@ -61,7 +75,8 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 ! 2 do the subscribition after the elements loop
 ! Xingshi 09/15/2008
 !===================================================
-  do ie=1,ne		! loop over elements
+  do ie_local=1,ne_local		! loop over elements
+     ie=ien_local(ie_local)
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -141,19 +156,23 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
 !	    mu = vis_liq  ! liquid viscosity
 !	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
-	    mu=0.0
-	    ro=0.0
-	    do inl=1,nen
-		node=ien(inl,ie)
+
+            mu=0.0
+            ro=0.0
+            do inl=1,nen
+                node=ien(inl,ie)
                 if(I_fluid(node).gt.1.0)then
                   I_fluid(node)=1.0
                 else if(I_fluid(node).lt.0.0) then
                   I_fluid(node)=0.0
                 end if
 
-		mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
-		ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
-	    end do
+                mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
+                ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
+            end do
+
+
+
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -292,5 +311,5 @@ p(1:nsd,1:nn)=p(1:nsd,1:nn)+sur_fluid(1:nsd,1:nn)
  continue  
 continue
   return
-end subroutine blockgmresnew
+end subroutine 
 

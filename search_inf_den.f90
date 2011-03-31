@@ -2,6 +2,7 @@ subroutine search_inf_den(xyz_solid, xyz_fluid, nn_fluids,nn_solids, nsd, ne, ne
 !use interface_variables, only:maxmatrix
 !use centermesh_variables, only:nn_center
 use denmesh_variables,only:nn_den
+use mpi_variables
 integer nn_fluids
 integer nn_solids
 integer nsd
@@ -17,8 +18,9 @@ real(8) x(nsd)
 
 integer inn
 integer maxconn
-
-write(*,*) 'I am in search influence'
+if(myid==0) then
+write(*,*) 'I am in search influence den'
+end if
 maxconn=30
    
    do inn=1,nn_solids

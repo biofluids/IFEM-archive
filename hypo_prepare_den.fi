@@ -1,0 +1,50 @@
+!===================================
+
+! used for dense mesh
+
+!====================================
+
+allocate (partele(ne_den))
+!allocate (partnode(nn_den))
+!allocate (tmp_index(ne_den))
+
+!nn_local_den=0
+ne_local_den=0
+
+open(22,file='partele_den.in',status='old')
+do icount=1,ne_den
+   read(22,*)partele(icount)
+end do
+close(22)
+
+!open(23,file='partnode_den.in',status='old')
+!do icount=1,nn_den
+!   read(22,*)partnode(icount)
+!end do
+!close(23)
+
+do icount=1,ne_den
+   if(partele(icount)==myid) then
+	ne_local_den=ne_local_den+1
+   end if
+end do
+
+allocate(ien_local_den(ne_local_den))
+
+ne_local_den=0
+
+do icount=1,ne_den
+   if(partele(icount)==myid) then
+	ne_local_den=ne_local_den+1
+	ien_local_den(ne_local_den)=icount
+   end if
+end do
+
+
+
+
+
+
+
+
+

@@ -16,7 +16,6 @@ module interface_variables
   integer :: maxmatrix  
   real(8) :: scale_inter(3) ! 
   real(8) :: shift_inter(3) 
-  real(8) :: curv_bound   !max curvature
 
 
 end module interface_variables

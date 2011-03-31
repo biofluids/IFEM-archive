@@ -1,9 +1,0 @@
-!======================solve normal for each fluid node====================
-
-     norm_fluid(1:nsd,1:nn) = 0.0
-
-	p_norm(:,:) = 0.0
-	w_norm(:,:) = 0.0
-	call block_norm(x,w_norm,p_norm,ien,hg,I_fluid)
-	call set_id_inter(p_norm,id_inter)
-	call gmres_normal(x,w_norm,p_norm,norm_fluid,hg,ien,id_inter,I_fluid)

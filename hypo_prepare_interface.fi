@@ -1,4 +1,6 @@
+if(myid==0) then
   call error('read coordinates of interface points',-999,.false.)
+end if
   call readinter(x_inter)
   call scale_shift_inter(x_inter)
 

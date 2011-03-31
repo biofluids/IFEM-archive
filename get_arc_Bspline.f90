@@ -2,15 +2,16 @@
 !calculate the arclength for each interfacial points
 !=======================================================
 
-subroutine get_arc_Bspline(x_inter,arc_inter,infdomain_inter,hg)
+subroutine get_arc_Bspline(arc_total,x_inter,arc_inter,infdomain_inter,hg)
 
   use fluid_variables,only:nsd,nn,ne,nen
   use interface_variables
-
+  use mpi_variables
   real(8) x_inter(nsd,maxmatrix)       !coordinates for interfacial points
   real(8) arc_inter(maxmatrix)         !arclength for interfacial points
   integer infdomain_inter(maxmatrix)
   real(8) hg(ne)
+  real(8) arc_total
 
   integer i,j,flag
   real(8) hs,Sp,dx(nsd)
@@ -70,7 +71,10 @@ subroutine get_arc_Bspline(x_inter,arc_inter,infdomain_inter,hg)
     stop
   end if
   end if
+if(myid==0) then
 write(*,*)'total_length=',total_length
+end if
+  arc_total=total_length
 end subroutine get_arc_Bspline
 
 

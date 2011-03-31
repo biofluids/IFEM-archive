@@ -6,7 +6,7 @@ subroutine get_curv_Bspline(xp,xg,Ig_ini,infdomain_inter,corr_Ip,curv_inter,hg,n
 
   use interface_variables
   use fluid_variables,only:nsd,ne,nn
-
+  use mpi_variables
   real(8) xp(nsd,maxmatrix),xg(nsd,ne)
   real(8) Ig_ini(ne)
   integer infdomain_inter(maxmatrix)
@@ -110,10 +110,6 @@ subroutine get_curv_Bspline(xp,xg,Ig_ini,infdomain_inter,corr_Ip,curv_inter,hg,n
 !========================================================
      end do
      pcount(i)=num
-if(i==1) then
-write(*,*)'for b-spline'
-write(*,*)dI(1,i),dI(2,i),dI2(1,i),dI2(2,i),dxy(i)
-end if
   end do
 
   do i=1,nn_inter
@@ -123,18 +119,21 @@ end if
      curv_y=dI2(2,i)/temp+dI(2,i)*(-0.5)/(temp**3)*(2*dI(1,i)*dxy(i)+2*dI(2,i)*dI2(2,i))
      curv_inter(i)=curv_x+curv_y
   end do
-open(111,file='bigcurvp.dat',status='unknown')
-  write(111,'(a12)')'#Version 1.0'
-  write(111,'(a21)')'#EnSight Point Format'
+if(myid==0)then
+write(*,*)'curv_max=',maxval(abs(curv_inter(1:nn_inter)))
+end if
+!open(111,file='bigcurvp.dat',status='unknown')
+!  write(111,'(a12)')'#Version 1.0'
+!  write(111,'(a21)')'#EnSight Point Format'
 
-  do i=1,nn_inter
+!  do i=1,nn_inter
 !write(*,*)i,curv_inter(i),'# of g',gcount(i),'# of p',pcount(i)
-  if(abs(curv_inter(i)).gt.10.0) then
-     write(111,999)xp(1,i),xp(2,i),0.0
-  end if
-  end do
-999 format(f14.10,f14.10,f14.10)
-close(111)
+!  if(abs(curv_inter(i)).gt.10.0) then
+!     write(111,999)xp(1,i),xp(2,i),0.0
+!  end if
+!  end do
+!999 format(f14.10,f14.10,f14.10)
+!close(111)
 end subroutine get_curv_Bspline
 
 

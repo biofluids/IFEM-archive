@@ -71,8 +71,12 @@ subroutine point_projection(Ic_inter,xloc,x_center,I_fluid_center,x_inter,corr_I
 !=====get delta x and delta y=================================================
 
      if (nsd==2) then
-	temp=(dI(1)**2+dI(2)**2)/dI(1)
-	delta(1)=(Ic_inter-I_can)/temp
+	temp=dI(1)**2+dI(2)**2
+if((temp.lt.1.0e-2).or.(abs(dI(1)).lt.1.0e-2)) then
+err_p=999.0
+go to 100
+end if
+	delta(1)=(Ic_inter-I_can)*dI(1)/temp
 	delta(2)=delta(1)*dI(2)/dI(1)
      else if(nsd==3) then
 	write(*,*)'no 3D right now'
@@ -103,6 +107,7 @@ subroutine point_projection(Ic_inter,xloc,x_center,I_fluid_center,x_inter,corr_I
 nit=nit+1
   end do ! end of loop for newton iteration
 !write(*,*)'I_can=',I_can
+100 continue
 end subroutine point_projection
 
 

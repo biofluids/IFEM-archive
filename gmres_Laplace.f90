@@ -1,10 +1,11 @@
 
 
-subroutine gmres_Laplace(x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_den)
+subroutine gmres_Laplace(ne_den_domain,den_domain,x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_den,id_den)
 	use fluid_variables, only: nsd,inner,outer
 !	use centermesh_variables
 	use denmesh_variables, only:nn_den,ne_den,nen_den,nbc_den
 	use interface_variables
+	use mpi_variables
 	implicit none
 
 	real* 8 x(nsd,nn_den)
@@ -17,6 +18,7 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_d
 	integer inter_ele_den(ne_den)
 	real* 8 flag
 	integer bcnode_den(nbc_den)
+	integer id_den(nn_den)
 
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
@@ -31,6 +33,7 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_d
 	real* 8 temp(nn_den)
 	character(1) TRAN
 	real* 8 workls(2*inner)
+	integer ne_den_domain,den_domain(ne_den_domain)
 
 	eps = 1.0e-6
 	e1(:) = 0
@@ -64,11 +67,16 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_d
 		 end do!!!!!!!!!!calcule eps*inv(P)*V1
 		
 		avloc(:) = 0.0d0
-		call blockgmres_Laplace(x,dv,avloc,ien_den)
+		call blockgmres_Laplace(ne_den_domain,den_domain,x,dv,avloc,ien_den)
 !		avloc(:) = (-avloc(:)+bg(:))/eps ! get Av,bg=-r(u)
-		flag = 0.0
-		call form_inter_ele(inter_ele_den,ne_inter_den,avloc,ien_den,flag)
-		call form_inter_bc(avloc,bcnode_den,flag) !set bc
+!		flag = 0.0
+!		call form_inter_ele(inter_ele_den,ne_inter_den,avloc,ien_den,flag)
+!		call form_inter_bc(avloc,bcnode_den,flag) !set bc
+		do icount=1,nn_den
+		   if(id_den(icount)==1) then
+		      avloc(icount)=0.0
+		   end if
+		end do
 
 	      do i=1,j
 		do icount = 1, nn_den
@@ -115,12 +123,17 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_d
 
 	
 	avloc(:) = 0.0d0
-	call blockgmres_Laplace(x,dv,avloc,ien_den)
+	call blockgmres_Laplace(ne_den_domain,den_domain,x,dv,avloc,ien_den)
 !	avloc(:) = (-avloc(:)+bg(:))/eps
 
-	flag = 0.0
-	call form_inter_ele(inter_ele_den,ne_inter_den,avloc,ien_den,flag)
-	call form_inter_bc(avloc,bcnode_den,flag)
+!	flag = 0.0
+!	call form_inter_ele(inter_ele_den,ne_inter_den,avloc,ien_den,flag)
+!	call form_inter_bc(avloc,bcnode_den,flag)
+	do icount=1,nn_den
+	   if(id_den(icount)==1) then
+	      avloc(icount)=0.0
+	   end if
+	end do
 !!!!!!!!!!calculate AXm
 	do icount=1,nn_den
 	   r0(icount) = bg(icount)-avloc(icount)
@@ -130,12 +143,20 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien_den,inter_ele_den,ne_inter_den,bcnode_d
 
 	rnorm = sqrt(rnorm0)
 	iouter = iouter + 1        
-
+if(myid==0) then
 	write(*,*) 'err=',err
+end if
 111     continue  ! end outer loop
 !write(*,*)'x0_2=',x0(:)
 
 	dg(:) = 1/w(:)*x0(:) ! unscaled x0
+	do icount=1,nn_den
+	   if(id_den(icount)==1) then
+	     dg(icount)=0
+	   end if
+	end do
+
+
 !write(*,*)'dg=',dg(:)
 !write(*,*)'w=',w(:)
 !stop

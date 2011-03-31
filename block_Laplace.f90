@@ -3,7 +3,7 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  block_Laplace(xloc,I_fluid_den,p_inter,w_inter,ien_den)
+subroutine  block_Laplace(ne_den_domain,den_domain,xloc,I_fluid_den,p_inter,w_inter,ien_den)
   use global_constants
   use run_variables
   use fluid_variables,only:nsd,iquad
@@ -24,8 +24,10 @@ subroutine  block_Laplace(xloc,I_fluid_den,p_inter,w_inter,ien_den)
 
   real(8) dr(nsd)
   real(8) hg
+  integer ne_den_domain
+  integer den_domain(ne_den)
   
-  integer inl,ie,isd,node,iq
+  integer inl,ie,isd,node,iq,ine
 
   integer,parameter :: ndfpad=5,nsdpad=3,nenpad=8,nquadpad=8
   integer nquad
@@ -77,7 +79,10 @@ subroutine  block_Laplace(xloc,I_fluid_den,p_inter,w_inter,ien_den)
   enddo
 
 !==============================================================
-  do ie=1,ne_den     !loop over elements
+!  do ie=1,ne_den     !loop over elements
+  do ine=1,ne_den_domain
+     ie=den_domain(ine)
+
      do inl=1,nen_den
 	x(1:nsd,inl) = xloc(1:nsd,ien_den(inl,ie))
 	d(inl) = I_fluid_den(ien_den(inl,ie))

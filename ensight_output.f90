@@ -163,7 +163,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter,x_cente
   endif
 
 
-  write(file_name,'(A8, A6)')  'fem.geo', fileroot
+  write(file_name,'(A7, A6)')  'fem.geo', fileroot
   write(6,*) 'writing... ', file_name 
 
   open(i_file_unit, file=file_name, form='formatted')
@@ -322,7 +322,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter,x_cente
   write(i_file_unit,'(a7)') '  point'
   write(i_file_unit,'(i8)') nn_inter_ini
   do i=1,nn_inter_ini
-     write(i_file_unit,'(2i8)'),i,i+nn_solid+nn+nn_inter+nn_den
+     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_den
   end do
 
 !...write centerpoint part
@@ -331,7 +331,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,x_inter,x_cente
   write(i_file_unit,'(a7)') '  point'
   write(i_file_unit,'(i8)') ne
   do i=1,ne
-     write(i_file_unit,'(2i8)'),i,i+nn_solid+nn+nn_inter+nn_den+nn_inter_ini
+     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_den+nn_inter_ini
   end do
 
   close(i_file_unit)
@@ -430,11 +430,11 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   endif
 
 
-  write(name_file1,'(A8,  A6)')  'fem.vel', fileroot
-  write(name_file2,'(A8,  A6)')  'fem.pre', fileroot
-  write(name_file3,'(A11, A6)')  'fem.stress', fileroot
-  write(name_file4,'(A11, A6)')  'fem.strain', fileroot
-  write(name_file5,'(A8,  A6)')  'fem.fsi', fileroot
+  write(name_file1,'(A7,  A6)')  'fem.vel', fileroot
+  write(name_file2,'(A7,  A6)')  'fem.pre', fileroot
+  write(name_file3,'(A10, A6)')  'fem.stress', fileroot
+  write(name_file4,'(A10, A6)')  'fem.strain', fileroot
+  write(name_file5,'(A7,  A6)')  'fem.fsi', fileroot
 
 !===========================================================================
 ! Output velocity, interaction force, pressure, stress, strain into Ensight format
@@ -599,8 +599,8 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,I_fluid_den,norm_fluid,norm_inte
      call exit(1)
   endif
   
-  write(name_file1,'(A8,  A6)')  'fem.ind', fileroot
-  write(name_file2,'(A8,  A6)')  'fem.nor', fileroot
+  write(name_file1,'(A7,  A6)')  'fem.ind', fileroot
+  write(name_file2,'(A7,  A6)')  'fem.nor', fileroot
      
   if (nsd==3) then
      write(*,*)'writing...',name_file2
