@@ -132,11 +132,11 @@ end if
 
   CALL Read_Int(material_type,1)	!1=hyperelastic material, 2=linear elastic material  
   ! Read in 2 young's modules for 2 solid parts=====================
-  CALL Read_Real(group_young,n_solid)		! young's modulus (elastic material)
+  CALL Read_Real(group_young,2)		! young's modulus (elastic material)
   !============================================================
   CALL Read_Real(Poisson,1)			! Poisson ratio (elastic material_
-  CALL Read_Real(group_rc1,n_solid)				! constants C1 (hyperelastic material)
-  CALL Read_Real(group_rc2,n_solid)				! constants C2 (hyperelastic material)
+  CALL Read_Real(group_rc1,2)				! constants C1 (hyperelastic material)
+  CALL Read_Real(group_rc2,2)				! constants C2 (hyperelastic material)
   CALL Read_Real(rk,1)				! constants Ck (hyperelastic material)
   CALL Read_Real(density_solid,1)	! Density solid-fluid
 if (myid ==0) then
@@ -164,7 +164,12 @@ if (myid ==0) then
   write(*,*) 'gravity acceleration'
   write(*,*) ' xmg   =',xmg(1:nsd_solid)
 end if
-
+        call Read_Int(ne_sbc_1,1)
+        call Read_Int(nn_sbc_1,1)
+	call Read_Int(node_sfcon_1,1)
+	ne_sbc=ne_sbc_1*n_solid
+	nn_sbc=nn_sbc_1*n_solid
+	node_sfcon=node_sfcon_1*n_solid
   close(8)
 
   prec(1:nump*ne_solid)=0.0d0

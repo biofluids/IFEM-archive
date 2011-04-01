@@ -14,8 +14,8 @@ real(8) recv_tmp(ndf+1,ad_length)
 integer icount
 integer tag
 integer size
-!integer req(ad_length)
 integer req(ad_length)
+!integer req(ad_length*2)
 integer status(mpi_status_size,ad_length)
 real(8) sendbuf(ndf+1)
 integer node

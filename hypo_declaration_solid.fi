@@ -16,4 +16,12 @@
   integer,allocatable :: mtype1(:)
   real(8) x_solidtmp1(nsd_solid,nn_solid)
   real(8) x_solidtmp2(nsd_solid,nn_solid)
+!==============================
+  integer, dimension(1:ne_sbc,1:nen_solid+1) :: ien_sbc ! solid interface elements
+  integer, dimension(1:nn_sbc) :: node_sbc ! solid interface nodes
 
+  integer, dimension(1:ne_sbc_1,1:nen_solid+1) :: ien_sbc_1 ! solid interface elements
+  integer, dimension(1:nn_sbc_1) :: node_sbc_1 ! solid interface nodes
+
+  integer, dimension(1:node_sfcon_1) :: sfcon_1 
+  integer, dimension(1:node_sfcon) :: sfcon ! node of solid-fluid connected boundary

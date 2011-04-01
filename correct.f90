@@ -322,7 +322,8 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
       gm(4,4) = am002
 !  
 !.....calculate the determinat det
-!  
+! 
+
       call gjinv(gm,gminv,nn,nd,det,flag)
 !  
 !.....test convergence criteria
@@ -1014,6 +1015,8 @@ subroutine correct3dl(b,bd,cpt,cjp,anode,dwjp,nep,inf,ninf,maxconn)
 !
 !.....calculate the determinat det
 !
+
+
       call gjinv(gm,gminv,nn,nd,det,flag)
 !
 !.....test convergence criteria

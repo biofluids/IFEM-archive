@@ -18,7 +18,7 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   character(len=13) :: FSI_name
   character(len=16) :: stress
   character(len=16) :: strain     
-
+  character(len=13) :: Indicator
   integer :: ts 
   integer :: file_start_no, file_incre
   integer :: i,k
@@ -46,7 +46,8 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   fsi_name  = 'fem.fsi******'
   stress    = 'fem.stress******'
   strain    = 'fem.strain******'
- 
+  Indicator = 'fem.ind******'
+
  5002 format(A16, 1x, I2, 1x, A8, 1x, A)
  5100 format(A9, 21x, i5)
  5101 format(A16, 14x, i5)
@@ -62,6 +63,7 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   write(20, 5002) 'scalar per node:', ts, 'pressure', pre_name 
   write(20, 5002) 'vector per node:', ts, 'velocity', vel_name
   write(20, 5002) 'vector per node:', ts, 'forceFSI', FSI_name
+  write(20, 5002) 'scalar per node:', ts, 'Indicator',Indicator
 
   write(20, 5003) ts, stress
   write(20, 5004) ts, strain 
@@ -193,15 +195,19 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
      select case (nen_solid)
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  necover   ! number of elements
         do i=1, ne_solid
+	   if (mtype(i) == 1) then
            write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   end if
         enddo     
      case (4)
         write(i_file_unit,'(a7)') ' tetra4'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  necover   ! number of elements
         do i=1, ne_solid
+	   if (mtype(i) == 1) then
            write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   end if
         enddo
      case default
         write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
@@ -240,15 +246,19 @@ if (nsd_solid == 0) then
      select case (nen_solid)
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  nebase   ! number of elements
         do i=1, ne_solid
+	   if (mtype(i) == 2) then
            write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   end if
         enddo
      case (4)
         write(i_file_unit,'(a7)') ' tetra4'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  nebase   ! number of elements
         do i=1, ne_solid
+	   if (mtype(i) == 2) then
            write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+	   end if
         enddo
      case default
         write(*,*) "zfem_ens: no ensight output defined for nen_solid = ",nen_solid
@@ -322,7 +332,7 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress,I_fluid)
   use solid_variables
   use fluid_variables, only: nn,ndf,nsd,vis_liq
   use run_variables, only: its
@@ -336,6 +346,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
   real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+  real(8) I_fluid(nn)
   integer :: klok
   real(8) :: fluid_stress(1:nsd*2,nn),fluid_strain(1:nsd*2,nn)              !...fluid stress and strain (not used) empty matrix needed for Ensight input format
   integer :: in,i
@@ -345,6 +356,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   character(len=17) :: name_file3
   character(len=17) :: name_file4
   character(len=14) :: name_file5
+  character(len=14) :: name_file6
   integer,parameter :: ifileunit = 16
 
   ! Fluid stress and strain rate, Voigt notation
@@ -405,7 +417,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   write(name_file3,'(A10, A6)')  'fem.stress', fileroot
   write(name_file4,'(A10, A6)')  'fem.strain', fileroot
   write(name_file5,'(A7,  A6)')  'fem.fsi', fileroot
-
+  write(name_file6,'(A7,  A6)')  'fem.ind', fileroot
 !===========================================================================
 ! Output velocity, interaction force, pressure, stress, strain into Ensight format
 !===========================================================================
@@ -461,6 +473,12 @@ if (nsd==3) then
 
 110 format(6e12.5)
 
+  write(*,*) 'writing... ', name_file6
+  open(ifileunit, file=name_file6, form='formatted')
+  write(ifileunit, '(A)') 'structure and fluid field: Indicator'
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(I_fluid(in),in=1,nn)
+  close(ifileunit)
+
 !===================  2D  =======================================
 elseif (nsd==2) then
   !...Write velocity output in ens_movie.vel*
@@ -506,6 +524,12 @@ elseif (nsd==2) then
                         0.0, 0.0,in=1,nn_solid),  &
                        (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
                         fluid_strain(4,in), 0.0, 0.0,in=1,nn)
+  close(ifileunit)
+
+  write(*,*) 'writing... ', name_file6
+  open(ifileunit, file=name_file6, form='formatted')
+  write(ifileunit, '(A)') 'structure and fluid field: Indicator'
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(I_fluid(in),in=1,nn)
   close(ifileunit)
 
 

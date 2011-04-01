@@ -8,7 +8,7 @@
     !...store the variables from the previous time step,dold=d 
      dold = d
      call formid(id,rng,ien)
-     call formd(d,rng,ien)
+!     call formd(d,rng,ien)
 
 
 !===========================================================================
@@ -17,36 +17,31 @@ if (edge_inflow .ne. 0) then
 if (myid == 0) then
 write (*,*) 'Apply nature BC'
 end if
+	if (nsd == 2) then
         call nature_pre(x,d,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
         f_fluids(1,:) =  f_fluids(1,:) + res_bc(1,:)
+	end if
+
+        if (nsd == 3) then
+        call nature_pre_3d(x,d,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+        f_fluids(1:nsd,:) =  f_fluids(1:nsd,:) + res_bc(1:nsd,:)
+        end if
 end if
 
      do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
-	p_local(:,:)=0.0d0
-	w_local(:,:)=0.0d0
         time_com=mpi_wtime()
-         call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,ne_intlocal,ien_intlocal,mdata,n_mdata,node_local,nn_local)
+         call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,ne_intlocal,ien_intlocal,node_local,nn_local,&
+			fden,fvis)
         time_com=mpi_wtime()-time_com
         if (myid == 0) write(*,*) 'Time for evaluate block', time_com
 
 	time_com=mpi_wtime()
-!	call communicate_res_nei(p,ndf,nn,nei_max,nn_local_com,global_nei,global_com,nn_global_com,local_com)
-!        call communicate_res_nei(w,ndf,nn,nei_max,nn_local_com,global_nei,global_com,nn_global_com,local_com)
-
-!        w_local(:,:)=w(:,:)
-!        p_local(:,:)=p(:,:)
-
-!	call communicate_res(global_com,nn_global_com,local_com,nn_local_com,p,ndf,nn)
-!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,w,ndf,nn)
 
 	call communicate_res_ad(p,ndf,nn,send_address,ad_length)
 	call communicate_res_ad(w,ndf,nn,send_address,ad_length)
 	
-!	if (myid == 0) write(*,*) 'diff w', maxval(abs(w_local(:,:)-w(:,:)))
-!        if (myid == 0) write(*,*) 'diff p', maxval(abs(p_local(:,:)-p(:,:)))
-
 
 	time_com=mpi_wtime()-time_com
 
@@ -57,9 +52,8 @@ end if
         !...i.e. where id=0 -> p=0
  
 !         call setid(p,id,ndf)
-
-        time_com = mpi_wtime()
-	 call setid_pa(p,ndf,nn,id,node_local,nn_local)
+	time_com=mpi_wtime()
+         call setid_pa(p,ndf,nn,id,node_local,nn_local)
         time_com=mpi_wtime()-time_com
         if (myid == 0) write(*,*) 'Time for set BC', time_com
 
@@ -69,15 +63,16 @@ end if
         !...calculate the increment(delta_d) for each degree of freedom, dg
          dg(:,:) = 0.0d0
         call gmres(x,d,dold,w,p,dg,hg,ien,f_fluids,id, &
-		   ne_intlocal,ien_intlocal,mdata,n_mdata,node_local,nn_local, &
-		   global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length) 	
+		   ne_intlocal,ien_intlocal,node_local,nn_local, &
+		   global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
+		   fden,fvis) 	
         !...calculate the normalized increment, del_l
          call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
          del_l = sqrt(del_l)
         !...update the calculated variables, d=d+dg
 	        call mpi_barrier(mpi_comm_world,ierror)
-         call update(p, d, dg, ndf)
 
+         call update(p, d, dg, ndf)
 	if (myid == 0 ) then
         !...output the errors in each iteration
          write(6,102) iit,res_l,del_l

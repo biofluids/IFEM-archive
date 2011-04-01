@@ -1,0 +1,42 @@
+ninit= 990        	! 0=not apply bc; 1=apply bc   
+initdir = 1 		! 1=initial disp; 2=intial velocity
+
+iquad_solid= 2  	! number of qudrature points per element
+nen_solid=  3   	! number of nodes per element
+
+nsd_solid= 2 		! number of dimensions in the solid domain
+nrigid= 0 		! 0=deformable; 1=rigid body
+
+n_tec_ens= 0    	! output format: 0=ensight; 1=tecplot;(0 is only option)
+
+ndelta= 1		! 1=RKPM(nonuniform)->the only option for now
+
+nnd= 57		! total number of nodes
+nume1= 90			! total number of elements
+nump= 1			! number of pressure nodes per element
+solid_scale= 0.2 0.2	! scaling the solid geometry (x,y,z)
+
+n_solid= 1		! number of the same structure
+nep1= 90               ! number of elements for solid part I
+nep2= 0               ! number of elements for solid part II
+shift= 0.3d0 0.5d0 	! shift the position of the structure (x,y,z)
+ntfun= 3 		! load by time function type; 
+
+numfn=0			! load assignment: 0=none, 1:apply load
+numeb=0			! number of type of loads (only if numfn>0,add more in the next lines)
+
+material_type= 1 	! 1=hyperelastic; 2=linear elastic material
+young_mod= 1.0d-2	! Young modulus (elastic only)
+Poisson= 0.49		! Poisson ratio (elastic only)
+rc1= 200 800			! C1 constant (hyperelastic only)
+rc2= 100.0 400.0			! C2 constant (hyperelastic only)
+rk= 100			! Ck constant (hyperelastic only)
+density_solid= 0.0d0 	! Density different (solid-fluid)
+xviss= 0.0d0   		! Damping constant
+vnorm= 1.0d0 		! normalized velocity for all nodes
+fnorm= 1.0d0		! (not used now)
+xmg= 0.0d0 0.0d0 	! gravity (x,y,z)
+ne_sbc=22		! interface element number
+nn_sbc=22		! interface node number
+node_sfcon=0 		! solid-fluid connected nodes
+

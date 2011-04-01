@@ -13,11 +13,21 @@ subroutine readx_solid(xyz,nn,nsd)
 
   file=23
   open(file, FILE="mxyz_solid.in", STATUS="old",action="read")
-
+if (nsd == 2) then
   do inn=1,nn
      read(file,100) xyz(inn,1:nsd)
   enddo
+end if
+
+if (nsd == 3) then
+  do inn=1,nn
+     read(file,101) xyz(inn,1:nsd)
+  enddo
+end if
+
 100 format (D14.10, D14.10)
+101 format (D14.10, D14.10, D14.10)
+
   close(file)
 
   return
@@ -47,8 +57,16 @@ if (nen == 4) then
   enddo
 end if
 
+if (nen == 8) then
+  do ine=1,ne
+     read(file,300) solid_con(ine,1:nen), mtype(ine)
+  enddo
+end if
+
+
 100 format (I8,I8,I8,I8)
 200 format (I8,I8,I8,I8,I8)
+300 format(I8,I8,I8,I8,I8,I8,I8,I8,I8)
   close(file)
 
   return

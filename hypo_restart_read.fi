@@ -9,7 +9,7 @@
     !...simulation data
      read(restart_unit) nts_start,tt,klok,restart_klok
     !...fluid data
-     read(restart_unit) ien,rng,x,xref,hg,id,kid,d
+     read(restart_unit) ien,rng,x,xref,hg,id,d
     !...solid data
      read(restart_unit) solid_fem_con,solid_surface,solid_coor_init,solid_coor_curr, &
                         solid_vel, solid_prevel, solid_accel,                        &

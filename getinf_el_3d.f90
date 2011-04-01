@@ -92,7 +92,7 @@
                        
          !  write(*,*) 'inf= ' , inf(1)
          
-	  
+	  if(ninf == 0) goto 2000
 	   
 	   if (nsd==2 .and. nen==3) then
 	      do i= 1, ninf
@@ -113,7 +113,7 @@
 			 sign_1=(dot11*dot02-dot01*dot12)*invDenom
 			 sign_2=(dot00*dot12-dot01*dot02)*invDenom
 			 
-			 if(sign_1>0 .and. sign_2>0 .and. (sign_1+sign_2)<1) then
+			 if(sign_1>0.0 .and. sign_2>0.0 .and. (sign_1+sign_2)<1.0) then
 			 finf = inf(i)
 			 goto 2000
 			 end if
@@ -178,7 +178,7 @@
 	  end if
 		
 	  if (nsd==3) then
-          write(*,*) 'i am here'
+!          write(*,*) 'i am here'
           call search_3d(finf, x, xna, nn, nsd, ne, nen, ien, inf, ninf,maxconn) ! call search_3d for 3d
           !cases
          end if	

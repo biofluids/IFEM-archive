@@ -33,13 +33,14 @@ subroutine r_jacob(x,xj,xji,det)
   cf(3,2) = - (xj(1,1)*xj(2,3) - xj(1,3)*xj(2,1))
   cf(3,3) = + (xj(1,1)*xj(2,2) - xj(1,2)*xj(2,1))
 
-  det =( xj(1,1) * cf(1,1) + &
+  det = - ( xj(1,1) * cf(1,1) + &
          xj(1,2) * cf(1,2) + &
          xj(1,3) * cf(1,3) )
 !  write(*,*) 'jacobi in r_jacobian', det
   if (det .lt. 1.0d-15) then
      write(*,100) 
      stop
+!	det=-det
   endif
 100 format(6x, 'error, zero or negative jacobian determinant')
 

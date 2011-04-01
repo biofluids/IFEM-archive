@@ -17,11 +17,15 @@ set.o shape.o solid_solver.o solid_update.o update.o vol.o \
 data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
 migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o volcorr.o \
 cg.o mergefinf.o readpart.o setnqloc.o search_inf_pa.o getinf_el_3d_pa.o \
-edgeele.o nature_pre.o \
+edgeele.o nature_pre.o nature_pre_3d.o\
 givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
 blockdiagstable.o gmresnew.o blockgmresnew.o \
-setnei.o communicate_res_nei.o communicate_res_ad.o setid_pa.o
+setnei_new.o communicate_res_nei.o communicate_res_ad.o setid_pa.o \
+solid_node_volume.o  source_laplace.o read_solidbc.o read_solidnodebc.o \
+solid_normint.o outnormal_2d.o solid_normint_3d.o outnormal_tet.o outnormal_hex.o \
+gmres_Laplace.o solve_laplace.o block_Laplace.o blockgmres_Laplace.o \
+rkpm_nodevolume.o rkpm_init.o getinf_rkpm.o search_inf_re.o
 IFEM: $(OBJ)
 	mpiifort -g -O0 -o IFEM $(OBJ) $(LIBS)
 .f90.o:

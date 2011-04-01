@@ -135,6 +135,14 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
      enddo
   enddo
 
+open(unit=8406, file='dvolume.txt', status='unknown')
+do isd=1,nn
+write(8406,*) 'dv',dwjp(isd),'radius',adist(1:nsd,isd)
+end do
+close(8406)
+
+
+
 ! Calculate the RKPM shape function for the solids points
   do i = 1, nn_solids
      x(1:nsd)=x_solids(1:nsd,i) !get solids point coordinate
@@ -178,6 +186,15 @@ subroutine delta_initialize(nn_solids,x_solids,xna,ien,dwjp)
   write(6,'("  Maximum Influence Nodes = ",i7)') maxinf
   write(6,'("  Minimum Influence Nodes = ",i7)') mininf
   write(6,'("  Average Influence Nodes = ",f7.2)') avginf
+
+open(unit=8406, file='rkpmsh.txt', status='unknown')
+do isd=1,nn_solids
+write(8406,*) 'ninf',ncnn(isd),'coef',shrknode(1:ncnn(isd),isd)
+end do
+close(8406)
+
+
+
 !  write(6,'("Come up man! =",i7 )')  avaginf
   return
 end subroutine delta_initialize

@@ -19,7 +19,11 @@ cg.o mergefinf.o readpart.o setnqloc.o search_inf_pa.o getinf_el_3d_pa.o \
 edgeele.o nature_pre.o \
 givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
-blockdiagstable.o gmresnew.o blockgmresnew.o
+blockdiagstable.o gmresnew.o blockgmresnew.o \
+setnei_new.o communicate_res_nei.o communicate_res_ad.o setid_pa.o \
+solid_node_volume.o  source_laplace.o read_solidbc.o read_solidnodebc.o \
+solid_normint.o outnormal_2d.o \
+gmres_Laplace.o solve_laplace.o block_Laplace.o blockgmres_Laplace.o
 IFEM: $(OBJ)
 	mpixlf90 -static -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
