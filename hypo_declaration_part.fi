@@ -23,12 +23,6 @@ integer :: node_global(nn) ! wholeregion-->subregion node index
 integer,dimension(:),allocatable :: ien_local ! subregion-->wholeregion element index
 integer,dimension(:),allocatable :: node_local ! subregion-->wholeregion node index
 
-!========used for dense mesh for interface==============
-integer :: nn_local_den
-integer :: ne_local_den
-integer,dimension(:),allocatable :: ien_local_den
-integer,dimension(:),allocatable :: node_local_den
-
 ! The element region define below is only used for FEM interpolation, because it does not have duperlicated area
 ! ien_intlocal <  ien_local  
 integer :: ne_intlocal ! # of element on each processor for FEM interpolation

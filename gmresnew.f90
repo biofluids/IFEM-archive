@@ -2,7 +2,7 @@
 
 subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		ne_local,ien_local,node_local,nn_local, &
-		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length, &
+		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
 		sur_fluid,I_fluid)
 	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer
  	use solid_variables, only: nn_solid
@@ -13,8 +13,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn),ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
-	real* 8 sur_fluid(nsd,nn)
-	real* 8 I_fluid(nn)
+	real* 8 sur_fluid(nsd,nn),I_fluid(nn)
 !=========================================================
 ! reduce dimension to save memory
 	real* 8 Vm(ndf*nn_local, inner+1) ! Krylov space matrix
@@ -155,7 +154,8 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !		av_tmp(:,:) = 0.0d0
 !======================================
 
-		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,sur_fluid,I_fluid)
+		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
+				sur_fluid,I_fluid)
 
 
 
@@ -319,7 +319,8 @@ temp=0.0d0
 !================================
 
 
-	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,sur_fluid,I_fluid)
+	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
+				sur_fluid,I_fluid)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
         call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 !==================

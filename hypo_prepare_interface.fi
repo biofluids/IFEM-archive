@@ -1,14 +1,16 @@
-if(myid==0) then
-  call error('read coordinates of interface points',-999,.false.)
-end if
+
+  if(myid==0) then
+    call error('read coordinates of interface points',-999,.false.)
+  end if
+  
   call readinter(x_inter)
   call scale_shift_inter(x_inter)
 
-  Ic_inter=0.0     !innitialize constant interface indicator
-  norm_inter(:,:) = 0.0
-  curv_inter(:) = 0.0
-  corr_Ip(:) = 0.0
-  nn_inter_regen = 0
-  x_inter_regen(:,:) = 0.0
-  inter_ele_nn(:) = 1
-  x_center(:,:)=0.0
+  Ic_inter=0.5   !initialize constant interface indicator
+  norm_inter(:,:)=0.0
+  curv_inter(:)=0.0
+  corr_Ip(:)=0.0
+  I_fluid(:)=0.0
+  vel_inter(:,:)=0.0
+  sur_fluid(:,:)=0.0
+  vol_corr=0.0

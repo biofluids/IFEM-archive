@@ -14,10 +14,8 @@
      read(restart_unit) solid_fem_con,solid_surface,solid_coor_init,solid_coor_curr, &
                         solid_vel, solid_prevel, solid_accel,                        &
                         nn_solid, ne_solid, nn_solid_1, ne_solid_1, nsd_solid,       &
-                        n_solid, nen_solid, iquad_solid
-     read(restart_unit)nn_inter,x_inter,Ic_inter
-     read(restart_unit)ne_den_domain,den_domain,ne_inner_den,ne_outer_den,inner_ele_den,outer_ele_den
-
+                        n_solid, nen_solid, iquad_solid,		             &
+			I_fluid_center,I_fluid_den,nn_inter,x_inter,I_fluid,flag_den		
      close(restart_unit)
 
      write(*,*) " "

@@ -1,9 +1,3 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!!!!!!!!!!!!!!!!!!!!!!!Variables for interface!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 module interface_variables
   implicit none
   save
@@ -13,9 +7,12 @@ module interface_variables
   real(8) :: sur_tension  !surface tension force
   real(8) :: den_inter !density of bubble
   real(8) :: vis_inter !viscousity of bubble
-  integer :: maxmatrix  
+  integer :: maxmatrix
   real(8) :: scale_inter(3) ! 
-  real(8) :: shift_inter(3) 
-
-
+  real(8) :: shift_inter(3)
+  real(8) :: maxdcurv
+  real(8) :: vol_corr  !volume corretion
+  real(8) :: total_length
+  real(8) :: hsp
 end module interface_variables
+

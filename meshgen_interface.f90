@@ -15,18 +15,20 @@ subroutine readinter(xyz)
 
   file=21
   open(file,FILE='xyz_interface.in',status='old')
-
-  do i=1,nn_inter
-     read(file,111) xyz(1,i),xyz(2,i)
-  end do
+  if(nsd==2) then
+    do i=1,nn_inter
+       read(file,111) xyz(1,i),xyz(2,i)
+    end do
 111 format(f14.10,f14.10)
+  else if( nsd==3) then
+    do i=1,nn_inter
+	read(file,112) xyz(1,i),xyz(2,i),xyz(3,i)
+    end do
+  end if
+112 format(f14.10,f14.10,f14.10)
   close(file)
-if(myid==0) then
-  write(*,*)'xyz_inter='
-  do i=1,nn_inter
-     write(*,*)xyz(1,i),xyz(2,i)
-  end do
-end if
+
+
   return
 
 end subroutine readinter

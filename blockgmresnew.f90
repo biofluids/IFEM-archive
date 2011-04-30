@@ -19,8 +19,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
   real* 8 xloc(nsd,nn)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)
   real* 8 p(ndf,nn),hk(ne)
-  real* 8 sur_fluid(nsd,nn)
-  real* 8 I_fluid(nn)
+  real* 8 sur_fluid(nsd,nn),I_fluid(nn)
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
@@ -64,7 +63,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
 do icount=1, nn_local
         node=node_local(icount)
 !p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
-p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
+ p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
 end do
 !=================================================
 !===================================================
@@ -153,27 +152,16 @@ end do
 	    endif
 
 !....  calculate liquid constant and gravity
-!	    mu = vis_liq  ! liquid viscosity
-!	    ro = den_liq  ! liquid density
+	    mu = vis_liq  ! liquid viscosity
+	    ro = den_liq  ! liquid density
 		g  = gravity  ! gravatitional force
-
-            mu=0.0
-            ro=0.0
-            do inl=1,nen
-                node=ien(inl,ie)
-                if(I_fluid(node).gt.1.0)then
-                  I_fluid(node)=1.0
-                else if(I_fluid(node).lt.0.0) then
-                  I_fluid(node)=0.0
-                end if
-
-                mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
-                ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
-            end do
-
-
-
-
+	    mu=0.0
+	    ro=0.0
+	    do inl=1,nen
+	       node=ien(inl,ie)
+	       mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
+	       ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
+	    end do
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
 	    nu = delta(4)*turb_kappa**2*hg**2 * sqrt(2*dr(1,1)**2+(dr(2,1)+dr(1,2))**2 &

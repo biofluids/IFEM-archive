@@ -1,6 +1,5 @@
 subroutine search_inf_inter(xyz_solid, xyz_fluid, nn_fluids,nn_solids, nsd, ne, nen, ien, infdomain)
 use interface_variables, only:maxmatrix
-use mpi_variables
 integer nn_fluids
 integer nn_solids
 integer nsd
@@ -16,9 +15,8 @@ real(8) x(nsd)
 
 integer inn
 integer maxconn
-if(myid==0) then
-write(*,*) 'I am in search influence inter'
-endif
+
+write(*,*) 'I am in search influence'
 maxconn=30
    
    do inn=1,nn_solids

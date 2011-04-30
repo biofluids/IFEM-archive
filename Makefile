@@ -1,8 +1,9 @@
 .SUFFIXES: .f90
-LIBS    = /opt/intel/composerxe-2011.3.167/mkl/lib/libmkl_lapack95.a
+LIBS    = /usr/lib64/liblapack.so \
+	  /usr/lib64/libblas.so
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
-interface_variables.o denmesh_variables.o\
+interface_variables.o denmesh_variables.o allocate_variables.o\
 delta_nonuniform.o \
 ensight_output.o form.o \
 meshgen_solid.o meshgen_fluid.o meshgen_interface.o\
@@ -22,16 +23,17 @@ givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
 blockdiagstable.o gmresnew.o blockgmresnew.o \
 setnei_new.o communicate_res_ad.o setid_pa.o \
-scale_shift_inter.o get_submesh_info.o search_inf_den.o search_inf_inter.o\
-get_inter_ele.o form_inter_ele.o form_inter_bc.o\
-block_Laplace.o gmres_Laplace.o blockgmres_Laplace.o\
-set_element_index.o get_interpoint_Ia.o correct_Ip.o\
-get_normal_Bspline.o get_curv_Bspline.o B_Spline.o B_Spline_0order.o B_Spline_1order.o B_Spline_2order.o\
-points_regen.o point_projection.o get_arc_Bspline.o get_surten_Bspline.o get_intervel_Bspline.o\
+scale_shift_inter.o get_submesh_info.o search_inf_pa_den.o find_domain_pa.o\
+search_inf_pa_inter.o get_inter_ele.o block_Laplace.o blockgmres_Laplace.o \
+gmres_Laplace.o indicator_denmesh.o set_center_indicator.o get_correction_nu.o\
+B_Spline.o get_normal_curvature.o get_curv_num.o get_indicator_derivative_nu.o\
+B_Spline_0order.o B_Spline_1order.o B_Spline_2order.o points_regen.o \
+get_fluid_property.o get_inter_vel_nu.o center_indicator_update.o \
+get_total_length.o get_arc_nu.o get_sur_nu.o
 
 IFEM: $(OBJ)
-	mpif90 -g -O0 -o IFEM $(OBJ) $(LIBS)
+	mpiifort -g -O0 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpif90 -c -g $<
+	mpiifort -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

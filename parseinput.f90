@@ -391,9 +391,6 @@ end if
   return
 end subroutine parseinput_fluid
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!Read input_inter.in
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine parseinput_interface
   use interface_variables
@@ -427,7 +424,6 @@ end if
   close(file_in)
   file_in=80
   open(file_in,file='input_den_mesh.in',status='old')
-  call Read_Int(flag_den,1)
   call Read_Int(nn_den,1)
   call Read_Int(ne_den,1)
   call Read_Int(nen_den,1)
