@@ -274,13 +274,8 @@ nt_regen=1
 var1=1.1*dcurv
 var2=5.0
 maxdcurv = min(var1,var2)
-!if(maxdcurv.lt.1.0) maxdcurv=1.0
 dcurv=999.0
-!if(dcurv.lt.10.0) nt_regen=2
-!dcurv=999.0
-!do while(dcurv.gt.10.0)
 max_regen=0
-!if(1) then !debug without regen
 time=mpi_wtime()
 do while((nt_regen.lt.3).and.(max_regen.lt.4))
   call points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
@@ -357,42 +352,10 @@ time=mpi_wtime()-time
 if (myid == 0) write(*,*) 'Time for fluid solver', time
 
   call get_inter_vel(x,x_inter,infdomain_inter,d(1:nsd,1:nn),vel_inter,hg,vol_nn)
-!=================================================================
-! Interpolation fluid velocity -> immersed material points
-!     v^f(t+dt)  ->  v^s(t+dt)
-! swith button should be added , right now use 1 or 2 first
-!    call data_exchange_FEM(solid_vel,nn_solid,d(1:nsd,:),nn,dvolume,nsd, &
-!			1,ne,nen,ne_solid,nen_solid,&
-!                       solid_coor_curr,solid_fem_con,x,ien,infdomain,d(nsd+1,:),pre_inter)
 end if
 
 
 !=================================================================
-!uPDAte solid domain
-!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-!                     solid_vel,solid_prevel,solid_accel)
-
-!-----------------------------------------------------------------
-! Set the solid nodes at the fluid boundary at their original position
-!  do inode_sf=1,node_sfcon
-!     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
-!  end do
-!    open(unit=8406, file='masscenter.txt', status='unknown')
-
-!    mass_center(1)=sum(solid_coor_curr(1,:))/nn_solid
-!    mass_center(2)=sum(solid_coor_curr(2,:))/nn_solid
-!    write(8406,*)  mass_center(:)
-!=================================================================
-! Volume correction  
-!   if (mod(its,10) .eq. 9) then
-!   call volcorr(solid_coor_curr,nsd_solid,nen_solid,solid_fem_con,nn_solid,ne_solid, &
-!                solid_coor_init)
-!   write(*,*) 'volume correction applied'
-!   call energy_fluid(x,d(1:nsd,:),ien)
-!   end if
-!=================================================================
-! Write output file every ntsbout steps
-!    Out put the fluid pressure at solid nodals
      solid_pave(:)=0.0d0
 	if (myid == 0) then
      include "hypo_write_output.fi"
