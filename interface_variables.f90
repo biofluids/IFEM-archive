@@ -14,5 +14,8 @@ module interface_variables
   real(8) :: vol_corr  !volume corretion
   real(8) :: total_length
   real(8) :: hsp
+  real(8) :: rkpm_scale
+  real(8) :: max_dcurv
+  real(8) :: max_hg
 end module interface_variables
 

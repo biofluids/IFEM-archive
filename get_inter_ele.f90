@@ -18,6 +18,8 @@ subroutine get_inter_ele(inf_inter,inf_den,ien)!,&
 !  real(8) I_fluid_center(ne),I_fluid(nn)
 !  integer its
 
+
+! find the interface element that contains the interface points
   ncount = 0
   temp_ele(:) = 0
   do i=1,nn_inter
@@ -45,6 +47,7 @@ subroutine get_inter_ele(inf_inter,inf_den,ien)!,&
   allocate(inter_ele(ne_inter))
   inter_ele(1:ne_inter)=temp_ele(1:ne_inter)
 
+! used for dense mesh
   ncount=0
   temp_ele(:)=0
   do i=1,nn_inter
@@ -76,6 +79,8 @@ write(*,*)'ne_inter_den=',ne_inter_den
 end if
 
 !=====================================
+!find the regen elements, which are the interfacial elements and the
+!elements adjacent
   flag_node(:)=0
   do icount=1,ne_inter
      ie=inter_ele(icount)

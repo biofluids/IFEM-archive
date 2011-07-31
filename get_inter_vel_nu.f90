@@ -2,13 +2,14 @@
 !get interface velocity
 !=================================
 
-subroutine get_inter_vel(x,x_inter,infdomain,vel_fluid,vel_inter,hg,vol_nn)
+subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,hg,vol_nn)
 
   use fluid_variables, only:nsd,nn,ne,nen
   use interface_variables
+  use mpi_variables
+  include 'mpif.h'
 
   real(8) x(nsd,nn),x_inter(nsd,maxmatrix)
-  integer infdomain(maxmatrix)
   real(8) vel_fluid(nsd,nn),vel_inter(nsd,maxmatrix),vel_inter_temp(nsd,maxmatrix)
   real(8) hg(ne)
   real(8) vol_nn(nn)
@@ -20,8 +21,11 @@ subroutine get_inter_vel(x,x_inter,infdomain,vel_fluid,vel_inter,hg,vol_nn)
   real(8) vec(nsd+1)
   integer IP(nsd+1)  
 
+  real(8) hsp_temp
+
 !=====used for mpi===
   integer nn_inter_loc,base,top,loc_index
+
   if(nn_inter.le.ncpus) then
     if(myid+1.le.nn_inter) then
       nn_inter_loc=1
@@ -42,6 +46,9 @@ subroutine get_inter_vel(x,x_inter,infdomain,vel_fluid,vel_inter,hg,vol_nn)
   vel_inter(:,:)=0.0
   vel_inter_temp(:,:)=0.0
 
+  hsp_temp=hsp
+!  hsp=2*hsp_temp
+! increase influence domain for vel intepolation
 !  do i=1,nn_inter
   do loc_index=1,nn_inter_loc
      i=myid+1+(loc_index-1)*ncpus
@@ -83,4 +90,5 @@ subroutine get_inter_vel(x,x_inter,infdomain,vel_fluid,vel_inter,hg,vol_nn)
   call mpi_bcast(vel_inter(1,1),nsd*maxmatrix,mpi_double_precision,0,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
 
+  hsp=hsp_temp
 end subroutine get_inter_vel

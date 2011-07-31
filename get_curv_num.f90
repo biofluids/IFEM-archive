@@ -4,14 +4,13 @@
 
 !==========================================
 
-subroutine get_curv_num(x,xp,x_center,hg,infdomain,I_fluid_center,corr_Ip,&
+subroutine get_curv_num(x,xp,x_center,hg,I_fluid_center,corr_Ip,&
 			curv_n,curv_inter,norm_inter)
 
   use interface_variables
   use fluid_variables, only:nsd,ne,nn
 
   real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,ne)
-  integer infdomain(maxmatrix)
   real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
   real(8) curv_n,curv_inter,norm_inter(nsd)
   real(8) hg(ne)
@@ -26,13 +25,13 @@ subroutine get_curv_num(x,xp,x_center,hg,infdomain,I_fluid_center,corr_Ip,&
   eps=1.0e-5
   dI(:)=0.0
   x_c(1:nsd)=x(1:nsd)
-  call get_indicator_derivative(x_c,xp,x_center,infdomain,hg,I_fluid_center,corr_Ip,&
+  call get_indicator_derivative(x_c,xp,x_center,hg,I_fluid_center,corr_Ip,&
 				II,dI,ddI,norm_a,curv_a)
 curv_inter=curv_a
 norm_inter(1:nsd)=norm_a(1:nsd)
 !===================================
   x_c(1)=x_c(1)+eps
-  call get_indicator_derivative(x_c,xp,x_center,infdomain,hg,I_fluid_center,corr_Ip,&
+  call get_indicator_derivative(x_c,xp,x_center,hg,I_fluid_center,corr_Ip,&
                                 II,dI,ddI,norm_a,curv_x)
 
   dcurv_x=(curv_x-curv_a)/eps
@@ -40,11 +39,11 @@ norm_inter(1:nsd)=norm_a(1:nsd)
 !====================================
   x_c(1:nsd)=x(1:nsd)
   x_c(2)=x_c(2)+eps
-  call get_indicator_derivative(x_c,xp,x_center,infdomain,hg,I_fluid_center,corr_Ip,&
+  call get_indicator_derivative(x_c,xp,x_center,hg,I_fluid_center,corr_Ip,&
                                 II,dI,ddI,norm_a,curv_y)
 
   dcurv_y=(curv_y-curv_a)/eps
-  curv_n=sqrt(dcurv_x**2+dcurv_y**2)*maxval(hg(:))**2
+  curv_n=sqrt(dcurv_x**2+dcurv_y**2)*max_hg**2
 end subroutine get_curv_num  
 
 

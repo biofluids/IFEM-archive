@@ -5,7 +5,7 @@
 subroutine find_domain_pa(x_center,x_den,x_inter,ne_intlocal,ien_intlocal,&
 			ne_local_den,ien_local_den,ien_den,hg)
 
-  use interface_variables, only:nn_inter,maxmatrix,hsp
+  use interface_variables, only:nn_inter,maxmatrix,hsp,max_hg
   use fluid_variables,only:nsd,ne
   use denmesh_variables, only:nn_den,ne_den,nen_den
   use allocate_variables, only:den_domain,center_domain,ne_den_domain,nn_center_domain
@@ -33,7 +33,9 @@ subroutine find_domain_pa(x_center,x_den,x_inter,ne_intlocal,ien_intlocal,&
   integer lower
   integer,dimension(:),allocatable :: domain_temp
 !  support=4.0*maxval(hg(:))
-  support=4.0*hsp
+
+!find center domain as the interpolation region
+  support=4.0*hsp  !4*hg is enough for the regenration part
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0
@@ -93,9 +95,9 @@ subroutine find_domain_pa(x_center,x_den,x_inter,ne_intlocal,ien_intlocal,&
   call mpi_bcast(center_domain(1),nn_center_domain,mpi_integer,0,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
 
-
-!  support=3.1*maxval(hg(:))
-  support=3.5*hsp
+!find the narrow band of the dense mesh used for poisson equation
+  support=1.5*max_hg
+!  support=3.5*hsp
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0

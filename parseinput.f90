@@ -412,6 +412,9 @@ end if
   call Read_Int(maxmatrix,1)
   call Read_Real(scale_inter,nsd)
   call Read_Real(shift_inter,nsd)
+  call Read_Real(rkpm_scale,1)
+  call Read_Real(max_dcurv,1)
+
 if(myid==0) then
   write(*,*)'nn_inter=',nn_inter
   write(*,*)'surface tension = ', sur_tension

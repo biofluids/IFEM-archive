@@ -27,7 +27,7 @@ subroutine set_center_indicator(I_fluid_den,I_fluid_center,ien_den,its,infdomain
   integer ie,je,icount,inl,node,flag
   integer flag_den(ne_den)
 
-  eps=0.8e-5
+  eps=0.8e-4
   if (its==1) then
     flag_den(:)=1 !set initial flag of den element to be 1 inner element
     do ie=1,ne_den
@@ -66,7 +66,7 @@ subroutine set_center_indicator(I_fluid_den,I_fluid_center,ien_den,its,infdomain
 	end if
     end do
     do ie=1,ne_inter_den
-	flag_den(inter_ele_den(ie))=0
+	flag_den(inter_ele_den(ie))=1
     end do
   end if
 !==================================================
@@ -82,24 +82,24 @@ subroutine set_center_indicator(I_fluid_den,I_fluid_center,ien_den,its,infdomain
     end do
   else
        
-  do icount=1,nn_center_domain
-     ie=center_domain(icount)
-     if(flag_den(infdomain_den(ie))==1) then
-	I_fluid_center(ie)=1.0
-     else if(flag_den(infdomain_den(ie))==0) then
-	I_fluid_center(ie)=0.5
-     else
-	I_fluid_center(ie)=0.0
-     end if
-  end do   !set up initial guess for center point
-
-  do icount=1,ne_regen_ele
-     ie=regen_ele(icount)
-     I_fluid_center(ie)=0.0
-     do inl=1,nen
-	I_fluid_center(ie)=I_fluid_center(ie)+0.25*I_fluid(ien(inl,ie))
-     end do
-  end do   !set up inter center indicator using last time step I_fluid
+!  do icount=1,nn_center_domain
+!     ie=center_domain(icount)
+!     if(flag_den(infdomain_den(ie))==1) then
+!	I_fluid_center(ie)=1.0
+!     else if(flag_den(infdomain_den(ie))==0) then
+!	I_fluid_center(ie)=0.5
+!     else
+!	I_fluid_center(ie)=0.0
+!     end if
+!  end do   !set up initial guess for center point
+!
+!  do icount=1,ne_den_domain
+!     ie=den_domain(icount)
+!     I_fluid_center(ie)=0.0
+!     do inl=1,nen
+!	I_fluid_center(ie)=I_fluid_center(ie)+0.25*I_fluid(ien(inl,ie))
+!     end do
+!  end do   !set up inter center indicator using last time step I_fluid
 
   end if !======================================
 
@@ -107,7 +107,7 @@ subroutine set_center_indicator(I_fluid_den,I_fluid_center,ien_den,its,infdomain
     do ie=1,ne_den
 	if(flag_den(ie)==1) then
 	   I_fluid_den(ien_den(1:nen_den,ie))=1.0
-	else if(flag_den(ie)==-1) then
+	else! if(flag_den(ie)==-1) then
 	   I_fluid_den(ien_den(1:nen_den,ie))=0.0
 	end if
     end do
@@ -116,7 +116,7 @@ subroutine set_center_indicator(I_fluid_den,I_fluid_center,ien_den,its,infdomain
 	ie=den_domain(icount)
 	if(flag_den(ie)==1) then
 	   I_fluid_den(ien_den(1:nen_den,ie))=1.0
-	else if(flag_den(ie)==-1) then
+	else! if(flag_den(ie)==-1) then
 	   I_fluid_den(ien_den(1:nen_den,ie))=0.0
 	end if
     end do

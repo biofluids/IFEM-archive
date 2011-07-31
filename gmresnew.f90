@@ -82,7 +82,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         rnorm = sqrt(rnorm0)
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-12))
 
 !==============================
 	Vm(:,:) = 0.0d0

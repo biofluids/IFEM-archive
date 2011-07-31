@@ -3,7 +3,7 @@
 !========================================
 
 subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
-			I_fluid_center,corr_Ip,hg,infdomain,ien,intflag)
+			I_fluid_center,corr_Ip,hg,ien,intflag)
 
   use fluid_variables, only:nsd,ne,nn,nen
   use interface_variables
@@ -17,7 +17,7 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
   integer nn_inter_regen
   real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
   real(8) hg(ne)
-  integer infdomain(maxmatrix),ien(nen,ne)
+  integer ien(nen,ne)
   integer intflag
 
   integer i,j,isd,inl,node,ie,icount,jcount
@@ -91,17 +91,21 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
                 xlocan(1:nsd)=xlocan(1:nsd)+sh(inl)*x_fluid(1:nsd,inl)
            end do
            Ic_inter=0.5
-           call get_indicator_derivative(xlocan,x_inter,x_center,infdomain,hg,&
+
+           call get_indicator_derivative(xlocan,x_inter,x_center,hg,&
                                 I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)
 
        if(intflag==2) then
 
-           if(((II-Ic_inter).gt.0.3*Ic_inter).or.((Ic_inter-II).gt.0.3*Ic_inter)) then
+!           if(((II-Ic_inter).gt.0.).or.((Ic_inter-II).gt.0.02)) then
+	    if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).gt.0)) then
                 goto 200
            end if
 
        else if(intflag==1) then
-           if((II.gt.Ic_inter+0.25).or.(II.lt.Ic_inter-0.25).or.(abs(II-Ic_inter).lt.1.0e-4)) then
+!           if((II.gt.Ic_inter+0.25).or.(II.lt.Ic_inter-0.25).or.(abs(II-Ic_inter).lt.1.0e-3)) then
+            if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02)) then
+
 !           if(II.ge.Ic_inter) then
 		goto 200
 	   end if
@@ -118,8 +122,11 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	   xlocan_temp(1:nsd)=xlocan(1:nsd)
 	   do while((nit.le.5).and.(err_p.gt.1.0e-9))
 	      xlocan(1:nsd)=xlocan(1:nsd)+delta(1:nsd)
-	      call get_indicator_derivative(xlocan,x_inter,x_center,infdomain,hg,&
+	      call get_indicator_derivative_1st(xlocan,x_inter,x_center,hg,&
 				I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)
+	      if(II.gt.900) then
+	        goto 200
+	      end if
 !              if(((II-Ic_inter).gt.0.2*Ic_inter).or.((Ic_inter-II).gt.0.2*Ic_inter)) then
 !	      if((II.gt.0.7).or.(II.lt.0.4)) then
 !                goto 200
@@ -140,10 +147,12 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	   flag_loc=0
 	   if(err_p.lt.1.0e-9) then
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2)
-	     if(distance.lt.hg(ie)/nn_sub/1.5) then
-		call get_curv_num(xlocan,x_inter,x_center,hg,infdomain,I_fluid_center,&
+!	     if(distance.lt.hg(ie)/nn_sub/1.5) then
+	     if(distance.lt.0.5*hg(ie)) then
+		call get_curv_num(xlocan,x_inter,x_center,hg,I_fluid_center,&
 			corr_Ip,dcurv,curv_p,norm_p)      
-		  if(dcurv.lt.maxdcurv) then
+!                   dcurv=0.1
+		  if((dcurv.lt.maxdcurv)) then
 		    flag_loc=1
 		  end if
 	     end if

@@ -2,7 +2,7 @@
 !used to calculate the derivative of the indicator for a point
 !=================================================
 
-subroutine get_indicator_derivative(x,xp,x_center,infdomain,hg,I_fluid_center,corr_Ip, &
+subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
 				  II,dI,ddI,&
 				  norm_p, curv_p)
 
@@ -12,7 +12,6 @@ subroutine get_indicator_derivative(x,xp,x_center,infdomain,hg,I_fluid_center,co
   use mpi_variables
 
   real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,ne)
-  integer infdomain(maxmatrix)
   real(8) hg(ne)
   real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
 !  real(8) sum_0d(2),sum_1d(2,nsd),sum_2d(2,3*(nsd-1))
@@ -198,7 +197,10 @@ subroutine get_indicator_derivative(x,xp,x_center,infdomain,hg,I_fluid_center,co
   P(:)=0.0
   P(1)=1.0
   Mtemp(1:nsd+1,1:nsd+1)=M(1:nsd+1,1:nsd+1,1)
-
+if(Mtemp(1,1).lt.1.0e-6) then
+  II=999.0
+  goto 123
+end if
   call DGESV(nsd+1,1,Mtemp,nsd+1,IP,P,nsd+1,INFO)
   B(:,1)=P(:)  ! get B
 !if(myid==0)write(*,*)'B=',B(:,1)
@@ -332,6 +334,7 @@ subroutine get_indicator_derivative(x,xp,x_center,infdomain,hg,I_fluid_center,co
      curv_A=ddI(1)/temp+dI(1)*(-0.5)/(temp**3)*(2*dI(1)*ddI(1)+2*dI(2)*ddI(3))
      curv_B=ddI(2)/temp+dI(2)*(-0.5)/(temp**3)*(2*dI(1)*ddI(3)+2*dI(2)*ddI(2))
      curv_p=curv_A+curv_B
+123 continue
 end subroutine get_indicator_derivative
 
 

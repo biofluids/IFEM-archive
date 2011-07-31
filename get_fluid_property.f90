@@ -40,16 +40,8 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
      end if
   end if
 
-! get I_fluid
   I_fluid(1:nn)=0.0
   I_fluid_temp(1:nn)=0.0
-!  do i=1,nn
-!     do j=1,nn_inter
-!        dx(:)=abs(x(:,i)-x_inter(:,j))
-!        call B_Spline(dx,hsp,nsd,Sp)
-!        I_fluid(i)=I_fluid(i)+corr_Ip(j)*Sp
-!     end do
-!  end do
 
   do loc_index=1,nn_loc
      i=myid+1+(loc_index-1)*ncpus
