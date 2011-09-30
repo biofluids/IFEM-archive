@@ -24,7 +24,7 @@
 	      
 	   
 	   if (nen==4) then ! for terahedran
-	   write(*,*) 'I am now in the 3d search sub'
+!	   write(*,*) 'I am now in the 3d search sub'
            do i=1,nen
 	   tetrahedran(1:nsd,i)=xna(1:nsd, ien(i,inf(j)))
 	   end do
@@ -110,7 +110,9 @@ real(8) matrix(4,4)
 real(8) det_tra(5)
 integer i
 integer answer
+integer nsd
 
+nsd=3
 answer=0
 
 

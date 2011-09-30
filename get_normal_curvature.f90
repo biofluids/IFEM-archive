@@ -46,9 +46,15 @@ subroutine get_normal_curvature(x_inter,x_center,I_fluid_center,corr_Ip,&
   do i=1,nn_inter_loc 
      loc_index=myid+1+(i-1)*ncpus
      x(1:nsd)=x_inter(1:nsd,loc_index)
-     call get_curv_num(x,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
+     if(nsd==3) then
+     call get_curv_num_3D(x,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
 			curv_n_temp(loc_index),curv_inter_temp(loc_index),&
 			norm_inter_temp(1:nsd,loc_index)) 
+     else
+     call get_curv_num_2D(x,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
+                             curv_n_temp(loc_index),curv_inter_temp(loc_index),&
+			                             norm_inter_temp(1:nsd,loc_index))
+     end if
   end do
   call mpi_barrier(mpi_comm_world,ierror)
   call mpi_reduce(curv_n_temp(1),curv_n(1),nn_inter,mpi_double_precision, &
@@ -67,7 +73,6 @@ subroutine get_normal_curvature(x_inter,x_center,I_fluid_center,corr_Ip,&
 !     call get_curv_num(x,x_inter,x_center,hg,infdomain,I_fluid_center,corr_Ip,&
 !			curv_n(i),curv_inter(i),norm_inter(1:nsd,i))
 !  end do
-
 
   dcurv=maxval(curv_n(1:nn_inter))
   if(myid==0) then

@@ -1,7 +1,7 @@
 !!!!!!!!!!!!!!!Get interface elements!!!!!!!!!!!!!!
 
 
-subroutine get_inter_ele(inf_inter,inf_den,ien)!,&
+subroutine get_inter_ele(inf_inter,ien)!,&
 !			I_fluid_center,I_fluid,its)
 
   use interface_variables,only:nn_inter,maxmatrix
@@ -9,7 +9,7 @@ subroutine get_inter_ele(inf_inter,inf_den,ien)!,&
   use fluid_variables, only:nn,ne,nen
   use mpi_variables
   include 'mpif.h'
-  integer inf_inter(maxmatrix),inf_den(maxmatrix),ien(nen,ne)
+  integer inf_inter(maxmatrix),ien(nen,ne)
   integer i,j,icount,jcount,flag,ie,inl,node
   integer ncount
   integer temp_ele(maxmatrix)
@@ -47,35 +47,31 @@ subroutine get_inter_ele(inf_inter,inf_den,ien)!,&
   allocate(inter_ele(ne_inter))
   inter_ele(1:ne_inter)=temp_ele(1:ne_inter)
 
-! used for dense mesh
-  ncount=0
-  temp_ele(:)=0
-  do i=1,nn_inter
-     do j=1,ncount
-	if(inf_den(i)==temp_ele(j)) then
-	   goto 200
-	end if
-     end do
-     
-     ncount=ncount+1
-     temp_ele(ncount)=inf_den(i)
-200 continue
-   end do
-!===========================
-  if(ncount.gt.maxmatrix) then
-    write(*,*)'enlarge maxamtrix in get_inter_ele'
-    stop
-   end if
-!============================
-   ne_inter_den=ncount
-  if(allocated(inter_ele_den)) then
-    deallocate(inter_ele_den)
-  end if
-  allocate(inter_ele_den(ne_inter_den))
-  inter_ele_den(1:ne_inter_den)=temp_ele(1:ne_inter_den)
+
+!==============================================
+!! used for dense mesh
+!  ncount=0
+!  temp_ele(:)=0
+!  do i=1,nn_inter
+!     do j=1,ncount
+!	if(inf_den(i)==temp_ele(j)) then
+!	   goto 200
+!	end if
+!     end do
+!     
+!     ncount=ncount+1
+!     temp_ele(ncount)=inf_den(i)
+!200 continue
+!   end do
+!   ne_inter_den=ncount
+!  if(allocated(inter_ele_den)) then
+!    deallocate(inter_ele_den)
+!  end if
+!  allocate(inter_ele_den(ne_inter_den))
+!  inter_ele_den(1:ne_inter_den)=temp_ele(1:ne_inter_den)
 if(myid==0) then
 write(*,*)'ne_inter=',ne_inter
-write(*,*)'ne_inter_den=',ne_inter_den
+!write(*,*)'ne_inter_den=',ne_inter_den
 end if
 
 !=====================================
@@ -114,7 +110,8 @@ end if
 if(myid==0) then
   write(*,*)'ne_regen_ele=',ne_regen_ele
 end if
-
+ne_regen_ele=ne_inter
+regen_ele(1:ne_regen_ele)=inter_ele(1:ne_inter)
 !========================================================
 !allocate local regen element for each processor
 !========================================================
@@ -147,6 +144,7 @@ else
   end do
 end if
 
+  
 !=========
 call mpi_barrier(mpi_comm_world,ierror)
 

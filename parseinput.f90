@@ -395,7 +395,7 @@ end subroutine parseinput_fluid
 subroutine parseinput_interface
   use interface_variables
   use fluid_variables, only:nsd
-  use denmesh_variables
+!  use denmesh_variables
   use mpi_variables
   integer file_in
   common /filename/file_in
@@ -414,7 +414,7 @@ end if
   call Read_Real(shift_inter,nsd)
   call Read_Real(rkpm_scale,1)
   call Read_Real(max_dcurv,1)
-
+  call Read_Int(nbc,1)
 if(myid==0) then
   write(*,*)'nn_inter=',nn_inter
   write(*,*)'surface tension = ', sur_tension
@@ -424,13 +424,6 @@ if(myid==0) then
   write(*,*)'scale_inter=',scale_inter(1:nsd)
   write(*,*)'shift_inter=',shift_inter(1:nsd)
 end if
-  close(file_in)
-  file_in=80
-  open(file_in,file='input_den_mesh.in',status='old')
-  call Read_Int(nn_den,1)
-  call Read_Int(ne_den,1)
-  call Read_Int(nen_den,1)
-  call Read_Int(nbc_den,1)
   close(file_in)
 end subroutine parseinput_interface
 

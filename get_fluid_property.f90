@@ -20,7 +20,7 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
 !====used for non-uniform mesh
   real(8) M(nsd+1,nsd+1),B(nsd+1),P(nsd+1)
   real(8) vec(nsd+1)
-  integer IP(nsd+1)
+  integer IP(nsd+1),INFO
 !===used for mpi
   integer nn_loc,base,top,loc_index
 
@@ -53,38 +53,43 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
      do j=1,ne
 	hsg=hg(j)
 	dx(:)=abs(x(:,i)-x_center(:,j))
-	call B_Spline(dx,hsp,nsd,Sp)
+	call B_Spline1(dx,hsp,nsd,Sp,INFO)
+	if(INFO==1) then
 	vec(2:nsd+1)=x(:,i)-x_center(:,j)
 	do icount=1,nsd+1
 	   do jcount=1,nsd+1
 	      M(icount,jcount)=M(icount,jcount)+vec(icount)*vec(jcount)*Sp/(hsp**nsd)*(hsg**nsd)
 	   end do
 	end do
+	end if
      end do
      call DGESV(nsd+1,1,M,nsd+1,IP,P,nsd+1,INFO)
      B(:)=P(:)
      do j=1,ne
 	hsg=hg(j)
         dx(:)=abs(x(:,i)-x_center(:,j))
-        call B_Spline(dx,hsp,nsd,Sp)
-
+        call B_Spline1(dx,hsp,nsd,Sp,INFO)
+	if(INFO==1) then
 	vec(2:nsd+1)=x(:,i)-x_center(:,j)
 	temp=0.0
 	do icount=1,nsd+1
 	   temp=temp+vec(icount)*B(icount)
 	end do
         I_fluid_temp(i)=I_fluid_temp(i)+I_fluid_center(j)*temp*Sp/(hsp**nsd)*(hsg**nsd)
+	end if
      end do
      
      do j=1,nn_inter
 	dx(:)=abs(x(:,i)-x_inter(:,j))
-	call B_Spline(dx,hsp,nsd,Sp)
+	call B_Spline1(dx,hsp,nsd,Sp,INFO)
+	if(INFO==1) then
 	vec(2:nsd+1)=x(:,i)-x_inter(:,j)
 	temp=0.0
 	do icount=1,nsd+1
 	   temp=temp+vec(icount)*B(icount)
 	end do
 	I_fluid_temp(i)=I_fluid_temp(i)+corr_Ip(j)*temp*Sp
+	end if
      end do
 
      if(I_fluid_temp(i).gt.1.0) then

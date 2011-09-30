@@ -68,7 +68,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 
 
-	eps = 1.0e-6
+	eps = 1.0e-5
 	e1(:) = 0
 	e1(1) = 1
 	x0(:) = 0

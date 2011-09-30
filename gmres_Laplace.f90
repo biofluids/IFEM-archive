@@ -1,14 +1,15 @@
 
 
 subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
-			offdomain,ne_offdomain)
+			offdomain,ne_offdomain,nn_den,ne_den,nen_den,nbc_den)
 	use fluid_variables, only: nsd,inner,outer
-	use denmesh_variables, only:nn_den,ne_den,nen_den,nbc_den
+!	use denmesh_variables, only:nn_den,ne_den,nen_den,nbc_den
 !	use interface_variables
-	use allocate_variables, only:ne_inter_den,inter_ele_den
+	use allocate_variables, only:ne_inter,inter_ele
 	use mpi_variables
 	implicit none
 
+        integer nn_den,ne_den,nen_den,nbc_den
 	integer cal_ne,cal_domain(cal_ne)
 	integer ne_offdomain,offdomain(ne_den)
 	real* 8 x(nsd,nn_den)
@@ -66,7 +67,7 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
 		 end do!!!!!!!!!!calcule eps*inv(P)*V1
 		
 		avloc(:) = 0.0d0
-		call blockgmres_Laplace(cal_ne,cal_domain,x,dv,avloc,ien_den)
+		call blockgmres_Laplace(cal_ne,cal_domain,x,dv,avloc,ien_den,nn_den,ne_den,nen_den)
 
 !====================================================================================
 !set residual at bc and offdomain to be 0
@@ -80,8 +81,8 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
 		do icount=1,nbc_den
 		   avloc(bcnode_den(icount,1))=0.0
 		end do
-		do icount=1,ne_inter_den
-		   ie=inter_ele_den(icount)
+		do icount=1,ne_inter
+		   ie=inter_ele(icount)
 		   do inl=1,nen_den
 		      node=ien_den(inl,ie)
 		      avloc(node)=0.0
@@ -132,7 +133,7 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
 
 	
 	avloc(:) = 0.0d0
-	call blockgmres_Laplace(cal_ne,cal_domain,x,dv,avloc,ien_den)
+	call blockgmres_Laplace(cal_ne,cal_domain,x,dv,avloc,ien_den,nn_den,ne_den,nen_den)
 !====================================================================================
 !set residual at bc and offdomain to be 0
                 do icount=1,ne_offdomain
@@ -145,8 +146,8 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
                 do icount=1,nbc_den
                    avloc(bcnode_den(icount,1))=0.0
                 end do
-                do icount=1,ne_inter_den
-                   ie=inter_ele_den(icount)
+                do icount=1,ne_inter
+                   ie=inter_ele(icount)
                    do inl=1,nen_den
                       node=ien_den(inl,ie)
                       avloc(node)=0.0
@@ -180,8 +181,8 @@ end if
                 do icount=1,nbc_den
                    dg(bcnode_den(icount,1))=0.0
                 end do
-                do icount=1,ne_inter_den
-                   ie=inter_ele_den(icount)
+                do icount=1,ne_inter
+                   ie=inter_ele(icount)
                    do inl=1,nen_den
                       node=ien_den(inl,ie)
                       dg(node)=0.0

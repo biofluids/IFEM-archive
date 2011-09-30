@@ -110,11 +110,12 @@ end subroutine zfem_ensCase
 ! Lucy Zhang
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,nebase,&
-			x_inter,x_center,x_den,ien_den,x_inter_ini,nn_inter_ini)
+			x_inter,x_center,x_inter_ini,nn_inter_ini)
   use solid_variables
   use fluid_variables
   use interface_variables
-  use denmesh_variables
+!  use denmesh_variables
+  use allocate_variables, only:den_domain,ne_den_domain
   implicit none
 
   integer :: klok
@@ -127,10 +128,10 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
   integer :: nebase
   real(8) :: x_inter(nsd,maxmatrix)
   real(8) :: x_center(nsd,ne)
-  real(8) :: x_den(nsd,nn_den)
+!  real(8) :: x_den(nsd,nn_den)
   real(8) :: x_inter_ini(nsd,maxmatrix)
   integer :: nn_inter_ini
-  integer :: ien_den(nen_den,ne_den)
+!  integer :: ien_den(nen_den,ne_den)
   character(len =  7) :: fileroot
   character(len = 14) :: file_name
 
@@ -180,8 +181,11 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
   write(i_file_unit, *) 'node id given'
   write(i_file_unit, *) 'element id given'
   write(i_file_unit, *) 'coordinates'
-  write(i_file_unit, '(I8)') nn_solid+nn+nn_inter+nn_den+nn_inter_ini+ne
-  
+  if(klok==0)then
+  write(i_file_unit, '(I8)') nn_solid+nn+nn_inter+nn_inter_ini+ne
+  else
+  write(i_file_unit, '(I8)') nn_solid+nn+nn_inter+nn_inter_ini+ne_den_domain
+  end if
 !--> node id, x, y, x
 !-->
  !write structure coordinates
@@ -205,24 +209,30 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
      if (nsd==2) write(i_file_unit,101) i+nn_solid+nn,x_inter(1,i),x_inter(2,i),0.0
   end do
  !...write denmesh coordinates
-  tempcount=nn_solid+nn+nn_inter
-  do i=1,nn_den
-     if (nsd==3) write(i_file_unit,101) i+tempcount,x_den(1,i),x_den(2,i),x_den(3,i)
-     if (nsd==2) write(i_file_unit,101) i+tempcount,x_den(1,i),x_den(2,i),0.0
-  end do
+!  tempcount=nn_solid+nn+nn_inter
+!  do i=1,nn_den
+!     if (nsd==3) write(i_file_unit,101) i+tempcount,x_den(1,i),x_den(2,i),x_den(3,i)
+!     if (nsd==2) write(i_file_unit,101) i+tempcount,x_den(1,i),x_den(2,i),0.0
+!  end do
  !...write interface coordinates before regeneration
-  tempcount=nn_solid+nn+nn_inter+nn_den
+  tempcount=nn_solid+nn+nn_inter
   do i=1,nn_inter_ini
      if (nsd==3) write(i_file_unit,101) i+tempcount,x_inter_ini(1,i),x_inter_ini(2,i),x_inter_ini(3,i)
      if (nsd==2) write(i_file_unit,101) i+tempcount,x_inter_ini(1,i),x_inter_ini(2,i),0.0
   end do
  !...write center mesh coordinates
-  tempcount=nn_solid+nn+nn_inter+nn_den+nn_inter_ini
+  tempcount=nn_solid+nn+nn_inter+nn_inter_ini
+if(klok==0) then
   do i=1,ne
      if (nsd==3) write(i_file_unit,101) i+tempcount,x_center(1,i),x_center(2,i),x_center(3,i)
      if (nsd==2) write(i_file_unit,101) i+tempcount,x_center(1,i),x_center(2,i),0.0
   end do
-
+else
+  do i=1,ne_den_domain
+     if (nsd==3) write(i_file_unit,101) i+tempcount,x_center(1,den_domain(i)),x_center(2,den_domain(i)),x_center(3,den_domain(i))
+     if (nsd==2) write(i_file_unit,101) i+tempcount,x_center(1,den_domain(i)),x_center(2,den_domain(i)),0.0
+  end do
+end if
  !...write cover part - connectivity
   write(i_file_unit, *) 'part 1'
   write(i_file_unit, *) ' Cover '
@@ -283,13 +293,13 @@ if (nsd_solid == 0) then
      select case (nen_solid)
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  nebase   ! number of elements
         do i=1, ne_solid
            write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
         enddo
      case (4)
         write(i_file_unit,'(a7)') ' tetra4'    ! element type
-        write(i_file_unit, '(i8)')  ne_solid   ! number of elements
+        write(i_file_unit, '(i8)')  nebase   ! number of elements
         do i=1, ne_solid
            write(i_file_unit,'(5i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
         enddo
@@ -365,39 +375,50 @@ if (nsd_solid == 0) then
 
 
 !...write denpoint part
-  write(i_file_unit,*) 'part 5'
-  write(i_file_unit,*) ' denmesh Model'
-  if(nsd==3) then
-    write(*,*)'no ensight output for 3d for den mesh'
-    stop
-  elseif(nsd==2) then
-    write(i_file_unit,*) 'quad4' ! element type
-    write(i_file_unit,'(i8)') ne_den !number of elements
-    do i=1,ne_den
-       write(i_file_unit,'(5i8)') i, (ien_den(j,i)+nn_solid+nn+nn_inter,j=1,nen_den)
-    end do
-  end if
+!  write(i_file_unit,*) 'part 5'
+!  write(i_file_unit,*) ' denmesh Model'
+!  if(nsd==3) then
+!!    write(*,*)'no ensight output for 3d for den mesh'
+!!    stop
+!    write(i_file_unit,*) 'hexa8'
+!    write(i_file_unit, '(I8)') ne_den
+!    do i=1,ne_den
+!       write(i_file_unit,'(9i8)') i, (ien_den(j,i)+nn_solid+nn+nn_inter,j=1,nen_den)
+!    end do
+!  elseif(nsd==2) then
+!    write(i_file_unit,*) 'quad4' ! element type
+!    write(i_file_unit,'(i8)') ne_den !number of elements
+!    do i=1,ne_den
+!       write(i_file_unit,'(5i8)') i, (ien_den(j,i)+nn_solid+nn+nn_inter,j=1,nen_den)
+!    end do
+!  end if
 
 
 !...write initial interface part
-  write(i_file_unit,*) 'part 6'
+  write(i_file_unit,*) 'part 5'
   write(i_file_unit,*) ' Interface_INI Model'
   write(i_file_unit,'(a7)') '  point'
   write(i_file_unit,'(i8)') nn_inter_ini
   do i=1,nn_inter_ini
-     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_den
+     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter
   end do
 
 
 !...write centerpoint part
-  write(i_file_unit,*) 'part 7'
+  write(i_file_unit,*) 'part 6'
   write(i_file_unit,*) ' centermesh Model'
   write(i_file_unit,'(a7)') '  point'
+if(klok==0) then  
   write(i_file_unit,'(i8)') ne
   do i=1,ne
-     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_den+nn_inter_ini
+     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_inter_ini
   end do
-
+else
+  write(i_file_unit,'(i8)') ne_den_domain
+  do i=1,ne_den_domain
+     write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_inter_ini
+  end do
+end if  
 
 
   close(i_file_unit)
@@ -418,13 +439,15 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   use fluid_variables, only: nn,ndf,nsd,vis_liq,ne
   use run_variables, only: its
   use interface_variables
-  use denmesh_variables
+!  use denmesh_variables
+  use allocate_variables, only:den_domain,ne_den_domain
   implicit none
 
   real(8) :: d(ndf,nn)
   real(8) :: f_fluids(nsd,nn)
   real(8) :: vel_inter(nsd,maxmatrix)
   integer :: nn_inter_ini
+  integer :: ne_temp
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
   real(8),dimension (nsd,nsd,nn) :: f_stress
@@ -445,6 +468,12 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   ! Fluid stress and strain rate, Voigt notation
   fluid_stress(1:nsd*2,1:nn)=0.0
   fluid_strain(1:nsd*2,1:nn)=0.0
+
+  if(klok==0) then
+    ne_temp=ne
+  else
+    ne_temp=ne_den_domain
+  end if
 
   if (nsd.eq.2) then
 	! 2 Dim
@@ -514,7 +543,7 @@ if (nsd==3) then
   write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),solid_vel(3,in),in=1,nn_solid), &
                        (d(1,in),d(2,in),d(3,in),in=1,nn),&
 			(vel_inter(1,in),vel_inter(2,in),vel_inter(3,in),in=1,nn_inter),&
-			(0.0,0.0,0.0,in=1,nn_inter_ini+nn_den+ne)
+			(0.0,0.0,0.0,in=1,nn_inter_ini+ne_temp)
   close(ifileunit)
 
  !...Write Interaction force output in ens_movie.fsi*
@@ -529,7 +558,7 @@ if (nsd==3) then
   write(*,*) 'writing... ', name_file2
   open(ifileunit, file=name_file2, form='formatted')
   write(ifileunit, '(A)') 'structure and fluid field: pressure'  
-  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(4,in),in=1,nn)
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(4,in),in=1,nn),(0.0,in=1,nn_inter+nn_inter_ini+ne_temp)
   close(ifileunit)
 
  !...Write stress output in ens_movie.stress*
@@ -567,7 +596,7 @@ elseif (nsd==2) then
   write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),0.0,in=1,nn_solid), &
                        (d(1,in),d(2,in),0.0,in=1,nn),&
 			(vel_inter(1,in),vel_inter(2,in),0.0,in=1,nn_inter), &
-			(0.0,0.0,0.0, in=1,nn_inter_ini+nn_den+ne)
+			(0.0,0.0,0.0, in=1,nn_inter_ini+ne_temp)
   close(ifileunit)
 
  !...Write Interaction force output in ens_movie.fsi*
@@ -582,7 +611,7 @@ elseif (nsd==2) then
   write(*,*) 'writing... ', name_file2
   open(ifileunit, file=name_file2, form='formatted')
   write(ifileunit, '(A)') 'structure and fluid field: pressure'  
-  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn),(0.0,in=1,nn_inter+nn_inter_ini+nn_den+ne)
+  write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn),(0.0,in=1,nn_inter+nn_inter_ini+ne_temp)
   close(ifileunit)
 
  !...Write stress output in ens_movie.stress*
@@ -613,18 +642,19 @@ endif
 end subroutine zfem_ensFluid
 
 
-subroutine zfem_ensInter(I_fluid,I_fluid_center,I_fluid_den,norm_inter,nn_inter_ini,klok)
+subroutine zfem_ensInter(I_fluid,I_fluid_center,norm_inter,nn_inter_ini,klok)
   use solid_variables
   use fluid_variables, only:nn,nsd,ne
   use interface_variables
-  use denmesh_variables
+!  use denmesh_variables
+  use allocate_variables, only:ne_den_domain,den_domain
   use run_variables, only:its
 
   real(8) I_fluid(nn)
   real(8) I_fluid_center(ne)
-  real(8) I_fluid_den(nn_den)
+!  real(8) I_fluid_den(nn_den)
   real(8) norm_inter(nsd,maxmatrix)
-  integer nn_inter_ini,klok
+  integer nn_inter_ini,klok,ne_temp
   
   integer in,i
   character(len=7)  :: fileroot
@@ -634,6 +664,11 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,I_fluid_den,norm_inter,nn_inter_
 
   ifileunit=17
 
+  if(klok==0) then
+    ne_temp=ne
+  else
+    ne_temp=ne_den_domain
+  end if
 
   if (klok .eq. 0) then
      write(fileroot, '(a6)') '000000'
@@ -664,9 +699,9 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,I_fluid_den,norm_inter,nn_inter_
      write(ifileunit,110) (0.0, 0.0, 0.0, in=1,nn_solid), &
            (0.0,0.0,0.0,in=1,nn), &
            (norm_inter(1,in),norm_inter(2,in),norm_inter(3,in),in=1,nn_inter), &
-           (0.0,0.0,0.0,in=1,nn_den), &
+!           (0.0,0.0,0.0,in=1,nn_den), &
            (0.0,0.0,0.0,in=1,nn_inter_ini), &
-           (0.0,0.0,0.0,in=1,ne)
+           (0.0,0.0,0.0,in=1,ne_temp)
      close(ifileunit)
   else if (nsd == 2) then
      write(*,*)'writing...',name_file2
@@ -675,9 +710,9 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,I_fluid_den,norm_inter,nn_inter_
      write(ifileunit,110) (0.0, 0.0, 0.0, in=1,nn_solid), &
            (0.0,0.0,0.0,in=1,nn), &
            (norm_inter(1,in),norm_inter(2,in),0.0,in=1,nn_inter), &
-           (0.0,0.0,0.0,in=1,nn_den), &
+ !          (0.0,0.0,0.0,in=1,nn_den), &
            (0.0,0.0,0.0,in=1,nn_inter_ini), &
-           (0.0,0.0,0.0,in=1,ne)
+           (0.0,0.0,0.0,in=1,ne_temp)
      close(ifileunit)
   end if
 
@@ -685,12 +720,23 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,I_fluid_den,norm_inter,nn_inter_
      write(*,*) 'writing...',name_file1
      open(ifileunit,file=name_file1,form='formatted')
      write(ifileunit, '(A)') 'stru,fluid,interface and denmesh: indicator'
+
+if(klok==0) then
+     write(ifileunit, 110) (0.0,in=1,nn_solid), &
+                     (I_fluid(in),in=1,nn),(0.5,in=1,nn_inter), &
+		     !                (I_fluid_den(in),in=1,nn_den), &
+		  (0.5,in=1,nn_inter_ini), &
+		 (I_fluid_center(in),in=1,ne)
+
+else
      write(ifileunit, 110) (0.0,in=1,nn_solid), &
                 (I_fluid(in),in=1,nn),(0.5,in=1,nn_inter), &
-                (I_fluid_den(in),in=1,nn_den), &
+!                (I_fluid_den(in),in=1,nn_den), &
                 (0.5,in=1,nn_inter_ini), &
-                (I_fluid_center(in),in=1,ne)
+                (I_fluid_center(den_domain(in)),in=1,ne_temp)
+end if
      close(ifileunit)
+
 110  format(6e12.5)
 
 

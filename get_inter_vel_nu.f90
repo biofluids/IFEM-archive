@@ -19,7 +19,7 @@ subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,hg,vol_nn)
 
   real(8) M(nsd+1,nsd+1),B(nsd+1),P(nsd+1)
   real(8) vec(nsd+1)
-  integer IP(nsd+1)  
+  integer IP(nsd+1),INFO  
 
   real(8) hsp_temp
 
@@ -60,19 +60,22 @@ subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,hg,vol_nn)
 
      do j=1,nn
 	dx(:)=abs(x_inter(:,i)-x(:,j))
-	call B_Spline(dx,hsp,nsd,Sp)
+	call B_Spline1(dx,hsp,nsd,Sp,INFO)
+	if(INFO==1) then
 	vec(2:nsd+1)=x_inter(:,i)-x(:,j)
         do icount=1,nsd+1
            do jcount=1,nsd+1
               M(icount,jcount)=M(icount,jcount)+vec(icount)*vec(jcount)*Sp/(hsp**nsd)*vol_nn(j)
            end do
         end do
+	end if
      end do
      call DGESV(nsd+1,1,M,nsd+1,IP,P,nsd+1,INFO)
      B(:)=P(:)
      do j=1,nn
 	dx(:)=abs(x_inter(:,i)-x(:,j))
-	call B_Spline(dx,hsp,nsd,Sp)
+	call B_Spline1(dx,hsp,nsd,Sp,INFO)
+	if(INFO==1) then
 	vec(2:nsd+1)=x_inter(:,i)-x(:,j)
 	temp=0.0
 	do icount=1,nsd+1
@@ -81,6 +84,7 @@ subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,hg,vol_nn)
 	vel_inter_temp(:,i)=vel_inter_temp(:,i)+vel_fluid(:,j)*temp*Sp/(hsp**nsd)*vol_nn(j)
 
 !	vel_inter(:,i)=vel_inter(:,i)+vel_fluid(:,j)*Sp
+	end if
      end do
   end do
 

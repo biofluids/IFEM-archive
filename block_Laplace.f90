@@ -3,14 +3,15 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  block_Laplace(ne_den_domain,den_domain,xloc,I_fluid_den,p_inter,w_inter,ien_den)
+subroutine  block_Laplace(ne_den_domain,den_domain,xloc,I_fluid_den,p_inter,w_inter,ien_den,nn_den,ne_den,nen_den)
   use global_constants
   use run_variables
   use fluid_variables,only:nsd,iquad
 !  use centermesh_variables
-  use denmesh_variables, only:nn_den,ne_den,nen_den
+!  use denmesh_variables, only:nn_den,ne_den,nen_den
   implicit none
 
+  integer nn_den,ne_den,nen_den
   integer ien_den(nen_den,ne_den)
   real(8) xloc(nsd,nn_den)
   real(8) I_fluid_den(nn_den)
@@ -35,20 +36,67 @@ subroutine  block_Laplace(ne_den_domain,den_domain,xloc,I_fluid_den,p_inter,w_in
   real(8) xq(nsdpad,nquadpad),wq(nquadpad)
 
   if(nsd==3) then
-     write(*,*)'no 3d in block laplace'
-     stop
-  end if
+!     write(*,*)'no 3d in block laplace'
+!     stop
+          if (nen_den.eq.4) then
+                call quad3d4n(iquad, nquad, xq, wq, nsdpad, nquadpad)
+          else if (nen_den.eq.8) then
+                call quad3d8n(iquad, nquad, xq, wq, nsdpad, nquadpad)
+          end if
+      do iq=1,nquad
+                if(nen_den.eq.4) then
+                  sq(0,1,iq) = xq(1,iq)
+                  sq(0,2,iq) = xq(2,iq)
+                  sq(0,3,iq) = xq(3,iq)
+                  sq(0,4,iq) = 1 - xq(1,iq) - xq(2,iq) - xq(3,iq)
+               else
+                  sq(0,1,iq) = (1 - xq(1,iq))   &
+                           * (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(0,2,iq) = (1 + xq(1,iq))   &
+                           * (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(0,3,iq) = (1 + xq(1,iq))   &
+                           * (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(0,4,iq) = (1 - xq(1,iq))   &
+                           * (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(0,5,iq) = (1 - xq(1,iq))   & 
+                           * (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8 
+                  sq(0,6,iq) = (1 + xq(1,iq))   & 
+                           * (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8 
+                  sq(0,7,iq) = (1 + xq(1,iq))   & 
+                           * (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8 
+                  sq(0,8,iq) = (1 - xq(1,iq))   & 
+                           * (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8 
+                  sq(1,1,iq) = - (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(1,2,iq) = + (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(1,3,iq) = + (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(1,4,iq) = - (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
+                  sq(1,5,iq) = - (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8
+                  sq(1,6,iq) = + (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8
+                  sq(1,7,iq) = + (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8
+                  sq(1,8,iq) = - (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8
+                  sq(2,1,iq) = - (1 - xq(1,iq)) * (1 - xq(3,iq)) / 8
+                  sq(2,2,iq) = - (1 + xq(1,iq)) * (1 - xq(3,iq)) / 8
+                  sq(2,3,iq) = + (1 + xq(1,iq)) * (1 - xq(3,iq)) / 8
+                  sq(2,4,iq) = + (1 - xq(1,iq)) * (1 - xq(3,iq)) / 8
+                  sq(2,5,iq) = - (1 - xq(1,iq)) * (1 + xq(3,iq)) / 8
+                  sq(2,6,iq) = - (1 + xq(1,iq)) * (1 + xq(3,iq)) / 8
+                  sq(2,7,iq) = + (1 + xq(1,iq)) * (1 + xq(3,iq)) / 8
+                  sq(2,8,iq) = + (1 - xq(1,iq)) * (1 + xq(3,iq)) / 8
+                  sq(3,1,iq) = - (1 - xq(1,iq)) * (1 - xq(2,iq)) / 8
+                  sq(3,2,iq) = - (1 + xq(1,iq)) * (1 - xq(2,iq)) / 8
+                  sq(3,3,iq) = - (1 + xq(1,iq)) * (1 + xq(2,iq)) / 8
+                  sq(3,4,iq) = - (1 - xq(1,iq)) * (1 + xq(2,iq)) / 8
+                  sq(3,5,iq) = + (1 - xq(1,iq)) * (1 - xq(2,iq)) / 8
+                  sq(3,6,iq) = + (1 + xq(1,iq)) * (1 - xq(2,iq)) / 8
+                  sq(3,7,iq) = + (1 + xq(1,iq)) * (1 + xq(2,iq)) / 8
+                  sq(3,8,iq) = + (1 - xq(1,iq)) * (1 + xq(2,iq)) / 8
+                 endif
+          enddo
 
-!  if (nen_center==3) then
-!     call quad2d3n(iquad,nquad,xq,wq,nsdpad,nquadpad)
-!  end if
-!  do iq=1,nquad
-!     if(nen_center==3) then
-!        sq(0,1,iq) = xq(1,iq)
-!        sq(0,2,iq) = xq(2,iq)
-!        sq(0,3,iq) = 1 - xq(1,iq) - xq(2,iq)
-!     end if
-!  end do
+
+
+  else if(nsd==2) then
+!=====================================================================
   if (nen_den==3) then
        call quad2d3n(iquad, nquad, xq, wq, nsdpad, nquadpad)
   else if (nen_den==4) then
@@ -77,6 +125,8 @@ subroutine  block_Laplace(ne_den_domain,den_domain,xloc,I_fluid_den,p_inter,w_in
 
         endif
   enddo
+!==========================================================
+  end if
 
 !==============================================================
 !  do ie=1,ne_den     !loop over elements

@@ -149,7 +149,7 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2)
 !	     if(distance.lt.hg(ie)/nn_sub/1.5) then
 	     if(distance.lt.0.5*hg(ie)) then
-		call get_curv_num(xlocan,x_inter,x_center,hg,I_fluid_center,&
+		call get_curv_num_2D(xlocan,x_inter,x_center,hg,I_fluid_center,&
 			corr_Ip,dcurv,curv_p,norm_p)      
 !                   dcurv=0.1
 		  if((dcurv.lt.maxdcurv)) then

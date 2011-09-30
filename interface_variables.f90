@@ -17,5 +17,6 @@ module interface_variables
   real(8) :: rkpm_scale
   real(8) :: max_dcurv
   real(8) :: max_hg
+  integer :: nbc
 end module interface_variables
 

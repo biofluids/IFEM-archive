@@ -2,15 +2,16 @@
 ! get the indicator for denmesh                 !
 !===============================================================!
 
-subroutine indicator_denmesh(I_fluid_den,x_den,ien_den,bcnode_den,its)
+subroutine indicator_denmesh(I_fluid_den,x_den,ien_den,bcnode_den,its,nn_den,ne_den,nen_den,nbc_den)
 
   use mpi_variables
-  use denmesh_variables  !nn_den,ne_den,nen_den,nbc_den
+!  use denmesh_variables  !nn_den,ne_den,nen_den,nbc_den
   use fluid_variables, only:nsd
-  use allocate_variables, only:ne_inter_den,inter_ele_den, &
+  use allocate_variables, only:ne_inter,inter_ele, &
 				den_domain,ne_den_domain
 !inter_ele_den(1:ne_inter_den),den_domain(1:ne_den_domain),inter_ele_den(1:ne_inter_den)
 
+  integer nn_den,ne_den,nen_den,nbc_den
   real(8) I_fluid_den(nn_den)
   real(8) x_den(nsd,nn_den)
   integer ien_den(nen_den,ne_den)
@@ -58,8 +59,8 @@ subroutine indicator_denmesh(I_fluid_den,x_den,ien_den,bcnode_den,its)
     do i=1,nbc_den
 	I_fluid_den(bcnode_den(i,1))=real(bcnode_den(i,2))
     end do
-    do i=1,ne_inter_den
-	ie=inter_ele_den(i)
+    do i=1,ne_inter
+	ie=inter_ele(i)
 	do inl=1,nen_den
 	   node=ien_den(inl,ie)
 	   I_fluid_den(node)=1.0
@@ -80,8 +81,8 @@ subroutine indicator_denmesh(I_fluid_den,x_den,ien_den,bcnode_den,its)
     do i=1,nbc_den
         p(bcnode_den(i,1))=0.0
     end do
-    do i=1,ne_inter_den
-        ie=inter_ele_den(i)
+    do i=1,ne_inter
+        ie=inter_ele(i)
         do inl=1,nen_den
            node=ien_den(inl,ie)
            p(node)=0.0
@@ -90,7 +91,7 @@ subroutine indicator_denmesh(I_fluid_den,x_den,ien_den,bcnode_den,its)
 !==============================================================
     dg(:)=0.0
     call gmres_Laplace(fake_ne,fake_domain,x_den,I_fluid_den,w,p,dg,ien_den,bcnode_den,&
-			offdomain,ne_offdomain)
+			offdomain,ne_offdomain,nn_den,ne_den,nen_den,nbc_den)
 
 
    I_fluid_den(:)=I_fluid_den(:)+dg(:)

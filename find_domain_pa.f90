@@ -2,28 +2,28 @@
 !find center & den calculation domain pa
 !=====================================
 
-subroutine find_domain_pa(x_center,x_den,x_inter,ne_intlocal,ien_intlocal,&
-			ne_local_den,ien_local_den,ien_den,hg)
+subroutine find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
+			hg)
 
   use interface_variables, only:nn_inter,maxmatrix,hsp,max_hg
   use fluid_variables,only:nsd,ne
-  use denmesh_variables, only:nn_den,ne_den,nen_den
+!  use denmesh_variables, only:nn_den,ne_den,nen_den
   use allocate_variables, only:den_domain,center_domain,ne_den_domain,nn_center_domain
   use mpi_variables
   include 'mpif.h'
 
   real(8) x_center(nsd,ne)
-  real(8) x_den(nsd,nn_den)
+!  real(8) x_den(nsd,nn_den)
   real(8) x_inter(nsd,maxmatrix)
   integer ne_intlocal
   integer ien_intlocal(ne_intlocal)
   integer nn_domain_local
 !  integer domain_local(ne_intlocal)
-  integer domain_local(ne_local_den)
+  integer domain_local(ne_intlocal)
   real(8) hg(ne)
-  integer ne_local_den
-  integer ien_local_den(ne_local_den)
-  integer ien_den(nen_den,ne_den)
+!  integer ne_local_den
+!  integer ien_local_den(ne_local_den)
+!  integer ien_den(nen_den,ne_den)
 
   integer i,j,icount,jcount,ie,isd,inl
   real(8) temp,support,den_center(nsd)
@@ -101,19 +101,19 @@ subroutine find_domain_pa(x_center,x_den,x_inter,ne_intlocal,ien_intlocal,&
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0
-  do icount=1,ne_local_den
-     ie=ien_local_den(icount)
-     den_center(1:nsd)=0.0
-     do isd=1,nsd
-	do inl=1,nen_den
-	   den_center(isd)=den_center(isd)+1.0/real(nen_den)*x_den(isd,ien_den(inl,ie))
-	end do
-     end do
+  do icount=1,ne_intlocal
+     ie=ien_intlocal(icount)
+!     den_center(1:nsd)=0.0
+!     do isd=1,nsd
+!	do inl=1,nen_den
+!	   den_center(isd)=den_center(isd)+1.0/real(nen_den)*x_den(isd,ien_den(inl,ie))
+!	end do
+!     end do
      flag=0
      do i=1,nn_inter
         temp=0.0
         do isd=1,nsd
-           temp=temp+(den_center(isd)-x_inter(isd,i))**2
+           temp=temp+(x_center(isd,ie)-x_inter(isd,i))**2
         end do
         if(sqrt(temp).lt.support) then
           flag=1
@@ -165,9 +165,12 @@ subroutine find_domain_pa(x_center,x_den,x_inter,ne_intlocal,ien_intlocal,&
   call mpi_bcast(den_domain(1),ne_den_domain,mpi_integer,0,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
 
-
-
-
+!if(myid==0) then
+!do icount=1,ne_den_domain
+!  write(*,*)'ne_den_domain=',icount,'den_doamin=',den_domain(icount)
+!end do  
+!end if 
+!stop
 
 end subroutine find_domain_pa
   

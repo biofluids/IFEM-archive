@@ -24,22 +24,26 @@ subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
   integer flag, jcount
   real(8) curv_A,curv_B
 !====================
-  real(8) M(nsd+1,nsd+1,6), Mvec(nsd+1,nsd+1,6) !M,Mx,My,Mxx,Myy,Mxy
-  real(8) B(nsd+1,6)       !B,Bx,By,Bxx,Byy,Bxy
+  real(8) M(nsd+1,nsd+1,nsd*4-2), Mvec(nsd+1,nsd+1,nsd*4-2) !M,Mx,My,Mxx,Myy,Mxy
+  real(8) B(nsd+1,nsd*4-2)       !B,Bx,By,Bxx,Byy,Bxy
   real(8) P(nsd+1)
-  real(8) vec(nsd+1,6)     !vec,vec_x,vec_y,vec_xx,vec_yy,vec_xy
-  integer IP(nsd+1)
-  real(8) Phi(6,nn_center_domain)           !Phi,Phix,Phiy,Phixx,Phiyy,Phixy
-  real(8) Phi_inter(6,nn_inter)
+  real(8) vec(nsd+1,nsd*4-2)     !vec,vec_x,vec_y,vec_xx,vec_yy,vec_xy
+  integer IP(nsd+1), INFO
+  real(8) Phi(nsd*4-2,nn_center_domain)           !Phi,Phix,Phiy,Phixx,Phiyy,Phixy
+  real(8) Phi_inter(nsd*4-2,nn_inter)
   integer icount
-  real(8) dtemp(6)
+  real(8) dtemp(nsd*4-2)
   real(8) Mtemp(nsd+1,nsd+1)
+!=======================
 
+  integer index_center(nn_center_domain),index_inter(nn_inter)
 !used to calculate the 1st&2nd derivative of indicator
   
   II=0.0
   dI(:)=0.0
   ddI(:)=0.0
+  index_center(:)=1
+  index_inter(:)=1
   do flag=1,2
 
      if(flag==1) then
@@ -49,20 +53,15 @@ subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
      end if
 
   do j=1,jcount
-!	if(flag==1) then
-!	   hsg=hg(center_domain(j))
-!           hsp=temph
-!	else if(flag==2) then
-!	   hsg=hg(infdomain(j))
-!	   hsp=0.03
-!	end if
      do isd=1,nsd
 	do jsd=1,nsd  !loop over jsd,if jsd=isd, do the derivative
 
 	  if(flag==1) then
 	   dx=x(jsd)-x_center(jsd,center_domain(j))
+	   if(abs(dx).gt.3.0*hsp) index_center(j)=0
 	  else if(flag==2) then
 	   dx=x(jsd)-xp(jsd,j)
+	   if(abs(dx).gt.3.0*hsp) index_inter(j)=0
 	  end if
 
 	   if(jsd==isd) then
@@ -97,12 +96,36 @@ subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
 	W2(3)=Sp(1)*Sp(2)
      end if
 
-     if(flag==1) then  !for center points
+     if(nsd==3) then
+       do isd=1,nsd
+	   if(flag==1) then
+                dx=x(isd)-x_center(isd,center_domain(j))
+           else if(flag==2) then
+                dx=x(isd)-xp(isd,j)
+           end if
+           call B_Spline_1order(dx,hsp,Sp(isd))
+           call B_Spline_0order(dx,hsp,Spp(isd))
+       end do
+ 
+       W0=Spp(1)*Spp(2)*Spp(3)
+       W2(4)=Sp(1)*Sp(2)*Spp(3)
+       W2(5)=Sp(1)*Spp(2)*Sp(3)
+       W2(6)=Spp(1)*Sp(2)*Sp(3)
+     end if
 
+
+     if(flag==1) then  !for center points
+        if(nsd==2) then
 	Phi(1,j)=W0
 	Phi(2:3,j)=W1(1:nsd)
 	Phi(4:5,j)=W2(1:nsd)
 	Phi(6,j)=W2(3)
+	else if(nsd==3) then
+        Phi(1,j)=W0
+	Phi(2:4,j)=W1(1:nsd)
+	Phi(5:7,j)=W2(1:nsd)
+	Phi(8:10,j)=W2(4:6)
+	end if
 
 !	II=II+W0*I_fluid_center(center_domain(j))
 !        dI(1:nsd)=dI(1:nsd)+W1(1:nsd)*I_fluid_center(center_domain(j))
@@ -112,10 +135,17 @@ subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
 
      else if(flag==2) then ! for inter points
 
+	if(nsd==2) then
 	Phi_inter(1,j)=W0
 	Phi_inter(2:3,j)=W1(1:nsd)
 	Phi_inter(4:5,j)=W2(1:nsd)
 	Phi_inter(6,j)=W2(3)
+	else if(nsd==3) then
+	Phi_inter(1,j)=W0
+	Phi_inter(2:4,j)=W1(1:nsd)
+	Phi_inter(5:7,j)=W2(1:nsd)
+	Phi_inter(8:10,j)=W2(4:6)
+	end if
 
 !	II=II+W0*corr_Ip(j)
 !	dI(1:nsd)=dI(1:nsd)+W1(1:nsd)*corr_Ip(j)
@@ -136,6 +166,7 @@ subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
   B(:,:)=0.0
   vec(:,:)=0.0
   do j=1,nn_center_domain
+   if(index_center(j)==1) then
 !=====construct vec vecx vecy vecxx vecyy vecxy==========
      vec(1,1)=1.0
      vec(2:nsd+1,1)=x(1:nsd)-x_center(1:nsd,center_domain(j))
@@ -193,6 +224,7 @@ subroutine get_indicator_derivative(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
 
 	end do
     end do
+   end if  !!!!!!!
   end do
   P(:)=0.0
   P(1)=1.0
@@ -263,6 +295,7 @@ end if
   debugA=0.0
   debugB=0.0
   do j=1,nn_center_domain
+   if(index_center(j)==1) then
 !====construct vec vecx vecy vecxx vecyy vecxy==========
      vec(1,1)=1.0
      vec(2:nsd+1,1)=x(1:nsd)-x_center(1:nsd,center_domain(j))
@@ -293,10 +326,11 @@ end if
      dI(1:nsd)=dI(1:nsd)+W1(1:nsd)*I_fluid_center(center_domain(j))
      ddI(1:nsd)=ddI(1:nsd)+W2(1:nsd)*I_fluid_center(center_domain(j))
      ddI(3)=ddI(3)+W2(3)*I_fluid_center(center_domain(j))
-
+   end if !!!!
   end do
 !===========================================================
   do j=1,nn_inter
+   if(index_inter(j)==1) then
      vec(1,1)=1.0
      vec(2:nsd+1,1)=x(1:nsd)-xp(1:nsd,j)
      vec(2,2)=1.0
@@ -324,7 +358,7 @@ end if
        dI(1:nsd)=dI(1:nsd)+W1(1:nsd)*corr_Ip(j)
        ddI(1:nsd)=ddI(1:nsd)+W2(1:nsd)*corr_Ip(j)
        ddI(3)=ddI(3)+W2(3)*corr_Ip(j)
-
+   end if
   end do
 
 
