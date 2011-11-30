@@ -63,7 +63,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
 do icount=1, nn_local
         node=node_local(icount)
 !p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
- p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
+! p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
 end do
 !=================================================
 !===================================================
@@ -80,7 +80,7 @@ end do
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
 !		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
-                 fnode(:,inl)=0.0
+                 fnode(:,inl)=sur_fluid(:,ien(inl,ie))
 !============================================================================
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))

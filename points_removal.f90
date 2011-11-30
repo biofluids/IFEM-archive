@@ -12,12 +12,12 @@ subroutine points_removal(x_inter)
   integer icount,j
   nn_inter_temp=0
   do icount=1,nn_inter
-	if( (x_inter(1,icount).gt.(2.0-0.5*max_hg)) .or. &
-	    (x_inter(1,icount).lt.(-2.0+0.5*max_hg)).or. &
-	    (x_inter(2,icount).gt.(0.25-0.5*max_hg)) .or. &
-	    (x_inter(2,icount).lt.(-0.25+0.5*max_hg)).or. &
-	    (x_inter(3,icount).gt.(1.0-0.5*max_hg)) .or.
-	    (x_inter(3,icount).lt.(0.0+0.5*max_hg)) ) then
+	if( (x_inter(1,icount).gt.(0.5-0.05*max_hg)) .or. &
+	    (x_inter(1,icount).lt.(-0.5+0.05*max_hg)).or. &
+	    (x_inter(2,icount).gt.(0.5-0.05*max_hg)) .or. &
+	    (x_inter(2,icount).lt.(-0.5+0.05*max_hg)).or. &
+	    (x_inter(3,icount).gt.(1.0-0.05*max_hg)) .or. &
+	    (x_inter(3,icount).lt.(0.0+0.05*max_hg)) ) then
 	  goto 789
 	end if
      nn_inter_temp=nn_inter_temp+1

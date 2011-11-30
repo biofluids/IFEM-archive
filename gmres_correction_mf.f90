@@ -52,7 +52,7 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
 if(myid==0)write(*,*)'begin gmres correction,rnorm=',rnorm
 !+++++++++++++start outer loop+++++++++++++++++
 
-  do 111,while((iouter.le.outer).and.(rnorm.ge.1.0e-16))
+  do 111,while((iouter.le.outer).and.(rnorm.ge.1.0e-2))
 
      Vm(:,:)=0.0
 !     do icount=1,nn_inter

@@ -110,8 +110,8 @@ end if
 if(myid==0) then
   write(*,*)'ne_regen_ele=',ne_regen_ele
 end if
-ne_regen_ele=ne_inter
-regen_ele(1:ne_regen_ele)=inter_ele(1:ne_inter)
+!ne_regen_ele=ne_inter
+!regen_ele(1:ne_regen_ele)=inter_ele(1:ne_inter)
 !========================================================
 !allocate local regen element for each processor
 !========================================================
