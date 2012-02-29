@@ -109,7 +109,6 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 		mpi_sum,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
      BB(:)=0.5-BB(:)
-if(myid==0)write(*,*)'begin gmres'
   call gmres_correction_mf(x_inter,BB,w,RW,nsd,nn_inter,nn_inter_loc)
   !   call DGESV(nn_inter,1,A,nn_inter,IPIV,BB,nn_inter,INFO)
 

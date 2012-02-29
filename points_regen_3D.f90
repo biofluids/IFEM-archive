@@ -50,9 +50,9 @@ subroutine points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
   x_inter_regen(:,:)=0.0
   nn_inter_regen_loc=0
   x_inter_regen_loc(:,:)=0.0
-  nn_cr=4
+  nn_cr=6
   nn_local=0
-  nn_sub=3
+  nn_sub=5
   Ic_inter=0.5
 if(myid==0)write(*,*)'begin regen'
 !******************************************************
@@ -63,9 +63,9 @@ if(myid==0)write(*,*)'begin regen'
 	x_fluid(1:nsd,inl)=x(1:nsd,node)
      end do
      nn_local=0
-     nn_sub=3
+     nn_sub=5
 !!!!!!**************************************************
-     do while((nn_local.le.nn_cr).and.(nn_sub.le.3)) !begin regeneration loop
+     do while((nn_local.le.nn_cr).and.(nn_sub.le.5)) !begin regeneration loop
 	nn_local=0
 	x_inter_ele_loc(:,:)=0.0
 
@@ -121,23 +121,19 @@ if(myid==0)write(*,*)'begin regen'
        if(intflag==2) then
 
 !           if(((II-Ic_inter).gt.0.).or.((Ic_inter-II).gt.0.02)) then
-	    if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).gt.0)) then
+	    if( (abs(II-Ic_inter).gt.0.075) .or. (abs(II-Ic_inter).lt.0.01) .or. ((II-Ic_inter).gt.0)) then
                 goto 200
            end if
 
        else if(intflag==1) then
 !           if((II.gt.Ic_inter+0.25).or.(II.lt.Ic_inter-0.25).or.(abs(II-Ic_inter).lt.1.0e-3)) then
-            if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02)) then
+            if( (abs(II-Ic_inter).gt.0.05) .or. (abs(II-Ic_inter).lt.0.02)) then
 
 !           if(II.ge.Ic_inter) then
 		goto 200
 	   end if
 
-       else if(ingflag==3) then
-            if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).lt.0)) then
-                goto 200
-           end if
-	end if
+       end if
 !=======================================================!
 !++++++++++++point projection+++++++++++++++++++++++++++!
 !=======================================================!
@@ -146,7 +142,7 @@ if(myid==0)write(*,*)'begin regen'
 	   delta(:)=0.0
 	   Ic_inter=0.5
 	   xlocan_temp(1:nsd)=xlocan(1:nsd)
-	   do while((nit.le.7).and.(err_p.gt.1.0e-6))
+	   do while((nit.le.4).and.(err_p.gt.1.0e-7))
 	      xlocan(1:nsd)=xlocan(1:nsd)+delta(1:nsd)
 	      call get_indicator_derivative_3D_1st(xlocan,x_inter,x_center,hg,&
 				I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)
@@ -169,20 +165,17 @@ if(myid==0)write(*,*)'begin regen'
 	      if(nsd==3) then
 	        temp=dI(1)**2+dI(2)**2+dI(3)**2
 		delta(1)=(Ic_inter-II)*dI(1)/temp
-!		delta(2)=delta(1)*dI(2)/dI(1)
-!		delta(3)=delta(1)*dI(3)/dI(1)
-		delta(2)=(Ic_inter-II)*dI(2)/temp
-		delta(3)=(Ic_inter-II)*dI(3)/temp
-!		err_p=max(abs(II-Ic_inter),abs(delta(1)/hg(ie)),abs(delta(2)/hg(ie)),abs(delta(3)/hg(ie)))
-	        err_p=abs(II-Ic_inter)
+		delta(2)=delta(1)*dI(2)/dI(1)
+		delta(3)=delta(1)*dI(3)/dI(1)
+		err_p=max(abs(II-Ic_inter),abs(delta(1)/hg(ie)),abs(delta(2)/hg(ie)),abs(delta(3)/hg(ie)))
 	       end if
 	      nit=nit+1
 	   end do
 !==========================================================!
 	   flag_loc=0
-	   if(err_p.lt.1.0e-6) then
+	   if(err_p.lt.1.0e-7) then
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2+(xlocan(3)-xlocan_temp(3))**2)
-             if(distance.lt.0.4*hg(ie)) then
+             if(distance.lt.0.5*hg(ie)) then
 		call get_curv_num_3D(xlocan,x_inter,x_center,hg,I_fluid_center,&
 			corr_Ip,dcurv,curv_p,norm_p)      
 !                   dcurv=0.1

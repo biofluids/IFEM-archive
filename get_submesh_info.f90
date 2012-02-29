@@ -38,11 +38,11 @@ subroutine get_submesh_info(xloc,x_center,ien,bcnode)
     end do
 
 
-!    open(120,file='bcnode.dat',status='old')
-!	do i=1,nbc
-!	   read(120,112)bcnode(i,1),bcnode(i,2)
-!	end do
-!    close(120)
+    open(120,file='bcnode.dat',status='old')
+	do i=1,nbc
+	   read(120,112)bcnode(i,1),bcnode(i,2)
+	end do
+    close(120)
 112 format(2I8)
     
 end subroutine get_submesh_info

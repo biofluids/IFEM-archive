@@ -1,0 +1,67 @@
+restart =	1440	! restart info
+restart_freq =	20	! restart freq
+steady =    0		! steady flow option
+stokes =    0		! stoke flow option
+hg_vol =    1		! hg
+taudt =     1		! taudt	
+static =    0		! static
+conserve =  1		! conserve
+ nn=       66795 	! # of nodes in fluid region
+ ne=       66248   	! # of elements in fluid region
+nrng =    4		! # of boundary in fluid region
+nen =     4		! # of nodes per element
+ndf =     3		! # of degree of freedom
+nsd =     2		! # of dimension
+iquad =   2		! # of gausian points per element
+nit =      6		! # of iteration per time step
+nts =      5000    	! # of time steps
+ntsbout =  10		! output frequency
+idisk =    00 		! ...
+inner =    80		! # of inner loop for GMRES
+outer =    5		! # of outer loop for GMRES
+iscaling = 01		! scalling factor
+maxconn =  60		! max number of solid nodes in support region for RKPM interpolation
+dt =      0.0005	! time increment
+t_start = 0.0		! ...
+alpha =   1.0		! ...
+fix1 =    1 		! bottom BC
+fix = 	 0.0 		! bottom BC vel_x
+fix = 	 0.0 		! bottom BC vel_y
+fix = 	 -999     	! bottom BC Pre
+
+fix2 =    2 		! right BC
+fix =    0.0 		! right BC vel_x
+fix =    0.0  		! right BC vel_y
+fix =    -999	   	! right BC Pre
+
+fix3 =    3  		! top BC
+fix  =    0.0  		! tpo  BC vel_x
+fix =     0.0  		! top BC vel_y
+fix =     -999 		  !top Pre
+
+fix =    4  		! left BC
+fix =     0.0 		! left BC vel_x
+fix =     0.0 		! left BC vel_y
+fix =    -999  		 !left Pre
+
+edge_inflow = 0 ! edge index of nature boundary condition
+ne_inflow = 40 ! number of element of the nature boundary condition
+pin = 200 ! constant pressure at the inflow
+
+landa_over_mu = 0.01	! ...
+initial =  +0.0 +0.0 +0.0	! initial guess for velocity field
+gravity =    0.0    -10.8602     0.0 ! gravity
+interface =  1.0    1.0     1.0  !! if less than this set fi to 1.0
+vis_liq = 0.00018     !! water 10-2g/cm.s, air 1.8e-2g/cm.s
+den_liq = 0.0013	!! water 1.0g/cm^3, air 1.3e-3g/cm^3
+ref_lgt = 1.0     	 !...
+ref_vel = 1.0		!...
+ref_den = 1.0		!...
+delta = 0.0 1.0   !! hg
+delta = 1 1.0   !! taum
+delta = 2 2.0   !! tauc
+delta = 3 1.0   !! ka
+delta = 4 0.0   !! turb
+delta = 5 1.5   !! smoothing
+delta = 6 0.5   !! interface (will change automatically)
+turb_kappa = 0.15 ! ...

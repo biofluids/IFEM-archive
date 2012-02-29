@@ -47,6 +47,7 @@ subroutine hypo
   integer nn_inter_temp
   real(8) x_inter_temp(nsd,maxmatrix)
   real(8) R_K(nsd,maxmatrix) !used for points advection
+  integer conele(1000,4),ne_conele(4)
 !  real(8) max_hg
 !  integer tmp_index(ne) ----> move to hypo_declare_part
 ! For output pressure on the solid nodes
@@ -58,6 +59,7 @@ subroutine hypo
   real(8) time
   integer nt_regen,max_regen,nn_bound
   real(8) vol_nn(nn) !volume for each fluid node
+  integer flag_upper
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -112,6 +114,8 @@ end if
 !     infdomain_den(j)=j
 !  end do
 !================================================================
+
+
   nn_inter_ini=nn_inter
   x_inter_ini(1:nsd,1:nn_inter_ini)=x_inter(1:nsd,1:nn_inter)
   hsp=rkpm_scale*maxval(hg(:))
@@ -121,8 +125,26 @@ if(myid==0)write(*,*)'max_hg=',max_hg
   do j=1,ne
 	vol_nn(ien(1:nen,j))=vol_nn(ien(1:nen,j))+hg(j)**nsd/real(nen)
   end do
+  ne_conele(:)=0
+  do j=1,ne
+     if((x_center(2,j).lt.-0.5+3.0*max_hg).and.(x_center(2,j).gt.-0.5+2.0*max_hg))then
+       ne_conele(1)=ne_conele(1)+1
+       conele(ne_conele(1),1)=j
+     end if
+     if((x_center(2,j).gt.0.5-3.0*max_hg).and.(x_center(2,j).lt.0.5-2.0*max_hg))then
+       ne_conele(2)=ne_conele(2)+1
+       conele(ne_conele(2),2)=j
+     end if
+!     if((x_center(1,j).lt.-0.5+3.0*max_hg).and.(x_center(1,j).gt.-0.5+2.0*max_hg))then
+!        ne_conele(3)=ne_conele(3)+1
+!        conele(ne_conele(3),3)=j
+!     end if
+!     if((x_center(1,j).gt.0.5-3.0*max_hg).and.(x_center(1,j).gt.0.5-2.0*max_hg))then
+!        ne_conele(4)=ne_conele(4)+1
+!        conele(ne_conele(4),4)=j
+!     end if
 
-
+  end do
   if (restart == 0) then
         if (myid == 0) then
          include 'hypo_write_output.fi'
@@ -237,10 +259,15 @@ else if (ndelta==2) then
 !=================================================================
 !=========used for interface part=================================
       call mpi_barrier(mpi_comm_world,ierror)
+
+
+
+
 time=mpi_wtime()
+
+
   nn_inter_ini=nn_inter
   x_inter_ini(1:nsd,1:nn_inter)=x_inter(1:nsd,1:nn_inter)
-  call points_removal(x_inter)
 ! find the center domain and dense mesh domain.both are the narrow band near the interface
   call find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
 			hg)
@@ -254,59 +281,65 @@ if(myid==0)write(*,*)'indicator denmesh'
 if(its==1) then
   I_fluid_center(:)=0.0
   do j=1,ne
-     temp=sqrt(x_center(1,j)**2+x_center(2,j)**2+(x_center(3,j)-0.6)**2)
-     if(temp.lt.0.15) I_fluid_center(j)=1.0
+!     temp=sqrt(x_center(1,j)**2+x_center(2,j)**2+(x_center(3,j)-0.3)**2)
+!     if(temp.lt.0.15) I_fluid_center(j)=1.0
 !     temp=sqrt(x_center(1,j)**2+x_center(2,j)**2+(x_center(3,j)-0.7)**2)
 !     if(temp.lt.0.15) I_fluid_center(j)=1.0
-!*    if( (x_center(1,j).lt.-1.6) .and. (x_center(3,j).lt.0.5)) then
-!      I_fluid_center(j)=1.0
-!    end if
-!    if( (x_center(1,j).lt.-1.5) .and. (x_center(3,j).lt.0.4)) then
-!      I_fluid_center(j)=1.0
-!    end if
-!    if( sqrt((x_center(1,j)+1.6)**2+(x_center(3,j)-0.4)**2).lt.0.1) then
-!     if((x_center(1,j).lt.-1.5).and.(x_center(3,j).lt.0.5))then
-!       I_fluid_center(j)=1.0
-!     end if
-!    end if
-  if(x_center(3,j).lt.0.35) I_fluid_center(j)=1.0
-  end do 
+!     temp=sqrt((x_center(1,j))**2+(x_center(2,j)-0.5)**2)
+!     if(temp.lt.0.25)I_fluid_center(j)=1.0
+     temp=sqrt((x_center(1,j))**2+(x_center(2,j)+0.25)**2)
+     if(temp.lt.0.25)I_fluid_center(j)=1.0
+!     temp=sqrt((x_center(1,j))**2+(x_center(2,j)-0.5)**2)
+!     if(temp.lt.0.25)I_fluid_center(j)=1.0
+!     temp=sqrt((x_center(1,j)+0.5)**2+(x_center(2,j))**2)
+!     if(temp.lt.0.25)I_fluid_center(j)=1.0
+!     temp=sqrt((x_center(1,j)-0.5)**2+(x_center(2,j))**2)
+!     if(temp.lt.0.25)I_fluid_center(j)=1.0
+
+  end do    
 else
 
   call set_center_after(I_fluid_center,I_fluid,ien)
 
-end if
-  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 
+end if
+
+  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+ call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
+                       I_fluid)
+  call set_center_after(I_fluid_center,I_fluid,ien)
+
+    call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+     call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
+                            I_fluid)
 time=mpi_wtime()-time
 if(myid==0)write(*,*)'time before regen=',time
 
 time=mpi_wtime()
-if(mod(its,10)==0) then
-maxdcurv=20.0
+if((mod(its,20)==0).or.(mod(its+1,40)==0)) then
+maxdcurv=10.0
 
-if(mod(its,20)==0) then
-!  call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
-!                      I_fluid)
-!
-!  call set_center_after(I_fluid_center,I_fluid,ien)
-!  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+if(mod(its+1,40)==0) then
+  call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
+                      I_fluid)
+
+  call set_center_after(I_fluid_center,I_fluid,ien)
+  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
   if(nsd==3) then
-!  if(mod(its,40)==0) then
-!  call points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
-!                        I_fluid_center,corr_Ip,hg,ien,3)
-!  else
   call points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
                         I_fluid_center,corr_Ip,hg,ien,2)
-!  end if
   else
+    if(its+1==80) then
     call points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
-                            I_fluid_center,corr_Ip,hg,ien,1)
+                            I_fluid_center,corr_Ip,hg,ien,3)
+    else
+    call points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
+                            I_fluid_center,corr_Ip,hg,ien,2)
+    end if
   end if
   nn_inter=nn_inter_regen
   x_inter(1:nsd,1:nn_inter)=x_inter_regen(1:nsd,1:nn_inter)
-  call points_removal(x_inter)
-   call find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
+  call find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
                         hg)
   call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
   call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
@@ -320,17 +353,17 @@ end if
 
 
 
-!  if(nsd==3) then
-!  call points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
-!                        I_fluid_center,corr_Ip,hg,ien,1)
-!  else
-!    call points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
-!                            I_fluid_center,corr_Ip,hg,ien,1)
-!  end if
-!  nn_inter=nn_inter_regen
-!  x_inter(1:nsd,1:nn_inter)=x_inter_regen(1:nsd,1:nn_inter)
-!
-!  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+  if(nsd==3) then
+  call points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
+                        I_fluid_center,corr_Ip,hg,ien,1)
+  else
+    call points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
+                            I_fluid_center,corr_Ip,hg,ien,1)
+  end if
+  nn_inter=nn_inter_regen
+  x_inter(1:nsd,1:nn_inter)=x_inter_regen(1:nsd,1:nn_inter)
+
+  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 
 
   if(nsd==3) then
@@ -342,7 +375,7 @@ end if
   end if
   nn_inter=nn_inter_regen
   x_inter(1:nsd,1:nn_inter)=x_inter_regen(1:nsd,1:nn_inter)
-  call points_removal(x_inter)
+
   call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
   call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
                         I_fluid)
@@ -351,26 +384,61 @@ end if
   call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 end if
 
+
+
 time=mpi_wtime()-time
 if(myid==0)write(*,*)'time for regen=',time
 
 time=mpi_wtime()
-if(mod(its,20)==0.0) then
+!=========begin contact line
+!if(its==100) then
+if((minval(x_inter(2,1:nn_inter)).lt.-0.5+2.0*max_hg).or.(maxval(x_inter(2,1:nn_inter)).gt.0.5-2.0*max_hg)) then
   call get_normal_curvature(x_inter,x_center,I_fluid_center,corr_Ip,&
                         norm_inter,curv_inter,hg,dcurv)
-end if
-!goto 222
+  call search_inf_pa_inter(x_inter,x,nn,nn_inter,nsd,ne,nen,ien,infdomain_inter,&
+                             ne_intlocal,ien_intlocal)
+  call get_inter_ele(infdomain_inter,ien)
+  call contactline_x(x_inter,x,norm_inter,conele(:,1:2),ne_conele(1:2),x_center,hg,&
+  		   I_fluid_center,corr_Ip,ien,d(1:nsd,:),vol_nn)
 
+
+  call find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,hg)
+  call search_inf_pa_inter(x_inter,x,nn,nn_inter,nsd,ne,nen,ien,infdomain_inter,&
+                           ne_intlocal,ien_intlocal)
+  call get_inter_ele(infdomain_inter,ien)
+  call indicator_denmesh(I_fluid,x,ien,nn,ne,nen,I_fluid_center)
+  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+  call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
+                       I_fluid)
+
+  call set_center_after(I_fluid_center,I_fluid,ien)
+  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+
+end if
+!if((minval(x_inter(1,1:nn_inter)).lt.-0.5+2.0*max_hg).or.(maxval(x_inter(1,1:nn_inter)).gt.0.5-2.0*max_hg)) then
+!  call get_normal_curvature(x_inter,x_center,I_fluid_center,corr_Ip,&
+!                norm_inter,curv_inter,hg,dcurv)
+! call search_inf_pa_inter(x_inter,x,nn,nn_inter,nsd,ne,nen,ien,infdomain_inter,&
+!                         ne_intlocal,ien_intlocal)
+!  call get_inter_ele(infdomain_inter,ien)
+!  call contactline_y(x_inter,x,norm_inter,conele(:,3:4),ne_conele(3:4),x_center,hg,&
+!                     I_fluid_center,corr_Ip,ien)
+!  call find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,hg)
+!  call search_inf_pa_inter(x_inter,x,nn,nn_inter,nsd,ne,nen,ien,infdomain_inter,&
+!                     ne_intlocal,ien_intlocal)
+!  call get_inter_ele(infdomain_inter,ien)
+!  call indicator_denmesh(I_fluid,x,ien,nn,ne,nen,I_fluid_center)
+!  call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+!  call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
+!                    I_fluid)    
+!  call set_center_after(I_fluid_center,I_fluid,ien)
+! call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+!end if
+!end if
+!=========end contact line
   call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,&
 			I_fluid)
-!  if(nsd==2) then
-!  call get_arc_2D(arc_inter,norm_inter,x_inter)
-!  else
-!  call get_arc_3D(arc_inter,norm_inter,x_inter)
-!  end if
-!  call get_sur_nu(x,x_inter,hg,vol_nn,arc_inter,curv_inter,norm_inter,sur_fluid,I_fluid)
    call get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_fluid,hg)
-!sur_fluid(:,:)=0.0
 time=mpi_wtime()-time
 if(myid==0)write(*,*)'time before fluid solver=',time
 

@@ -358,7 +358,6 @@ end if
      vec(2:nsd+1,1)=x(1:nsd)-x_center(1:nsd,center_domain(j))
      vec(2,2)=1.0
      vec(3,3)=1.0
-     vec(4,4)=1.0
      dtemp(:)=0.0
      hsg=hg(center_domain(j))
      wp=(hsg**nsd)/(hsp**nsd)
@@ -485,7 +484,6 @@ end if
      vec(2,2)=1.0
      vec(3,3)=1.0
      vec(3,3)=1.0
-     vec(4,4)=1.0
      dtemp(:)=0.0
      do icount=1,nsd+1
         dtemp(1)=dtemp(1)+vec(icount,1)*B(icount,1)

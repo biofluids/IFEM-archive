@@ -98,17 +98,21 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
        if(intflag==2) then
 
 !           if(((II-Ic_inter).gt.0.).or.((Ic_inter-II).gt.0.02)) then
-	    if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).gt.0)) then
+	    if( (abs(II-Ic_inter).gt.0.2) .or. (abs(II-Ic_inter).lt.0.04) .or. ((II-Ic_inter).lt.0)) then
                 goto 200
            end if
 
        else if(intflag==1) then
 !           if((II.gt.Ic_inter+0.25).or.(II.lt.Ic_inter-0.25).or.(abs(II-Ic_inter).lt.1.0e-3)) then
-            if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02)) then
+            if( (abs(II-Ic_inter).gt.0.2) .or. (abs(II-Ic_inter).lt.0.04)) then
 
 !           if(II.ge.Ic_inter) then
 		goto 200
 	   end if
+       else if(intflag==3) then
+            if( (abs(II-Ic_inter).gt.0.2) .or. (abs(II-Ic_inter).lt.0.04) .or. ((II-Ic_inter).gt.0)) then
+                goto 200
+           end if
 
        end if
 
@@ -144,6 +148,8 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	      nit=nit+1
 	   end do
 !==========================================================!
+  if(abs(xlocan(1)).gt.1.0) goto 200
+  if(abs(xlocan(2)).gt.0.5) goto 200
 	   flag_loc=0
 	   if(err_p.lt.1.0e-9) then
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2)

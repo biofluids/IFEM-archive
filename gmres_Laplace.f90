@@ -1,7 +1,7 @@
 
 
-subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
-			offdomain,ne_offdomain,nn_den,ne_den,nen_den,nbc_den)
+subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,&
+			offdomain,ne_offdomain,nn_den,ne_den,nen_den)
 	use fluid_variables, only: nsd,inner,outer
 !	use denmesh_variables, only:nn_den,ne_den,nen_den,nbc_den
 !	use interface_variables
@@ -18,7 +18,7 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
 	real* 8 Vm(nn_den, inner+1) ! Krylov space matrix
 	integer ien_den(nen_den,ne_den)
-	integer bcnode_den(nbc_den,2)
+!	integer bcnode_den(nbc_den,2)
 
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
@@ -47,7 +47,7 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
 !	w(:) = 1
         call getnorm(r0,r0,nn_den,rnorm0)
         rnorm = sqrt(rnorm0)
-
+if(myid==0)write(*,*)'rnorm=',rnorm
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
 	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-9))
 
@@ -78,9 +78,9 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
 		      avloc(node)=0.0
 		   end do
 		end do
-		do icount=1,nbc_den
-		   avloc(bcnode_den(icount,1))=0.0
-		end do
+!		do icount=1,nbc_den
+!		   avloc(bcnode_den(icount,1))=0.0
+!		end do
 		do icount=1,ne_inter
 		   ie=inter_ele(icount)
 		   do inl=1,nen_den
@@ -143,9 +143,9 @@ subroutine gmres_Laplace(cal_ne,cal_domain,x,d,w,bg,dg,ien_den,bcnode_den,&
                       avloc(node)=0.0
                    end do
                 end do
-                do icount=1,nbc_den
-                   avloc(bcnode_den(icount,1))=0.0
-                end do
+!                do icount=1,nbc_den
+!                   avloc(bcnode_den(icount,1))=0.0
+!                end do
                 do icount=1,ne_inter
                    ie=inter_ele(icount)
                    do inl=1,nen_den
@@ -178,9 +178,9 @@ end if
                       dg(node)=0.0
                    end do
                 end do
-                do icount=1,nbc_den
-                   dg(bcnode_den(icount,1))=0.0
-                end do
+!                do icount=1,nbc_den
+!                   dg(bcnode_den(icount,1))=0.0
+!                end do
                 do icount=1,ne_inter
                    ie=inter_ele(icount)
                    do inl=1,nen_den
