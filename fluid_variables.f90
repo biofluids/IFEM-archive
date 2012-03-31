@@ -32,4 +32,6 @@ module fluid_variables
   real(8),parameter :: epsilon = 1.0e-12
   integer :: ne_inflow, edge_inflow ! nature boundary condition
   real(8) pin ! inflow pressure
+  integer ne_spbc,nn_spbc
+  real(8) lambda  !slip length
 end module fluid_variables

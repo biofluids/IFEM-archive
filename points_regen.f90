@@ -98,21 +98,17 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
        if(intflag==2) then
 
 !           if(((II-Ic_inter).gt.0.).or.((Ic_inter-II).gt.0.02)) then
-	    if( (abs(II-Ic_inter).gt.0.2) .or. (abs(II-Ic_inter).lt.0.04) .or. ((II-Ic_inter).lt.0)) then
+	    if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).gt.0)) then
                 goto 200
            end if
 
        else if(intflag==1) then
 !           if((II.gt.Ic_inter+0.25).or.(II.lt.Ic_inter-0.25).or.(abs(II-Ic_inter).lt.1.0e-3)) then
-            if( (abs(II-Ic_inter).gt.0.2) .or. (abs(II-Ic_inter).lt.0.04)) then
+            if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02)) then
 
 !           if(II.ge.Ic_inter) then
 		goto 200
 	   end if
-       else if(intflag==3) then
-            if( (abs(II-Ic_inter).gt.0.2) .or. (abs(II-Ic_inter).lt.0.04) .or. ((II-Ic_inter).gt.0)) then
-                goto 200
-           end if
 
        end if
 
@@ -141,15 +137,14 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 !                  goto 200
 !                end if
 	      delta(1)=(Ic_inter-II)*dI(1)/temp
-	      delta(2)=delta(1)*dI(2)/dI(1)
+	      delta(2)=(Ic_inter-II)*dI(2)/temp
+	   !   delta(2)=delta(1)*dI(2)/dI(1)
 	      end if
-              err_p=max(abs(II-Ic_inter),abs(delta(1)/hg(ie)),abs(delta(2)/hg(ie)))
-!              err_p=abs(II-Ic_inter)
+!              err_p=max(abs(II-Ic_inter),abs(delta(1)/hg(ie)),abs(delta(2)/hg(ie)))
+              err_p=abs(II-Ic_inter)
 	      nit=nit+1
 	   end do
 !==========================================================!
-  if(abs(xlocan(1)).gt.1.0) goto 200
-  if(abs(xlocan(2)).gt.0.5) goto 200
 	   flag_loc=0
 	   if(err_p.lt.1.0e-9) then
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2)
@@ -180,7 +175,6 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	end do ! end of candidate points loop
 	nn_sub=nn_sub+4     
    end do !end of do while regeneration loop
-
    do icount=1,nn_local
       nn_inter_regen_loc=nn_inter_regen_loc+1
       x_inter_regen_loc(1:nsd,nn_inter_regen_loc)=x_inter_ele_loc(1:nsd,icount)

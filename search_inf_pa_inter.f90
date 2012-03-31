@@ -25,9 +25,6 @@ integer ne_intlocal
 integer ien_intlocal(ne_intlocal)
 integer inf_tmp(nn_solids),inf_tmp2(nn_solids)
 integer outflag
-if (myid ==0) then
-write(*,*) 'I am in search influence'
-end if
 
   if(nn_solids.le.ncpus) then
     if(myid+1.le.nn_solids) then

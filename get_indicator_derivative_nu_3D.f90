@@ -354,6 +354,7 @@ end if
      vec(2:nsd+1,1)=x(1:nsd)-x_center(1:nsd,center_domain(j))
      vec(2,2)=1.0
      vec(3,3)=1.0
+     vec(4,4)=1.0
      dtemp(:)=0.0
      hsg=hg(center_domain(j))
      wp=(hsg**nsd)/(hsp**nsd)
@@ -479,7 +480,7 @@ end if
      vec(2:nsd+1,1)=x(1:nsd)-xp(1:nsd,j)
      vec(2,2)=1.0
      vec(3,3)=1.0
-     vec(3,3)=1.0
+     vec(4,4)=1.0
      dtemp(:)=0.0
      do icount=1,nsd+1
         dtemp(1)=dtemp(1)+vec(icount,1)*B(icount,1)
@@ -528,7 +529,7 @@ end if
      W2(5)=(dtemp(9)*Phi_inter(1,j)+dtemp(2)*Phi_inter(4,j)+dtemp(4)*Phi_inter(2,j)+dtemp(1)*Phi_inter(9,j))
      W2(6)=(dtemp(10)*Phi_inter(1,j)+dtemp(3)*Phi_inter(4,j)+dtemp(4)*Phi_inter(3,j)+dtemp(1)*Phi_inter(10,j))
        II=II+W0*corr_Ip(j)
-       dI(1:nsd)=dI(1:nsd)+W1(1:nsd)*corr_Ip(j)
+!       dI(1:nsd)=dI(1:nsd)+W1(1:nsd)*corr_Ip(j)
        ddI(1:nsd)=ddI(1:nsd)+W2(1:nsd)*corr_Ip(j)
        ddI(4:6)=ddI(4:6)+W2(4:6)*corr_Ip(j)
    end if

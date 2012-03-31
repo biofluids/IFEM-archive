@@ -1,5 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /bgl/local/essl/lib/libesslbg.a
+LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
+          /usr/opt/BLAS/blas_LINUX.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 interface_variables.o  allocate_variables.o\
@@ -24,21 +25,23 @@ blockdiagstable.o gmresnew.o blockgmresnew.o \
 setnei_new.o communicate_res_ad.o setid_pa.o \
 scale_shift_inter.o get_submesh_info.o  find_domain_pa.o\
 search_inf_pa_inter.o get_inter_ele.o block_Laplace.o blockgmres_Laplace.o \
-gmres_Laplace.o indicator_denmesh.o \
+gmres_Laplace.o indicator_denmesh.o  get_correction_mf.o\
 B_Spline.o get_normal_curvature.o get_curv_num_3D.o get_curv_num_2D.o get_indicator_derivative_nu.o\
 B_Spline_0order.o B_Spline_1order.o B_Spline_2order.o points_regen.o \
-get_fluid_property.o get_inter_vel_nu.o get_correction_mf.o \
+get_fluid_property.o get_inter_vel.o  \
 get_arc_2D.o get_arc_3D.o get_sur_nu.o get_indicator_derivative_1st.o \
 points_removal.o \
 set_center_after.o  B_Spline1.o get_indicator_derivative_nu_3D.o\
 gmres_correction_mf.o get_sur_cf.o get_indicator_derivative_cf.o\
 blockgmres_correction.o points_regen_3D.o get_indicator_derivative_3D_1st.o\
-contactline_x.o contactline_y.o contactline.o solve_contact.o get_indicator_derivative_cf_2D.o\
-find_ca.o
+contactline.o find_ca.o solve_contact.o mass_conserve.o cal_mass.o cal_Length.o\
+regulate_points.o find_inter.o update_x_inter.o normal_node.o formid_spbc.o\
+res_rotation.o res_rotation_reverse.o res_rotation_precon.o res_slipbc.o\
+res_slipbc_precon.o
 
 IFEM: $(OBJ)
-	mpixlf90 -static -g -O2 -o IFEM $(OBJ) $(LIBS)
+	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpixlf90 -static -c -g $<
+	mpif90 -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

@@ -18,5 +18,6 @@ module interface_variables
   real(8) :: max_dcurv
   real(8) :: max_hg
   integer :: nbc
+  real(8) :: mass0
 end module interface_variables
 

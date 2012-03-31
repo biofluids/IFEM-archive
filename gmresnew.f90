@@ -3,8 +3,9 @@
 subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		sur_fluid,I_fluid)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer
+		sur_fluid,I_fluid,&
+		norm_node,spbcnode,spbcele,rngface)
+	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface,nn_spbc,ne_spbc
  	use solid_variables, only: nn_solid
         use mpi_variables
 	implicit none
@@ -14,6 +15,10 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
 	real* 8 sur_fluid(nsd,nn),I_fluid(nn)
+        real* 8 norm_node(nsd,nn)
+        integer spbcnode(nn_spbc)
+        integer spbcele(ne_spbc)
+        integer rngface(neface,ne)
 !=========================================================
 ! reduce dimension to save memory
 	real* 8 Vm(ndf*nn_local, inner+1) ! Krylov space matrix
@@ -68,7 +73,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 
 
-	eps = 1.0e-5
+	eps = 1.0e-6
 	e1(:) = 0
 	e1(1) = 1
 	x0(:) = 0
@@ -77,10 +82,10 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 	TRAN = 'N'
 	av_tmp(:,:) = 0
 	avloc(:) = 0
-!	w(:) = 1
+!	w(:) = 1.0d-4
         call getnorm_pa(r0,ndf,nn,node_local,nn_local,rnorm0)
         rnorm = sqrt(rnorm0)
-
+if(myid==0)write(*,*)'rnorm=',rnorm
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
 	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-12))
 
@@ -100,7 +105,6 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !!!!!!!!!!!!!!!!start inner loop!!!!!!!!!!!!!
 	   do j=1,inner
 	  
-
 		 do icount=1, nn_local
 		    node=node_local(icount)
 		    do jcount=1,ndf
@@ -128,6 +132,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
 !============================
+		call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
 		do icount=1,nn_local
 			node=node_local(icount)
 			vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
@@ -158,12 +163,11 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 				sur_fluid,I_fluid)
 
 
-
-
+		call res_slipbc(av_tmp,vloc,x,rngface,ien,spbcnode,spbcele,ne_local,ien_local,I_fluid)
 !                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
 	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 
-
+                call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
 !===================
 ! avloc(:)=0.0d0
 !==================
@@ -292,7 +296,7 @@ temp=0.0d0
 
 	call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
-
+	call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
 	do icount=1,nn_local
 		node=node_local(icount)
 		vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
@@ -322,7 +326,10 @@ temp=0.0d0
 	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
 				sur_fluid,I_fluid)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
+	call res_slipbc(av_tmp,vloc,x,rngface,ien,spbcnode,spbcele,ne_local,ien_local,I_fluid)
         call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
+	
+        call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
 !==================
 !avloc(:)=0.0d0
 !==================
@@ -374,7 +381,6 @@ temp=0.0d0
 	call mpi_barrier(mpi_comm_world,ierror)
 	call mpi_allreduce(dg_sent(1),dg(1),ndf*nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 !	call mpi_bcast(dg(1),ndf*nn,mpi_double_precision,0,mpi_comm_world,ierror)
-
-
+	call res_rotation_reverse(dg,norm_node,nn_spbc,spbcnode)
 	return
 	end

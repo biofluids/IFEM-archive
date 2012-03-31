@@ -60,22 +60,29 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta)
      temp=temp+V_cl(icount)**2
   end do
   temp=sqrt(temp)
+  temp=abs(V_cl(1))
   ca=vis_inter*temp/sur_tension
-if(myid==0)write(*,*)'ca=',ca,'V_cl=',temp
-if(myid==0)write(*,*)'x-inter=',x_inter(:)
+!if(myid==0)write(*,*)'ca=',ca,'V_cl=',temp
+!if(myid==0)write(*,*)'x-inter=',x_inter(:)
   temp=0.0
   do icount=1,nsd
      temp=temp+V_cl(icount)*norm_p(icount)
   end do
 
 !  if(temp.gt.0.0) then
-    cap=0.006588+ca  !f^-1(pi/4)=0.0066
-    thelta=acos(1-2*tanh(5.16*(cap/(1+1.31*(cap**0.99)))**0.706))
+!    cap=0.006588+ca  !f^-1(pi/4)=0.0066
+
    if(temp.ge.0.0) then
-     thelta=thelta
+    cap=0.0488+ca
    else
-     thelta=3.14159/4*2.0-thelta
+    cap=0.0488-ca
    end if
+   thelta=acos(1-2*tanh(5.16*(cap/(1+1.31*(cap**0.99)))**0.706))
+!   if(temp.ge.0.0) then
+!     thelta=thelta
+!   else
+!     thelta=3.14159/180.0*93.0*2.0-thelta
+!   end if
 if(myid==0)write(*,*)'thelta=',thelta/3.14159*180.0,'adv?=',temp
 
 end subroutine find_ca

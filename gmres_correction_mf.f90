@@ -195,9 +195,9 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
     err=sqrt(rnorm0)
     rnorm=sqrt(rnorm0)
     iouter=iouter+1
-if(myid==0) then
-	write(*,*)'err for correction=',err
-end if
+!if(myid==0) then
+!	write(*,*)'err for correction=',err
+!end if
 
 111 continue ! end outer loop
 

@@ -1,6 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /Users/macserver/Downloads/lapack-3.3.1/lapack_LINUX.a \
-	  /Users/macserver/Downloads/BLAS/blas_LINUX.a
+LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
+          /usr/opt/BLAS/blas_LINUX.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 interface_variables.o  allocate_variables.o\
@@ -32,8 +32,10 @@ get_fluid_property.o get_inter_vel_nu.o  \
 get_arc_2D.o get_arc_3D.o get_sur_nu.o get_indicator_derivative_1st.o \
 points_removal.o \
 set_center_after.o  B_Spline1.o get_indicator_derivative_nu_3D.o\
-gmres_correction_mf.o \
-blockgmres_correction.o points_regen_3D.o
+gmres_correction_mf.o get_sur_cf.o get_indicator_derivative_cf.o\
+blockgmres_correction.o points_regen_3D.o get_indicator_derivative_3D_1st.o\
+contactline.o find_ca.o solve_contact.o mass_conserve.o cal_mass.o cal_Length.o\
+regulate_points.o find_inter.o
 
 IFEM: $(OBJ)
 	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)

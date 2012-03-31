@@ -351,6 +351,9 @@ end if
 
   CALL Read_Real(turb_kappa,1)
 
+  CALL Read_Int(ne_spbc,1)
+  CALL Read_Int(nn_spbc,1)
+  CALL Read_Real(lambda,1)
 !       further defaults
   if (ntsbout.eq.0) ntsbout = nts + 1
   if (steady) alpha = 1.0
