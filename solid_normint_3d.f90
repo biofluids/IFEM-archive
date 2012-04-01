@@ -14,7 +14,7 @@ implicit none
 real(8) x_solid(nsd,nn_solid)
 integer nsd
 integer nn_solid
-integer ien_sbc(ne_sbc,nen_solid+1)
+integer ien_sbc(ne_sbc,nen_solid+2)
 integer ne_sbc
 integer nen_solid
 integer ien_solid(ne_solid,nen_solid)
@@ -77,7 +77,7 @@ continue
 
 end do
 
-write(*,*) 'tot surface area', tot_area
+!write(*,*) 'tot surface area', tot_area
 
 deallocate(x)
 

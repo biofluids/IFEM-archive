@@ -117,23 +117,23 @@ subroutine r_element(rs)
   	 r=rs(1)
 	 s=rs(2)
 
-     h(1)=0.25d0*(1.0d0+r)*(1.0d0+s)
-     h(2)=0.25d0*(1.0d0-r)*(1.0d0+s)
-     h(3)=0.25d0*(1.0d0-r)*(1.0d0-s)
-     h(4)=0.25d0*(1.0d0+r)*(1.0d0-s)
+     h(1)=0.25d0*(1.0d0-r)*(1.0d0-s)
+     h(2)=0.25d0*(1.0d0+r)*(1.0d0-s)
+     h(3)=0.25d0*(1.0d0+r)*(1.0d0+s)
+     h(4)=0.25d0*(1.0d0-r)*(1.0d0+s)
 
 !     derivative of interpolation function
 !     first derivative with respect to r
-     r_p(1,1)= 0.25d0*(1.0d0+s)
-     r_p(1,2)=-0.25d0*(1.0d0+s)
-     r_p(1,3)=-0.25d0*(1.0d0-s)
-     r_p(1,4)= 0.25d0*(1.0d0-s)
+     r_p(1,1)=-0.25d0*(1.0d0+s)
+     r_p(1,2)= 0.25d0*(1.0d0+s)
+     r_p(1,3)= 0.25d0*(1.0d0-s)
+     r_p(1,4)=-0.25d0*(1.0d0-s)
 !     
 !     first derivative with resr_pect to s
-     r_p(2,1)= 0.25d0*(1.0d0+r)
-     r_p(2,2)= 0.25d0*(1.0d0-r)
-     r_p(2,3)=-0.25d0*(1.0d0-r)
-     r_p(2,4)=-0.25d0*(1.0d0+r)        
+     r_p(2,1)=-0.25d0*(1.0d0+r)
+     r_p(2,2)=-0.25d0*(1.0d0-r)
+     r_p(2,3)=+0.25d0*(1.0d0-r)
+     r_p(2,4)=+0.25d0*(1.0d0+r)        
 	        
   endif quad
 

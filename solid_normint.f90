@@ -9,7 +9,7 @@ implicit none
 real(8) x_solid(nsd,nn_solid)
 integer nsd
 integer nn_solid
-integer ien_sbc(ne_sbc,nen_solid+1)
+integer ien_sbc(ne_sbc,nen_solid+2)
 integer ne_sbc
 integer nen_solid
 integer ien_solid(ne_solid,nen_solid)
@@ -98,7 +98,7 @@ if (nsd == 2) then
                         bcnode2=4
                 end if
 
-                if (ien_sbc(ibs,4)==1 .and. ien_sbc(ibs,2)==1) then ! node 4,1 on the edge
+                if (ien_sbc(ibs,5)==1 .and. ien_sbc(ibs,2)==1) then ! node 4,1 on the edge
                         rs(1)=-1.0
                         rs(2)=0.0
                         bcnode1=4

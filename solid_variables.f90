@@ -24,4 +24,6 @@ module solid_variables
   integer nn_sbc ! number of nodes on solid interface
   integer node_sfcon ! number of solid nodes on fluid-solid connected boundary
   integer node_sfcon_1
+
+  real(8) damp_solid ! solid damping coefficient
 end module solid_variables

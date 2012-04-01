@@ -20,15 +20,12 @@ subroutine getinf_rkpm(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   do i = 1,nn
      r(1:nsd) = x(1:nsd) - xna(1:nsd,i)
          if (nsd==3) then
-!                if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i)).and.(abs(r(3))<=2*adist(3,i))) then
-                if (sqrt(r(1)**2 + r(2)**2 + r(3)**2) <= sqrt(adist(1,i)**2 + adist(2,i)**2 + adist(3,i)**2)) then
+                if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i)).and.(abs(r(3))<=2*adist(3,i))) then
                         ninf = ninf + 1
                         inf(ninf) = i
                 endif
          elseif (nsd==2) then
-!                if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i))) then
-                if (sqrt(r(1)**2 + r(2)**2) <= sqrt(adist(1,i)**2 + adist(2,i)**2)) then
-
+                if ((abs(r(1))<=2*adist(1,i)).and.(abs(r(2))<=2*adist(2,i))) then
                         ninf = ninf + 1
                         inf(ninf) = i
                      !   write(400,*) i  

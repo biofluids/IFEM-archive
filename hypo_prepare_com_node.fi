@@ -107,6 +107,14 @@ do icount=1,nn_local_com
 	end do
 end do
 
+call bubblesort(send_address,ad_length,2,1) ! sort the address book
+!row 1 of send_address is the proc id sharing the edge nodes
+
+!if (myid == 0) then 
+!write(*,*) 'send_address_id', send_address(:,1)
+!write(*,*) 'send_address_node', send_address(:,2)
+!end if
+
 
 !-------------
 ! Deallocate variables

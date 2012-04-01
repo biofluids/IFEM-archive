@@ -311,6 +311,7 @@ end if
   call Read_Int(edge_inflow,1)
   call Read_Int(ne_inflow,1)
   call Read_Real(pin,1)
+  call Read_Int(ptotflag,1)
 !======================================
 
   CALL Read_Real(landa_over_mu,1)

@@ -112,7 +112,7 @@ do j=1,npart
                 	 elseif (nsd==3) then
                           call RKPMshape3d(shp,b,bd,x,y,a,dwjp(nnum))
                		 endif
-    		    shrknode(n,i)=shp
+    		    shrknode(n,i)=abs(shp)
 	            enddo
 	end if
 enddo

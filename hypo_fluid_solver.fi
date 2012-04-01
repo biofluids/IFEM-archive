@@ -7,25 +7,43 @@
 	end if
     !...store the variables from the previous time step,dold=d 
      dold = d
-     call formid(id,rng,ien)
-!     call formd(d,rng,ien)
+    call formid(id,rng,ien)
+     !============================
+     ! time varying BC for velocity
+!     call formd_time(d,rng,ien)
+!     if (myid == 0) write(*,*) "********** Applied Time Changing BC ***************"
+     !============================
 
 
 !===========================================================================
 if (edge_inflow .ne. 0) then
 ! Apply nature boundary condition
 if (myid == 0) then
-write (*,*) 'Apply nature BC'
+write (*,*) '********** Apply nature BC ***********'
+if (ptotflag == 1) write(*,*) '======== Total Pressure B.C. is used ==========='
 end if
-	if (nsd == 2) then
-        call nature_pre(x,d,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+
+        if (nsd == 2) then
+                if (ptotflag == 0) then
+                 call nature_pre(x,dold,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+                else
+                 call nature_totpre(x,dold,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc,pin_s)
+                 call nature_pre(x,dold,ien,rng,bc4el,ne_inflow,edge_inflow,pin_s,res_bc)
+                end if
         f_fluids(1,:) =  f_fluids(1,:) + res_bc(1,:)
-	end if
+        end if
 
         if (nsd == 3) then
-        call nature_pre_3d(x,d,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+                if (ptotflag == 0) then
+                 call nature_pre_3d(x,dold,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc)
+                else
+                 call nature_totpre_3d(x,dold,ien,rng,bc4el,ne_inflow,edge_inflow,pin,res_bc,pin_s)
+                 call nature_pre_3d(x,dold,ien,rng,bc4el,ne_inflow,edge_inflow,pin_s,res_bc)
+                end if
         f_fluids(1:nsd,:) =  f_fluids(1:nsd,:) + res_bc(1:nsd,:)
         end if
+
+
 end if
 
      do iit=1,nit
@@ -33,14 +51,14 @@ end if
         w(:,:) = 0.0d0
         time_com=mpi_wtime()
          call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,ne_intlocal,ien_intlocal,node_local,nn_local,&
-			fden,fvis)
+			fden,fvis,I_fluid)
         time_com=mpi_wtime()-time_com
         if (myid == 0) write(*,*) 'Time for evaluate block', time_com
 
 	time_com=mpi_wtime()
 
-	call communicate_res_ad(p,ndf,nn,send_address,ad_length)
-	call communicate_res_ad(w,ndf,nn,send_address,ad_length)
+	call communicate_res_ad_sub(p,ndf,nn,send_address,ad_length)
+	call communicate_res_ad_sub(w,ndf,nn,send_address,ad_length)
 	
 
 	time_com=mpi_wtime()-time_com
@@ -65,7 +83,7 @@ end if
         call gmres(x,d,dold,w,p,dg,hg,ien,f_fluids,id, &
 		   ne_intlocal,ien_intlocal,node_local,nn_local, &
 		   global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		   fden,fvis) 	
+		   fden,fvis,I_fluid,rng) 	
         !...calculate the normalized increment, del_l
          call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
          del_l = sqrt(del_l)

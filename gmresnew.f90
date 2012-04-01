@@ -3,8 +3,8 @@
 subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		fden,fvis)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer
+		fden,fvis,I_fluid,rngface)
+	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
  	use solid_variables, only: nn_solid
         use mpi_variables
 	implicit none
@@ -37,10 +37,12 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 	character(1) TRAN
 	real* 8 workls(2*inner)
 	real* 8 av_tmp(ndf,nn)
+	integer rngface(neface,ne)
 
 !---------------------------------------
   real(8) fden(nn)
   real(8) fvis(nn)
+  real(8) I_fluid(nn)
 !============================
 ! MPI varibalbes
   integer ne_local ! # of element on each processor
@@ -65,12 +67,13 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         integer time_arrary_1(8)
         real(8) start_time
         real(8) end_time
-
+  real(8) linerr
 !---------------------------------------------
 
 
 
 	eps = 1.0e-6
+	linerr = 1.0e-6
 	e1(:) = 0
 	e1(1) = 1
 	x0(:) = 0
@@ -84,7 +87,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         rnorm = sqrt(rnorm0)
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
 
 !==============================
 	Vm(:,:) = 0.0d0
@@ -137,7 +140,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 ! Let vloc=vloc+d first then communicate, and then it should same # of loop (avoiding loop at the whole domain)
 !=============================
 !		call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-	        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
 
 !----------------------------------------------------------------------------------------------
 !vloc(:,:)=vloc(:,:)+d(:,:)
@@ -156,13 +159,14 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !		av_tmp(:,:) = 0.0d0
 !======================================
 
-		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,fden,fvis)
+		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
+				fden,fvis,I_fluid,rngface)
 
 
 
 
 !                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
 
 
 !===================
@@ -300,7 +304,7 @@ temp=0.0d0
 	end do
 
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
+        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
 
 
 !==============================
@@ -320,9 +324,10 @@ temp=0.0d0
 !================================
 
 
-	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,fden,fvis)
+	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
+			fden,fvis,I_fluid,rngface)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
+        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
 !==================
 !avloc(:)=0.0d0
 !==================

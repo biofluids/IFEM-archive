@@ -267,67 +267,68 @@ end subroutine getinf
 ! 2. RKPM - cubic spline for uniform spacing
 ! 3. Original delta function for uniform spacing 
 
-subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,nsd,ibuf)
+subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,nsd,ibuf,solid_pre,fluid_pre)
   implicit none
   integer,intent(in) :: ibuf,ndelta
   integer nsd
  !...solids variables
   integer,intent(in)   :: nn_solids
   real(8),intent(inout) :: data_solids(nsd,nn_solids)
+ !-------------
+  real(8) solid_pre(nn_solids)  ! interpolation fluid pressure onto solid pressure
 
  !...fluids variables
   integer,intent(in)   :: nn_fluids
   real(8),intent(inout) :: data_fluids(nsd,nn_fluids)
   real(8),intent(in)    :: dv(nn_fluids)
+!--------------
+  real(8) fluid_pre(nn_fluids)
 
  !...local variables
   integer :: inn,icnn,pt
-  real(8)  :: tot_vel(nn_fluids),tot_vel_fluid,vol_inf 
+!  real(8)  :: tot_vel(nn_fluids),tot_vel_fluid
+  real(8) vol_inf 
   real(8) force_solid
   real(8) force_fluid
-  tot_vel_fluid = 0
-  tot_vel(1:nn_fluids)=0.0
   force_solid=0
   force_fluid=0
   if (ndelta == 1) then                  !c    If non-uniform grid 
 
      if (ibuf == delta_exchange_fluid_to_solid) then  !velocity interpolation
-        data_solids(:,:)=0
+        data_solids(:,:)=0.0
+	solid_pre(:) = 0.0
         do inn=1,nn_solids
            vol_inf=0.0d0
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
               data_solids(1:nsd,inn) = data_solids(1:nsd,inn) + data_fluids(1:nsd,pt) * shrknode(icnn,inn)
-              tot_vel(pt)=data_fluids(1,pt)
-              vol_inf = vol_inf + dv(pt)
+              !-------- Interpolate fluid pressure on to solid domain  ----------
+	      solid_pre(inn) = solid_pre(inn) + fluid_pre(pt) * shrknode(icnn,inn)
+	      !------------------------------------------------------------------
+	      vol_inf = vol_inf + dv(pt)
            enddo
         enddo
 
      elseif (ibuf == delta_exchange_solid_to_fluid) then !force distribution
         write(*,*) '*** Distributing Forces onto Fluid ***'
-        data_fluids(:,:)=0
+        data_fluids(:,:)=0.0d0
         do inn=1,nn_solids
            do icnn=1,ncnn(inn)
               pt=cnn(icnn,inn)
               data_fluids(1:nsd,pt) = data_fluids(1:nsd,pt) + data_solids(1:nsd,inn) * shrknode(icnn,inn)  
-		   enddo    
+		   enddo  
+
+!	write(*,*) 'sum of shrk', sum(shrknode(:,inn))  
         enddo
-       write(*,*) 'sum of solid', sum(data_solids(1,:))
-       write(*,*) 'sum of fluid', sum(data_fluids(1,:))
-       do inn=1,nn_solids
-          if (data_solids(1,inn)>0) then
-             force_solid=force_solid+data_solids(1,inn)
-          end if
-       end do
-       do inn=1,nn_fluids
-          if (data_fluids(1,inn)>0) then
-             force_fluid=force_fluid+data_fluids(1,inn)
-          end if
-       end do
-       write(*,*) 'positve force of solid', force_solid
-       write(*,*) 'positve force of fluid', force_fluid
 
 
+!	call getnorm(data_solids,data_solids,nsd*nn_solids,force_solid)
+!        call getnorm(data_fluids,data_fluids,nsd*nn_fluids,force_fluid)
+!	force_solid = sqrt(force_solid)
+!	force_fluid = sqrt(force_fluid)
+
+       write(*,*) 'norm of force in solid', sum(data_solids(1,:))
+       write(*,*) 'norm of force in fluid', sum(data_fluids(1,:))
 
      endif
   else

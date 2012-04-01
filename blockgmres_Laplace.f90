@@ -16,7 +16,7 @@ subroutine  blockgmres_Laplace(xloc,I_fluid,p_inter,ien,lp_el,count_el)
 !  real(8) w_inter(nn)
 !---------------------
   integer count_el
-  integer lp_el(nn)
+  integer lp_el(count_el)
 !---------------------
   real(8) x(nsd,nen),d(nen)
   real(8) eft0,det,effd,effm,effc

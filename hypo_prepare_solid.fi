@@ -72,7 +72,7 @@ if (n_solid == 2) then
   
   i=2
       
-          solid_coor_init(2,nn_solid_1*(i-1)+1:nn_solid_1*i) = 2.0d0-coor_1(1:nn_solid_1,2) + shift(2,i)
+          solid_coor_init(2,nn_solid_1*(i-1)+1:nn_solid_1*i) = 2.794d0-coor_1(1:nn_solid_1,2) + shift(2,i)
           solid_coor_init(1,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,1) + shift(1,i) 
   if (nen_solid==4) then
   do  j=1,nen_solid
@@ -98,7 +98,7 @@ enddo
    node_sbc(nn_sbc_1+1:nn_sbc)=node_sbc_1(1:nn_sbc_1)+nn_solid_1
 ! Copy element information on solid boundary
 if (nen_solid == 3) then
-	ien_sbc(1:ne_sbc_1,1:nen_solid+1)=ien_sbc_1(1:ne_sbc_1,1:nen_solid+1)
+	ien_sbc(1:ne_sbc_1,1:nen_solid+2)=ien_sbc_1(1:ne_sbc_1,1:nen_solid+2)
 	ien_sbc(ne_sbc_1+1:ne_sbc,1)=ien_sbc_1(1:ne_sbc_1,1)+ne_solid_1
 	ien_sbc(ne_sbc_1+1:ne_sbc,2)=ien_sbc_1(1:ne_sbc_1,4)
         ien_sbc(ne_sbc_1+1:ne_sbc,4)=ien_sbc_1(1:ne_sbc_1,2)
@@ -121,6 +121,9 @@ end if
   solid_force_FSI(1:nsd_solid,1:nn_solid) = 0.0d0
 
   solid_prevel(1:nsd_solid,1:nn_solid)    = 0.0d0
+  id_solidbc(:,:) = 1
+  solid_coor_pre1(1:nsd_solid,1:nn_solid) = solid_coor_init(1:nsd_solid,1:nn_solid)
+  solid_coor_pre2(1:nsd_solid,1:nn_solid) = solid_coor_init(1:nsd_solid,1:nn_solid)
 
   if (ninit .eq. 1) then
      call r_sreadinit(solid_coor_init,solid_coor_curr)
