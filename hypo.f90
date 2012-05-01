@@ -80,12 +80,12 @@ subroutine hypo
 
 !=============================
 !  vis_solid= - vis_liq 
-  vis_solid=  1.0
+  vis_solid=  0.1
   I_fluid(:)=0.0
   solid_pave(:)=0.0d0
   solid_vel(:,:) = 0.0d0
   solid_accel(:,:) = 0.0d0
-  damp_solid = 50.0
+  damp_solid = 10.0
   solid_bcvel(:,:) = 0.0
   solid_bcvel_old(:,:) = 0.0
   outedge=2
@@ -163,10 +163,10 @@ if (ndelta==1) then
 
 if (node_sfcon .ne. 0 ) then
 
-  do inode_sf=1,node_sfcon
-          solid_accel(1,sfcon(inode_sf))= - 2.0*10.0*pi*cos(2.0*pi*10.0*tt)*10.0
-	  solid_accel(2,sfcon(inode_sf))= 0
-  end do
+!  do inode_sf=1,node_sfcon
+!          solid_accel(1,sfcon(inode_sf))= - 2*3.14*cos(2*3.14*tt)
+!	  solid_accel(2,sfcon(inode_sf))= 0
+!  end do
 
 
  ! do inode_sf=1,node_sfcon
@@ -188,15 +188,6 @@ call solve_solid_disp_pa(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_co
                         solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype,&
 	ne_intlocal_solid,ien_intlocal_solid,nn_local_solid,node_local_solid,send_address_solid,ad_length_solid,&
 	global_com_solid,nn_global_com_solid,local_com_solid,nn_local_com_solid)
-
-!if (node_sfcon .ne. 0 ) then
-
-!  do inode_sf=1,node_sfcon
-!            solid_coor_curr(1,sfcon(inode_sf))= solid_coor_init(1,sfcon(inode_sf)) - sin(2.0*pi*10.0*tt)*dt 
-!	    solid_coor_curr(2,sfcon(inode_sf))= solid_coor_init(2,sfcon(inode_sf)) + 0.0d0
-!  end do
-
-!end if
 
 
 

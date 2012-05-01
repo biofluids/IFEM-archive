@@ -52,7 +52,8 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   real(8) fvis(nn)
   real(8) local_vis(nen)
   real(8) I_fluid(nn)
-  real(8) kappa
+  real(8) kappa_s
+  real(8) kappa_f
   integer rngface(neface,ne)
 !---------------------------------------------
 !============================
@@ -67,7 +68,8 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
-  kappa = 1.0e4
+  kappa_s = 1.0e4
+  kappa_f = 2.0e9
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 !dloc(ndf,:)=(1.0 - I_fluid(:)) * dloc(ndf,:)
@@ -201,7 +203,7 @@ end do
                 do inl=1,nen
 		   node=ien(inl,ie)
 		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
-		   (1.0/kappa*I_fluid(node))
+		   (1.0/(kappa_f + (kappa_s - kappa_f)*I_fluid(node)))
 		end do  ! add dp/dt term for artificial fluid
 
 
