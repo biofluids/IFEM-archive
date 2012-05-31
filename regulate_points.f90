@@ -31,7 +31,6 @@ if(myid==0)write(*,*)'begin points regulation'
 			ne_intlocal,ien_intlocal)
 
   call find_inter(infdomain_regen,ien,nn_inter_regen)
-if(myid==0)write(*,*)'finish search'
   if(ne_inter.le.ncpus) then
     if(myid+1.le.ne_inter) then
       nn_loc=1
@@ -89,7 +88,7 @@ if(myid==0)write(*,*)'finish search'
   call mpi_allreduce(x_regen_temp(1,1),x_inter_regen(1,1),nsd*maxmatrix,mpi_double_precision, &
 			mpi_sum,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
-if(myid==0)write(*,*)'nn_regen-after_regulation',nn_inter_regen
+if(myid==0)write(*,*)'nn_regen_after_regulation',nn_inter_regen
 
 end subroutine regulate_points
 

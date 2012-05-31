@@ -81,13 +81,7 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
 
 	avloc(:)=0.0
 	call blockgmres_correction(x_inter,RW,nn_inter,dv,avloc,nn_inter_loc,nsd)
-!	do icount=1,nn_inter
-!	do loc_index=1,nn_inter_loc
-!	   icount=myid+1+(loc_index-1)*ncpus
-!	   do jcount=1,nn_count(icount)
-!	      avloc(icount)=avloc(icount)+A(icount,jcount)*dv(A_index(icount,jcount))
-!	   end do
-!	end do
+
 	space1(:)=0.0
 	space2(:)=0.0
 
@@ -195,9 +189,9 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
     err=sqrt(rnorm0)
     rnorm=sqrt(rnorm0)
     iouter=iouter+1
-!if(myid==0) then
-!	write(*,*)'err for correction=',err
-!end if
+if(myid==0) then
+	write(*,*)'err for correction=',err
+end if
 
 111 continue ! end outer loop
 

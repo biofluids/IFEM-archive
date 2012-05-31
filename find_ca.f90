@@ -2,7 +2,7 @@
 !find the capillary number
 !================
 
-subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta)
+subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta,anglet,flag_ca)
 
   use fluid_variables, only:nsd,ne,nn,nen
   use interface_variables
@@ -21,6 +21,8 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta)
   real(8) M(nsd+1,nsd+1),B(nsd+1),P(nsd+1)
   real(8) vec(nsd+1)
   integer IP(nsd+1),INFO
+  real(8) anglet
+  integer flag_ca
 
   M(:,:)=0.0
   B(:)=0.0
@@ -28,6 +30,7 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta)
   P(1)=1.0
   vec(1)=1.0
   V_cl(:)=0.0
+  flag_ca=1
   do j=1,nn
      dx(:)=abs(x_inter(:)-x(:,j))
      call B_Spline1(dx,hsp,nsd,Sp,INFO)
@@ -60,7 +63,7 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta)
      temp=temp+V_cl(icount)**2
   end do
   temp=sqrt(temp)
-  temp=abs(V_cl(1))
+!  temp=abs(V_cl(1))
   ca=vis_inter*temp/sur_tension
 !if(myid==0)write(*,*)'ca=',ca,'V_cl=',temp
 !if(myid==0)write(*,*)'x-inter=',x_inter(:)
@@ -69,22 +72,34 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta)
      temp=temp+V_cl(icount)*norm_p(icount)
   end do
 
-!  if(temp.gt.0.0) then
-!    cap=0.006588+ca  !f^-1(pi/4)=0.0066
+   if((temp.ge.0.0).and.(anglet.lt.(static_angle+ad_re_angle))) then
+     flag_ca=0
+     write(*,*)'advancing but angle less then theta ad',myid
+!     thelta=3.14159/180.0*static_angle
+     goto 999
+   end if
+   if((temp.le.0.0).and.(anglet.gt.(static_angle-ad_re_angle))) then
+     flag_ca=0
+     write(*,*)'receding but angle greater than theta_re',myid
+!    thelta=3.14159/180.0*static_angle 
+    goto 999
+   end if
 
    if(temp.ge.0.0) then
-    cap=0.0488+ca
+    cap=Hoff_ad+ca
    else
-    cap=0.0488-ca
+    cap=Hoff_re+ca
    end if
    thelta=acos(1-2*tanh(5.16*(cap/(1+1.31*(cap**0.99)))**0.706))
-!   if(temp.ge.0.0) then
-!     thelta=thelta
-!   else
-!     thelta=3.14159/180.0*93.0*2.0-thelta
-!   end if
-if(myid==0)write(*,*)'thelta=',thelta/3.14159*180.0,'adv?=',temp
 
+
+   if(temp.ge.0.0) then
+     thelta=thelta
+   else
+     thelta=3.14159/180.0*(static_angle-ad_re_angle)*2.0-thelta
+   end if
+write(*,*)'ca=',ca,'thelta=',thelta/3.14159*180.0,'adv?=',temp,myid
+999 continue
 end subroutine find_ca
 
 

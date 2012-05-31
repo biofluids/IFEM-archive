@@ -106,8 +106,8 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
   if(y3.lt.y1) then
    if(thelta2.lt.thelta1) thelta2=thelta2+2.0*pi
 
-    do i=1,nop
-       thelta=(thelta2-thelta1)/real(nop)*(i-1)+thelta1
+    do i=1,nop+1
+       thelta=(thelta2-thelta1)/real(nop-1)*(i-1)+thelta1
        x3=a+r2*cos(thelta)
        y3=b+r2*sin(thelta)
        nn_con=nn_con+1
@@ -118,8 +118,8 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
   else
     if(thelta2.gt.thelta1) thelta2=thelta2-2.0*pi
 
-    do i=1,nop
-       thelta=(thelta2-thelta1)/real(nop)*(i-1)+thelta1
+    do i=1,nop+1
+       thelta=(thelta2-thelta1)/real(nop-1)*(i-1)+thelta1
        x3=a+r2*cos(thelta)
        y3=b+r2*sin(thelta)
        nn_con=nn_con+1
@@ -128,7 +128,6 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
 !       if(myid==0)write(*,*)'x3=',x3,'y3=',y3,'thelta=',thelta
     end do
   end if
-
 100 continue     
 end subroutine solve_contact
 

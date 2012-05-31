@@ -22,7 +22,6 @@ integer node
 
 tag=1
       call mpi_barrier(mpi_comm_world,ierror)
-
 do icount=1,ad_length
 	call mpi_irecv(recv_tmp(1,icount),ndf+1,mpi_double_precision,&
 		mpi_any_source,mpi_any_tag,mpi_comm_world,req(icount),ierror)
@@ -53,7 +52,6 @@ do icount=1,ad_length
 end do
 
       call mpi_barrier(mpi_comm_world,ierror)
-
 !if (myid ==0) then
 !write(*,*) 'recv_tmp', res(1:ndf,:)
 !end if

@@ -76,11 +76,11 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-do icount=1, nn_local
+!do icount=1, nn_local
         node=node_local(icount)
 !p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 ! p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
-end do
+!end do
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
 ! then we will just subscrib it from p(!:nsd) which is the 
@@ -141,14 +141,12 @@ end do
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
 
-
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
 		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
 	    enddo
-
 !... define u=v1, v=v2, w=v3, pp=p
 		if (nsd==2) then
 		    u = drs(udf)
@@ -170,7 +168,7 @@ end do
 !....  calculate liquid constant and gravity
 	    mu = vis_liq  ! liquid viscosity
 	    ro = den_liq  ! liquid density
-		g  = gravity  ! gravatitional force
+		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
 	    mu=0.0
 	    ro=0.0
 	    do inl=1,nen
@@ -345,13 +343,12 @@ end do
 		   p(1:nsd,node) = p(1:nsd,node) - prs_t(1:nsd)*temp - ph(1:nsd,inl)*prs_c
 		   q_p(1:nsd,node) = q_p(1:nsd,node)+taum*temp*q_res_a(1:nsd,inl)+ & 
                                      ph(1:nsd,inl)*taul*ro*sh(1:nsd,inl)
-
 	 enddo
-
 
 	 enddo ! end of qudrature pts loop
 
 !write(*,*)'diag=',diag(1:4)
+!p(1:2,ien(1:4,ie))=1.0
 
   enddo ! end of element loop
 !write(*,*)q_p(:,:)

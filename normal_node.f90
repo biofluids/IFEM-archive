@@ -3,7 +3,7 @@
 ! node in the domian                 !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 
-subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode)
+subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode,index_bcnode)
 
   use global_constants
   use run_variables
@@ -13,7 +13,7 @@ subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode)
 
   real(8) norm_node(nsd,nn),xloc(nsd,nn),x(nsd,nen)
   integer ien(nen,ne)
-  integer spbcele(ne_spbc),spbcnode(nn_spbc)
+  integer spbcele(ne_spbc),spbcnode(nn_spbc),index_bcnode(2,ne_spbc)
   
   real(8) eft0,det,effd,effm,effc
   real(8) sh(0:nsd,nen)
@@ -22,6 +22,7 @@ subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode)
   integer i,j,icount,jcount,ie,inl,isd,iq,node
   real(8) temp
   norm_node(:,:)=0.0
+  index_bcnode(:,:)=0
   do ie=1,ne
      do inl=1,nen
 	x(1:nsd,inl)=xloc(1:nsd,ien(inl,ie))
@@ -59,9 +60,9 @@ end do ! end of quad loop
 !*************************************************!
 !  used to treat edge node                        !
 !*************************************************!
-if(abs(xloc(1,i)).gt.1.49999) then
-     if((abs(norm_node(1,i)).gt.0) .and. (abs(norm_node(2,i)).gt.0)) norm_node(1,i)=0.0
-end if
+!if(abs(xloc(1,i)).gt.1.49999) then
+!     if((abs(norm_node(1,i)).gt.0) .and. (abs(norm_node(2,i)).gt.0)) norm_node(1,i)=0.0
+!end if
 !*************************************************!
      do isd=1,nsd
         temp=temp+norm_node(isd,i)**2
@@ -85,8 +86,21 @@ open(121,file='spbcnode.in',status='old')
    end do
 close(121)
 
-
 110 format(I8)
+
+do i=1,ne_spbc
+   ie=spbcele(i)
+   icount=0
+   do inl=1,nen
+      node=ien(inl,ie)
+      do j=1,nn_spbc
+         if(node==spbcnode(j)) then
+           icount=icount+1
+           index_bcnode(icount,i)=node
+         end if
+      end do
+   end do
+end do
 
 end subroutine normal_node
      

@@ -354,6 +354,7 @@ end if
   CALL Read_Int(ne_spbc,1)
   CALL Read_Int(nn_spbc,1)
   CALL Read_Real(lambda,1)
+  CALL Read_Int(nn_pb,1)
 !       further defaults
   if (ntsbout.eq.0) ntsbout = nts + 1
   if (steady) alpha = 1.0
@@ -418,6 +419,10 @@ end if
   call Read_Real(rkpm_scale,1)
   call Read_Real(max_dcurv,1)
   call Read_Int(nbc,1)
+  call Read_Real(static_angle,1)
+  call Read_Real(ad_re_angle,1)
+  call Read_Real(Hoff_ad,1)
+  call Read_Real(Hoff_re,1)
 if(myid==0) then
   write(*,*)'nn_inter=',nn_inter
   write(*,*)'surface tension = ', sur_tension

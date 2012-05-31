@@ -1,0 +1,120 @@
+
+
+subroutine regen_contact(xc,x_inter,x_center,hg,I_fluid_center,corr_Ip,nn_org_regen,x_org_regen,gridy,norm_e,tang,&
+			norm_p,flag_ad_re)
+
+  use fluid_variables,only:nn,nsd,ne
+  use interface_variables, only:maxmatrix,static_angle,ad_re_angle,max_hg
+  use mpi_variables
+  include 'mpif.h'
+  real(8) xlocan(nsd),x_inter(nsd,maxmatrix),x_center(nsd,ne),hg(ne),xc(nsd)
+  real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
+  integer nn_org_regen,nn_org_regen_ad_re
+  real(8) x_org_regen(nsd,50),gridy,norm_org_regen(nsd,50)
+
+  real(8) norm_p(nsd)
+  integer flag_ad_re
+
+  integer i,j,icount,jcount,inl,nit,max_n
+  real(8) err_p,delta(nsd)
+  real(8) II,dI(nsd),ddI(3*(nsd-1)),norm_e(nsd),curv_p,norm_g(nsd),tang(nsd)
+ 
+  real(8) interval,temp(nsd)
+  real(8) vector_static(nsd),pi,thelta
+  xlocan(:)=xc(:)
+  pi=3.1415926
+  max_n=30
+  flag_ad_re=0
+!  interval=abs((xlocan(2)-bot_y))/real(max_n)
+!  interval=gridy*2.0/real(max_n)
+!  interval=gridy/real(max_n)
+   interval=max_hg/real(max_n)
+
+  x_org_regen(:,:)=0.0
+  nn_org_regen=1
+  nn_org_regen_ad_re=0
+  x_org_regen(:,1)=xlocan(:)
+  norm_org_regen(:,1)=norm_p(:)
+  do i=2,max_n
+     nit=1
+     err_p=999.0
+     delta(:)=0.0
+!     xlocan(:)=x_org_regen(:,1)-interval*norm_e(:)*(i-1)
+     xlocan(:)=xlocan(:)-interval*norm_e(:)
+if(sqrt((xlocan(1)+0.5)**2+(xlocan(2)-1.0)**2).lt.0.4938) goto 200
+     do while((nit.lt.5).and.(err_p.gt.1.0e-8))
+	xlocan(:)=xlocan(:)+delta(:)
+        call get_indicator_derivative_2D_1st(xlocan,x_inter,x_center,hg,&
+             I_fluid_center,corr_Ip,II,dI,ddI,norm_g,curv_p)
+!	delta=(0.5-II)/dI(1)
+        delta(1)=(0.5-II)*tang(1)/(tang(1)*dI(1)+tang(2)*dI(2))
+        delta(2)=(0.5-II)*tang(2)/(tang(1)*dI(1)+tang(2)*dI(2))
+	err_p=abs(0.5-II)
+	nit=nit+1
+	if(abs(tang(1)*dI(1)+tang(2)*dI(2)).lt.1.0e-5) then
+	   err_p=999.0
+	   nit=999
+	end if
+     end do
+     if(err_p.gt.1.0e-6) goto 200
+
+     if(sqrt((xlocan(1)+0.5)**2+(xlocan(2)-1.0)**2).lt.0.4938+0.3*max_hg)then
+     flag_ad_re=flag_ad_re+1
+     end if
+     if(flag_ad_re==1) then
+       xc(:)=xlocan(:)
+       norm_p(:)=norm_g(:)
+       nn_org_regen_ad_re=nn_org_regen
+     end if
+
+     nn_org_regen=nn_org_regen+1
+     x_org_regen(:,nn_org_regen)=xlocan(:)
+     norm_org_regen(:,nn_org_regen)=norm_g(:)
+200 continue
+  end do
+if(myid==0)write(*,*)'nn_org_regen=',nn_org_regen,'nn_org_regen_ad_re=',nn_org_regen_ad_re
+  if(nn_org_regen_ad_re==0) then
+     nn_org_regen=0
+     flag_ad_re=0
+     goto 999
+  end if
+
+  temp(:)=0.0
+  do i=nn_org_regen-4,nn_org_regen
+     temp(:)=temp(:)+norm_org_regen(:,i)
+  end do
+  temp(:)=temp(:)/5.0
+  temp(1)=temp(1)/sqrt(temp(1)**2+temp(2)**2)
+  temp(2)=temp(2)/sqrt(temp(1)**2+temp(2)**2)
+
+!  temp(1)=abs(temp(1))
+  
+  thelta=acos(temp(1)*norm_e(1)+temp(2)*norm_e(2))/pi*180  ! angle between element normal and contact line
+if(myid==0)write(*,*)'diff_thelta=',abs(thelta-static_angle)
+if(myid==0)write(*,*)'nn=',nn_org_regen,'nn_ad_re=',nn_org_regen_ad_re,'myid=',myid
+call mpi_barrier(mpi_comm_world,ierror)
+  if(abs(thelta-static_angle).gt.ad_re_angle) then
+    nn_org_regen=nn_org_regen_ad_re
+    flag_ad_re=1
+  else
+    flag_ad_re=0
+!    nn_org_regen=0
+  end if
+
+!  if(nn_org_regen_ad_re==0) then
+!    flag_ad_re=0
+!    nn_org_regen=0
+!  end if
+
+!  vector_static(1)=cos(pi/2.0-static_angle/180.0*pi)
+!  vector_static(2)=sin(pi/2.0-static_angle/180.0*pi)
+
+!  thelta=acos(temp(1)*vector_static(1)+temp(2)*vector_static(2))/pi*180.0
+!  if(myid==0)write(*,*)'thelta=',thelta
+
+!if(abs(thelta).gt.ad_re_angle) nn_org_regen=0
+999 continue
+end subroutine regen_contact
+
+
+

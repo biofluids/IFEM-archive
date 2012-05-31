@@ -18,7 +18,10 @@ subroutine points_removal(x_inter,nn_inter)
 !	    (x_inter(2,icount).lt.(-0.5+0.05*max_hg)).or. &
 !	    (x_inter(3,icount).gt.(1.0-0.05*max_hg)) .or. &
 !	    (x_inter(3,icount).lt.(0.0+0.05*max_hg)) ) then
-         if((x_inter(2,icount).lt.0.0)) then
+!         if((x_inter(2,icount).lt.0.0)) then
+	 temp=(x_inter(1,icount)+0.5)**2+(x_inter(2,icount)-1.0)**2
+	 temp=sqrt(temp)
+	 if(temp.lt.0.5) then
             goto 789
 	end if
      nn_inter_temp=nn_inter_temp+1

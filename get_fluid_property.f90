@@ -8,12 +8,13 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
   use interface_variables
   use fluid_variables, only:nn,ne,nsd,den_liq
   use mpi_variables
+  use allocate_variables,only:nn_fluid_domain,fluid_domain
   include 'mpif.h'
   real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,ne)
   real(8) I_fluid_center(ne),corr_Ip(maxmatrix),hg(ne)
-  real(8) I_fluid(nn),I_fluid_temp(nn)
+  real(8) I_fluid(nn),II_fluid_temp(nn_fluid_domain),II_fluid(nn_fluid_domain)
 
-  integer i,j,icount,jcount,ie,inl,node,isd
+  integer i,j,icount,jcount,ie,inl,node,isd,ii
   real(8) dx(nsd),hsg,Sp
   real(8) dcurv,temp,Bsum
 
@@ -24,15 +25,15 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
 !===used for mpi
   integer nn_loc,base,top,loc_index
 
-  if(nn.le.ncpus) then
-    if(myid+1.le.nn) then
+  if(nn_fluid_domain.le.ncpus) then
+    if(myid+1.le.nn_fluid_domain) then
       nn_loc=1
     else 
       nn_loc=0
     end if
   else
-     base=floor(real(nn)/real(ncpus))
-     top=nn-base*ncpus
+     base=floor(real(nn_fluid_domain)/real(ncpus))
+     top=nn_fluid_domain-base*ncpus
      if(myid+1.le.top) then
         nn_loc=base+1
      else
@@ -40,11 +41,14 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
      end if
   end if
 
-  I_fluid(1:nn)=0.0
-  I_fluid_temp(1:nn)=0.0
+!  I_fluid(fluid_domain(1:nn_fluid_domain))=0.0
+!  I_fluid_temp(fluid_domain(1:nn_fluid_domain))=0.0
+  II_fluid_temp(:)=0.0
+  II_fluid(:)=0.0
 
   do loc_index=1,nn_loc
-     i=myid+1+(loc_index-1)*ncpus
+     ii=myid+1+(loc_index-1)*ncpus
+     i=fluid_domain(myid+1+(loc_index-1)*ncpus)
      M(:,:)=0.0
      B(:)=0.0
      P(:)=0.0
@@ -75,7 +79,7 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
 	do icount=1,nsd+1
 	   temp=temp+vec(icount)*B(icount)
 	end do
-        I_fluid_temp(i)=I_fluid_temp(i)+I_fluid_center(j)*temp*Sp/(hsp**nsd)*(hsg**nsd)
+        II_fluid_temp(ii)=II_fluid_temp(ii)+I_fluid_center(j)*temp*Sp/(hsp**nsd)*(hsg**nsd)
 	end if
      end do
      
@@ -88,23 +92,25 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
 	do icount=1,nsd+1
 	   temp=temp+vec(icount)*B(icount)
 	end do
-	I_fluid_temp(i)=I_fluid_temp(i)+corr_Ip(j)*temp*Sp
+	II_fluid_temp(ii)=II_fluid_temp(ii)+corr_Ip(j)*temp*Sp
 	end if
      end do
 
-     if(I_fluid_temp(i).gt.1.0) then
-	I_fluid_temp(i)=1.0
-     else if(I_fluid_temp(i).lt.0.0) then
-	I_fluid_temp(i)=0.0
+     if(II_fluid_temp(ii).gt.1.0) then
+	II_fluid_temp(ii)=1.0
+     else if(II_fluid_temp(ii).lt.0.0) then
+	II_fluid_temp(ii)=0.0
      end if
   end do
 
   call mpi_barrier(mpi_comm_world,ierror)
-  call mpi_reduce(I_fluid_temp(1),I_fluid(1),nn,mpi_double_precision, &
-		mpi_sum,0,mpi_comm_world,ierror)
-  call mpi_bcast(I_fluid(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
+  call mpi_allreduce(II_fluid_temp(1),II_fluid(1),nn_fluid_domain,mpi_double_precision, &
+		mpi_sum,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
-
+do icount=1,nn_fluid_domain
+   node=fluid_domain(icount)
+   I_fluid(node)=II_fluid(icount)
+end do
 
 end subroutine get_fluid_property
 

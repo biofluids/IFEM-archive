@@ -57,6 +57,7 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 !******************************************************
   do jcount=1,ne_regen_ele_loc !begin element loop
      ie=regen_ele_loc(jcount)
+
      do inl=1,nen
 	node=ien(inl,ie)
 	x_fluid(1:nsd,inl)=x(1:nsd,node)
@@ -92,19 +93,23 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
            end do
            Ic_inter=0.5
 
-           call get_indicator_derivative(xlocan,x_inter,x_center,hg,&
+           call get_indicator_derivative_2D_1st(xlocan,x_inter,x_center,hg,&
                                 I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)
 
        if(intflag==2) then
 
 !           if(((II-Ic_inter).gt.0.).or.((Ic_inter-II).gt.0.02)) then
-	    if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).gt.0)) then
+	    if( (abs(II-Ic_inter).gt.0.25) .or. (abs(II-Ic_inter).lt.0.2) .or. ((II-Ic_inter).gt.0)) then
                 goto 200
            end if
+       else if(intflag==3) then
 
+            if( (abs(II-Ic_inter).gt.0.25) .or. (abs(II-Ic_inter).lt.0.2) .or. ((II-Ic_inter).lt.0)) then
+                goto 200
+           end if
        else if(intflag==1) then
 !           if((II.gt.Ic_inter+0.25).or.(II.lt.Ic_inter-0.25).or.(abs(II-Ic_inter).lt.1.0e-3)) then
-            if( (abs(II-Ic_inter).gt.0.08) .or. (abs(II-Ic_inter).lt.0.02)) then
+            if( (abs(II-Ic_inter).gt.0.05) .or. (abs(II-Ic_inter).lt.0.01)) then
 
 !           if(II.ge.Ic_inter) then
 		goto 200
@@ -122,25 +127,16 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	   xlocan_temp(1:nsd)=xlocan(1:nsd)
 	   do while((nit.le.5).and.(err_p.gt.1.0e-9))
 	      xlocan(1:nsd)=xlocan(1:nsd)+delta(1:nsd)
-	      call get_indicator_derivative_1st(xlocan,x_inter,x_center,hg,&
+	      call get_indicator_derivative_2D_1st(xlocan,x_inter,x_center,hg,&
 				I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)
 	      if(II.gt.900) then
 	        goto 200
 	      end if
-!              if(((II-Ic_inter).gt.0.2*Ic_inter).or.((Ic_inter-II).gt.0.2*Ic_inter)) then
-!	      if((II.gt.0.7).or.(II.lt.0.4)) then
-!                goto 200
-!              end if
 	      if(nsd==2) then
 	        temp=dI(1)**2+dI(2)**2
-!                if((temp.lt.1.0e-6).or.(abs(dI(1)).lt.1.0e-6))then
-!                  goto 200
-!                end if
 	      delta(1)=(Ic_inter-II)*dI(1)/temp
 	      delta(2)=(Ic_inter-II)*dI(2)/temp
-	   !   delta(2)=delta(1)*dI(2)/dI(1)
 	      end if
-!              err_p=max(abs(II-Ic_inter),abs(delta(1)/hg(ie)),abs(delta(2)/hg(ie)))
               err_p=abs(II-Ic_inter)
 	      nit=nit+1
 	   end do
@@ -149,7 +145,7 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 	   if(err_p.lt.1.0e-9) then
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2)
 !	     if(distance.lt.hg(ie)/nn_sub/1.5) then
-	     if(distance.lt.0.5*hg(ie)) then
+	     if(distance.lt.1.0*max_hg) then
 		call get_curv_num_2D(xlocan,x_inter,x_center,hg,I_fluid_center,&
 			corr_Ip,dcurv,curv_p,norm_p)      
 !                   dcurv=0.1
@@ -179,9 +175,8 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
       nn_inter_regen_loc=nn_inter_regen_loc+1
       x_inter_regen_loc(1:nsd,nn_inter_regen_loc)=x_inter_ele_loc(1:nsd,icount)
    end do
-
+300 continue
   end do ! end of element loop for each processor
-!write(*,*)'myid=',myid,'nn_inter_regen_loc=',nn_inter_regen_loc
   index_regen_nn(:)=0
   index_regen_nn_temp(:)=0
   index_regen_nn_temp(myid+1)=nn_inter_regen_loc
@@ -211,14 +206,6 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
 
 if(myid==0) then
   write(*,*)'nn_inter_regen=',nn_inter_regen
-!  open(336,file='xyz_regen.dat',status='unknown')
-!  write(336,'(a12)')'#Version 1.0'
-!  write(336,'(a21)')'#EnSight Point Format'
-!  do j=1,nn_inter_regen
-!     write(336,111)x_inter_regen(1,j),x_inter_regen(2,j),0.0
-!  end do
-
-!  close(336)
 end if
 111 format(f14.10,f14.10,f14.10)
 

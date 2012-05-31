@@ -20,6 +20,7 @@ subroutine res_slipbc_precon(p,w,d,x,rngface,ien,spbcnode,spbcele,ne_local,ien_l
   real(8) sh(2,2),const,u1(nsd),u2(nsd)
   real(8) mu(2),lam(2)
 !  lamda=10.0  ! slip length
+if(lambda.lt.0.0)goto 2000
   const=0.577350269
 !====================================!
 !two guass quad points               !
@@ -59,9 +60,9 @@ if(flag==1) then
 
 	   do inface=1,2
 	      temp(1:nsd)=sh(1,inface)*lam(1)*u(1:nsd,1)+sh(2,inface)*lam(2)*u(1:nsd,2)
-!	      p(1:nsd,node(inface))=p(1:nsd,node(inface))-l*temp(1:nsd)*0.5 
-!	      w(1:nsd,node(inface))=w(1:nsd,node(inface))+l*0.5*(lam(1)*sh(1,inface)*0.5*(1+const)+ &
-!								 lam(2)*sh(2,inface)*0.5*(1-const))     
+	      p(1:nsd,node(inface))=p(1:nsd,node(inface))-l*temp(1:nsd)*0.5 
+	      w(1:nsd,node(inface))=w(1:nsd,node(inface))+l*0.5*(lam(1)*sh(1,inface)*0.5*(1+const)+ &
+								 lam(2)*sh(2,inface)*0.5*(1-const))     
 	   end do
 	end if
      end do
@@ -71,6 +72,6 @@ end if
 !  do i=1,nn_spbc1
 !     p(1:nsd,spbcnode1(i))=p(1:nsd,spbcnode1(i))+dp(1:nsd,spbcnode1(i))
 !  end do
-
+2000 continue
 end subroutine res_slipbc_precon
 

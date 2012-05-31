@@ -19,5 +19,9 @@ module interface_variables
   real(8) :: max_hg
   integer :: nbc
   real(8) :: mass0
+  real(8) :: static_angle ! static contact angle
+  real(8) :: ad_re_angle ! used for advancing and receding angle, this is the angle difference to static_angle
+  real(8) :: Hoff_ad    ! parameter calcualted using hoffman's equation
+  real(8) :: Hoff_re
 end module interface_variables
 

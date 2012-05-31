@@ -28,7 +28,7 @@ if(myid==0)write(*,*)'begin mass conserve'
 
   call cal_mass(x,I_fluid,ien,nn,ne,nen,mass)
 
-  if((its.le.2).or.(its==nts_start)) then
+  if((its.le.3).or.(its==nts_start)) then
      mass0=mass
      if(myid==0)write(*,*)'initial mass = ',mass0
       goto 100
@@ -55,7 +55,7 @@ if(myid==0)write(*,*)'begin mass conserve'
 
   do loc_index=1,nn_loc
      i=myid+1+(loc_index-1)*ncpus
-     call get_indicator_derivative_1st(x_inter(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
+     call get_indicator_derivative_2D_1st(x_inter(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
      					II,dI,ddI,norm_a,curv_a)
      
      x_inter_temp(:,i)=x_inter(:,i)+(mass0-mass)/Length*norm_a(:)

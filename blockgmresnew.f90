@@ -13,6 +13,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
   use run_variables
   use fluid_variables
   use interface_variables
+  use mpi_variables
   implicit none
 
   integer ien(nen,ne)
@@ -107,7 +108,6 @@ end do
 			endif
 		endif
 !		stop
-!	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
 	    eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
 		drs(:) = 0.0
@@ -154,13 +154,14 @@ end do
 !....  calculate liquid constant and gravity
 	    mu = vis_liq  ! liquid viscosity
 	    ro = den_liq  ! liquid density
-		g  = gravity  ! gravatitional force
+		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
 	    mu=0.0
 	    ro=0.0
 	    do inl=1,nen
 	       node=ien(inl,ie)
 	       mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
 	       ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
+if(sh(0,inl).lt.0.00001) write(*,*)'wrong again, what the heck'
 	    end do
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -260,6 +261,7 @@ end do
 		! Continuty Equation
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
+
 		! Momentum Equation (Euler Residual)
 !===========================================================
 ! why originally it is minus?
@@ -295,6 +297,8 @@ end do
 
 
 	 enddo ! end of qudrature pts loop
+
+
   enddo ! end of element loop
  continue  
 continue

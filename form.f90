@@ -12,7 +12,7 @@ subroutine formd(ds,rngface,ien)
   implicit none
 
   integer  rngface(neface,ne),ien(nen,ne)
-  real(8) :: ds(ndf,nn)
+  real(8) :: ds(ndf,nn)!,dold(ndf,nn)
   integer :: idf, inl, iec, irng, ieface, inface, inn
   real(8) :: eps1,eps2
   real(8) :: hs(nrng+1,nn), h(nrng+1,nn)
@@ -20,7 +20,7 @@ subroutine formd(ds,rngface,ien)
   eps1 = -1000000.0 
   eps2 = -10000.0 
   h(:,:) = 0.0d0
-  ds(:,:) = eps1
+!  ds(:,:) = eps1
   
   do ieface=1,neface
      do inface=1,nnface
@@ -47,13 +47,13 @@ subroutine formd(ds,rngface,ien)
   enddo
 
 
-  do inn=1,nn
-     do idf=1,ndf
-        if(ds(idf,inn).lt.eps2) then
-			ds(idf,inn) = ic(idf)
-		endif
-     enddo
-  enddo
+!  do inn=1,nn
+!     do idf=1,ndf
+!        if(ds(idf,inn).lt.eps2) then
+!			ds(idf,inn) = dold(idf,inn)!ic(idf)
+!		endif
+!     enddo
+!  enddo
 
   if(static) ds(:,:)=0.0
 

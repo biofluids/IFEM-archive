@@ -528,7 +528,7 @@ end if
 !     curv_B=ddI(2)/temp+dI(2)*(-0.5)/(temp**3)*(2*dI(1)*ddI(4)+2*dI(2)*ddI(2)+2*dI(3)*ddI(6))
 !     curv_C=ddI(3)/temp+dI(3)*(-0.5)/(temp**3)*(2*dI(1)*ddI(5)+2*dI(2)*ddI(6)+2*dI(3)*ddI(3))
 
-     curv_p=curv_A+curv_B+curv_C
+!     curv_p=curv_A+curv_B+curv_C
 123 continue
 end subroutine get_indicator_derivative_3D_1st
 

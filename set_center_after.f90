@@ -54,6 +54,8 @@ subroutine set_center_after(I_fluid_center,I_fluid,ien)
 
   do icount=1,ne_den_domain
      ie=den_domain(icount)
+!  do icount=1,ne_regen_ele
+!     ie=regen_ele(icount)
      I_fluid_center(ie)=0.0
      do inl=1,nen
 	I_fluid_center(ie)=I_fluid_center(ie)+1.0/real(nen)*I_fluid(ien(inl,ie))

@@ -41,8 +41,13 @@ subroutine get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_flui
   do loc_index=1,nn_loc
      i=myid+1+(loc_index-1)*ncpus
      if( (I_fluid(i).lt.(1.0-eps)) .and. (I_fluid(i).gt.eps)) then
-       call get_indicator_derivative(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
+      if(nsd==2) then
+       call get_indicator_derivative_2D(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
                                         II,dI,ddI,norm_a,curv_a)
+      elseif(nsd==3) then
+              call get_indicator_derivative_3D(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
+                                        II,dI,ddI,norm_a,curv_a)
+      end if
        den_f=den_liq+(den_inter-den_liq)*I_fluid(i)
        sur_fluid_temp(1:nsd,i)=sur_tension*(-curv_a)*dI(1:nsd)*den_f/den_p
      end if
