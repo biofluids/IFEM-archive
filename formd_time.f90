@@ -23,7 +23,11 @@ subroutine formd_time(ds,rngface,ien)
 	  hs = h
 !==========================================
 ! Velocity boundary condition with varying time
-	bv(udf,4) = 3.8*abs(sin(pi*tt*1.5))
+    if ((tt-0.01*floor(tt/0.01))<0.003) then
+        bv(udf,5) = 1.0d2
+    else
+        bv(udf,5) = 0.0
+    endif
 !==========================================
 
 

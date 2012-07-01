@@ -4,7 +4,7 @@
 !	Only linear elastic, I use \alpha - method
 !       Visco-linear elastic, I use Newmark method
 !c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine block_solid_pa(xloc,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
+	subroutine block_solid_pa(xloc,coord_curr,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
 				x_pre1,solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
 				ne_local,ien_local)
 !	use fluid_variables, only: nsd,nen,ne,nn,nquad,wq,sq
@@ -23,7 +23,7 @@
 ! alpha, beta, gamma --- constant parameters definition seen Huge 532
 
 	integer ien(ne,nen)
-	real* 8 xloc(nsd,nn), dloc(nsd,nn)
+	real* 8 xloc(nsd,nn), coord_curr(nsd,nn), dloc(nsd,nn)
 	real* 8 x(nsd,nen), d(nsd,nen), e(nsd,nen)
 	real* 8 p(nsd,nn)
 	real(8) x_pre1(nsd,nn)
@@ -77,6 +77,19 @@
 	integer ne_local
 	integer ien_local(ne_local)
 	integer ie_local
+!------------------------------------
+    real(8) radius_init, radius, bodyfc, bodyfccoef
+! added by Jubiao Yang on Feb. 27, 2013
+! for the specific case of blood vessel wave propagation
+! to mimic the restoring effects of \sigma_{\theta\theta}
+
+! bodyfccoef=group_young(mtype(ie))
+! r0 = 2 - coord_y_init
+! r = 2 - coord_y
+! bodyfc = E * (1/r0 - 1/r)
+!------------------------------------
+
+
 p(:,:) = 0.0d0
 w(:,:) = 0.0d0
 
@@ -93,12 +106,13 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 	rho_solid = density_solid + den_liq
 
 !	rho_solid = 0.0
-        do ie_local=1,ne_local
+do ie_local=1,ne_local
 	ie=ien_local(ie_local)
 ! change E, \nv to \lammda and \mu (Lame parameters)
         mu = group_young(mtype(ie))/((1+Poisson)*(1-2*Poisson))
         la = group_young(mtype(ie))/(2*(1+Poisson))
 
+        bodyfccoef = group_young(mtype(ie))
 
 	   do inl=1,nen
 	      do isd=1,nsd
@@ -281,19 +295,30 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 	if (nsd == 2) then ! 2-D case, plain strain model
 	   do inl=1,nen
 		node=ien(ie,inl)
+                !-----------------------------
+                ! added by Jubiao Yang on Feb. 27, 2013
+                ! for a specific case of blood vessel wave propagation
+                ! where y_{centerline} = 2.0
+                radius = 2.0 - coord_curr(ysd,node)
+                radius_init = 2.0 - xloc(ysd,node)
+                !bodyfc = bodyfccoef * (radius - radius_init)/(radius * radius_init)
+                bodyfc = rho_solid * 0.0
+                write(*,*) 'bodyfc at Node ', node, ' is ', bodyfc
+                !-----------------------------
+
 		p(xsd,node)=p(xsd,node) + &
 			ph(xsd,inl)*(la+2*mu)*drx(xsd) + &
 			ph(ysd,inl)*mu*dry(xsd) + &
 			ph(xsd,inl)*la*dry(ysd) + &
 			ph(ysd,inl)*mu*drx(ysd)   &
-			+ph(0,inl) * ax
+			+ph(0,inl) * ax - ph(0,inl)*0.0
 
 		p(ysd,node)=p(ysd,node) + &
 			ph(ysd,inl)*la*drx(xsd) + &
 			ph(xsd,inl)*mu*dry(xsd) + &
 			ph(ysd,inl)*(la+2*mu)*dry(ysd) + &
 			ph(xsd,inl)*mu*drx(ysd)   &
-                        +ph(0,inl) * ay
+                        +ph(0,inl) * ay - ph(0,inl)*bodyfc
 
 	  end do
 	end if
