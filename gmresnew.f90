@@ -135,7 +135,7 @@ if(myid==0)write(*,*)'rnorm=',rnorm
 		call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
 !============================
-		call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
+!		call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
 		do icount=1,nn_local
 			node=node_local(icount)
 			vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
@@ -209,7 +209,8 @@ av_tmp(1:nsd,pbnode(1,1:nn_pb))=av_tmp(1:nsd,pbnode(1,1:nn_pb))+res_pb(1:nsd,1:n
 av_tmp(1:nsd,pbnode(2,1:nn_pb))=0.0
 end if
 
-                call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
+
+!                call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
 !===================
 ! avloc(:)=0.0d0
 !==================
@@ -337,7 +338,7 @@ temp=0.0d0
 
 	call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
-	call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
+!	call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
 	do icount=1,nn_local
 		node=node_local(icount)
 		vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
@@ -395,7 +396,7 @@ if(nn_pb.gt.0) then
 av_tmp(1:nsd,pbnode(1,1:nn_pb))=av_tmp(1:nsd,pbnode(1,1:nn_pb))+res_pb(1:nsd,1:nn_pb)
 av_tmp(1:nsd,pbnode(2,1:nn_pb))=0.0
 end if
-        call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
+!        call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
 !==================
 !avloc(:)=0.0d0
 !==================
@@ -447,6 +448,6 @@ end if
 	call mpi_barrier(mpi_comm_world,ierror)
 	call mpi_allreduce(dg_sent(1),dg(1),ndf*nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 !	call mpi_bcast(dg(1),ndf*nn,mpi_double_precision,0,mpi_comm_world,ierror)
-	call res_rotation_reverse(dg,norm_node,nn_spbc,spbcnode)
+!	call res_rotation_reverse(dg,norm_node,nn_spbc,spbcnode)
 	return
 	end

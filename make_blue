@@ -36,7 +36,8 @@ blockgmres_correction.o points_regen_3D.o points_regen_con.o points_regen_topo.o
 contactline.o find_ca.o solve_contact.o mass_conserve.o cal_mass.o cal_Length.o\
 regulate_points.o find_inter.o update_x_inter.o normal_node.o formid_spbc.o\
 res_rotation.o res_rotation_reverse.o res_rotation_precon.o res_slipbc.o\
-res_slipbc_precon.o regen_contact.o norm_contact_ele.o getinf_el_3d_con.o
+res_slipbc_precon.o regen_contact.o norm_contact_ele.o getinf_el_3d_con.o\
+set_Ifluidcenter.o find_domain_pa_V2.o get_curvature.o
 
 IFEM: $(OBJ)
 	mpixlf90 -g -O2 -o IFEM $(OBJ) $(LIBS)

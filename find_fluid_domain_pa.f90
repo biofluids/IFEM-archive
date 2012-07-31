@@ -36,7 +36,7 @@ subroutine find_fluid_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,n
 !  support=4.0*maxval(hg(:))
 
 !**********************************************!
-  support=4.0*hsp  !4*hg is enough for the regenration part
+  support=20.0*hsp  !4*hg is enough for the regenration part
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0

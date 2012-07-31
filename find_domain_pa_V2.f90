@@ -2,7 +2,7 @@
 !find center & den calculation domain pa
 !=====================================
 
-subroutine find_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,nn_local,node_local)
+subroutine find_domain_pa_V2(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,nn_local,node_local)
 
   use interface_variables, only:nn_inter,maxmatrix,hsp,max_hg
   use fluid_variables,only:nsd,ne,nn
@@ -98,8 +98,8 @@ subroutine find_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,nn_loca
 
 !**********************************************!
 !find the narrow band of the dense mesh used for poisson equation
-  support=1.5*max_hg
-!  support=2.0*hsp
+!  support=1.1*max_hg
+  support=5.0*hsp
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0
@@ -174,5 +174,5 @@ subroutine find_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,nn_loca
 !end if 
 !stop
 
-end subroutine find_domain_pa
+end subroutine find_domain_pa_V2
   

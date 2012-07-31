@@ -28,7 +28,7 @@ if(myid==0)write(*,*)'begin mass conserve'
 
   call cal_mass(x,I_fluid,ien,nn,ne,nen,mass)
 
-  if((its.le.3).or.(its==nts_start)) then
+  if((its.le.11).or.(its==nts_start)) then
      mass0=mass
      if(myid==0)write(*,*)'initial mass = ',mass0
       goto 100

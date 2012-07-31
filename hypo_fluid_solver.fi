@@ -9,7 +9,7 @@
      dold = d
      call formid(id,rng,ien)
      call formd(d,rng,ien)
-     call formid_spbc(id,nn_spbc,spbcnode)
+!     call formid_spbc(id,nn_spbc,spbcnode)
 
 !===========================================================================
 if (edge_inflow .ne. 0) then
@@ -32,7 +32,7 @@ end if
          call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,&
 		ne_intlocal,ien_intlocal,node_local,nn_local, &
 		sur_fluid,I_fluid)
-	call res_slipbc_precon(p,w,d,x,rng,ien,spbcnode,spbcele,ne_intlocal,ien_intlocal,I_fluid)
+!	call res_slipbc_precon(p,w,d,x,rng,ien,spbcnode,spbcele,ne_intlocal,ien_intlocal,I_fluid)
 if(nn_pb.gt.0) then
         res_pb_temp(1:nsd,1:nn_pb)=p(1:nsd,pbnode(2,1:nn_pb))
 	res_pb_w_temp(1:nsd,1:nn_pb)=w(1:nsd,pbnode(2,1:nn_pb))
@@ -51,8 +51,8 @@ if(nn_pb.gt.0) then
 	p(1:nsd,pbnode(2,1:nn_pb))=0.0
 end if
 
-        call res_rotation(p,norm_node,nn_spbc,spbcnode)
-        call res_rotation_precon(w,norm_node,nn_spbc,spbcnode)
+!        call res_rotation(p,norm_node,nn_spbc,spbcnode)
+!        call res_rotation_precon(w,norm_node,nn_spbc,spbcnode)
         !...apply boundary conditions, calculate residual with corrected BC
         !...i.e. where id=0 -> p=0
           call setid_pa(p,ndf,nn,id,node_local,nn_local)

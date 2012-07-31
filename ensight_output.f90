@@ -612,6 +612,7 @@ elseif (nsd==2) then
   open(ifileunit, file=name_file2, form='formatted')
   write(ifileunit, '(A)') 'structure and fluid field: pressure'  
   write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn),(0.0,in=1,nn_inter+nn_inter_ini+ne_temp)
+
   close(ifileunit)
 
  !...Write stress output in ens_movie.stress*
