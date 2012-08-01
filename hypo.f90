@@ -80,12 +80,12 @@ subroutine hypo
 
 !=============================
 !  vis_solid= - vis_liq 
-  vis_solid=  0.1
+  vis_solid=  1.0
   I_fluid(:)=0.0
   solid_pave(:)=0.0d0
   solid_vel(:,:) = 0.0d0
   solid_accel(:,:) = 0.0d0
-  damp_solid = 10.0
+  damp_solid = 100.0
   solid_bcvel(:,:) = 0.0
   solid_bcvel_old(:,:) = 0.0
   outedge=2
@@ -178,7 +178,7 @@ end if
 ! correct the curr solid coor by solving the solid mon equations
 call mpi_barrier(mpi_comm_world,ierror)
 
-if (its .gt. 50) then
+if (its .gt. 5) then
 if (myid == 0) write(*,*) '=== Fluid solver have converged for', its,'time steps ==='
 
 time = mpi_wtime()

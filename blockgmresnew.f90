@@ -8,7 +8,7 @@
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,node_local,nn_local, &
-			fden,fvis,I_fluid,rngface)
+			fden,fvis,I_fluid)
   use global_constants
   use run_variables
   use fluid_variables
@@ -52,9 +52,6 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   real(8) fvis(nn)
   real(8) local_vis(nen)
   real(8) I_fluid(nn)
-  real(8) kappa_s
-  real(8) kappa_f
-  integer rngface(neface,ne)
 !---------------------------------------------
 !============================
 ! MPI varibalbes
@@ -68,8 +65,6 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
-  kappa_s = 1.0e4
-  kappa_f = 2.0e9
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 !dloc(ndf,:)=(1.0 - I_fluid(:)) * dloc(ndf,:)
@@ -200,14 +195,6 @@ end do
 		  enddo
 		endif
 
-                do inl=1,nen
-		   node=ien(inl,ie)
-		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
-		   (1.0/(kappa_f + (kappa_s - kappa_f)*I_fluid(node)))
-		end do  ! add dp/dt term for artificial fluid
-
-
-
 	    do isd = 1, nsd
 			if (nsd==2) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)-g(isd))-fq(isd)
@@ -291,7 +278,6 @@ end do
 				p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd)
-				p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
 			  enddo
 			elseif (nsd==3) then
 			  do isd=1,nsd
@@ -299,7 +285,6 @@ end do
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd) -  &
 										  ph(3,inl)*tau(3,isd)
-				p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
 			  enddo
 			endif
 

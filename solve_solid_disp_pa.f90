@@ -48,7 +48,7 @@ integer iq
 !-------------------------------------------------
 integer inner
 integer outer
-parameter (inner = 300) ! solid equation inner 50 should be sufficient
+parameter (inner = 200) ! solid equation inner 50 should be sufficient
 parameter (outer = 10)  ! solid equation outer 5 should be sufficient
 !-------------------------------------------------
 real(8) dg(nsd_solid,nn_solid) ! disp correction

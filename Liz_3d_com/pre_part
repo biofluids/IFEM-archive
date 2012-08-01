@@ -1,0 +1,12 @@
+partnmesh mien.in 16 
+rm partele.in
+rm partnode.in
+mv mien.in.epart.16 partele.in
+mv mien.in.npart.16 partnode.in
+
+partnmesh connectsolid.in 16
+rm partele_solid.in
+rm partnode_solid.in
+mv connectsolid.in.epart.16 partele_solid.in
+mv connectsolid.in.npart.16 partnode_solid.in
+
