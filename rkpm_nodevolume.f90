@@ -40,7 +40,7 @@ dwjp_r(:)=0.0d0
 adist_r(:,:)=0.0d0
 
 
-coef=0.8d0
+coef=1.0d0
 if (myid == 0) write(*,*) '*** RKPM coefficient ***', coef
 do ie_local=1,ne_local
 	ie=ien_local(ie_local)

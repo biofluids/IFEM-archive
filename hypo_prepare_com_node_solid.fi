@@ -23,7 +23,7 @@ call mpi_bcast(node_test_g(1),nn_solid,mpi_integer,0,mpi_comm_world,ierror)
 call mpi_barrier(mpi_comm_world,ierror)
 ! nodes needed communication in node_test_g is larger than 1
 count=0
-!write(*,*) 'I am here', 'myid', myid
+write(*,*) 'I am here hypo_pre_com_solid', 'myid', myid
 do icount=1,nn_solid
 	if (node_test_g(icount) .gt. 1) then
 	count=count+1

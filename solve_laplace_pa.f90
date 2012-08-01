@@ -75,13 +75,13 @@ do i=1,nn_sbc
 end do
 !------------------------
 ! reset inside boundary based on fnode
-do i=1,nn
-        if (flag_fnode(i) == 1) then
-                I_fluid(i)=1.0
+!do i=1,nn
+!        if (flag_fnode(i) == 1) then
+!                I_fluid(i)=1.0
 !                flag_node(i)=1
-		lp_id(i) = 0
-        end if
-end do
+!		lp_id(i) = 0
+!        end if
+!end do
 
 time = mpi_wtime()
 call block_Laplace(x_fluid,I_fluid,p_inter,w_inter,ien,ien_local,ne_local,source)

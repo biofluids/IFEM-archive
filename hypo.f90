@@ -25,7 +25,7 @@ subroutine hypo
   integer :: klok,j
 
   integer infdomain(nn_solid)
-  real(8) mass_center(nsd_solid)
+  real(8) mass_center(2)
   real(8) sfxyz(nsd,node_sfcon)
   integer inode_sf
 ! Variables for different fluid density using by implicit form  
@@ -44,10 +44,6 @@ subroutine hypo
   real(8) time
   real(8) time_com
   real(8) pin_s
-! solid 1st type bc temp varaibles
- real(8) omega_tmp
- real(8) theta_tmp
-
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
@@ -85,7 +81,7 @@ subroutine hypo
   solid_pave(:)=0.0d0
   solid_vel(:,:) = 0.0d0
   solid_accel(:,:) = 0.0d0
-  damp_solid = 100.0
+  damp_solid = 10.0
   solid_bcvel(:,:) = 0.0
   solid_bcvel_old(:,:) = 0.0
   outedge=2
@@ -100,12 +96,8 @@ end if
 !===================================
 ! save the orignal position of solid nodes at fluid boundary
 if (node_sfcon .ne. 0 ) then
-omega_tmp=1.0
   do inode_sf=1,node_sfcon
      sfxyz(1:nsd,inode_sf)=solid_coor_init(1:nsd,sfcon(inode_sf))
-!     solid_vel(1,sfcon(inode_sf)) = -(solid_coor_init(2,sfcon(inode_sf)) - 1.0)/0.1*0.1*omega_tmp
-!     solid_vel(2,sfcon(inode_sf)) = (solid_coor_init(1,sfcon(inode_sf)) - 4.0)/0.1*0.1*omega_tmp
-
   end do
 end if
 
@@ -161,26 +153,13 @@ if (ndelta==1) then
 		solid_stress(1:nsd_solid,ie) = solid_pave(ie)
 	end do
 
-if (node_sfcon .ne. 0 ) then
 
-!  do inode_sf=1,node_sfcon
-!          solid_accel(1,sfcon(inode_sf))= - 2*3.14*cos(2*3.14*tt)
-!	  solid_accel(2,sfcon(inode_sf))= 0
-!  end do
-
-
- ! do inode_sf=1,node_sfcon
-!	solid_accel(1,sfcon(inode_sf))= - (solid_coor_curr(1,sfcon(inode_sf)) - 4.0)*(omega_tmp*omega_tmp) ! omega =10
-!        solid_accel(2,sfcon(inode_sf))= - (solid_coor_curr(2,sfcon(inode_sf)) - 1.0)*(omega_tmp*omega_tmp) 
-!  end do
-end if
 !-------------------------------
 ! correct the curr solid coor by solving the solid mon equations
+
+!if (its .gt. 10) then
+!if (myid == 0) write(*,*) '=== Fluid solver have converged for', its,'time steps ==='
 call mpi_barrier(mpi_comm_world,ierror)
-
-if (its .gt. 5) then
-if (myid == 0) write(*,*) '=== Fluid solver have converged for', its,'time steps ==='
-
 time = mpi_wtime()
 id_solidbc(:,:)=1
 call form_solidid12(id_solidbc,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ne_solid,solid_fem_con)
@@ -188,6 +167,9 @@ call solve_solid_disp_pa(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_co
                         solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype,&
 	ne_intlocal_solid,ien_intlocal_solid,nn_local_solid,node_local_solid,send_address_solid,ad_length_solid,&
 	global_com_solid,nn_global_com_solid,local_com_solid,nn_local_com_solid)
+
+!call solve_solid_disp(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_con,node_sbc, &
+!                        solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype)
 
 
 
@@ -197,7 +179,7 @@ time = mpi_wtime()-time
 if (myid == 0)  write(*,*) 'Time for solid solver', time
 
 
-end if
+!end if
 
 
 !if (.false.) then ! debug solid disp solver only
@@ -336,11 +318,11 @@ end if
 !=================================================================
 ! Write output file every ntsbout steps
 !    Out put the fluid pressure at solid nodals
-!if (node_sfcon .ne. 0) then
-!  do inode_sf=1,node_sfcon
-!     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
-!  end do
-!end if
+if (node_sfcon .ne. 0) then
+  do inode_sf=1,node_sfcon
+     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
+  end do
+end if
 	if (myid == 0) then
      include "hypo_write_output.fi"
 	endif

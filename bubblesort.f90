@@ -43,7 +43,9 @@ do i=1,n
 	end if
 end do
 
-if (myid == 0) write(*,*) 'countow', countrow
+!if (myid == 0) write(*,*) 'countow', countrow
+
+write(*,*) 'myid', myid, 'countow', countrow
 
 allocate(sub_address(countrow,2))
 ! sub_address(proc id, number of nodes share by this proc)

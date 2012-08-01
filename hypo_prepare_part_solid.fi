@@ -1,5 +1,8 @@
 !--------------
 !Corresponding changes to save space
+
+      call mpi_barrier(mpi_comm_world,ierror)
+
 allocate (partele(ne_solid))
 allocate (partnode(nn_solid))
 allocate (tmp_index(ne_solid))
@@ -20,7 +23,11 @@ do count = 1,ne_solid
                 ne_intlocal_solid=ne_intlocal_solid+1
         endif
 end do
+
+
         allocate(ien_intlocal_solid(ne_intlocal_solid))
+
+
 
 ne_intlocal_solid=0
 
@@ -90,6 +97,9 @@ node_global_solid(:)=0
 do count = 1,nn_local_solid
 	node_global_solid(node_local_solid(count))=count
 end do
+
+!write(*,*) 'myid', myid, '====== hypo_prepare_part_solid.fi ======'
+
 
 !------------
 ! Deallocate variables

@@ -1,6 +1,5 @@
 .SUFFIXES: .f90
-LIBS    = /Users/macserver/Downloads/lapack-3.3.1/lapack_LINUX.a \
-	  /Users/macserver/Downloads/BLAS/blas_LINUX.a
+LIBS    = /bgl/local/essl/lib/libesslbg.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o ale_variables.o \
 delta_nonuniform.o \
@@ -32,8 +31,8 @@ readpart_solid.o solve_solid_disp_pa.o block_solid_pa.o gmres_solid_pa.o blockgm
 solve_laplace_pa.o gmres_Laplace_pa.o \
 bubblesort.o communicate_res_ad_sub.o bubblesort_solid.o communicate_res_ad_subsolid.o
 IFEM: $(OBJ)
-	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
+	mpixlf90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpif90 -c -g $<
+	mpixlf90 -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

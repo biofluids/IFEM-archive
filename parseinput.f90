@@ -88,12 +88,14 @@ end if
 ! Right now it is only two parts
   Call Read_Int(nep1,1)
   Call Read_Int(nep2,1)
-
+  Call Read_Int(nep3,1)
 
   nn_solid = nn_solid_1 * n_solid
   ne_solid = ne_solid_1 * n_solid
   nep1 = nep1*n_solid
   nep2 = nep2*n_solid
+  nep3 = nep3*n_solid
+
 if (myid == 0) then
   if (mno .lt. nn_solid) then !...see r_common.f90
      write(*,*) 'boost mno in r_common.f'
@@ -135,17 +137,17 @@ end if
   CALL Read_Real(group_young,2)		! young's modulus (elastic material)
   !============================================================
   CALL Read_Real(Poisson,1)			! Poisson ratio (elastic material_
-  CALL Read_Real(group_rc1,2)				! constants C1 (hyperelastic material)
-  CALL Read_Real(group_rc2,2)				! constants C2 (hyperelastic material)
+  CALL Read_Real(group_rc1,3)				! constants C1 (hyperelastic material)
+  CALL Read_Real(group_rc2,3)				! constants C2 (hyperelastic material)
   CALL Read_Real(rk,1)				! constants Ck (hyperelastic material)
   CALL Read_Real(density_solid,1)	! Density solid-fluid
 if (myid ==0) then
   if (material_type==1) write(*,*) 'The solid is HYPERELASTIC material'
   if (material_type==2) write(*,*) 'The solid is LINEAR ELASTIC material'
-  write(*,*) 'Youngs modulus for two solid parts I and II=', group_young(1:2)
+  write(*,*) 'Youngs modulus for two solid parts I and II=', group_young(1:3)
   write(*,*) 'Poisson ratio=', Poisson
-  write(*,*) 'C1 for two solid parts I and II  = ',group_rc1(1:2)
-  write(*,*) 'C2 for two solid parts I and II  = ',group_rc2(1:2)
+  write(*,*) 'C1 for two solid parts I and II  = ',group_rc1(1:3)
+  write(*,*) 'C2 for two solid parts I and II  = ',group_rc2(1:3)
   write(*,*) 'kappa   = ',rk
   write(*,*) 'density = ',density_solid
 end if
