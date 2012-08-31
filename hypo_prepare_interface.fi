@@ -7,8 +7,6 @@
   call scale_shift_inter(x_inter)
 
   Ic_inter=0.5   !initialize constant interface indicator
-  norm_inter(:,:)=0.0
-  curv_inter(:)=0.0
   corr_Ip(:)=0.0
   I_fluid(:)=0.0
   vel_inter(:,:)=0.0

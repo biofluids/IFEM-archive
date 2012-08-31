@@ -25,9 +25,7 @@ integer ne_intlocal
 integer ien_intlocal(ne_intlocal)
 integer inf_tmp(nn_solids),inf_tmp2(nn_solids)
 integer outflag
-if (myid ==0) then
-write(*,*) 'I am in search influence'
-end if
+integer icount,ncount
 
   if(nn_solids.le.ncpus) then
     if(myid+1.le.nn_solids) then
@@ -71,13 +69,28 @@ call getinf_el_3d(finf, x, xyz_fluid, nn_fluids, nsd, ne, nen, ien, maxconn)
               call mpi_reduce(inf_tmp(1),inf_tmp2(1),nn_solids,mpi_integer,mpi_sum,0,mpi_comm_world,ierror)
 	      call mpi_bcast(inf_tmp2(1),nn_solids,mpi_integer,0,mpi_comm_world,ierror)
 	      infdomain(1:nn_solids)=inf_tmp2(1:nn_solids)
-	if (myid == 0) then
-		outflag=minval(infdomain(1:nn_solids))
-		if (outflag == 0) then
-			 write(*,*) 'errors! 1. solid is out of the fluid domain or 2. search code wrong'
-			 stop
-		end if
-	end if
+!	if (myid == 0) then
+!		outflag=minval(infdomain(1:nn_solids))
+!		if (outflag == 0) then
+!			 write(*,*) 'errors! 1. solid is out of the fluid domain or 2. search code wrong'
+!			 stop
+!		end if
+!	end if
+ncount=0
+do icount=1,nn_solids
+   if(infdomain(icount).ne.0) then
+     ncount=ncount+1
+     xyz_solid(:,ncount)=xyz_solid(:,icount)
+     infdomain(ncount)=infdomain(icount)
+   else
+!     if(myid==0)write(*,*)'point ', icount, 'is out of domain'
+!     if(myid==0)write(*,*)'coordinates=',xyz_solid(:,icount)
+   end if
+end do 
+
+nn_solids=ncount
+   
+
 
       return
 end

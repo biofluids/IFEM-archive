@@ -14,3 +14,20 @@
   integer :: error_id,i
   integer,dimension(1:ne_solid) :: mtype ! solid material type index
   integer,allocatable :: mtype1(:)
+  real(8) x_solidtmp1(nsd_solid,nn_solid)
+  real(8) x_solidtmp2(nsd_solid,nn_solid)
+!==============================
+  integer, dimension(1:ne_sbc,1:nen_solid+2) :: ien_sbc ! solid interface elements
+  integer, dimension(1:nn_sbc) :: node_sbc ! solid interface nodes
+
+  integer, dimension(1:ne_sbc_1,1:nen_solid+2) :: ien_sbc_1 ! solid interface elements
+  integer, dimension(1:nn_sbc_1) :: node_sbc_1 ! solid interface nodes
+
+  integer, dimension(1:node_sfcon_1) :: sfcon_1 
+  integer, dimension(1:node_sfcon) :: sfcon ! node of solid-fluid connected boundary
+  integer, dimension(1:nsd_solid,1:nn_solid) :: id_solidbc ! index of 1st typy bc on solid boundary
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_pre1   !...node position last 1 time step
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_coor_pre2   !...node position last 2 time step
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_bcvel   !...solid velocity boundary condition
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_bcforce   !...solid domain pressure derivative integral
+  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_bcvel_old   !...solid velocity boundary condition

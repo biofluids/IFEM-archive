@@ -18,5 +18,12 @@ module solid_variables
   real(8),dimension(:,:),allocatable :: shift
 
   integer :: nep1,nep2 !number of elements for each solid parts
+  integer ne_sbc_1 ! number of edges on solid interface for parmeter read in
+  integer nn_sbc_1 ! number of nodes on solid interface for parmeter read in
+  integer ne_sbc ! number of edges on solid interface
+  integer nn_sbc ! number of nodes on solid interface
+  integer node_sfcon ! number of solid nodes on fluid-solid connected boundary
+  integer node_sfcon_1
 
+  real(8) damp_solid ! solid damping coefficient
 end module solid_variables

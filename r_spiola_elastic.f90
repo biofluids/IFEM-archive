@@ -47,7 +47,10 @@ subroutine r_spiola_elastic(det,xot,ge,iq,ne,cstr_element)
      do jsd = 1,3
         PK1str_tens(isd,jsd) = 0.0d0
         do ksd = 1,3
-           PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) + det*xot(isd,ksd)*cstr(ksd,jsd)
+!           PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) + det*xot(isd,ksd)*cstr(ksd,jsd)
+! according to 2-D formulation detf is the determinant of jacobi to initial 
+           PK1str_tens(isd,jsd) = PK1str_tens(isd,jsd) + xot(isd,ksd)*cstr(ksd,jsd)/detf
+
         enddo
      enddo
   enddo

@@ -8,12 +8,13 @@
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,&
-			ne_local,ien_local,node_local,nn_local, &
-			sur_fluid,I_fluid)
+		ne_local,ien_local, node_local,nn_local,fden,fvis,I_solid,I_fluid,sur_fluid)
   use global_constants
   use run_variables
   use fluid_variables
-  use interface_variables
+  use solid_variables, only: nn_solid
+  use r_common, only: density_solid, vis_solid
+  use interface_variables, only:den_inter,vis_inter
   use mpi_variables
   implicit none
 
@@ -24,9 +25,6 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
-
-  real* 8 sur_fluid(nsd,nn)
-  real* 8 I_fluid(nn)
 
   real* 8 eft0,det,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
@@ -49,38 +47,51 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
 
   real* 8 f_fluids(nsd,nn)
   real* 8 fnode(nsd,nen),fq(nsd)
+  integer nn_local
+  integer node_local(nn_local)
+!======================================
+! Defined by Chu
   real* 8 q_d(ndf,nen)
   real* 8 q_res_c(nen)
   real* 8 q_p(ndf,nn)
   real* 8 q_res_a(nsd,nen)
   real* 8 diag(12)
 !======================================
+! Define by Xingshi
+! MPI varialbes & implicit FSI force
+  real(8) fden(nn)
+  real(8) local_den(nen)
+  real(8) fvis(nn)
+  real(8) local_vis(nen)
+  real(8) I_solid(nn)
+  real(8) I_fluid(nn),sur_fluid(nsd,nn)
+  real(8) kappa
+!======================================
 ! varibles for mpi implementation
         integer ne_local ! # of element on each processor
         integer ien_local(ne_local) ! subregion-->whole region element index
         integer ie_local ! loop parameter
-	integer nn_local
-	integer node_local(nn_local)
 	integer icount
 !--------------------------------------------------
-
-
   q_res_a(1:nsd,1:nen) = 0
   q_p(1:ndf,1:nn) = 0
   q_d(1:ndf,1:nen) = 1 !set each ndf for each node as 1
   q_res_c(1:nen) = 0
-
+!---------------------------------------------------
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
+  kappa = 1.0e4
+
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
+!dloc(ndf,:) = (1.0 - I_fluid(:) * dloc(ndf,:))
 do icount=1, nn_local
-        node=node_local(icount)
-!p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
-! p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
+	node=node_local(icount)
+p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 end do
+!=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
 ! then we will just subscrib it from p(!:nsd) which is the 
@@ -89,8 +100,8 @@ end do
 ! 2 do the subscribition after the elements loop
 ! Xingshi 09/15/2008
 !===================================================
-  do ie_local=1,ne_local		! loop over elements
-     ie=ien_local(ie_local)
+  do ie_local=1,ne_local		! loop over subregion elements
+        ie=ien_local(ie_local)
      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -100,6 +111,9 @@ end do
 		 d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
 		 d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
 		f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
+!-----------------------------------------------------------------------------
+               local_den(inl)=fden(ien(inl,ie))
+	       local_vis(inl)=fvis(ien(inl,ie))
 	 enddo
 
 	 hg = hk(ie)
@@ -141,13 +155,24 @@ end do
 		   fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
 	    enddo
 
-
+        ro=0.0
+	mu=0.0
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
 		   drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
 		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
+!----------------------------------------------------------------------------------------                   
+!		   ro=ro+sh(0,inl)*local_den(inl)  ! local fluid density
+!		   mu=mu+sh(0,inl)*local_vis(inl)  ! local fluid viscosity
 	    enddo
+
+do inl=1,nen
+   node=ien(inl,ie)
+   ro=ro+sh(0,inl)*( den_liq+(den_inter-den_liq)*I_fluid(node)+(density_solid-(den_inter-den_liq)*I_fluid(node))*I_solid(node))
+   mu=mu+sh(0,inl)*( vis_liq+(vis_inter-vis_liq)*I_fluid(node)+(vis_solid    -(vis_inter-vis_liq)*I_fluid(node))*I_solid(node))
+end do
+
 
 !... define u=v1, v=v2, w=v3, pp=p
 		if (nsd==2) then
@@ -168,16 +193,7 @@ end do
 	    endif
 
 !....  calculate liquid constant and gravity
-	    mu = vis_liq  ! liquid viscosity
-	    ro = den_liq  ! liquid density
-		g  = gravity  ! gravatitional force
-	    mu=0.0
-	    ro=0.0
-	    do inl=1,nen
-		node=ien(inl,ie)
-		mu=mu+sh(0,inl)*(vis_liq+(vis_inter-vis_liq)*I_fluid(node))
-		ro=ro+sh(0,inl)*(den_liq+(den_inter-den_liq)*I_fluid(node))
-	    end do
+		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -196,16 +212,24 @@ end do
 		  do inl=1,nen
 		   	 res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl)
-		  	 q_res_c(inl) = 0*q_d(pdf,inl)! get res_c for P for continuity equation
+		  	 q_res_c(inl) = sh(0,inl)*dtinv/kappa*I_solid(node)! get res_c for P for continuity equation
 		  enddo
 		elseif (nsd==3) then
 		  do inl=1,nen
 		     res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl) &
 	                    +sh(zsd,inl)*d(wdf,inl)
-		     q_res_c(inl) = 0
+		     q_res_c(inl) = sh(0,inl)*dtinv/kappa*I_solid(node)
 		  enddo
 		endif
+
+                do inl=1,nen
+		   node=ien(inl,ie)
+		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
+		   (1.0/kappa*I_solid(node))
+		end do  ! add dp/dt term for artificial fluid
+
+
 
 	    do isd = 1, nsd
 			if (nsd==2) then
@@ -222,8 +246,6 @@ end do
                            do inl = 1, nen
                                 q_res_a(isd,inl)=ro*(sh(0,inl)*dtinv+u*sh(1,inl)+v*sh(2,inl)+w*sh(3,inl))
                            end do ! get res_a for u v and w for momentum equation
-
-
 
 			endif
 	    enddo
@@ -308,12 +330,13 @@ end do
 				p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd)
+				p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
 			  enddo
 
 			       q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*q_d(1,inl)*2)+&
 					     ph(2,inl)*mu*sh(2,inl)*q_d(1,inl)
 			       q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)*q_d(2,inl)+ &
-					     ph(2,inl)*(mu*sh(2,inl)*q_d(2,inl)*2)
+					     ph(2,inl)*(mu*sh(2,inl)*q_d(2,inl)*(2.0-2.0/3.0))
 
 
 			elseif (nsd==3) then
@@ -322,11 +345,15 @@ end do
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd) -  &
 										  ph(3,inl)*tau(3,isd)
+				p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
 			  enddo
 
-                          q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*2)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*sh(3,inl)
-                          q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*(sh(2,inl)*2)+ph(3,inl)*mu*sh(3,inl)
-                          q_p(3,node)=q_p(3,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*(sh(3,inl)*2)
+                          q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*(2.0-2.0/3.0))+&
+			  		  ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*sh(3,inl)
+                          q_p(2,node)=q_p(2,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*(sh(2,inl)*(2.0-2.0/3.0))+&
+			  		  ph(3,inl)*mu*sh(3,inl)
+                          q_p(3,node)=q_p(3,node)+ph(1,inl)*mu*sh(1,inl)+ph(2,inl)*mu*sh(2,inl)+&
+			  		  ph(3,inl)*mu*(sh(3,inl)*(2.0-2.0/3.0))
 
 			endif
 
@@ -356,10 +383,10 @@ end do
   enddo ! end of element loop
 !write(*,*)q_p(:,:)
 
- continue  
 continue
 !write(*,*)q_p(:,:)
 !write(*,*)d(:,:)
 
-end subroutine 
+
+end subroutine block
 

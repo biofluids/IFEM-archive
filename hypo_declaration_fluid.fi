@@ -21,7 +21,13 @@
 !    real(8) :: avloc(ndf,nn)
 !    real(8) :: h_gmres(inner+1,inner)  
 !    real(8) :: y_gmres(inner+1) 
-    real(8) :: cc(inner), ss(inner)   
-    real(8) :: dvolume(nn)
+!    real(8) :: cc(inner), ss(inner)   
     integer :: nts_test1,nts_test2,ios1,ios2
-
+     real(8) :: dvolume(nn)
+!-----------------------------------
+     real(8) lp_source(nsd,nn)
+     real(8) I_solid(nn)
+     real(8) fden(nn)
+     real(8) fvis(nn)
+     real(8) sp_radius(nsd,nn)
+     integer flag_fnode(nn)

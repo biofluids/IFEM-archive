@@ -1,4 +1,0 @@
-integer :: nn_local_den
-integer :: ne_local_den
-integer,dimension(:),allocatable :: ien_local_den
-integer,dimension(:),allocatable :: node_local_den

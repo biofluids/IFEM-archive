@@ -3,24 +3,25 @@
 subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		sur_fluid,I_fluid)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer
+		fden,fvis,I_solid,rngface,I_fluid,sur_fluid)
+	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
  	use solid_variables, only: nn_solid
         use mpi_variables
 	implicit none
       include 'mpif.h'
-	real* 8 x(nsd,nn),id(ndf,nn)
-	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn),ien(nen,ne)
+	real* 8 x(nsd,nn)
+	integer id(ndf,nn)
+	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn)!,ien(nen,ne)
+        integer ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
-	real* 8 sur_fluid(nsd,nn),I_fluid(nn)
 !=========================================================
 ! reduce dimension to save memory
 	real* 8 Vm(ndf*nn_local, inner+1) ! Krylov space matrix
 !        real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
 !=========================================================
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8 e1(inner+1)
 	real* 8 x0(ndf*nn)
 	real* 8 beta(inner+1)
 	real* 8 eps
@@ -38,7 +39,13 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 	character(1) TRAN
 	real* 8 workls(2*inner)
 	real* 8 av_tmp(ndf,nn)
+	integer rngface(neface,ne)
 
+!---------------------------------------
+  real(8) fden(nn)
+  real(8) fvis(nn)
+  real(8) I_solid(nn)
+  real(8) I_fluid(nn),sur_fluid(nsd,nn)
 !============================
 ! MPI varibalbes
   integer ne_local ! # of element on each processor
@@ -63,26 +70,28 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         integer time_arrary_1(8)
         real(8) start_time
         real(8) end_time
-
+  real(8) linerr
 !---------------------------------------------
 
 
 
-	eps = 1.0e-5
-	e1(:) = 0
-	e1(1) = 1
+	eps = 1.0e-6
+	linerr = 1.0e-6
+	e1(:) = 0.0
+	e1(1) = 1.0
 	x0(:) = 0
 	iouter = 1
 	r0(:) = bg(:)
 	TRAN = 'N'
-	av_tmp(:,:) = 0
-	avloc(:) = 0
+	av_tmp(:,:) = 0.0
+	avloc(:) = 0.0
+	vloc(:,:)=0.0
 !	w(:) = 1
         call getnorm_pa(r0,ndf,nn,node_local,nn_local,rnorm0)
         rnorm = sqrt(rnorm0)
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-12))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
 
 !==============================
 	Vm(:,:) = 0.0d0
@@ -135,7 +144,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 ! Let vloc=vloc+d first then communicate, and then it should same # of loop (avoiding loop at the whole domain)
 !=============================
 !		call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-	        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
 
 !----------------------------------------------------------------------------------------------
 !vloc(:,:)=vloc(:,:)+d(:,:)
@@ -155,13 +164,13 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !======================================
 
 		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
-				sur_fluid,I_fluid)
+				fden,fvis,I_solid,rngface,I_fluid,sur_fluid)
 
 
 
 
 !                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
 
 
 !===================
@@ -299,7 +308,7 @@ temp=0.0d0
 	end do
 
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
+        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
 
 
 !==============================
@@ -320,9 +329,9 @@ temp=0.0d0
 
 
 	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
-				sur_fluid,I_fluid)
+			fden,fvis,I_solid,rngface,I_fluid,sur_fluid)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
+        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
 !==================
 !avloc(:)=0.0d0
 !==================
@@ -374,6 +383,7 @@ temp=0.0d0
 	call mpi_barrier(mpi_comm_world,ierror)
 	call mpi_allreduce(dg_sent(1),dg(1),ndf*nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 !	call mpi_bcast(dg(1),ndf*nn,mpi_double_precision,0,mpi_comm_world,ierror)
+        call mpi_barrier(mpi_comm_world,ierror)
 
 
 	return

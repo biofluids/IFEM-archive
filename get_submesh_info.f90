@@ -2,22 +2,18 @@
 ! get element center coordinates
 !========================================
 
-subroutine get_submesh_info(xloc,x_center,ien,bcnode)
+subroutine get_submesh_info(xloc,x_center,ien,vol_nn,hg)
 
   use fluid_variables,only:nsd,nn,ne,nen
-!  use denmesh_variables, only:nn_den,ne_den,nen_den,nbc_den
-  use interface_variables, only:nbc
   real(8) xloc(nsd,nn)
   real(8) x_center(nsd,ne)
   integer ien(nen,ne)
-!  integer ien_den(nen_den,ne_den)
-!  real(8) x_den(nsd,nn_den)
-  integer bcnode(nbc,2)
 
   integer i,j,ie,inl,isd,node
   real(8) temp(nsd,nen)
   real(8) sh(nen)
 
+  real(8) vol_nn(nn),hg(ne)
 
 
     x_center(:,:) = 0.0
@@ -37,13 +33,9 @@ subroutine get_submesh_info(xloc,x_center,ien,bcnode)
 	  end do
     end do
 
-
-!    open(120,file='bcnode.dat',status='old')
-!	do i=1,nbc
-!	   read(120,112)bcnode(i,1),bcnode(i,2)
-!	end do
-!    close(120)
-112 format(2I8)
-    
+   vol_nn(:)=0.0
+   do ie=1,ne
+      vol_nn(ien(1:nen,ie))=vol_nn(ien(1:nen,ie))+hg(ie)**nsd/real(nen)
+   end do
 end subroutine get_submesh_info
      

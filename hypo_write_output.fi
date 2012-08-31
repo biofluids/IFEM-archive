@@ -16,13 +16,11 @@
 
           if( n_tec_ens == 0) then   !ensight output
 
-             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2,&
-			x_inter,x_center,x_inter_ini,nn_inter_ini)
-             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress,&
-				nn_inter_ini,vel_inter)
+             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2,x_inter)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress&
+				,I_solid,I_fluid,vel_inter)
              call zfem_ensCase(dt,its,ntsbout)
-             
-             call zfem_ensInter(I_fluid,I_fluid_center,norm_inter,nn_inter_ini,klok)
+
           endif
 
        elseif (mod(its,ntsbout) == 0) then
@@ -31,13 +29,10 @@
 
           if( n_tec_ens == 0) then   !ensight output
 
-             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2, &
-			x_inter,x_center,x_inter_ini,nn_inter_ini)
-             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress,&
-				nn_inter_ini,vel_inter)
+             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2,x_inter)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress&
+		,I_solid,I_fluid,vel_inter)
              call zfem_ensCase(dt,its,ntsbout)
-             call zfem_ensInter(I_fluid,I_fluid_center,norm_inter,nn_inter_ini,klok)
-
 
           endif
 

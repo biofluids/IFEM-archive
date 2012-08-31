@@ -2,17 +2,16 @@
 !find center & den calculation domain pa
 !=====================================
 
-subroutine find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
-			hg)
+subroutine find_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,nn_local,node_local,I_solid,ien)
 
   use interface_variables, only:nn_inter,maxmatrix,hsp,max_hg
-  use fluid_variables,only:nsd,ne
+  use fluid_variables,only:nsd,ne,nn,nen
 !  use denmesh_variables, only:nn_den,ne_den,nen_den
   use allocate_variables, only:den_domain,center_domain,ne_den_domain,nn_center_domain
   use mpi_variables
   include 'mpif.h'
 
-  real(8) x_center(nsd,ne)
+  real(8) x_center(nsd,ne),x(nsd,nn)
 !  real(8) x_den(nsd,nn_den)
   real(8) x_inter(nsd,maxmatrix)
   integer ne_intlocal
@@ -20,7 +19,11 @@ subroutine find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
   integer nn_domain_local
 !  integer domain_local(ne_intlocal)
   integer domain_local(ne_intlocal)
-  real(8) hg(ne)
+  integer domain_nlocal(nn_local)
+   real(8) hg(ne)
+  integer nn_local,node_local(nn_local)
+  real(8) I_solid(nn)
+  integer ien(nen,ne)
 !  integer ne_local_den
 !  integer ien_local_den(ne_local_den)
 !  integer ien_den(nen_den,ne_den)
@@ -54,16 +57,22 @@ subroutine find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
      end do
 100 continue
     if(flag==1) then
+        temp=0.0
+	do i=1,nen
+	   temp=temp+I_solid(ien(i,ie))
+	end do
+	temp=temp/real(nen)
+!	if(temp.le.0.5) then
 	nn_domain_local=nn_domain_local+1
 	domain_local(nn_domain_local)=ie
+!	end if
     end if
   end do
 
   index_local_temp(myid+1)=nn_domain_local
   call mpi_barrier(mpi_comm_world,ierror)
-  call mpi_reduce(index_local_temp(1),index_local(1),ncpus,mpi_integer,mpi_sum,0,&
+  call mpi_allreduce(index_local_temp(1),index_local(1),ncpus,mpi_integer,mpi_sum,&
 		mpi_comm_world,ierror)
-  call mpi_bcast(index_local(1),ncpus,mpi_integer,0,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
   nn_center_domain=0
   do icount=1,ncpus
@@ -94,21 +103,17 @@ subroutine find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
 
   call mpi_bcast(center_domain(1),nn_center_domain,mpi_integer,0,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
+!**********************************************!
 
+!**********************************************!
 !find the narrow band of the dense mesh used for poisson equation
-  support=1.5*max_hg
+  support=1.0*max_hg
 !  support=3.5*hsp
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0
   do icount=1,ne_intlocal
      ie=ien_intlocal(icount)
-!     den_center(1:nsd)=0.0
-!     do isd=1,nsd
-!	do inl=1,nen_den
-!	   den_center(isd)=den_center(isd)+1.0/real(nen_den)*x_den(isd,ien_den(inl,ie))
-!	end do
-!     end do
      flag=0
      do i=1,nn_inter
         temp=0.0
@@ -122,8 +127,15 @@ subroutine find_domain_pa(x_center,x_inter,ne_intlocal,ien_intlocal,&
      end do
 900 continue
     if(flag==1) then
+	temp=0.0
+	do i=1,nen
+	   temp=temp+I_solid(ien(i,ie))
+	end do
+	temp=temp/real(nen)
+!	if(temp.lt.0.5) then
         nn_domain_local=nn_domain_local+1
         domain_local(nn_domain_local)=ie
+!	end if
     end if
   end do
 

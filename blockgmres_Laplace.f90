@@ -3,152 +3,52 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  blockgmres_Laplace(cal_ne,cal_domain,xloc,I_fluid_den,p_inter,ien_den,nn_den,ne_den,nen_den)
+subroutine  blockgmres_Laplace(xloc,I_solid,p_inter,ien,lp_el,count_el)
   use global_constants
   use run_variables
-  use fluid_variables,only:nsd,iquad
-!  use centermesh_variables
-!  use denmesh_variables, only:nn_den,ne_den,nen_den
+  use fluid_variables
   implicit none
 
-  integer nn_den,ne_den,nen_den
-  integer ien_den(nen_den,ne_den)
-  real(8) xloc(nsd,nn_den)
-  real(8) I_fluid_den(nn_den)
-  real(8) p_inter(nn_den)
-
-  real(8) x(nsd,nen_den),d(nen_den)
+  integer ien(nen,ne)
+  real(8) xloc(nsd,nn)
+  real(8) I_solid(nn)
+  real(8) p_inter(nn)
+!  real(8) w_inter(nn)
+!---------------------
+  integer count_el
+  integer lp_el(count_el)
+!---------------------
+  real(8) x(nsd,nen),d(nen)
   real(8) eft0,det,effd,effm,effc
-  real(8) sh(0:nsd,nen_den),ph(0:nsd,nen_den)
+  real(8) sh(0:nsd,nen),ph(0:nsd,nen)
   real(8) xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
 
   real(8) dr(nsd)
-  real(8) hg
-  integer cal_ne
-  integer cal_domain(cal_ne)
   
-  integer inl,ie,isd,node,iq,ine
-
-  integer,parameter :: ndfpad=5,nsdpad=3,nenpad=8,nquadpad=8
-  integer nquad
-  real(8) sq(0:nsdpad,nenpad,nquadpad)
-  real(8) xq(nsdpad,nquadpad),wq(nquadpad)
-
-  if(nsd==3) then
-!     write(*,*)'no 3d in block laplace'
-!     stop
-          if (nen_den.eq.4) then
-                call quad3d4n(iquad, nquad, xq, wq, nsdpad, nquadpad)
-          else if (nen_den.eq.8) then
-                call quad3d8n(iquad, nquad, xq, wq, nsdpad, nquadpad)
-          end if
-      do iq=1,nquad
-                if(nen_den.eq.4) then
-                  sq(0,1,iq) = xq(1,iq)
-                  sq(0,2,iq) = xq(2,iq)
-                  sq(0,3,iq) = xq(3,iq)
-                  sq(0,4,iq) = 1 - xq(1,iq) - xq(2,iq) - xq(3,iq)
-        else
-                  sq(0,1,iq) = (1 - xq(1,iq))   &
-                           * (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(0,2,iq) = (1 + xq(1,iq))   &
-                           * (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(0,3,iq) = (1 + xq(1,iq))   &
-                           * (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(0,4,iq) = (1 - xq(1,iq))   &
-                           * (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(0,5,iq) = (1 - xq(1,iq))   & 
-                           * (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8 
-                  sq(0,6,iq) = (1 + xq(1,iq))   & 
-                           * (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8 
-                  sq(0,7,iq) = (1 + xq(1,iq))   & 
-                           * (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8 
-                  sq(0,8,iq) = (1 - xq(1,iq))   & 
-                           * (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8 
-                  sq(1,1,iq) = - (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(1,2,iq) = + (1 - xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(1,3,iq) = + (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(1,4,iq) = - (1 + xq(2,iq)) * (1 - xq(3,iq)) / 8
-                  sq(1,5,iq) = - (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8
-                  sq(1,6,iq) = + (1 - xq(2,iq)) * (1 + xq(3,iq)) / 8
-                  sq(1,7,iq) = + (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8
-                  sq(1,8,iq) = - (1 + xq(2,iq)) * (1 + xq(3,iq)) / 8
-                  sq(2,1,iq) = - (1 - xq(1,iq)) * (1 - xq(3,iq)) / 8
-                  sq(2,2,iq) = - (1 + xq(1,iq)) * (1 - xq(3,iq)) / 8
-                  sq(2,3,iq) = + (1 + xq(1,iq)) * (1 - xq(3,iq)) / 8
-                  sq(2,4,iq) = + (1 - xq(1,iq)) * (1 - xq(3,iq)) / 8
-                  sq(2,5,iq) = - (1 - xq(1,iq)) * (1 + xq(3,iq)) / 8
-                  sq(2,6,iq) = - (1 + xq(1,iq)) * (1 + xq(3,iq)) / 8
-                  sq(2,7,iq) = + (1 + xq(1,iq)) * (1 + xq(3,iq)) / 8
-                  sq(2,8,iq) = + (1 - xq(1,iq)) * (1 + xq(3,iq)) / 8
-                  sq(3,1,iq) = - (1 - xq(1,iq)) * (1 - xq(2,iq)) / 8
-                  sq(3,2,iq) = - (1 + xq(1,iq)) * (1 - xq(2,iq)) / 8
-                  sq(3,3,iq) = - (1 + xq(1,iq)) * (1 + xq(2,iq)) / 8
-                  sq(3,4,iq) = - (1 - xq(1,iq)) * (1 + xq(2,iq)) / 8
-                  sq(3,5,iq) = + (1 - xq(1,iq)) * (1 - xq(2,iq)) / 8
-                  sq(3,6,iq) = + (1 + xq(1,iq)) * (1 - xq(2,iq)) / 8
-                  sq(3,7,iq) = + (1 + xq(1,iq)) * (1 + xq(2,iq)) / 8
-                  sq(3,8,iq) = + (1 - xq(1,iq)) * (1 + xq(2,iq)) / 8
-        endif
-          enddo
-
-  else if(nsd==2) then
-!=================================
-
-  if (nen_den==3) then
-       call quad2d3n(iquad, nquad, xq, wq, nsdpad, nquadpad)
-  else if (nen_den==4) then
-       call quad2d4n(iquad, nquad, xq, wq, nsdpad, nquadpad)
-  end if
-  do iq=1,nquad
-       if(nen_den==3) then
-                  sq(0,1,iq) = xq(1,iq)
-                  sq(0,2,iq) = xq(2,iq)
-                  sq(0,3,iq) = 1 - xq(1,iq) - xq(2,iq)
-        elseif (nen_den==4) then
-                  sq(0,1,iq) = (1 - xq(1,iq)) * (1 - xq(2,iq)) / 4
-                  sq(0,2,iq) = (1 + xq(1,iq)) * (1 - xq(2,iq)) / 4
-                  sq(0,3,iq) = (1 + xq(1,iq)) * (1 + xq(2,iq)) / 4
-                  sq(0,4,iq) = (1 - xq(1,iq)) * (1 + xq(2,iq)) / 4
-                
-                  sq(1,1,iq) = - (1 - xq(2,iq)) / 4
-                  sq(1,2,iq) = + (1 - xq(2,iq)) / 4
-                  sq(1,3,iq) = + (1 + xq(2,iq)) / 4
-                  sq(1,4,iq) = - (1 + xq(2,iq)) / 4
-        
-                  sq(2,1,iq) = - (1 - xq(1,iq)) / 4
-                  sq(2,2,iq) = - (1 + xq(1,iq)) / 4
-                  sq(2,3,iq) = + (1 + xq(1,iq)) / 4
-                  sq(2,4,iq) = + (1 - xq(1,iq)) / 4
-
-        endif
-  enddo
-
-!============================================================
-end if
+  integer inl,ie,isd,node,iq
+  integer je
 !==============================================================
-!  do ie=1,ne_den     !loop over elements
-  do ine=1,cal_ne
-     ie=cal_domain(ine)
-
-     do inl=1,nen_den
-	x(1:nsd,inl) = xloc(1:nsd,ien_den(inl,ie))
-	d(inl) = I_fluid_den(ien_den(inl,ie))
+  do je=1,count_el     !loop over elements
+	ie=lp_el(je)
+!   do ie=1,ne
+     do inl=1,nen
+	x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
+	d(inl) = I_solid(ien(inl,ie))
      end do
 
 
      do iq=1,nquad  ! loop over the quadrature points in each element
 !!!!!!!!!!!!!!!!!!!!calculate shape function!!!!!!!!!!!!!!!!!!!!!!!!!!
 	if (nsd==2) then
-	   if(nen_den.eq.3) then
+	   if(nen.eq.3) then
 		include 'sh2d3n.h'
-	   elseif(nen_den.eq.4) then
+	   elseif(nen.eq.4) then
 		include 'sh2d4n.h'
 	   end if
 	elseif(nsd==3) then
-	   if(nen_den.eq.4) then
+	   if(nen.eq.4) then
 		include 'sh3d4n.h'
-	   elseif(nen_den.eq.8) then
+	   elseif(nen.eq.8) then
 		include 'sh3d8n.h'
 	   end if
 	end if
@@ -160,14 +60,14 @@ end if
 
      dr(:) = 0.0
 
-     do inl=1,nen_den
+     do inl=1,nen
 	dr(1:nsd) = dr(1:nsd)+sh(1:nsd,inl)*d(inl)
      end do
 
-     ph(0:nsd,1:nen_den) = sh(0:nsd,1:nen_den)*eft0
+     ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
 
-     do inl=1,nen_den
-	node=ien_den(inl,ie)
+     do inl=1,nen
+	node=ien(inl,ie)
 	do isd=1,nsd
 	   p_inter(node)=p_inter(node)+ph(isd,inl)*dr(isd)
 	end do! residual
@@ -176,7 +76,7 @@ end if
      end do ! end of quad loop
 
   end do ! end of ele loop
-!write(*,*)'w_inter=',w_inter(:)
+
 end subroutine blockgmres_Laplace
 
 
