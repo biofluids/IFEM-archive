@@ -38,28 +38,20 @@
 
        finf=0
        ninf = 0 
-     !  write(*,*) 'nen', nen
-     !  write(*,*) '1000 el in get ', xna(:,124)
 !	   do ie = 1, ne
 	   do icount=1,nn_con_ele
 	     ie=con_ele(icount)
 	      do inl = 1, nen
 
                      nnum=ien(inl,ie)
-              ! write(*,*) 'nnum=  ', nnum
-              ! write(*,*) 'ie=    ',ie
-              ! write(*,*) 'inl=   ',inl
 		         do isd = 1, nsd
-		!	write(*,*) '485 x', xna(1,485)
 			 xn(isd, inl) = xna(isd, nnum)
-                   !      write(*,*) 'ne=',ie, 'nnum=', xna(2,nnum)
 			 end do
 	      end do
 		 
 		  do isd = 1, nsd
 		  length_max(isd) = maxval(xn(isd,1:nen))
 		  length_min(isd) = minval(xn(isd,1:nen))
-		!  write(*,*) 'xna = ', xn(isd,1), xn(isd,2), xn(isd,3), xn(isd,4)
                   end do
 		
 		  if (nsd==2) then
@@ -68,8 +60,6 @@
 				 ninf = ninf +1
 		         inf(ninf) = ie
 		         inf_con(ninf)=icount
-                         !write(*,*) 'finf',ie
-                        ! write(*,*) 'x-y  ', length_min(2), length_max(2)
 			  end if
 		   end if
 		  
@@ -84,14 +74,8 @@
                         
 			  end if
 		   end if
-	  !write(*,*) 'x min' ,length_min(1) 
-         ! write(*,*) 'x max' , length_max(1)
-         ! write(*,*) 'x 4 nodal4', xn(1,1), xn(1,2), xn(1,3), xn(1,4) 
-          ! write(*,*) 'ie= ', ie 
            end do 
-         !  write(*,*) 'ninf= ', ninf
                        
-         !  write(*,*) 'inf= ' , inf(1)
          
 	  if(ninf == 0) goto 2000
 	   
@@ -182,7 +166,7 @@
 		
 	  if (nsd==3) then
 !          write(*,*) 'i am here'
-          call search_3d(finf, x, xna, nn, nsd, ne, nen, ien, inf, ninf,maxconn) ! call search_3d for 3d
+          call search_3d_con(finf, x, xna, nn, nsd, ne, nen, ien, inf, ninf,maxconn,inf_con,index_con) ! call search_3d for 3d
           !cases
          end if	
 		2000		continue

@@ -38,7 +38,10 @@ contactline.o find_ca.o solve_contact.o mass_conserve.o cal_mass.o cal_Length.o\
 regulate_points.o find_inter.o update_x_inter.o normal_node.o formid_spbc.o\
 res_rotation.o res_rotation_reverse.o res_rotation_precon.o res_slipbc.o\
 res_slipbc_precon.o regen_contact.o norm_contact_ele.o getinf_el_3d_con.o\
-set_Ifluidcenter.o find_domain_pa_V2.o
+set_Ifluidcenter.o find_domain_pa_V2.o res_slipbc_precon_3D.o shape_det_face.o res_slipbc_3D.o\
+points_on_contact_sur.o regen_points_element.o construct_contactline.o search_3d_con.o\
+generate_contactline.o solve_contact_3D.o solve_curvature.o gmrescurv.o block_curv.o blockgmres_curv.o\
+set_center_after_contact.o
 
 IFEM: $(OBJ)
 	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)

@@ -58,7 +58,7 @@ if(flag==1) then
 	   lam(1)=((mu(2)-mu(1))*0.5*(-const)+(mu(1)+mu(2))*0.5)/lambda
 	   lam(2)=((mu(2)-mu(1))*0.5*(+const)+(mu(1)+mu(2))*0.5)/lambda
 
-	   do inface=1,2
+	   do inface=1,2  !loop over quadrature points
 	      temp(1:nsd)=sh(1,inface)*lam(1)*u(1:nsd,1)+sh(2,inface)*lam(2)*u(1:nsd,2)
 	      p(1:nsd,node(inface))=p(1:nsd,node(inface))-l*temp(1:nsd)*0.5 
 	      w(1:nsd,node(inface))=w(1:nsd,node(inface))+l*0.5*(lam(1)*sh(1,inface)*0.5*(1+const)+ &

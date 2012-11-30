@@ -1,12 +1,12 @@
 
 
-subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
+subroutine solve_contact_3D(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
 
   use fluid_variables,only:nsd
   use interface_variables, only:maxmatrix
   use mpi_variables
   real(8) x_fix(2),x_wall(2),norm_fix(2),norm_wall(2)
-  real(8) x_con(2,maxmatrix)
+  real(8) x_con(2,30)
   integer nn_con
 
   real(8) x1,y1,nx,ny,x2,y2,mx,my,a,b
@@ -17,7 +17,7 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
   integer i,j
   real(8) pi,thelta,eps
   integer nop !num of points to regenerate
-  nop=5
+  nop=10
 !  nn_con=0
   pi=3.14159
   eps=0.001
@@ -70,7 +70,6 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
 
 
   r2=sqrt((x1-a)**2+(y1-b)**2)
-!write(*,*)'1/r2=',1.0/r2
 !  if(myid==0) then
 !    write(*,*)'cal=',(x1-a)/r2,(y1-b)/r2
 !    write(*,*)'norm=',nx,ny
@@ -130,7 +129,7 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
     end do
   end if
 100 continue     
-end subroutine solve_contact
+end subroutine solve_contact_3D
 
 
 

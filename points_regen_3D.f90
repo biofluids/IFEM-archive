@@ -52,7 +52,7 @@ subroutine points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
   x_inter_regen_loc(:,:)=0.0
   nn_cr=4
   nn_local=0
-  nn_sub=3
+  nn_sub=2
   Ic_inter=0.5
 if(myid==0)write(*,*)'begin regen'
 !******************************************************
@@ -63,7 +63,7 @@ if(myid==0)write(*,*)'begin regen'
 	x_fluid(1:nsd,inl)=x(1:nsd,node)
      end do
      nn_local=0
-     nn_sub=3
+     nn_sub=2
 !!!!!!**************************************************
      do while((nn_local.le.nn_cr).and.(nn_sub.le.3)) !begin regeneration loop
 	nn_local=0
@@ -147,6 +147,8 @@ if(myid==0)write(*,*)'begin regen'
 	   Ic_inter=0.5
 	   xlocan_temp(1:nsd)=xlocan(1:nsd)
 	   do while((nit.le.7).and.(err_p.gt.1.0e-6))
+	      temp=sqrt(delta(1)**2+delta(2)**2+delta(3)**2)
+	      if(temp.gt.max_hg) delta(:)=delta(:)/temp*max_hg
 	      xlocan(1:nsd)=xlocan(1:nsd)+delta(1:nsd)
 	      call get_indicator_derivative_3D_1st(xlocan,x_inter,x_center,hg,&
 				I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)

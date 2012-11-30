@@ -58,13 +58,13 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta,anglet,flag_ca)
      end if
   end do
 
-  temp=0.0
-  do icount=1,nsd
-     temp=temp+V_cl(icount)**2
-  end do
-  temp=sqrt(temp)
+!  temp=0.0
+!  do icount=1,nsd
+!     temp=temp+V_cl(icount)**2
+!  end do
+!  temp=sqrt(temp)
 !  temp=abs(V_cl(1))
-  ca=vis_inter*temp/sur_tension
+!  ca=vis_inter*temp/sur_tension
 !if(myid==0)write(*,*)'ca=',ca,'V_cl=',temp
 !if(myid==0)write(*,*)'x-inter=',x_inter(:)
   temp=0.0
@@ -72,15 +72,16 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta,anglet,flag_ca)
      temp=temp+V_cl(icount)*norm_p(icount)
   end do
 
+  ca=vis_inter*abs(temp)/sur_tension
    if((temp.ge.0.0).and.(anglet.lt.(static_angle+ad_re_angle))) then
      flag_ca=0
-     write(*,*)'advancing but angle less then theta ad',myid
+!     write(*,*)'advancing but angle less then theta ad',myid
 !     thelta=3.14159/180.0*static_angle
      goto 999
    end if
    if((temp.le.0.0).and.(anglet.gt.(static_angle-ad_re_angle))) then
      flag_ca=0
-     write(*,*)'receding but angle greater than theta_re',myid
+!     write(*,*)'receding but angle greater than theta_re',myid
 !    thelta=3.14159/180.0*static_angle 
     goto 999
    end if
@@ -98,6 +99,13 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta,anglet,flag_ca)
    else
      thelta=3.14159/180.0*(static_angle-ad_re_angle)*2.0-thelta
    end if
+
+if(abs(thelta/3.14159*180.0-anglet).gt.10.0) then
+  thelta=(thelta/3.14159*180.0-anglet)/abs(thelta/3.14159*180.0-anglet)*10.0+anglet
+  thelta=thelta/180.0*3.14159
+end if
+
+
 write(*,*)'ca=',ca,'thelta=',thelta/3.14159*180.0,'adv?=',temp,myid
 999 continue
 end subroutine find_ca

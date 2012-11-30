@@ -47,9 +47,9 @@ subroutine find_inter(inf_inter,ien,nn_inter)
   inter_ele(1:ne_inter)=temp_ele(1:ne_inter)
 
 
-if(myid==0) then
-write(*,*)'ne_inter=',ne_inter
-end if
+!if(myid==0) then
+!write(*,*)'ne_inter=',ne_inter
+!end if
 
 call mpi_barrier(mpi_comm_world,ierror)
 

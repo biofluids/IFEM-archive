@@ -99,12 +99,12 @@ subroutine points_regen(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
        if(intflag==2) then
 
 !           if(((II-Ic_inter).gt.0.).or.((Ic_inter-II).gt.0.02)) then
-	    if( (abs(II-Ic_inter).gt.0.07) .or. (abs(II-Ic_inter).lt.0.04) .or. ((II-Ic_inter).gt.0)) then
+	    if( (abs(II-Ic_inter).gt.0.05) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).gt.0)) then
                 goto 200
            end if
        else if(intflag==3) then
 
-            if( (abs(II-Ic_inter).gt.0.07) .or. (abs(II-Ic_inter).lt.0.04) .or. ((II-Ic_inter).lt.0)) then
+            if( (abs(II-Ic_inter).gt.0.05) .or. (abs(II-Ic_inter).lt.0.02) .or. ((II-Ic_inter).lt.0)) then
                 goto 200
            end if
        else if(intflag==1) then

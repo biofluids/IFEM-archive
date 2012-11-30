@@ -39,7 +39,7 @@ subroutine get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_flui
 !  sur_fluid(:,:)=0.0
   sur_fluid_temp(:,:)=0.0
   den_p=0.5*(den_inter+den_liq)
-  eps=0.005
+  eps=0.001
 !  curv_nn(:)=0.0
   curv_nn_temp(:)=0.0
 
@@ -55,24 +55,24 @@ subroutine get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_flui
                                         II,dI,ddI,norm_a,curv_a)
       end if
        den_f=den_liq+(den_inter-den_liq)*I_fluid(i)
-if(flag==1) then
-!       sur_fluid_temp(1:nsd,i)=dI(1:nsd)!*sur_tension*(-curv_a)*den_f/den_p
-  sur_fluid_temp(1:nsd,i)=dI(1:nsd)*sur_tension*den_f/den_p
-elseif(flag==2) then
-       curv_nn_temp(i)=-curv_a
-end if
+!if(flag==1) then
+       sur_fluid_temp(1:nsd,i)=dI(1:nsd)*sur_tension*den_f/den_p
+!  sur_fluid_temp(1:nsd,i)=dI(1:nsd)*sur_tension!*den_f/den_p
+!elseif(flag==2) then
+!       curv_nn_temp(i)=-curv_a
+!end if
      end if
   end do
   call mpi_barrier(mpi_comm_world,ierror)
-if(flag==1) then
+!if(flag==1) then
   sur_fluid(:,:)=0.0
   call mpi_allreduce(sur_fluid_temp(1,1),sur_fluid(1,1),nsd*nn,mpi_double_precision, &
                 mpi_sum,mpi_comm_world,ierror)
-else
-  curv_nn(:)=0.0
-  call mpi_allreduce(curv_nn_temp(1),curv_nn(1),nn,mpi_double_precision, &
-                mpi_sum,mpi_comm_world,ierror)
-end if
+!else
+!  curv_nn(:)=0.0
+!  call mpi_allreduce(curv_nn_temp(1),curv_nn(1),nn,mpi_double_precision, &
+!                mpi_sum,mpi_comm_world,ierror)
+!end if
 
 
 

@@ -23,7 +23,6 @@ subroutine regulate_points(x_inter_regen,x,nn_inter_regen,ien,hg,ne_intlocal,ien
   integer nn_local,nn_local_new,lower
   real(8) x_local(nsd,nn_inter_regen)
 
-if(myid==0)write(*,*)'begin points regulation'
   infdomain_regen(:)=0
   x_local(:,:)=0.0
   
@@ -51,7 +50,8 @@ if(myid==0)write(*,*)'begin points regulation'
   nn_local_new=0
   do loc_index=1,nn_loc
      i=myid+1+(loc_index-1)*ncpus
-     tol=hg(inter_ele(i))/10.0    
+!     tol=hg(inter_ele(i))/8.0    
+     tol=max_hg/5.0
      nn_ele=0
      do icount=1,nn_inter_regen
         if(inter_ele(i)==infdomain_regen(icount)) then
@@ -88,7 +88,6 @@ if(myid==0)write(*,*)'begin points regulation'
   call mpi_allreduce(x_regen_temp(1,1),x_inter_regen(1,1),nsd*maxmatrix,mpi_double_precision, &
 			mpi_sum,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
-if(myid==0)write(*,*)'nn_regen_after_regulation',nn_inter_regen
 
 end subroutine regulate_points
 

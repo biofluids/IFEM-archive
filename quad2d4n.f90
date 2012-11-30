@@ -1,7 +1,10 @@
-subroutine quad2d4n(igau,ngau,gau,wei,maxnsd,maxnquad)
+subroutine quad2d4n(IGAU,NGAU,GAU,WEI,maxnsd,maxnquad)
 
-      real*8 gau(maxnsd,maxnquad), wei(maxnquad)
+      integer IGAU, NGAU
+      real*8 GAU(maxnsd,maxnquad), WEI(maxnquad)
 
+      integer I,J
+      real*8  GC
 	  DO I = 1,maxnquad
 		WEI(I) = 0.0
 		DO J = 1,maxnsd
