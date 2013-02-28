@@ -3,18 +3,19 @@
 subroutine solve_curvature(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,curv_nn,hg,ien,&
 			ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		sur_fluid)
+		sur_fluid,flag_domain)
 
 
-  use fluid_variables, only:nsd,ne,nn,nen
+  use fluid_variables, only:nsd,ne,nn,nen,ne_spbc
   use interface_variables
   use allocate_variables, only:center_domain,nn_center_domain,inter_ele,ne_inter
   use mpi_variables
   include 'mpif.h'
 
-  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,ne),I_fluid(nn)
-  real(8) corr_Ip(maxmatrix),I_fluid_center(ne),curv_nn(nn),hg(ne),curv_nn_old(nn)
+  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,nn_center),I_fluid(nn)
+  real(8) corr_Ip(maxmatrix),I_fluid_center(nn_center),curv_nn(nn),hg(ne)
   integer ien(nen,ne)
+  real(8) sur_fluid(nsd,nn)
 
   integer ne_local,ien_local(ne_local)
   integer node_local(nn_local),nn_local
@@ -161,21 +162,30 @@ subroutine solve_curvature(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,cur
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
 !   solve curvature using \nabla I \cdot \nabla k =0
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
-  flag_domain(:)=0
+!  flag_domain(:)=0
   id_curv(:)=0
-  do i=1,nn_center_domain
-     ie=center_domain(i)
-     flag_domain(ie)=1
+
+!  call find_curv_domain(x,x_inter,ne_local,ien_local,flag_domain,id_curv,ien)
+!  do i=1,nn_center_domain
+!     ie=center_domain(i)
+   do ie=1,ne
+!   if(ie.le.ne) then
+!     flag_domain(ie)=1
+!
+!
+    if(flag_domain(ie)==1) then
      do j=1,nen
 	node=ien(j,ie)
 	id_curv(node)=1
      end do
+    end if
   end do
 
   do i=1,nn_node_inter
      j=node_inter(i)
      if(fcurv_node_inter(i)==1)id_curv(j)=0 !set bc id
   end do
+
 
   p(:)=0.0
   w(:)=0.0

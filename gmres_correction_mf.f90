@@ -2,7 +2,7 @@
 subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
 
   use fluid_variables, only:inner,outer
-  use interface_variables, only:maxmatrix
+  use interface_variables, only:maxmatrix,hsp
   use mpi_variables
   implicit none
   include 'mpif.h'
@@ -31,6 +31,61 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
   real(8) tmp,tmp1
   real(8) B_temp(nn_inter)
   real(8) space1(nn_inter),space2(nn_inter)
+
+!  integer index_vector(nn_inter_loc,floor(real(nn_inter)/1.0)),nn_index(nn_inter_loc)
+!  real(8) coef_vector(nn_inter_loc,floor(real(nn_inter)/1.0))
+  integer nn_index(nn_inter_loc)
+  integer,dimension(:,:),allocatable :: index_vector
+  real(8),dimension(:,:),allocatable :: coef_vector
+  integer max_val 
+  real(8) vec(nsd+1),Sp,temp_Sp
+
+
+  nn_index(:)=0
+  do loc_index=1,nn_inter_loc
+     i=myid+1+(loc_index-1)*ncpus
+     nn_index(loc_index)=0
+     do j=1,nn_inter
+        vec(2:nsd+1)=x_inter(:,i)-x_inter(:,j)
+        call B_Spline1(abs(vec(2:nsd+1)),hsp,nsd,Sp,INFO)
+        if(INFO==1) then
+          nn_index(loc_index)=nn_index(loc_index)+1
+        end if
+     end do
+  end do
+
+  max_val=maxval(nn_index(1:nn_inter_loc))
+  if(allocated(index_vector)) deallocate(index_vector)
+  if(allocated(coef_vector)) deallocate(coef_vector)
+  allocate(index_vector(nn_inter_loc,max_val))
+  allocate(coef_vector(nn_inter_loc,max_val))
+
+
+  index_vector(:,:)=0
+  coef_vector(:,:)=0.0
+  nn_index(:)=0
+
+  vec(1)=1.0
+  do loc_index=1,nn_inter_loc
+     i=myid+1+(loc_index-1)*ncpus
+     nn_index(loc_index)=0
+     do j=1,nn_inter
+        vec(2:nsd+1)=x_inter(:,i)-x_inter(:,j)
+        call B_Spline1(abs(vec(2:nsd+1)),hsp,nsd,Sp,INFO)
+        if(INFO==1) then
+	  temp_Sp=0.0
+	  do icount=1,nsd+1
+	     temp_Sp=temp_Sp+vec(icount)*RW(icount,i)
+	  end do
+	  temp_Sp=temp_Sp*Sp
+	  nn_index(loc_index)=nn_index(loc_index)+1
+	  index_vector(loc_index,nn_index(loc_index))=j
+	  coef_vector(loc_index,nn_index(loc_index))=temp_Sp
+	end if
+     end do
+  end do
+     
+      
 
   eps=1.0e-6
   x0(:)=0.0
@@ -80,8 +135,17 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
 	call mpi_allreduce(temp,dv,nn_inter,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 
 	avloc(:)=0.0
-	call blockgmres_correction(x_inter,RW,nn_inter,dv,avloc,nn_inter_loc,nsd)
+!	call blockgmres_correction(x_inter,RW,nn_inter,dv,avloc,nn_inter_loc,nsd)
 
+	do loc_index=1,nn_inter_loc
+	   icount=myid+1+(loc_index-1)*ncpus
+	   do jcount=1,nn_index(loc_index)
+	      avloc(icount)=avloc(icount)+coef_vector(loc_index,jcount)*dv(index_vector(loc_index,jcount))
+	   end do
+	end do
+
+!call mpi_barrier(mpi_comm_world,ierror)
+!stop
 	space1(:)=0.0
 	space2(:)=0.0
 
@@ -164,7 +228,14 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
     call mpi_allreduce(temp,dv,nn_inter,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 
     avloc(:)=0.0
-    call blockgmres_correction(x_inter,RW,nn_inter,dv,avloc,nn_inter_loc,nsd)
+!    call blockgmres_correction(x_inter,RW,nn_inter,dv,avloc,nn_inter_loc,nsd)
+        do loc_index=1,nn_inter_loc
+           icount=myid+1+(loc_index-1)*ncpus
+           do jcount=1,nn_index(loc_index)
+              avloc(icount)=avloc(icount)+coef_vector(loc_index,jcount)*dv(index_vector(loc_index,jcount))
+           end do
+        end do
+
 !    do icount=1,nn_inter
 !    do loc_index=1,nn_inter_loc
 !	icount=myid+1+(loc_index-1)*ncpus

@@ -127,7 +127,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
   integer :: necover
   integer :: nebase
   real(8) :: x_inter(nsd,maxmatrix)
-  real(8) :: x_center(nsd,ne)
+  real(8) :: x_center(nsd,nn_center)
 !  real(8) :: x_den(nsd,nn_den)
   real(8) :: x_inter_ini(nsd,maxmatrix)
   integer :: nn_inter_ini
@@ -182,7 +182,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
   write(i_file_unit, *) 'element id given'
   write(i_file_unit, *) 'coordinates'
   if(klok==0)then
-  write(i_file_unit, '(I8)') nn_solid+nn+nn_inter+nn_inter_ini+ne
+  write(i_file_unit, '(I8)') nn_solid+nn+nn_inter+nn_inter_ini+nn_center
   else
   write(i_file_unit, '(I8)') nn_solid+nn+nn_inter+nn_inter_ini+ne_den_domain
   end if
@@ -223,7 +223,7 @@ subroutine zfem_ensGeo(klok,ien,xn,solid_fem_con,solid_coor_curr,mtype,necover,n
  !...write center mesh coordinates
   tempcount=nn_solid+nn+nn_inter+nn_inter_ini
 if(klok==0) then
-  do i=1,ne
+  do i=1,nn_center
      if (nsd==3) write(i_file_unit,101) i+tempcount,x_center(1,i),x_center(2,i),x_center(3,i)
      if (nsd==2) write(i_file_unit,101) i+tempcount,x_center(1,i),x_center(2,i),0.0
   end do
@@ -294,8 +294,11 @@ if (nsd_solid == 0) then
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
         write(i_file_unit, '(i8)')  nebase   ! number of elements
+
         do i=1, ne_solid
+if(mtype(i)==2) then
            write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity
+end if
         enddo
      case (4)
         write(i_file_unit,'(a7)') ' tetra4'    ! element type
@@ -409,8 +412,8 @@ if (nsd_solid == 0) then
   write(i_file_unit,*) ' centermesh Model'
   write(i_file_unit,'(a7)') '  point'
 if(klok==0) then  
-  write(i_file_unit,'(i8)') ne
-  do i=1,ne
+  write(i_file_unit,'(i8)') nn_center
+  do i=1,nn_center
      write(i_file_unit,'(2i8)')i,i+nn_solid+nn+nn_inter+nn_inter_ini
   end do
 else
@@ -470,7 +473,7 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
   fluid_strain(1:nsd*2,1:nn)=0.0
 
   if(klok==0) then
-    ne_temp=ne
+    ne_temp=nn_center
   else
     ne_temp=ne_den_domain
   end if
@@ -652,7 +655,7 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,norm_inter,nn_inter_ini,klok)
   use run_variables, only:its
 
   real(8) I_fluid(nn)
-  real(8) I_fluid_center(ne)
+  real(8) I_fluid_center(nn_center)
 !  real(8) I_fluid_den(nn_den)
   real(8) norm_inter(nsd,maxmatrix)
   integer nn_inter_ini,klok,ne_temp
@@ -666,7 +669,7 @@ subroutine zfem_ensInter(I_fluid,I_fluid_center,norm_inter,nn_inter_ini,klok)
   ifileunit=17
 
   if(klok==0) then
-    ne_temp=ne
+    ne_temp=nn_center
   else
     ne_temp=ne_den_domain
   end if
@@ -727,7 +730,7 @@ if(klok==0) then
                      (I_fluid(in),in=1,nn),(0.5,in=1,nn_inter), &
 		     !                (I_fluid_den(in),in=1,nn_den), &
 		  (0.5,in=1,nn_inter_ini), &
-		 (I_fluid_center(in),in=1,ne)
+		 (I_fluid_center(in),in=1,ne_temp)
 
 else
      write(ifileunit, 110) (0.0,in=1,nn_solid), &

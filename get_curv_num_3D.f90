@@ -10,8 +10,8 @@ subroutine get_curv_num_3D(x,xp,x_center,hg,I_fluid_center,corr_Ip,&
   use interface_variables
   use fluid_variables, only:nsd,ne,nn
 
-  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,ne)
-  real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
+  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,nn_center)
+  real(8) I_fluid_center(nn_center),corr_Ip(maxmatrix)
   real(8) curv_n,curv_inter,norm_inter(nsd)
   real(8) hg(ne)
 

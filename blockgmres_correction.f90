@@ -28,6 +28,9 @@ subroutine blockgmres_correction(x_inter,RW,nn_inter,dv,avloc,nn_inter_loc,nsd)
 	      temp=temp+vec(icount)*RW(icount,i)
 	   end do
 	   avloc(i)=avloc(i)+Sp*temp*dv(j)
+!if(myid==0) then
+!write(*,*)'i=',i,'j=',j,'sptemo=',Sp*temp
+!end if
 	end if
      end do
   end do

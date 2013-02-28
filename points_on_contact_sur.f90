@@ -9,7 +9,7 @@ subroutine points_on_contact_sur(x,x_inter,x_center,I_fluid,I_fluid_center,hg,co
   use mpi_variables
   include 'mpif.h'
 
-  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,ne),I_fluid(nn),I_fluid_center(ne),hg(ne)
+  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,nn_center),I_fluid(nn),I_fluid_center(nn_center),hg(ne)
   real(8) corr_Ip(maxmatrix)
   integer ien(nen,ne)
 

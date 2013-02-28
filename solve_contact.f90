@@ -17,7 +17,7 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
   integer i,j
   real(8) pi,thelta,eps
   integer nop !num of points to regenerate
-  nop=5
+  nop=10
 !  nn_con=0
   pi=3.14159
   eps=0.001
@@ -70,7 +70,6 @@ subroutine solve_contact(x_fix,x_wall,norm_fix,norm_wall,x_con,nn_con)
 
 
   r2=sqrt((x1-a)**2+(y1-b)**2)
-!write(*,*)'1/r2=',1.0/r2
 !  if(myid==0) then
 !    write(*,*)'cal=',(x1-a)/r2,(y1-b)/r2
 !    write(*,*)'norm=',nx,ny

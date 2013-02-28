@@ -7,8 +7,8 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
   use interface_variables
   use mpi_variables
 
-  real(8) xn(nsd,4),x_inter(nsd,maxmatrix),x_center(nsd,ne),hg(ne)
-  real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
+  real(8) xn(nsd,4),x_inter(nsd,maxmatrix),x_center(nsd,nn_center),hg(ne)
+  real(8) I_fluid_center(nn_center),corr_Ip(maxmatrix)
   real(8) norm_e(nsd)
   integer nn_regen_proc
   real(8) x_regen_proc(nsd,500)
@@ -80,7 +80,7 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
      do j=1,4
 	xlocan(1:2)=xlocan(1:2)+sh(j)*xloc(1:2,j)
      end do
-     xlocan(3)=distance_sign*max_hg/20.0  ! slightly lift the point
+     xlocan(3)=distance_sign*hg_sp/20.0  ! slightly lift the point
 
 !     xlocan(:)=xlocan(:)+xn(:,1)
      x_tran(1)=tangx(1)*xlocan(1)+tangy(1)*xlocan(2)+norm(1)*xlocan(3)
@@ -90,11 +90,16 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
 
 !nn_regen_proc=nn_regen_proc+1
 !x_regen_proc(:,nn_regen_proc)=xlocan(:)
+!goto 200
 !+++++++++++++start projection++++++++++++++!
      nit=1
      err_p=999.0
      delta(:)=0.0
      do while((nit.lt.5).and.(err_p.gt.1.0e-6))
+
+              temp=sqrt(delta(1)**2+delta(2)**2+delta(3)**2)
+              if(temp.gt.hg_sp) delta(:)=delta(:)/temp*hg_sp
+
 	xlocan(1:nsd)=xlocan(1:nsd)+delta(1:nsd)
         call get_indicator_derivative_3D_1st(xlocan,x_inter,x_center,hg,&
                     I_fluid_center,corr_Ip,II,dI,ddI,norm_p,curv_p)
@@ -111,7 +116,7 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
         modmod=sqrt(norm_p(1)**2+norm_p(2)**2+norm_p(3)**2)
         norm_p(:)=norm_p(:)/modmod
         temp=dI(1)*norm_p(1)+dI(2)*norm_p(2)+dI(3)*norm_p(3)
-if(abs(temp).lt.1.0e-6)goto 100
+if(abs(temp).lt.1.0e-6)write(*,*)'something wrong with points regen in ele'
         delta(:)=(0.5-II)*norm_p(:)/temp
         nit=nit+1
         err_p=abs(II-0.5)
@@ -120,12 +125,12 @@ if(abs(temp).lt.1.0e-6)goto 100
      if(err_p.lt.1.0e-6) then
                 call get_curv_num_3D(xlocan,x_inter,x_center,hg,I_fluid_center,&
                         corr_Ip,dcurv,curv_p,norm_p)
-    
-       if(dcurv.lt.10.0) then
+      if(dcurv.lt.20.0) then
        nn_regen_proc=nn_regen_proc+1
        x_regen_proc(:,nn_regen_proc)=xlocan(:)
-       end if
+      end if
      end if
+200 continue
   end do !! end do of loop over nn_sub**2
 100 continue
 end subroutine regen_points_element

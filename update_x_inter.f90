@@ -1,6 +1,6 @@
 
 
-subroutine update_x_inter(x,x_inter,x_inter_ini,vel_inter,vel_fluid,vol_nn,dt)
+subroutine update_x_inter(x,x_inter,x_inter_ini,vel_inter,vel_fluid,vel_fluid_old,vol_nn,dt)
 
   use fluid_variables, only:nsd,nn,ne,nen
   use interface_variables
@@ -9,7 +9,7 @@ subroutine update_x_inter(x,x_inter,x_inter_ini,vel_inter,vel_fluid,vol_nn,dt)
 
   real(8) x_inter(nsd,maxmatrix),x_inter_ini(nsd,maxmatrix),x(nsd,nn)
   real(8) x_inter_temp(nsd,maxmatrix),x_inter_ini_temp(nsd,maxmatrix)
-  real(8) vel_inter(nsd,maxmatrix),vel_fluid(nsd,nn)
+  real(8) vel_inter(nsd,maxmatrix),vel_fluid(nsd,nn),vel_fluid_old(nsd,nn)
   real(8) vel_inter_temp(nsd,maxmatrix)
   real(8) vol_nn(nn),dt
 
@@ -43,7 +43,7 @@ subroutine update_x_inter(x,x_inter,x_inter_ini,vel_inter,vel_fluid,vol_nn,dt)
   do loc_index=1,nn_inter_loc
      i=myid+1+(loc_index-1)*ncpus
      xloc_ini(:)=x_inter(:,i)
-     call get_inter_vel(x,xloc_ini,vel_fluid,vel_loc,vol_nn)
+     call get_inter_vel(x,xloc_ini,vel_fluid_old,vel_loc,vol_nn)
 
      x_inter_ini_temp(:,i)=xloc_ini(:)
      vel_inter_temp(:,i)=vel_loc(:)
@@ -51,12 +51,12 @@ subroutine update_x_inter(x,x_inter,x_inter_ini,vel_inter,vel_fluid,vol_nn,dt)
      xloc(:)=xloc_ini(:)+1.0/6.0*R_K(:)
 
      xloc_temp(:)=xloc_ini(:)+0.5*R_K(:)
-     call get_inter_vel(x,xloc_temp,vel_fluid,vel_loc,vol_nn)
+     call get_inter_vel(x,xloc_temp,0.5*(vel_fluid(1:nsd,:)+vel_fluid_old(1:nsd,:)),vel_loc,vol_nn)
      R_K(:)=vel_loc(:)*dt
      xloc(:)=xloc(:)+1.0/3.0*R_K(:)
 
      xloc_temp(:)=xloc_ini(:)+0.5*R_K(:)
-     call get_inter_vel(x,xloc_temp,vel_fluid,vel_loc,vol_nn)
+     call get_inter_vel(x,xloc_temp,0.5*(vel_fluid(1:nsd,:)+vel_fluid_old(1:nsd,:)),vel_loc,vol_nn)
      R_K(:)=vel_loc(:)*dt
      xloc(:)=xloc(:)+1.0/3.0*R_K(:)
 

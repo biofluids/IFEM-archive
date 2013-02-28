@@ -99,14 +99,12 @@ subroutine find_ca(x_inter,x,vel_fluid,vol_nn,ca,norm_p,thelta,anglet,flag_ca)
    else
      thelta=3.14159/180.0*(static_angle-ad_re_angle)*2.0-thelta
    end if
+!if(abs(thelta/3.14159*180.0-anglet).gt.10.0) then
+!  thelta=(thelta/3.14159*180.0-anglet)/abs(thelta/3.14159*180.0-anglet)*10.0+anglet
+!  thelta=thelta/180.0*3.14159
+!end if
 
-if(abs(thelta/3.14159*180.0-anglet).gt.10.0) then
-  thelta=(thelta/3.14159*180.0-anglet)/abs(thelta/3.14159*180.0-anglet)*10.0+anglet
-  thelta=thelta/180.0*3.14159
-end if
-
-
-write(*,*)'ca=',ca,'thelta=',thelta/3.14159*180.0,'adv?=',temp,myid
+!write(*,*)'ca=',ca,'thelta=',thelta/3.14159*180.0,'adv?=',temp,myid
 999 continue
 end subroutine find_ca
 

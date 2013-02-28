@@ -10,12 +10,10 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
   use mpi_variables
   include 'mpif.h'
   real(8) x_inter(nsd,maxmatrix)
-  real(8) x_center(nsd,ne)
+  real(8) x_center(nsd,nn_center)
   real(8) hg(ne)
   real(8) corr_Ip(maxmatrix)
-  real(8) I_fluid_center(ne)
-!  real(8) x(nsd,nn),I_fluid(nn)
-!  integer,parameter :: length=5500
+  real(8) I_fluid_center(nn_center)
   integer i,j,ie,icount,jcount
   real(8) dx(nsd),hs,Sp
   real(8) BB(nn_inter), BB_temp(nn_inter)  !Ax=B
@@ -64,7 +62,7 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
      vec(1)=1.0
      do j=1,nn_center_domain
 	ie=center_domain(j)
-	hsg=hg(ie)
+	hsg=c_w(ie)
         dx(:)=abs(x_inter(:,i)-x_center(:,ie))
 	call B_Spline1(dx,hs,nsd,Sp,INFO)
 	if(INFO==1) then
@@ -85,7 +83,7 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 
      do j=1,nn_center_domain
 	ie=center_domain(j)
-	hsg=hg(ie)
+	hsg=c_w(ie)
 	dx(:)=abs(x_inter(:,i)-x_center(:,ie))
 	call B_Spline1(dx,hs,nsd,Sp,INFO)
 	if(INFO==1) then

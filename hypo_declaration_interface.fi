@@ -5,27 +5,21 @@
   real(8) :: norm_inter(nsd,maxmatrix)
   real(8) :: curv_inter(maxmatrix) !normal and curvature for each interfacial point
   real(8) :: corr_Ip(maxmatrix)        !correction term
-!  real(8) :: x_den(nsd,nn_den)         !coordinates for denmesh
-!  integer :: ien_den(nen_den,ne_den)   !connectivity for denmesh
   integer :: bcnode(nbc,2)       !boundary nodes for dense mesh
   integer :: nn_inter_ini
   real(8) :: x_inter_ini(nsd,maxmatrix)!inter points before regen
-  real(8) :: x_center(nsd,ne)          !coordinates for center point
-!  integer :: infdomain_den(ne)         !inf for center points in dense mesh
+  real(8) :: x_center(nsd,ne-ne_spbc+8*ne_spbc)          !coordinates for center point
   integer :: infdomain_inter(maxmatrix)
-!  integer :: infdomain_inter_den(maxmatrix)
-!  real(8) :: I_fluid_den(nn_den)
-  real(8) :: I_fluid_center(ne)
+  real(8) :: I_fluid_center(ne-ne_spbc+8*ne_spbc)
   real(8) :: I_fluid(nn)
-!  integer :: flag_den(ne_den)
   real(8) :: dcurv
   real(8) :: x_inter_regen(nsd,maxmatrix)
   integer :: nn_inter_regen
   real(8) :: arc_inter(maxmatrix)
   real(8) :: sur_fluid(nsd,nn)
   real(8) :: vel_inter(nsd,maxmatrix)
-!  integer :: flag_den_node(nn_den)
-
+  integer :: flag_curv_domain(ne)
+!  integer :: nn_center
 
 
 

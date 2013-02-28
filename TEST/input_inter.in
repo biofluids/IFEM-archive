@@ -1,0 +1,14 @@
+nn_inter  =  3122
+surfacetension = 0.05
+den_inter = 0.01
+vis_inter = 0.000313
+maxmatrix  = 20000
+scale_inter = 0.999  0.999  0.999
+shift_inter = 0.00021  0.00021  -0.2d0
+rkpm_scale = 1.5
+max_dcurv = 10.0
+nbc = 10
+static_angle =90.0
+ad_re_angle = 0.0
+Hoff_ad=0.06036
+Hoff_re=0.03185

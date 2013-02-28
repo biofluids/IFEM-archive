@@ -52,22 +52,9 @@ subroutine points_regen_3D(x,x_inter,x_center,x_inter_regen,nn_inter_regen,&
   x_inter_regen_loc(:,:)=0.0
   nn_cr=4
   nn_local=0
-  nn_sub=2
+  nn_sub=3
   Ic_inter=0.5
 if(myid==0)write(*,*)'begin regen'
-!******************************************************
-  do jcount=1,ne_regen_ele_loc !begin element loop
-     ie=regen_ele_loc(jcount)
-     do inl=1,nen
-	node=ien(inl,ie)
-	x_fluid(1:nsd,inl)=x(1:nsd,node)
-     end do
-     nn_local=0
-     nn_sub=2
-!!!!!!**************************************************
-     do while((nn_local.le.nn_cr).and.(nn_sub.le.3)) !begin regeneration loop
-	nn_local=0
-	x_inter_ele_loc(:,:)=0.0
 
         if((nsd==2) .and. (nen==4)) then  !2d4n
           do i=1,nn_sub
@@ -78,18 +65,56 @@ if(myid==0)write(*,*)'begin regen'
           end do
           nn_ele=nn_sub**2
         end if       !assign local coordinates for candidate points(2d4n)
-	if((nsd==3) .and. (nen==8)) then 
-	   do i=1,nn_sub
-	      do j=1,nn_sub
-		 do k=1,nn_sub
-		    x_loc_can(1,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*i-1.0-1.0/nn_sub
-		    x_loc_can(2,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*j-1.0-1.0/nn_sub
-		    x_loc_can(3,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*k-1.0-1.0/nn_sub
-		 end do
-	      end do
-	   end do
-	   nn_ele=nn_sub**3
-	end if
+        if((nsd==3) .and. (nen==8)) then
+           do i=1,nn_sub
+              do j=1,nn_sub
+                 do k=1,nn_sub
+                    x_loc_can(1,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*i-1.0-1.0/nn_sub
+                    x_loc_can(2,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*j-1.0-1.0/nn_sub
+                    x_loc_can(3,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*k-1.0-1.0/nn_sub
+                 end do
+              end do
+           end do
+           nn_ele=nn_sub**3
+        end if
+
+
+
+!******************************************************
+  do jcount=1,ne_regen_ele_loc !begin element loop
+     ie=regen_ele_loc(jcount)
+     do inl=1,nen
+	node=ien(inl,ie)
+	x_fluid(1:nsd,inl)=x(1:nsd,node)
+     end do
+     nn_local=0
+     nn_sub=3
+!!!!!!**************************************************
+     do while((nn_local.le.nn_cr).and.(nn_sub.le.3)) !begin regeneration loop
+	nn_local=0
+	x_inter_ele_loc(:,:)=0.0
+
+!        if((nsd==2) .and. (nen==4)) then  !2d4n
+!          do i=1,nn_sub
+!             do j=1,nn_sub
+!                x_loc_can(1,nn_sub*(i-1)+j)=2.0/nn_sub*i-1.0-1.0/nn_sub
+!                x_loc_can(2,nn_sub*(i-1)+j)=2.0/nn_sub*j-1.0-1.0/nn_sub
+!             end do
+!          end do
+!          nn_ele=nn_sub**2
+!        end if       !assign local coordinates for candidate points(2d4n)
+!	if((nsd==3) .and. (nen==8)) then 
+!	   do i=1,nn_sub
+!	      do j=1,nn_sub
+!		 do k=1,nn_sub
+!		    x_loc_can(1,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*i-1.0-1.0/nn_sub
+!		    x_loc_can(2,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*j-1.0-1.0/nn_sub
+!		    x_loc_can(3,nn_sub*(nn_sub*(i-1)+j-1)+k)=2.0/nn_sub*k-1.0-1.0/nn_sub
+!		 end do
+!	      end do
+!	   end do
+!	   nn_ele=nn_sub**3
+!	end if
 !!!!!!!!!**********************************************
         do i=1,nn_ele  !begin candidate points loop
            if(nsd==2 .and. nen==4) then
@@ -184,7 +209,7 @@ if(myid==0)write(*,*)'begin regen'
 	   flag_loc=0
 	   if(err_p.lt.1.0e-6) then
 	     distance=sqrt((xlocan(1)-xlocan_temp(1))**2+(xlocan(2)-xlocan_temp(2))**2+(xlocan(3)-xlocan_temp(3))**2)
-             if(distance.lt.0.4*hg(ie)) then
+             if(distance.lt.hg(ie)) then
 		call get_curv_num_3D(xlocan,x_inter,x_center,hg,I_fluid_center,&
 			corr_Ip,dcurv,curv_p,norm_p)      
 !                   dcurv=0.1

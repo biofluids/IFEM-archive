@@ -1,5 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /bgl/local/essl/lib/libesslbg.a
+LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
+          /usr/opt/BLAS/blas_LINUX.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 interface_variables.o  allocate_variables.o\
@@ -31,7 +32,7 @@ get_fluid_property.o get_inter_vel.o  \
 points_removal.o get_indicator_derivative_2D_1st.o\
 get_indicator_derivative_3D.o get_indicator_derivative_2D.o get_indicator_derivative_3D_1st.o \
 set_center_after.o  B_Spline1.o find_fluid_domain_pa.o\
-gmres_correction_mf.o get_sur_cf.o \
+gmres_correction_mf.o get_sur_cf.o points_regeneration.o \
 blockgmres_correction.o points_regen_3D.o points_regen_con.o points_regen_topo.o\
 contactline.o find_ca.o solve_contact.o mass_conserve.o cal_mass.o cal_Length.o\
 regulate_points.o find_inter.o update_x_inter.o normal_node.o formid_spbc.o\
@@ -40,11 +41,11 @@ res_slipbc_precon.o regen_contact.o norm_contact_ele.o getinf_el_3d_con.o\
 set_Ifluidcenter.o find_domain_pa_V2.o res_slipbc_precon_3D.o shape_det_face.o res_slipbc_3D.o\
 points_on_contact_sur.o regen_points_element.o construct_contactline.o search_3d_con.o\
 generate_contactline.o solve_contact_3D.o solve_curvature.o gmrescurv.o block_curv.o blockgmres_curv.o\
-set_center_after_contact.o
+set_center_after_contact.o get_indicator_2D.o get_indicator_3D.o update_center_indicator.o
 
 IFEM: $(OBJ)
-	mpixlf90 -g -O2 -o IFEM $(OBJ) $(LIBS)
+	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpixlf90 -c -g $<
+	mpif90 -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

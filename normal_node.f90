@@ -3,7 +3,7 @@
 ! node in the domian                 !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 
-subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode,index_bcnode)
+subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode)
 
   use global_constants
   use run_variables
@@ -13,7 +13,7 @@ subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode,index_bcnode)
 
   real(8) norm_node(nsd,nn),xloc(nsd,nn),x(nsd,nen)
   integer ien(nen,ne)
-  integer spbcele(ne_spbc),spbcnode(nn_spbc),index_bcnode(2,ne_spbc)
+  integer spbcele(ne_spbc),spbcnode(nn_spbc)!,index_bcnode(2,ne_spbc)
   
   real(8) eft0,det,effd,effm,effc
   real(8) sh(0:nsd,nen)
@@ -22,7 +22,6 @@ subroutine normal_node(norm_node,xloc,ien,spbcele,spbcnode,index_bcnode)
   integer i,j,icount,jcount,ie,inl,isd,iq,node
   real(8) temp
   norm_node(:,:)=0.0
-  index_bcnode(:,:)=0
   do ie=1,ne
      do inl=1,nen
 	x(1:nsd,inl)=xloc(1:nsd,ien(inl,ie))
@@ -88,19 +87,19 @@ close(121)
 
 110 format(I8)
 
-do i=1,ne_spbc
-   ie=spbcele(i)
-   icount=0
-   do inl=1,nen
-      node=ien(inl,ie)
-      do j=1,nn_spbc
-         if(node==spbcnode(j)) then
-           icount=icount+1
-           index_bcnode(icount,i)=node
-         end if
-      end do
-   end do
-end do
+!do i=1,ne_spbc
+!   ie=spbcele(i)
+!   icount=0
+!   do inl=1,nen
+!      node=ien(inl,ie)
+!      do j=1,nn_spbc
+!         if(node==spbcnode(j)) then
+!           icount=icount+1
+!           index_bcnode(icount,i)=node
+!         end if
+!      end do
+!   end do
+!end do
 
 end subroutine normal_node
      
