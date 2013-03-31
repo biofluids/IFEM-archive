@@ -4,11 +4,13 @@ subroutine gmrescurv(x,w,bg,dg,hg,ien,id, &
 		ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
 		sur_fluid,flag_domain,I_fluid)
-	use fluid_variables, only: nsd,nn,ne,nen,inner,outer
+	use fluid_variables, only: nsd,nn,ne,nen!,inner,outer
         use mpi_variables
 	implicit none
       include 'mpif.h'
 	integer,parameter :: ndf = 1
+        integer,parameter :: inner=200
+        integer,parameter :: outer=5
 	real* 8 x(nsd,nn),id(ndf,nn)
 	real* 8 hg(ne)!,ien(nen,ne)
 	integer ien(nen,ne)

@@ -8,9 +8,9 @@
   integer :: bcnode(nbc,2)       !boundary nodes for dense mesh
   integer :: nn_inter_ini
   real(8) :: x_inter_ini(nsd,maxmatrix)!inter points before regen
-  real(8) :: x_center(nsd,ne-ne_spbc+8*ne_spbc)          !coordinates for center point
+  real(8) :: x_center(nsd,ne-ne_spbc+(2**nsd)*ne_spbc)          !coordinates for center point
   integer :: infdomain_inter(maxmatrix)
-  real(8) :: I_fluid_center(ne-ne_spbc+8*ne_spbc)
+  real(8) :: I_fluid_center(ne-ne_spbc+(2**nsd)*ne_spbc)
   real(8) :: I_fluid(nn)
   real(8) :: dcurv
   real(8) :: x_inter_regen(nsd,maxmatrix)

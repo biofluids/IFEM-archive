@@ -1,7 +1,7 @@
 
 
 subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
-				norm_e,nn_regen_proc,x_regen_proc)
+				norm_e,nn_regen_proc,x_regen_proc,ie)
 
   use fluid_variables,only:nsd,nn,ne,nen
   use interface_variables
@@ -16,7 +16,7 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
 
   real(8) norm(nsd),tangx(nsd),tangy(nsd)
 
-  integer i,j,k,icount,jcount,kcount,isd
+  integer i,j,k,icount,jcount,kcount,isd,ie
   real(8) temp,modmod
 
   real(8) xloc(nsd,4)
@@ -30,7 +30,8 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
   real(8) err_p,delta(nsd)
   integer nit
   real(8) distance_sign
-   
+  real(8) xlocan_ini(nsd)  
+
 !goto 100
   x_loc_can(:,:)=0.0
 
@@ -85,12 +86,11 @@ subroutine regen_points_element(xn,x_inter,x_center,hg,I_fluid_center,corr_Ip,&
 !     xlocan(:)=xlocan(:)+xn(:,1)
      x_tran(1)=tangx(1)*xlocan(1)+tangy(1)*xlocan(2)+norm(1)*xlocan(3)
      x_tran(2)=tangx(2)*xlocan(1)+tangy(2)*xlocan(2)+norm(2)*xlocan(3)
-     x_tran(3)=tangx(3)*Xlocan(1)+tangy(3)*xlocan(2)+norm(3)*xlocan(3)
+     x_tran(3)=tangx(3)*xlocan(1)+tangy(3)*xlocan(2)+norm(3)*xlocan(3)
      xlocan(:)=x_tran(:)+xn(:,1)
-
+xlocan_ini(:)=xlocan(:)
 !nn_regen_proc=nn_regen_proc+1
 !x_regen_proc(:,nn_regen_proc)=xlocan(:)
-!goto 200
 !+++++++++++++start projection++++++++++++++!
      nit=1
      err_p=999.0
@@ -128,9 +128,9 @@ if(abs(temp).lt.1.0e-6)write(*,*)'something wrong with points regen in ele'
       if(dcurv.lt.20.0) then
        nn_regen_proc=nn_regen_proc+1
        x_regen_proc(:,nn_regen_proc)=xlocan(:)
+
       end if
      end if
-200 continue
   end do !! end do of loop over nn_sub**2
 100 continue
 end subroutine regen_points_element

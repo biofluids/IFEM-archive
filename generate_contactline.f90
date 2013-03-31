@@ -57,7 +57,8 @@ subroutine generate_contactline(x_inter_regen,nn_inter_regen,x,x_inter,x_center,
   integer nn_contact_temp,lower
   real(8) x_contact_temp(nsd,maxmatrix)
   integer ne_ele_regen_temp,ele_regen_temp(nn_con_ele)
-  real(8) vec_contact(nsd)
+  real(8) vec_contact(nsd),x_vel(nsd)
+  integer num_ele_index
 
 
   NumRegen=0
@@ -93,6 +94,7 @@ subroutine generate_contactline(x_inter_regen,nn_inter_regen,x,x_inter,x_center,
      xc(:)=x_inter_regen(:,i)
      call getinf_el_3d_con(finf,xc,x,nn,nsd,ne,nen,ien,maxconn,nn_con_ele,con_ele,index_con)
      norm_e(:)=norm_con_ele(:,index_con)
+     num_ele_index=index_con
      call get_indicator_derivative_3D(xc,x_inter,x_center,hg,I_fluid_center,corr_Ip,II,dI,ddI,norm_c,curv_c)
      xlocan(:)=xc(:)
      icount=1
@@ -163,21 +165,24 @@ subroutine generate_contactline(x_inter_regen,nn_inter_regen,x,x_inter,x_center,
 !           call get_indicator_derivative_3D(x_cor_regen(:,3),x_inter,x_center,hg,I_fluid_center,corr_Ip,II,dI,ddI,norm_g,curv_g)
 
       anglet=acos(norm_c(1)*norm_e(1)+norm_c(2)*norm_e(2)+norm_c(3)*norm_e(3))/3.14159*180.0
-write(*,*)anglet,curv_c
       if(abs(anglet-static_angle).lt.ad_re_angle) then
-	 do jcount=1,NumRegen
-	    nn_contact_proc=nn_contact_proc+1
-	    x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
-	 end do
+!	 do jcount=1,NumRegen
+!	    nn_contact_proc=nn_contact_proc+1
+!	    x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
+!	 end do
+	 thelta=anglet/180.0*3.14159
       else
 !	 write(*,*)'vec_contact=',vec_contact(:)
 	 call find_ca(xr,x,vel_fluid,vol_nn,ca,vec_contact,thelta,anglet,flag_ca)
+
+      end if ! end of finding thelta
+write(*,*)'angle=',anglet,'curv=',curv_c,'thelta=',thelta/3.14159*180.0
 	 if(flag_ca==-1) then
 	    do jcount=1,NumRegen
 	       nn_contact_proc=nn_contact_proc+1
 	       x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
 	    end do
-	  else
+	 else
 	    do jcount=IndexRef+1,NumRegen
 	       nn_contact_proc=nn_contact_proc+1
 	       x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
@@ -197,8 +202,6 @@ write(*,*)anglet,curv_c
 	    tangx(:)=tangx(:)/modmod
 
 	    temp=(xr(1)-xc(1))*norm_e(1)+(xr(2)-xc(2))*norm_e(2)+(xr(3)-xc(3))*norm_e(3)
-!	    write(*,*)'distcance=',temp,'ca=',ca,'thelta=',thelta/3.14159*180.0
-	    thelta=3.14159/2.0*120.0/90.0
 	    x_fix(1)=0.0
 	    x_fix(2)=0.0
 	    x_wall(1)=0.0
@@ -218,8 +221,8 @@ write(*,*)anglet,curv_c
 	       x_contact_proc(3,nn_contact_proc)=tangx(3)*x_2d(1,jcount)+tangy(2)*0.0+norm_e(3)*x_2d(2,jcount)
 	       x_contact_proc(:,nn_contact_proc)=x_contact_proc(:,nn_contact_proc)+xr(:)
 	    end do
-	  end if ! end if of flag=0
-      end if!end if of abs(anglt-static)
+	 end if ! end if of flag=0
+!      end if!end if of abs(anglt-static)
 
   end do  ! end of loop over loc_index
 
@@ -288,6 +291,7 @@ write(*,*)anglet,curv_c
 
 open(222,file='points_contact.dat',status='unknown')
 if(myid==0) then
+
 do i=1,nn_contact_proc
    write(222,*)x_contact_proc(:,i)
 end do
@@ -295,13 +299,13 @@ end if
 
 
 
-open(444,file='initialpoints.dat',status='unknown')
-if(myid==0) then
-do i=1,nn_inter
-   write(444,*) x_inter(:,i)
-end do
-end if
-close(444)
+!open(444,file='initialpoints.dat',status='unknown')
+!if(myid==0) then
+!do i=1,nn_inter
+!   write(444,*) x_inter(:,i)
+!end do
+!end if
+!close(444)
 
   do icount=1,nn_inter
      flag=0
@@ -310,15 +314,15 @@ close(444)
 !     end do
 
 
-
 !     do jcount=1,nn_con_ele
 !	if(infdomain_inter(icount)==con_ele(jcount)) flag=1
 !     end do
 
 
-!     if(x_inter(3,icount).le.2.0*max_hg) flag=1
-     temp=sqrt(x_inter(1,icount)**2+(x_inter(2,icount)-1.5)**2)
-     if( (temp.gt.1.5*1.414-2.0*hg_sp).and.(x_inter(2,icount).lt.0.0) ) flag=1
+     if(x_inter(2,icount).le.2.0*max_hg) flag=1
+
+!     temp=sqrt(x_inter(1,icount)**2+(x_inter(2,icount)-1.5)**2)
+!     if( (temp.gt.1.5*1.414-2.0*hg_sp).and.(x_inter(2,icount).lt.0.0) ) flag=1
 
 
      if(flag==0) then

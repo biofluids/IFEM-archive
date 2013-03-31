@@ -21,7 +21,7 @@ subroutine points_regeneration(x,x_inter,x_center,x_inter_regen,nn_inter_regen,I
   real(8) x_fluid(nsd,nen) ! global coordinates of elements' nodes
   real(8) xlocan(nsd),xlocan_temp(nsd)
   
-  integer, parameter :: nn_sub=3
+  integer, parameter :: nn_sub=5
   integer, parameter :: nn_ele=nn_sub**3
   real(8) sh(nen,nn_ele),x_loc_can(nsd,nn_ele)
 

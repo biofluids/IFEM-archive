@@ -15,7 +15,7 @@ subroutine get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_flui
   real(8) II,dI(nsd),ddI(3*(nsd-1))
   real(8) curv_a,norm_a(nsd)
 
-  integer ien(nen,ne),flag_curv_domain(ne)
+  integer ien(nen,ne),flag_curv_domain(ne),flag_curv_domain_tmp(ne)
   integer ie,node,inl
 
   integer nn_loc,base,top,loc_index
@@ -44,10 +44,10 @@ subroutine get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_flui
      i=myid+1+(loc_index-1)*ncpus
      if( (I_fluid(i).lt.(1.0-eps)) .and. (I_fluid(i).gt.eps)) then
       if(nsd==2) then
-       call get_indicator_derivative_2D(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
+       call get_indicator_derivative_2D_1st(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
                                         II,dI,ddI,norm_a,curv_a)
       elseif(nsd==3) then
-              call get_indicator_derivative_3D(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
+              call get_indicator_derivative_3D_1st(x(:,i),x_inter,x_center,hg,I_fluid_center,corr_Ip, &
                                         II,dI,ddI,norm_a,curv_a)
       end if
        den_f=den_liq+(den_inter-den_liq)*I_fluid(i)
@@ -63,14 +63,36 @@ subroutine get_sur_cf(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,sur_flui
 
 call mpi_barrier(mpi_comm_world,ierror)
 
-   flag_curv_domain(:)=0
+  if(ne.le.ncpus) then
+    if(myid+1.le.ne) then
+      nn_loc=1
+    else
+      nn_loc=0
+    end if
+  else
+    base=floor(real(ne)/real(ncpus))
+    top=ne-base*ncpus
+    if(myid+1.le.top) then
+      nn_loc=base+1
+    else
+      nn_loc=base
+    end if
+  end if
 
-   do ie=1,ne
+
+
+   flag_curv_domain_tmp(:)=0
+   flag_curv_domain(:)=0
+   do loc_index=1,nn_loc
+      ie=myid+1+(loc_index-1)*ncpus
       do inl=1,nen
          node=ien(inl,ie)
-         if((I_fluid(node).gt.eps).and.(I_fluid(node).lt.1.0-eps))  flag_curv_domain(ie)=1
+         if((I_fluid(node).gt.eps).and.(I_fluid(node).lt.1.0-eps))  flag_curv_domain_tmp(ie)=1
       end do
    end do
+call mpi_barrier(mpi_comm_world,ierror)
+call mpi_allreduce(flag_curv_domain_tmp(1),flag_curv_domain,ne,mpi_integer,mpi_sum,mpi_comm_world,ierror)
+
 
 end subroutine get_sur_cf
 

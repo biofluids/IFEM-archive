@@ -5,7 +5,6 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine readx_solid(xyz,nn,nsd)
-  use mpi_variables
   implicit none
 
   integer,intent(in) :: nn,nsd
@@ -23,11 +22,8 @@ end if
 if (nsd == 3) then
   do inn=1,nn
      read(file,101) xyz(inn,1:nsd)
-if(myid==0)write(*,*)'nn=',inn,xyz(inn,1:nsd)
   enddo
 end if
-
-
 
 100 format (D14.10, D14.10)
 101 format (D14.10, D14.10, D14.10)

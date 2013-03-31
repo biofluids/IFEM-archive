@@ -9,8 +9,8 @@ subroutine mass_conserve(x,x_inter,x_center,hg,I_fluid_center,I_fluid,ien,corr_I
   include 'mpif.h'
   
 
-  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,ne),hg(ne)
-  real(8) I_fluid_center(ne),I_fluid(nn)
+  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,nn_center),hg(ne)
+  real(8) I_fluid_center(nn_center),I_fluid(nn)
   integer ien(nen,ne)
   real(8) corr_Ip(nsd,maxmatrix)
   real(8) mass,Length
@@ -24,11 +24,11 @@ if(myid==0)write(*,*)'begin mass conserve'
 
   call get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 
-  call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg,I_fluid)
+  call get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,I_fluid)
 
   call cal_mass(x,I_fluid,ien,nn,ne,nen,mass)
 
-  if((its.le.11).or.(its==nts_start)) then
+  if((its.le.5).or.(its==nts_start)) then
      mass0=mass
      if(myid==0)write(*,*)'initial mass = ',mass0
       goto 100

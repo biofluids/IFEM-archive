@@ -19,7 +19,7 @@ subroutine get_submesh_info(xloc,x_center,ien,ne_spbc,spbcele,hg)
   integer flag,ccount
 
   integer, parameter :: nn_sub=2
-  real(8) shap(nen,nn_sub**3),x_loc_can(nsd,nn_sub**3)
+  real(8) shap(nen,nn_sub**nsd),x_loc_can(nsd,nn_sub**nsd)
 
   if(allocated(c_w)) deallocate(c_w)
   allocate(c_w(nn_center))
@@ -49,7 +49,7 @@ subroutine get_submesh_info(xloc,x_center,ien,ne_spbc,spbcele,hg)
 	  c_w(ccount)=hg(ie)
 	end if
     end do
-
+if(nsd==3) then
     do i=1,nn_sub
        do j=1,nn_sub
           do k=1,nn_sub
@@ -69,7 +69,21 @@ subroutine get_submesh_info(xloc,x_center,ien,ne_spbc,spbcele,hg)
           end do
        end do
     end do
+else if(nsd==2) then
+          do i=1,nn_sub
+             do j=1,nn_sub
+                node=nn_sub*(i-1)+j
+                x_loc_can(1,nn_sub*(i-1)+j)=2.0/real(nn_sub)*i-1.0-1.0/real(nn_sub)
+                x_loc_can(2,nn_sub*(i-1)+j)=2.0/real(nn_sub)*j-1.0-1.0/real(nn_sub)
 
+             shap(1,node)=0.25*(1-x_loc_can(1,node))*(1-x_loc_can(2,node))
+             shap(2,node)=0.25*(1+x_loc_can(1,node))*(1-x_loc_can(2,node))
+             shap(3,node)=0.25*(1+x_loc_can(1,node))*(1+x_loc_can(2,node))
+             shap(4,node)=0.25*(1-x_loc_can(1,node))*(1+x_loc_can(2,node))
+
+             end do
+          end do
+end if
 
     do ie=1,ne_spbc
        do inl=1,nen
@@ -81,7 +95,7 @@ subroutine get_submesh_info(xloc,x_center,ien,ne_spbc,spbcele,hg)
           do inl=1,nen
 	     x_center(1:nsd,ccount)=x_center(1:nsd,ccount)+shap(inl,icount)*temp(1:nsd,inl)
 	  end do
-	  c_w(ccount)=hg(spbcele(ie))/real(nn_sub**nsd)
+	  c_w(ccount)=hg(spbcele(ie))/real(nn_sub)
 	end do
     end do
 

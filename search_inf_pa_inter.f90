@@ -54,6 +54,7 @@ inf_tmp(:)=0
 inf_tmp2(:)=0
    do loc_index=1,nn_inter_loc
       inn=myid+1+(loc_index-1)*ncpus
+!      inn=2581
       finf=0
       x(1:nsd)=xyz_solid(1:nsd,inn)
   !    call getinf_el_3d_pa(finf, x, xyz_fluid, nn_fluids, nsd, ne, nen, ien, maxconn, ne_intlocal, ien_intlocal)
@@ -63,6 +64,7 @@ call getinf_el_3d(finf, x, xyz_fluid, nn_fluids, nsd, ne, nen, ien, maxconn)
   !   stop
   !    end if
       inf_tmp(inn)=finf
+if(finf==-999)write(*,*)'inn=',inn
    end do
 
 	      call mpi_barrier(mpi_comm_world,ierror)
@@ -78,7 +80,7 @@ call getinf_el_3d(finf, x, xyz_fluid, nn_fluids, nsd, ne, nen, ien, maxconn)
 !	end if
 ncount=0
 do icount=1,nn_solids
-   if(infdomain(icount).ne.0) then
+   if(infdomain(icount).gt.0) then
      ncount=ncount+1
      xyz_solid(:,ncount)=xyz_solid(:,icount)
      infdomain(ncount)=infdomain(icount)

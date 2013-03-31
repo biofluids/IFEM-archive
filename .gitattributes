@@ -2,4 +2,3 @@
 
 *.dsp           -crlf
 *.dsw           -crlf
-*.sh             crlf=input

@@ -44,7 +44,7 @@ end do
 ! global node index for communication
 call mpi_barrier(mpi_comm_world,ierror)
 
-write(*,*) 'myid', myid, 'nn_global_com',nn_global_com
+!write(*,*) 'myid', myid, 'nn_global_com',nn_global_com
 
 
 count=0
@@ -65,7 +65,7 @@ nn_local_com=count
 ! # of nodes needs communication locally on each processor
 
 call mpi_barrier(mpi_comm_world,ierror)
-write(*,*) 'myid', myid, 'nn_local_com',nn_local_com
+!write(*,*) 'myid', myid, 'nn_local_com',nn_local_com
 
 allocate(local_com(nn_local_com))
 

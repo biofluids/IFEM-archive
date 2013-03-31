@@ -129,16 +129,8 @@ subroutine solve_curvature(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,cur
 	   dis=dis+(x(isd,i)-xlocan(isd))**2
 	end do
 	dis=sqrt(dis)
-!	if(I_fluid(i).lt.0.5) then
-!	  curv_nn_temp(i)=1.0/(1.0/(-curv_a)+dis)
-!	else
-!	  curv_nn_temp(i)=1.0/(1.0/(-curv_a)-dis)
-!	end if
-!if(xlocan(3).lt.0.0) write(*,*)'cirv=',-curv_a
-!        if((dis.lt.max_hg).and.(xlocan(3).gt.0.0)) then
 	curv_nn_temp(i)=-curv_a
 	fcurv_node_inter_temp(myid+1+(loc_index-1)*ncpus)=1
-!        end if
       end if
 888 continue
   end do  ! end loop over loc_index
@@ -148,7 +140,6 @@ subroutine solve_curvature(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,cur
   call mpi_barrier(mpi_comm_world,ierror)
   call mpi_allreduce(curv_nn_temp(1),curv_nn(1),nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
   call mpi_allreduce(fcurv_node_inter_temp(1),fcurv_node_inter(1),4*ne_inter,mpi_integer,mpi_sum,mpi_comm_world,ierror)
-  call mpi_barrier(mpi_comm_world,ierror)
 
 !  do i=1,nn_node_inter
 !     if(fcurv_node_inter(i)==1) then
@@ -199,7 +190,7 @@ subroutine solve_curvature(x,x_inter,x_center,I_fluid,corr_Ip,I_fluid_center,cur
   call setid_pa(p,1,nn,id_curv,node_local,nn_local)
   dg(:)=0.0
 do i=1,nn
-   if(abs(w(i)).lt.1.0e-8) w(i)=1.0
+   if(abs(w(i)).lt.1.0e-5) w(i)=1.0
 end do
 
   call gmrescurv(x,w,p,dg,hg,ien,id_curv,&

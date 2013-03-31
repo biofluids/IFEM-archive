@@ -62,7 +62,7 @@ subroutine points_on_contact_sur(x,x_inter,x_center,I_fluid,I_fluid_center,hg,co
      
      do ieface=1,neface
         irng=rngface(ieface,ie)
-        if(irng==6)  then  ! right now slip bc is on face 6, needs to be correct later
+        if(irng==2)  then  ! right now slip bc is on face 6, needs to be correct later
 	   do inface=1,nnface
 		inl=mapping(ieface,inface,etype)
 		node(inface)=ien(inl,ie)
@@ -74,16 +74,24 @@ subroutine points_on_contact_sur(x,x_inter,x_center,I_fluid,I_fluid_center,hg,co
 	   do inface=1,nnface
 		if(I_node(inface).gt.0.55) int_temp=int_temp+1
 	   end do
-	   if(int_temp==4) flag=0
+	   if((int_temp==4).and.(nsd==3)) flag=0
+           if((int_temp==2).and.(nsd==2)) flag=0
 	   int_temp=0
            do inface=1,nnface
                 if(I_node(inface).lt.0.45) int_temp=int_temp+1
            end do
-           if(int_temp==4) flag=0
+           if((int_temp==4).and.(nsd==3)) flag=0
+           if((int_temp==2).and.(nsd==2)) flag=0
 	   if(flag==1) then
+if(nsd==3) then
 	     call regen_points_element(xloc,x_inter,x_center,hg,I_fluid_center,corr_Ip, &
 					norm_con_ele(:,con_ele_index),&
-					nn_regen_proc,x_regen_proc)
+					nn_regen_proc,x_regen_proc,ie)
+else if(nsd==2) then
+             call regen_points_element_2D(xloc,x_inter,x_center,hg,I_fluid_center,corr_Ip, &
+                                        norm_con_ele(:,con_ele_index),&
+                                        nn_regen_proc,x_regen_proc,ie)
+end if
 	   end if
 
 

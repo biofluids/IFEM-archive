@@ -90,7 +90,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         vloc(:,:)=0.0
 if(myid==0)write(*,*)'rnorm=',rnorm
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-6))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-5))
 
 !==============================
 	Vm(:,:) = 0.0d0

@@ -35,11 +35,10 @@ subroutine construct_contactline(x,x_inter,x_center,I_fluid,I_fluid_center,hg,co
   real(8) temp
   vel_fluid(1:nsd,:)=d(1:nsd,:)
 
+
 flag_contact=1
   call points_on_contact_sur(x,x_inter,x_center,I_fluid,I_fluid_center,hg,corr_Ip,ien,&
                       nn_con_ele,con_ele,norm_con_ele,rngface,nn_inter_regen,x_inter_regen)
-
-
 
   if(allocated(x_inter_regen_temp)) then
     deallocate(x_inter_regen_temp)
@@ -58,7 +57,7 @@ flag_contact=1
         do icount=1,nsd
            temp=temp+(x_inter_regen_temp(icount,i)-x_inter_regen(icount,j))**2
         end do
-        if(sqrt(temp).lt.max_hg/4.0) flag=0
+        if(sqrt(temp).lt.max_hg/3.0) flag=0
      end do
      if(flag==1) then
        nn_inter_regen=nn_inter_regen+1
@@ -70,23 +69,30 @@ flag_contact=1
 !open(10,file='pointsoncontact.dat',status='unknown')
 !if(myid==0) then
 !do j=1,nn_inter_regen
-!   write(10,*)x_inter_regen(:,j)
+!   write(10,'(3f8.4)')x_inter_regen(:,j),0.0
 !end do
 !end if
 !close(10)
 
 
+
 if(nn_inter_regen==0) flag_contact=0
 if(flag_contact==0) goto 222
-  call search_inf_pa_inter(x_inter,x,nn,nn_inter,nsd,ne,nen,ien,infdomain_inter,ne_intlocal,ien_intloal)
+!  call search_inf_pa_inter(x_inter,x,nn,nn_inter,nsd,ne,nen,ien,infdomain_inter,ne_intlocal,ien_intloal)
 
 !  call regulate_points(x_inter_regen,x,nn_inter_regen,ien,hg,ne_intlocal,ien_intlocal)
 
-
+if(nsd==3) then
   call generate_contactline(x_inter_regen,nn_inter_regen,x,x_inter,x_center,hg,I_fluid_center,&
 			corr_Ip,ien,nn_con_ele,con_ele,norm_con_ele,vel_fluid,&
 				vol_nn,infdomain_inter)
 
+else if(nsd==2) then
+
+  call generate_contactline_2D(x_inter_regen,nn_inter_regen,x,x_inter,x_center,hg,I_fluid_center,&
+                        corr_Ip,ien,nn_con_ele,con_ele,norm_con_ele,vel_fluid,&
+                                vol_nn,infdomain_inter)
+end if
 222 continue
 
 endsubroutine construct_contactline

@@ -32,14 +32,12 @@ subroutine gmres_correction_mf(x_inter,B,w,RW,nsd,nn_inter,nn_inter_loc)
   real(8) B_temp(nn_inter)
   real(8) space1(nn_inter),space2(nn_inter)
 
-!  integer index_vector(nn_inter_loc,floor(real(nn_inter)/1.0)),nn_index(nn_inter_loc)
-!  real(8) coef_vector(nn_inter_loc,floor(real(nn_inter)/1.0))
+
   integer nn_index(nn_inter_loc)
   integer,dimension(:,:),allocatable :: index_vector
   real(8),dimension(:,:),allocatable :: coef_vector
-  integer max_val 
+  integer max_val
   real(8) vec(nsd+1),Sp,temp_Sp
-
 
   nn_index(:)=0
   do loc_index=1,nn_inter_loc
@@ -275,7 +273,8 @@ end if
    end do
    call mpi_barrier(mpi_comm_world,ierror)
    call mpi_allreduce(temp(1),B(1),nn_inter,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
-
+deallocate(index_vector)
+deallocate(coef_vector)
 end subroutine gmres_correction_mf
 
     

@@ -294,7 +294,6 @@ if (nsd_solid == 0) then
      case (8) 
         write(i_file_unit,'(a7)') '  hexa8'    ! element type
         write(i_file_unit, '(i8)')  nebase   ! number of elements
-
         do i=1, ne_solid
 if(mtype(i)==2) then
            write(i_file_unit,'(9i8)') i, (solid_fem_con(i,j),j=1,nen_solid) !element connectivity

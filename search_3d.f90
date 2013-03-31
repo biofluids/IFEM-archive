@@ -8,7 +8,7 @@
 
        subroutine search_3d(finf, x, xna, nn, nsd, ne, nen, ien, inf, ninf,maxconn)        
            implicit none
-	   integer :: ninf, nn, nsd, ne, nen, maxconn ! Fluid variable from main
+	   integer :: ninf, nn, nsd, ne, nen, maxconn,inn ! Fluid variable from main
 	   integer ien(nen,ne) ! transfer matrix connectted local information to global
 	   integer inf(maxconn) ! subroutine variable to store the index of element which contains the solid node
 	   real(8) x(nsd), xna(nsd, nn) ! x - coordinates of solid node   xna - coordinates of fluid nodes in global view
@@ -17,13 +17,13 @@
 	   integer answer_hex
 	   real(8) sub_tra(3,4)
 	   integer finf
-	   integer i, j
-	   
+	   integer i, j,flag
 		answer=0   	   
 	   do j=1,ninf
 	      
 	   
 	   if (nen==4) then ! for terahedran
+           finf=inf(j)
 !	   write(*,*) 'I am now in the 3d search sub'
            do i=1,nen
 	   tetrahedran(1:nsd,i)=xna(1:nsd, ien(i,inf(j)))
@@ -31,7 +31,7 @@
 	   call check_tra(tetrahedran,x,answer)
 	   if (answer==1) goto 8888
 	  	   
-	   
+	   finf=0
 	   
 	   
 	   
@@ -42,6 +42,7 @@
 	   	                    ! the mesh number has to be specific declare
 	   ! the hexahedral is devided to six tetrahendral and do six times
 	   ! if the point is in the hexahedral one of these six tertrahendarl should contain this point.
+           finf=inf(j)
 	   sub_tra(1:nsd,1)=xna(1:nsd,ien(1,inf(j)))
 	   sub_tra(1:nsd,2)=xna(1:nsd,ien(3,inf(j)))
 	   sub_tra(1:nsd,3)=xna(1:nsd,ien(4,inf(j)))
@@ -78,7 +79,7 @@
 	   sub_tra(1:nsd,4)=xna(1:nsd,ien(8,inf(j)))
 	   call check_tra(sub_tra,x,answer_hex)
 	   if (answer_hex==1) goto 8888
-	   
+          finf=0
 				  
 			
 	   
@@ -89,17 +90,8 @@
 	   
 	   end do
 	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   
 8888 continue
-        finf=inf(j)	   
+!        finf=inf(j)	   
 	   return
        end
 	   

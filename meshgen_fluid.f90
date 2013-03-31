@@ -13,7 +13,6 @@ subroutine readx(xyz)
 
   file=21
   open(file, FILE="mxyz.in", STATUS="old")
-write(*,*)'open mxyz.in'
 if (nsd == 2) then
   do i=1,nn
      read(file,100) xyz(1:nsd,i)
