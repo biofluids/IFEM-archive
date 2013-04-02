@@ -71,7 +71,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
 	integer icount
 !--------------------------------------------------
   real*8 TC,ZC,RC,P0
-!  real*8 kappa_s   % moved to fluid_variables and parseinput by Jubiao Yang on Mar. 3, 2013
+  real*8 kappa !compressibility for artificial fluids
 !==================================================
   q_res_a(1:nsd,1:nen) = 0
   q_p(1:ndf,1:nn) = 0
@@ -81,7 +81,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   ZC=1.0
   RC=2.56e6
   P0=1.0e6
-  ! kappa=1.0e4           % renamed and moved to parseinput.f90 by Jubiao Yang on Mar. 3, 2013
+  kappa=1.0e4
 !---------------------------------------------------
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
@@ -217,7 +217,7 @@ end do
 		     res_c=res_c+(sh(xsd,inl)*d(udf,inl)+sh(ysd,inl)*d(vdf,inl))+ &
 			  (u*sh(xsd,inl)*d(pdf,inl)+v*sh(ysd,inl)*d(pdf,inl))/(pp+P0)*(1.0-I_fluid(node))
 		     q_res_c(inl)=(sh(0,inl)*dtinv+u*sh(xsd,inl)+v*sh(ysd,inl))/(pp+P0)*(1.0-I_fluid(node)) &
-				  +sh(0,inl)*dtinv/kappa_s*I_fluid(node)
+				  +sh(0,inl)*dtinv/kappa*I_fluid(node)
 
 		  enddo
 		elseif (nsd==3) then
@@ -230,7 +230,7 @@ end do
 			    /(pp+P0)*(1.0-I_fluid(node))
 
 		     q_res_c(inl)=(sh(0,inl)*dtinv+u*sh(xsd,inl)+v*sh(ysd,inl)+w*sh(zsd,inl))/(pp+P0)*(1.0-I_fluid(node)) &
-		     +sh(0,inl)*dtinv/kappa_s*I_fluid(node)
+		     +sh(0,inl)*dtinv/kappa*I_fluid(node)
 		  enddo
 		endif
 
@@ -238,12 +238,12 @@ end do
 		temp=0.0
 		do inl=1,nen
 		   node=ien(inl,ie)
-		   temp=temp+sh(0,inl)*((d(ndf,inl)+P0)*(1.0-I_fluid(node))+kappa_s*I_fluid(node))
+		   temp=temp+sh(0,inl)*((d(ndf,inl)+P0)*(1.0-I_fluid(node))+kappa*I_fluid(node))
 		end do
 		do inl=1,nen
 		   node=ien(inl,ie)
 		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
-			(1.0/(pp+P0)*(1.0-I_fluid(node))+1.0/kappa_s*I_fluid(node))
+			(1.0/(pp+P0)*(1.0-I_fluid(node))+1.0/kappa*I_fluid(node))
 		end do  ! add dp/dt term
 
 	    do isd = 1, nsd
