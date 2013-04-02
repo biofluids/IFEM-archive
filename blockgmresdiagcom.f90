@@ -177,7 +177,7 @@ end do
 	    endif
 
 !....  calculate liquid constant and gravity
-		g  = gravity  ! gravatitional force
+		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
