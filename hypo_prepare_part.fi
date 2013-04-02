@@ -85,7 +85,7 @@ end do
 !end do
 !end if
 
-
+write(*,*) 'ne_intlocal', ne_intlocal, 'nn_local', nn_local
 
 node_global(:)=0
 

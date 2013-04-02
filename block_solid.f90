@@ -5,8 +5,7 @@
 !       Visco-linear elastic, I use Newmark method
 !c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine block_solid(xloc,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
-				x_pre1,solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
-				lambdacf)
+				x_pre1,solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype)
 !	use fluid_variables, only: nsd,nen,ne,nn,nquad,wq,sq
 	use global_constants
 	use run_variables, only: dt
@@ -72,9 +71,6 @@
 !------------------------------------
 ! For viscoelastic model
 	real(8) dsdt(nsd,nsd) ! time derivative of strain and then times damping
-!------------------------------------
-real(8) lambdacf(nn)
-
 !------------------------------------
 p(:,:) = 0.0d0
 w(:,:) = 0.0d0
@@ -315,7 +311,7 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 !======================================
 ! Apply 2nd type boundary
 	if (nsd ==  2) then 
-	call apply_2ndbc_solid2d(x_pre1,nsd,nn,ien_sbc,ne_sbc,nen,ien,ne,solid_bcforce,solid_stress,lambdacf)
+	call apply_2ndbc_solid2d(x_pre1,nsd,nn,ien_sbc,ne_sbc,nen,ien,ne,solid_bcforce,solid_stress)
 	p(:,:) = p(:,:) + solid_bcforce(:,:)
 	else
 	call apply_2ndbc_solid(x_pre1,nsd,nn,ien_sbc,ne_sbc,nen,ien,ne,solid_bcforce,solid_stress)

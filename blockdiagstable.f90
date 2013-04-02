@@ -182,7 +182,7 @@ end do
 	    endif
 
 !....  calculate liquid constant and gravity
-		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
+		g  = gravity  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -361,6 +361,7 @@ end do
 continue
 !write(*,*)q_p(:,:)
 !write(*,*)d(:,:)
+
 
 end subroutine block
 

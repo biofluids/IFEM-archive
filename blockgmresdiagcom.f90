@@ -54,7 +54,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
 !---------------------------------------------
   real(8) TC,ZC,RC,P0
   real(8) I_fluid(nn)
-  real(8) kappa
+!  real(8) kappa_s   % moved to fluid_variables and parseinput by Jubiao Yang on Mar. 3, 2013
   integer rngface(neface,ne)
 !============================
 ! MPI varibalbes
@@ -67,7 +67,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   ZC=1.0
   RC=2.56e6
   P0=1.0e6
-  kappa=1.0e4
+  !kappa=1.0e4
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
@@ -216,12 +216,12 @@ end do
 		temp=0.0
 		do inl=1,nen
 		   node=ien(inl,ie)
-		   temp=temp+sh(0,inl)*((d(ndf,inl)+P0)*(1.0-I_fluid(node))+kappa*I_fluid(node))
+		   temp=temp+sh(0,inl)*((d(ndf,inl)+P0)*(1.0-I_fluid(node))+kappa_s*I_fluid(node))
 		end do
                 do inl=1,nen
                    node=ien(inl,ie)
                    res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
-                        (1.0/(pp+P0)*(1.0-I_fluid(node))+1.0/kappa*I_fluid(node))
+                        (1.0/(pp+P0)*(1.0-I_fluid(node))+1.0/kappa_s*I_fluid(node))
                 end do  ! add dp/dt term
 
 
