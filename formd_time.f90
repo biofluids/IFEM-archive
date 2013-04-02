@@ -8,7 +8,6 @@ subroutine formd_time(ds,rngface,ien)
   integer :: idf, inl, iec, irng, ieface, inface, inn
   real(8) :: eps1,eps2
   real(8) :: hs(nrng+1,nn), h(nrng+1,nn)
-  real(8) ttmod
   eps1 = -1000000.0
   eps2 = -10000.0
   h(:,:) = 0.0d0
@@ -24,12 +23,7 @@ subroutine formd_time(ds,rngface,ien)
 	  hs = h
 !==========================================
 ! Velocity boundary condition with varying time
-    ttmod=tt-0.01*floor(tt/0.01)
-    if (ttmod<0.002) then
-        bv(udf,1) = 5+7*sin(ttmod*1571)
-    else
-        bv(udf,1) = 0.0
-    endif
+	bv(udf,4) = 3.8*abs(sin(pi*tt*1.5))
 !==========================================
 
 
