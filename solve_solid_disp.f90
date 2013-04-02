@@ -167,15 +167,6 @@ call getnorm(p,p,nsd_solid*nn_solid,res)
 res=sqrt(res)
 if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 
-!if (myid == 0) then
-!        open(unit=30, file='solidres_se.out', status='unknown')
-!	do i=1, nn_solid
-!	write(30,*) 'node', i, p(1:nsd_solid,i)
-!	end do
-!	close(30)
-!end if
-
-
 !if ( res .gt. 1e-6) then  ! solid disp need to be solved
 
 !-----------------------
@@ -190,7 +181,7 @@ call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,ou
 
 call getnorm(dg,dg,nsd_solid*nn_solid,del)
  del = sqrt(del)
-if (myid == 0) write(*,*) '===serial solid displacement correction norm===', del
+if (myid == 0) write(*,*) '===solid displacement correction norm===', del
 
 !do i=1,nn_sbc
 !	write(*,*) 'dg', dg(:,node_sbc(i)), ' at node',node_sbc(i), disp(:,node_sbc(i))

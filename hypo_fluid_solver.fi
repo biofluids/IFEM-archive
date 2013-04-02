@@ -53,8 +53,8 @@ end if
 
 	time_com=mpi_wtime()
 
-	call communicate_res_ad_sub(p,ndf,nn,send_address,ad_length)
-	call communicate_res_ad_sub(w,ndf,nn,send_address,ad_length)
+	call communicate_res_ad(p,ndf,nn,send_address,ad_length)
+	call communicate_res_ad(w,ndf,nn,send_address,ad_length)
 	
 
 	time_com=mpi_wtime()-time_com
@@ -79,7 +79,7 @@ end if
         call gmres(x,d,dold,w,p,dg,hg,ien,f_fluids,id, &
 		   ne_intlocal,ien_intlocal,node_local,nn_local, &
 		   global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		   fden,fvis,I_fluid,rng) 	
+		   fden,fvis,I_fluid) 	
         !...calculate the normalized increment, del_l
          call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
          del_l = sqrt(del_l)

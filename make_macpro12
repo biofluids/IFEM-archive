@@ -1,6 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /usr/lib/liblapack.so.3gf \
-
+LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
+          /usr/opt/BLAS/blas_LINUX.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o ale_variables.o \
 delta_nonuniform.o \

@@ -1,12 +1,27 @@
      if (mod(its,restart_freq) == 0) then
         
-        if (mod(restart_klok,2) == 0) then
-           restart_unit = restart_u1
-           open(unit=restart_unit, file='restart1.bin', status='replace', form='unformatted')
-        else
-           restart_unit = restart_u2
-           open(unit=restart_unit, file='restart2.bin', status='replace', form='unformatted')
-        endif
+  if (klok .eq. 0) then
+     write(fileroot, '(a6)') '000000'
+  elseif (klok .lt. 10) then
+     write(fileroot, '(a5,i1)') '00000',klok
+  elseif (klok .lt. 100) then
+     write(fileroot, '(a4,i2)') '0000' ,klok
+  elseif (klok .lt. 1000) then
+     write(fileroot, '(a3,i3)') '000'  ,klok
+  elseif (klok .lt. 10000) then
+     write(fileroot, '(a2,i4)') '00'   ,klok
+  elseif (klok .lt. 100000) then
+     write(fileroot, '(a1,i5)') '0'   ,klok
+  elseif (klok .lt. 1000000) then
+     write(fileroot, '(i6)')   ''  ,klok
+  else
+     write(0,*) 'klok >= 1000000: modify subroutine createfileroot'
+     call exit(1)
+  endif
+ 
+      write(filename,'(A7,A6)') 'restart', fileroot
+      open(unit=restart_unit, file=filename, status='replace', form='unformatted')
+
 
        !...simulation data
         write(restart_unit) its,tt,klok,restart_klok
