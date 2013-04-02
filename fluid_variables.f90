@@ -33,5 +33,8 @@ module fluid_variables
   integer :: ne_inflow, edge_inflow ! nature boundary condition
   real(8) pin ! inflow pressure
   integer ptotflag ! flag for use total pressure b.c or not 1---> yest, 0 ---> no
-  integer outedge 
+  integer outedge
+
+  ! compressibility of artificial and pseudo-compressible fluids, moved here by Jubiao Yang on Mar. 4, 2013
+  real(8) kappa_s, kappa_f     ! pseudo-compressibility kappa_f is only utilized in .pscom set of codes, defined in input anyway
 end module fluid_variables
