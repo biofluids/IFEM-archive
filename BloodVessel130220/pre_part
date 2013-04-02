@@ -1,0 +1,12 @@
+partdmesh mien.in 64 
+rm partele.in
+rm partnode.in
+mv mien.in.epart.64 partele.in
+mv mien.in.npart.64 partnode.in
+
+partdmesh connectsolid.in 64
+rm partele_solid.in
+rm partnode_solid.in
+mv connectsolid.in.epart.64 partele_solid.in
+mv connectsolid.in.npart.64 partnode_solid.in
+
