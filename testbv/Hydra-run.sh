@@ -15,7 +15,7 @@ fi
 echo 'Starting job'
 date
 
-mpirun -machinefile $HOSTFILE -np $SLURM_NPROCS /fasttmp/jyang/IFEM.linels.pscom.bloodvessel/bloodvessel130222/IFEM
+mpirun -machinefile $HOSTFILE -np $SLURM_NPROCS /fasttmp/jyang/IFEM.linels.pscom.bloodvessel/bvradforce130227/IFEM
 
 cat /tmp/hosts.$SLURM_JOB_ID
 rm /tmp/hosts.$SLURM_JOB_ID

@@ -69,7 +69,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
   kappa_s = 1.0e4
-  kappa_f = 2.0e9
+  kappa_f = 2.2e11
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 !dloc(ndf,:)=(1.0 - I_fluid(:)) * dloc(ndf,:)

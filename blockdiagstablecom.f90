@@ -81,7 +81,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   ZC=1.0
   RC=2.56e6
   P0=1.0e6
-  kappa=1.0e4
+  kappa=9.167e8
 !---------------------------------------------------
   dtinv = 1.0/dt
   if(steady) dtinv = 0.0

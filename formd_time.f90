@@ -26,9 +26,9 @@ subroutine formd_time(ds,rngface,ien)
 ! Velocity boundary condition with varying time
     ttmod=tt-0.01*floor(tt/0.01)
     if (ttmod<0.002) then
-        bv(udf,1) = 5+7*sin(ttmod*1571)
+        bv(udf,5) = 5+8*sin(ttmod*1571)
     else
-        bv(udf,1) = 0.0
+        bv(udf,5) = 0.0
     endif
 !==========================================
 

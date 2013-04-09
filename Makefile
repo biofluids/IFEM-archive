@@ -1,6 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /usr/lib64/liblapack.so \
-          /usr/lib64/libblas.so
+LIBS    = /usr/lib/liblapack.so.3gf 
+
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o ale_variables.o \
 delta_nonuniform.o \
@@ -20,7 +20,7 @@ cg.o mergefinf.o readpart.o setnqloc.o search_inf_pa.o getinf_el_3d_pa.o \
 edgeele.o nature_pre.o nature_pre_3d.o nature_totpre.o nature_totpre_3d.o \
 givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
-blockdiagstablecom.o gmresnew.o blockgmresdiagcom.o \
+blockdiagstable.o gmresnew.o blockgmresnew.o \
 setnei_new.o communicate_res_nei.o communicate_res_ad.o setid_pa.o \
 solid_node_volume.o  source_laplace.o read_solidbc.o read_solidnodebc.o \
 solid_normint.o outnormal_2d.o solid_normint_3d.o outnormal_tet.o outnormal_hex.o \
@@ -28,10 +28,14 @@ gmres_Laplace.o solve_laplace.o block_Laplace.o blockgmres_Laplace.o \
 rkpm_nodevolume.o rkpm_init.o getinf_rkpm.o search_inf_re.o \
 solve_solid_disp.o block_solid.o gmres_solid.o blockgmres_solid.o form_solidid.o \
 setsolid_id.o res_solid.o block_solid_res.o apply_2ndbc_solid.o apply_2ndbc_solid2d.o \
-prebc.o
+readpart_solid.o solve_solid_disp_pa.o block_solid_pa.o gmres_solid_pa.o blockgmres_solid_pa.o \
+solve_laplace_pa.o gmres_Laplace_pa.o \
+bubblesort.o communicate_res_ad_sub.o bubblesort_solid.o communicate_res_ad_subsolid.o \
+formd_time.o
+
 IFEM: $(OBJ)
-	mpiifort -g -O0 -o IFEM $(OBJ) $(LIBS)
+	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpiifort -c -g $<
+	mpif90 -c -g $<
 clean:
 	rm -rf *.o *.mod IFEM

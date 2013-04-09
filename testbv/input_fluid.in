@@ -6,8 +6,8 @@ hg_vol =    1		! hg
 taudt =     1		! taudt	
 static =    0		! static
 conserve =  1		! conserve
- nn=       36941		! # of nodes in fluid region
- ne=       36000		! # of elements in fluid region
+ nn=       11526		! # of nodes in fluid region
+ ne=       11250		! # of elements in fluid region
 nrng =    6		! # of boundary in fluid region
 nen =     4		! # of nodes per element
 ndf =     3		! # of degree of freedom
@@ -25,13 +25,13 @@ dt =      2.00d-5	! time increment
 t_start = 0.0		! ...
 alpha =   1.0		! ...
 fix1 =    1 		! bottom BC
-fix = 	 0.0 		! bottom BC vel_x
-fix = 	 0.0 		! bottom BC vel_y
+fix = 	 -999 		! bottom BC vel_x
+fix = 	 -999 		! bottom BC vel_y
 fix = 	 -999     	! bottom BC Pre
 
 fix2 =    2 		! lower-right BC
-fix =    0.0 		! lower-right BC vel_x
-fix =    0.0  		! lower-right BC vel_y
+fix =    -999 		! lower-right BC vel_x
+fix =    -999  		! lower-right BC vel_y
 fix =    -999	   	! lower-right BC Pre
 
 fix2 =    3             ! upper-right BC
@@ -50,8 +50,8 @@ fix =   0.0  		! upper-left BC vel_y
 fix =    -999  		 !upper-left Pre
 
 fix1 =    6             ! lower-left BC
-fix =    0.0            ! lower-left BC vel_x
-fix =    0.0            ! lower-left BC vel_y
+fix =    -999            ! lower-left BC vel_x
+fix =    -999            ! lower-left BC vel_y
 fix =    -999            ! lower-left BC Pre
 
 

@@ -176,7 +176,7 @@ dg(:,:)=0.0d0
 !p_rec(:,:) = 0.0
 
 ! Evaluate residual for solid equations in parallel
-call block_solid_pa(x,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
+call block_solid_pa(x,x_curr,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
 		nn_solid,nquad_solid,wq_solid,sq_solid,xpre1,&
 		solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
 		ne_local,ien_local)
