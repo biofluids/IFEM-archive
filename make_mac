@@ -35,6 +35,6 @@ formd_time.o
 IFEM: $(OBJ)
 	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpif90 -c -g $<
+	mpif90 -c -g -O2 $<
 clean:
 	rm -rf *.o *.mod IFEM

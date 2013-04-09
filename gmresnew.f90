@@ -9,7 +9,8 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         use mpi_variables
 	implicit none
       include 'mpif.h'
-	real* 8 x(nsd,nn),id(ndf,nn)
+	real* 8 x(nsd,nn)
+        integer id(ndf,nn)          ! type changed from real to integer by Jubiao Yang on 03/19/2013
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn),ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
@@ -19,7 +20,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !        real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
 !=========================================================
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8 e1(inner+1)          ! type changed from integer to real by Jubiao Yang on 03/19/2013
 	real* 8 x0(ndf*nn)
 	real* 8 beta(inner+1)
 	real* 8 eps
