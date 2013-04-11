@@ -266,7 +266,7 @@ call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
 	                         delta_exchange_solid_to_fluid,solid_pave,d(ndf,:))
 
 do ie = 1, nn
-f_fluids(:,ie) = f_fluids(:,ie) * fden(ie)
+f_fluids(:,ie) = f_fluids(:,ie) * I_fluid(ie)
 end do
 
 endif
