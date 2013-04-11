@@ -60,7 +60,7 @@ do icount=1,countrow_solid
 
 	call mpi_ibsend(send_tmp((k1-1)*ndf +1),ndf*i,mpi_double_precision,&
                         des, tag, mpi_comm_world,reqs(icount),ierror)  ! send envelope
-
+! changed from "mpi_ibsend" to "mpi_isend" by Jubiao Yang on 03/19/2013
 
 
 	call mpi_irecv(recv_tmp((k1-1)*ndf +1),ndf*i,mpi_double_precision,&
