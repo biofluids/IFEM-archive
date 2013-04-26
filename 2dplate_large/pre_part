@@ -1,12 +1,12 @@
-partdmesh mien.in 32 
+partdmesh mien.in 24 
 rm partele.in
 rm partnode.in
-mv mien.in.epart.32 partele.in
-mv mien.in.npart.32 partnode.in
+mv mien.in.epart.24 partele.in
+mv mien.in.npart.24 partnode.in
 
-partdmesh connectsolid.in 32
+partdmesh connectsolid.in 24
 rm partele_solid.in
 rm partnode_solid.in
-mv connectsolid.in.epart.32 partele_solid.in
-mv connectsolid.in.npart.32 partnode_solid.in
+mv connectsolid.in.epart.24 partele_solid.in
+mv connectsolid.in.npart.24 partnode_solid.in
 
