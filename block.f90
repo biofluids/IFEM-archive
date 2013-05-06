@@ -192,7 +192,7 @@ subroutine block(xloc, dloc, doloc, p, q, hk, ien, f_fluids,rngface, f_stress,ne
 !....  calculate liquid constant and gravity
 	    mu = fvis(ie)  ! liquid viscosity
 !	    ro = den_liq  ! liquid density
-		g  = gravity  ! gravatitional force
+		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then

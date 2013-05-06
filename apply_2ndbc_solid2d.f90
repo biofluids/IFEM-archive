@@ -131,7 +131,7 @@ end if
 
 	tot_len=tot_len+w
 
-if (ien_sbc(ibs,nen_solid+2) /= 999) then
+if (ien_sbc(ibs,nen_solid+2) == -999) then
 
 	snode=ien_solid(ine,bcnode1)
 

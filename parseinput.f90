@@ -170,9 +170,6 @@ end if
 	ne_sbc=ne_sbc_1*n_solid
 	nn_sbc=nn_sbc_1*n_solid
 	node_sfcon=node_sfcon_1*n_solid
-
-        ! moved here by Jubiao Yang on Mar. 4, 2013
-        call Read_Real(damp_solid,1)       ! damping ratio of the solid
   close(8)
 
   prec(1:nump*ne_solid)=0.0d0
@@ -359,11 +356,6 @@ end if
   delta(idelta)=read_delta(2)
 
   CALL Read_Real(turb_kappa,1)
-
-  ! added here by Jubiao Yang on Mar. 4, 2013
-  call Read_Real(vis_solid,1)        ! viscosity of artificial fluid
-  call Read_Real(kappa_s,1)          ! compressibility of artificial fluid
-  call Read_Real(kappa_f,1)          ! compressibility of pseudo-compressible fluid
 
 !       further defaults
   if (ntsbout.eq.0) ntsbout = nts + 1

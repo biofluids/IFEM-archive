@@ -9,7 +9,8 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         use mpi_variables
 	implicit none
       include 'mpif.h'
-	real* 8 x(nsd,nn),id(ndf,nn)
+	real* 8 x(nsd,nn)
+        integer id(ndf,nn)          ! type changed from real to integer by Jubiao Yang on 03/19/2013
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn),ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
@@ -19,7 +20,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 !        real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
 !=========================================================
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8 e1(inner+1)          ! type changed from integer to real by Jubiao Yang on 03/19/2013
 	real* 8 x0(ndf*nn)
 	real* 8 beta(inner+1)
 	real* 8 eps
@@ -140,7 +141,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 ! Let vloc=vloc+d first then communicate, and then it should same # of loop (avoiding loop at the whole domain)
 !=============================
 !		call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-	        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
 
 !----------------------------------------------------------------------------------------------
 !vloc(:,:)=vloc(:,:)+d(:,:)
@@ -166,7 +167,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 
 !                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-	        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 
 
 !===================
@@ -304,7 +305,7 @@ temp=0.0d0
 	end do
 
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
+        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
 
 
 !==============================
@@ -327,7 +328,7 @@ temp=0.0d0
 	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
 			fden,fvis,I_fluid,rngface)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
+        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 !==================
 !avloc(:)=0.0d0
 !==================

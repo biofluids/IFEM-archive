@@ -27,10 +27,7 @@ solid_normint.o outnormal_2d.o solid_normint_3d.o outnormal_tet.o outnormal_hex.
 gmres_Laplace.o solve_laplace.o block_Laplace.o blockgmres_Laplace.o \
 rkpm_nodevolume.o rkpm_init.o getinf_rkpm.o search_inf_re.o \
 solve_solid_disp.o block_solid.o gmres_solid.o blockgmres_solid.o form_solidid.o \
-setsolid_id.o res_solid.o block_solid_res.o apply_2ndbc_solid.o apply_2ndbc_solid2d.o \
-readpart_solid.o solve_solid_disp_pa.o block_solid_pa.o gmres_solid_pa.o blockgmres_solid_pa.o \
-solve_laplace_pa.o gmres_Laplace_pa.o \
-bubblesort.o communicate_res_ad_sub.o
+setsolid_id.o res_solid.o block_solid_res.o apply_2ndbc_solid.o apply_2ndbc_solid2d.o 
 IFEM: $(OBJ)
 	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:

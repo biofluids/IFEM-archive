@@ -25,7 +25,7 @@ subroutine hypo
   integer :: klok,j
 
   integer infdomain(nn_solid)
-  real(8) mass_center(nsd_solid)
+  real(8) mass_center(2)
   real(8) sfxyz(nsd,node_sfcon)
   integer inode_sf
 ! Variables for different fluid density using by implicit form  
@@ -44,53 +44,43 @@ subroutine hypo
   real(8) time
   real(8) time_com
   real(8) pin_s
-! solid 1st type bc temp varaibles
- real(8) omega_tmp
- real(8) theta_tmp
-
+!============================
+character(len=14) filename
+character(len=14) resfilename
+character(len=7) fileroot
 !============================
 ! Define local variables
   include "hypo_declaration_solid.fi"
   include "hypo_declaration_fluid.fi"
 
 !============================
-! Define fluid varibales on each processor
+! Define varibales on each processor
   include "hypo_declaration_part.fi"
-! Define solid varibales on each processor
-  include "hypo_declaration_part_solid.fi"
-
 !===============================================================
 ! Prepare for calculation, read in inputs or restart information
   include "hypo_restart_file_check.fi"
   include "hypo_prepare_solid.fi"
   include "hypo_prepare_fluid.fi"
 !===================================
-! Prepare for MPI Fludi solver
+! Prepare for MPI
+!call readpartele(partele)
   include "hypo_prepare_part.fi"
   include "hypo_prepare_com_node.fi"
-
-! Prepare for MPISolid solver
-  include "hypo_prepare_part_solid.fi"
-  include "hypo_prepare_com_node_solid.fi"
 !=============================
 ! define the influence domain matrix
  ! integer infdomain(nn_solid)
       call mpi_barrier(mpi_comm_world,ierror)
-!  write(*,*) 'myid', myid, 'nn_local', nn_local, 'ne_local', ne_local !id for debuger
+  write(*,*) 'myid', myid, 'nn_local', nn_local, 'ne_local', ne_local !id for debuger
 
 !=============================
 !  vis_solid= - vis_liq 
-!  vis_solid=  1.0          % evaluation moved to parseinput.f90 by Jubiao Yang on Mar. 4, 2013
+  vis_solid=  1.0
   I_fluid(:)=0.0
   solid_pave(:)=0.0d0
-  solid_vel(:,:) = 0.0d0
-  solid_accel(:,:) = 0.0d0
-!  damp_solid = 10000.0     % evaluation moved to parseinput.f90 by Jubiao Yang on Mar. 4, 2013
+  damp_solid = 10.0
+  solid_vel(:,:) = 0.0
   solid_bcvel(:,:) = 0.0
   solid_bcvel_old(:,:) = 0.0
-  outedge=2
-  fden(:)=0.0
-  fvis(:)=0.0
 !=============================
 
 if (edge_inflow .ne. 0) then
@@ -100,12 +90,8 @@ end if
 !===================================
 ! save the orignal position of solid nodes at fluid boundary
 if (node_sfcon .ne. 0 ) then
-omega_tmp=1.0
   do inode_sf=1,node_sfcon
      sfxyz(1:nsd,inode_sf)=solid_coor_init(1:nsd,sfcon(inode_sf))
-!     solid_vel(1,sfcon(inode_sf)) = -(solid_coor_init(2,sfcon(inode_sf)) - 1.0)/0.1*0.1*omega_tmp
-!     solid_vel(2,sfcon(inode_sf)) = (solid_coor_init(1,sfcon(inode_sf)) - 4.0)/0.1*0.1*omega_tmp
-
   end do
 end if
 
@@ -156,59 +142,23 @@ if (ndelta==1) then
 !        solid_prevel(1:nsd_solid,1:nn_solid) = solid_vel(1:nsd_solid,1:nn_solid)
 	solid_stress(:,:) = 0.0d0
 	do ie=1,nn_solid
-!		solid_pave(ie) = 1000
-!		solid_bcvel(1,ie) = 1.0 
 		solid_stress(1:nsd_solid,ie) = solid_pave(ie)
 	end do
 
-if (node_sfcon .ne. 0 ) then
-
-!  do inode_sf=1,node_sfcon
-!          solid_accel(1,sfcon(inode_sf))= - 2*3.14*cos(2*3.14*tt)
-!	  solid_accel(2,sfcon(inode_sf))= 0
-!  end do
-
-
- ! do inode_sf=1,node_sfcon
-!	solid_accel(1,sfcon(inode_sf))= - (solid_coor_curr(1,sfcon(inode_sf)) - 4.0)*(omega_tmp*omega_tmp) ! omega =10
-!        solid_accel(2,sfcon(inode_sf))= - (solid_coor_curr(2,sfcon(inode_sf)) - 1.0)*(omega_tmp*omega_tmp) 
-!  end do
-end if
 !-------------------------------
 ! correct the curr solid coor by solving the solid mon equations
-call mpi_barrier(mpi_comm_world,ierror)
 
-if (its .gt. 50) then
-if (myid == 0) write(*,*) '=== Fluid solver have converged for', its,'time steps ==='
-
-time = mpi_wtime()
-id_solidbc(:,:)=1
 call form_solidid12(id_solidbc,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ne_solid,solid_fem_con)
-call solve_solid_disp_pa(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_con,node_sbc, &
-                        solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype,&
-	ne_intlocal_solid,ien_intlocal_solid,nn_local_solid,node_local_solid,send_address_solid,ad_length_solid,&
-	global_com_solid,nn_global_com_solid,local_com_solid,nn_local_com_solid)
+call solve_solid_disp(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_con,node_sbc, &
+                        solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype)
 
-
-
-call mpi_barrier(mpi_comm_world,ierror)
-
-time = mpi_wtime()-time
-if (myid == 0)  write(*,*) 'Time for solid solver', time
-
-
-end if
-
-
-!if (.false.) then ! debug solid disp solver only
-
-time=mpi_wtime()
 !--------------------------------
 ! Find the fluid nodes overlapping with solid domain
 call search_inf_re(solid_coor_curr,x,nn,nn_solid,nsd,ne_solid,nen_solid,solid_fem_con,&
                 flag_fnode,node_local,nn_local)
 
 ! Construction of the dirac deltafunctions at actual solid and fluid node positions
+time=mpi_wtime()
 call rkpm_nodevolume(x,nsd,nn,ien,ne,nen,ien_intlocal,ne_intlocal,dvolume,sp_radius)
 call rkpm_init(solid_coor_curr,nn_solid,x,nsd,nn,dvolume,sp_radius)
 
@@ -216,32 +166,23 @@ time=mpi_wtime()-time
 if (myid == 0) write(*,*) '---Time for initiate RKPM interpolation function---', time
 !==================================================================
 ! Solve Laplace equation get indicatior field
-!if (myid == 0) then
+if (myid == 0) then
 	time=mpi_wtime()
 	lp_source(:,:)=0.0
         call source_laplace(x,nn,nsd,solid_coor_curr,nn_solid,solid_fem_con,ne_solid,nen_solid,&
-	ien_sbc,ne_sbc,node_sbc,nn_sbc,lp_source)
-	
-call mpi_barrier(mpi_comm_world,ierror)
-        call solve_laplace_pa(lp_source,nsd,nn,nn_solid,ien,ne,nen,x,node_sbc,nn_sbc,I_fluid,flag_fnode,&
-		ne_intlocal,ien_intlocal,nn_local,node_local,send_address,ad_length,&
-		global_com,nn_global_com,local_com,nn_local_com)
-
-
- !       call solve_laplace(lp_source,nsd,nn,nn_solid,ien,ne,nen,x,node_sbc,nn_sbc,I_fluid,flag_fnode)
-
-
+			ien_sbc,ne_sbc,node_sbc,nn_sbc,lp_source)
+	call solve_laplace(lp_source,nsd,nn,nn_solid,ien,ne,nen,x,node_sbc,nn_sbc,I_fluid,flag_fnode)
+! Update density and viscosity field for fluid 
+!I_fluid(:)=0.0
 	fden(:)=den_liq+density_solid*I_fluid(:)
 	fvis(:)=vis_liq+vis_solid*I_fluid(:)
 	time=mpi_wtime()-time
-!end if
-
-if (myid == 0) write(*,*) '---Time for update indicator field---', time
+	if (myid == 0) write(*,*) '---Time for update indicator field---', time
 !=================================================================
 ! Solid solver
 
 !if (its .gt. 10) then
-if (myid == 0) then
+
 	 write(*,*) 'starting my own litte solid solver'
 call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
               solid_coor_pre1,solid_coor_pre2,id_solidbc,solid_accel,solid_pave,solid_bcvel,solid_bcvel_old,solid_vel)
@@ -268,17 +209,17 @@ call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
 do ie = 1, nn
 f_fluids(:,ie) = f_fluids(:,ie) * fden(ie)
 end do
+!f_fluids=0.0
 
 endif
 !=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
-
-
       call mpi_barrier(mpi_comm_world,ierror)
       call mpi_bcast(f_fluids(1,1),nsd*nn,mpi_double_precision,0,mpi_comm_world,ierror)
-!      call mpi_bcast(fden(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
-!      call mpi_bcast(fvis(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
-!      call mpi_bcast(I_fluid(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
+      call mpi_bcast(fden(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
+      call mpi_bcast(fvis(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
+      call mpi_bcast(solid_pave(1),nn_solid,mpi_double_precision,0,mpi_comm_world,ierror)
+      call mpi_bcast(I_fluid(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)
 
 time=mpi_wtime()
 
@@ -301,7 +242,6 @@ solid_bcvel_old(:,:) =  solid_bcvel(:,:)
 
     call delta_exchange(solid_bcvel,nn_solid,d(1:nsd,:),nn,ndelta,dvolume,nsd, &
 					  delta_exchange_fluid_to_solid,solid_pave,d(ndf,:))
-
 
 
 !	endif
@@ -336,11 +276,11 @@ end if
 !=================================================================
 ! Write output file every ntsbout steps
 !    Out put the fluid pressure at solid nodals
-!if (node_sfcon .ne. 0) then
-!  do inode_sf=1,node_sfcon
-!     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
-!  end do
-!end if
+if (node_sfcon .ne. 0) then
+  do inode_sf=1,node_sfcon
+     solid_coor_curr(1:nsd,sfcon(inode_sf))=sfxyz(1:nsd,inode_sf)
+  end do
+end if
 	if (myid == 0) then
      include "hypo_write_output.fi"
 	endif

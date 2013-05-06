@@ -63,7 +63,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   real(8) fvis(nn)
   real(8) local_vis(nen)
   real(8) I_fluid(nn)
-  ! real(8) kappa_s            % renamed and moved to parseinput.f90 by Jubiao Yang on Mar. 4, 2013
+  real(8) kappa
 !======================================
 ! varibles for mpi implementation
         integer ne_local ! # of element on each processor
@@ -80,7 +80,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
-  ! kappa_s = 1.0e4            % renamed and moved to parseinput.f90 by Jubiao Yang on Mar. 4, 2013
+  kappa = 1.0e4
 
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
@@ -183,7 +183,7 @@ end do
 	    endif
 
 !....  calculate liquid constant and gravity
-		g  = gravity  ! gravatitional force
+		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then
@@ -202,21 +202,21 @@ end do
 		  do inl=1,nen
 		   	 res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl)
-		  	 q_res_c(inl) = sh(0,inl)*dtinv/kappa_s*I_fluid(node)! get res_c for P for continuity equation
+		  	 q_res_c(inl) = sh(0,inl)*dtinv/kappa*I_fluid(node)! get res_c for P for continuity equation
 		  enddo
 		elseif (nsd==3) then
 		  do inl=1,nen
 		     res_c = res_c+sh(xsd,inl)*d(udf,inl) &
 	                    +sh(ysd,inl)*d(vdf,inl) &
 	                    +sh(zsd,inl)*d(wdf,inl)
-		     q_res_c(inl) = sh(0,inl)*dtinv/kappa_s*I_fluid(node)
+		     q_res_c(inl) = sh(0,inl)*dtinv/kappa*I_fluid(node)
 		  enddo
 		endif
 
                 do inl=1,nen
 		   node=ien(inl,ie)
 		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
-		   (1.0/kappa_s*I_fluid(node))
+		   (1.0/kappa*I_fluid(node))
 		end do  ! add dp/dt term for artificial fluid
 
 
