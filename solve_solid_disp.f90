@@ -18,7 +18,8 @@ subroutine solve_solid_disp(x,x_curr,kid,ien,node_sbc,xpre1,solid_prevel,solid_p
 use mpi_variables, only: myid
 use solid_variables
 use run_variables, only: dt
-implicit none
+include 'mpif.h'
+!implicit none
 
 real(8) x(nsd_solid,nn_solid)
 real(8) x_curr(nsd_solid,nn_solid)
@@ -54,6 +55,7 @@ real(8) p(nsd_solid,nn_solid)  ! residual vector
 real(8) res
 real(8) del
 integer i
+real(8) time
 !----------------------------
         real(8) alpha
         real(8) beta
@@ -167,15 +169,6 @@ call getnorm(p,p,nsd_solid*nn_solid,res)
 res=sqrt(res)
 if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 
-!if (myid == 0) then
-!        open(unit=30, file='solidres_se.out', status='unknown')
-!	do i=1, nn_solid
-!	write(30,*) 'node', i, p(1:nsd_solid,i)
-!	end do
-!	close(30)
-!end if
-
-
 !if ( res .gt. 1e-6) then  ! solid disp need to be solved
 
 !-----------------------
@@ -183,14 +176,16 @@ if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 ! Help a lot!!!! However, have not figured out why ...
 !w(:,:)=1.0d0/w(:,:)
 !----------------------
-
+!time=mpi_wtime()
 call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,outer,&
 		nquad_solid,wq_solid,sq_solid,xpre1,&
 		solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype)
+!time=mpi_wtime()-time
+!if (myid==0) write(*,*) '*****COSTING TIME********', time
 
 call getnorm(dg,dg,nsd_solid*nn_solid,del)
  del = sqrt(del)
-if (myid == 0) write(*,*) '===serial solid displacement correction norm===', del
+if (myid == 0) write(*,*) '===solid displacement correction norm===', del
 
 !do i=1,nn_sbc
 !	write(*,*) 'dg', dg(:,node_sbc(i)), ' at node',node_sbc(i), disp(:,node_sbc(i))

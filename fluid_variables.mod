@@ -1,5 +1,5 @@
-GFORTRAN module version '4' created from fluid_variables.f90 on Thu Apr 11 12:00:06 2013
-MD5:57dd233307de0f0735cd223e9d210ebb -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '4' created from fluid_variables.f90 on Mon May 13 14:03:10 2013
+MD5:4d85863618246963ff42c14c17284a0a -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()
 () () ())
@@ -193,124 +193,121 @@ UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 55 'nsdpad' 'fluid_variables' 'nsdpad' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '3') () 0 () () () 0 0)
-56 'outedge' 'fluid_variables' 'outedge' 1 ((VARIABLE UNKNOWN-INTENT
+56 'outer' 'fluid_variables' 'outer' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-57 'outer' 'fluid_variables' 'outer' 1 ((VARIABLE UNKNOWN-INTENT
+57 'pdf' 'fluid_variables' 'pdf' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-58 'pdf' 'fluid_variables' 'pdf' 1 ((VARIABLE UNKNOWN-INTENT
-UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
-() 0 () () () 0 0)
-59 'pin' 'fluid_variables' 'pin' 1 ((VARIABLE UNKNOWN-INTENT
+58 'pin' 'fluid_variables' 'pin' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-60 'ptotflag' 'fluid_variables' 'ptotflag' 1 ((VARIABLE UNKNOWN-INTENT
+59 'ptotflag' 'fluid_variables' 'ptotflag' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-61 'qud' 'fluid_variables' 'qud' 1 ((PARAMETER UNKNOWN-INTENT
+60 'qud' 'fluid_variables' 'qud' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '2') () 0 () () () 0 0)
-62 'quds' 'fluid_variables' 'quds' 1 ((PARAMETER UNKNOWN-INTENT
+61 'quds' 'fluid_variables' 'quds' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '6') () 0 () () () 0 0)
-63 'ref_den' 'fluid_variables' 'ref_den' 1 ((VARIABLE UNKNOWN-INTENT
+62 'ref_den' 'fluid_variables' 'ref_den' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-64 'ref_lgt' 'fluid_variables' 'ref_lgt' 1 ((VARIABLE UNKNOWN-INTENT
+63 'ref_lgt' 'fluid_variables' 'ref_lgt' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-65 'ref_vel' 'fluid_variables' 'ref_vel' 1 ((VARIABLE UNKNOWN-INTENT
+64 'ref_vel' 'fluid_variables' 'ref_vel' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-66 'res_g' 'fluid_variables' 'res_g' 1 ((VARIABLE UNKNOWN-INTENT
+65 'res_g' 'fluid_variables' 'res_g' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-67 'res_l' 'fluid_variables' 'res_l' 1 ((VARIABLE UNKNOWN-INTENT
+66 'res_l' 'fluid_variables' 'res_l' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-68 'restart' 'fluid_variables' 'restart' 1 ((VARIABLE UNKNOWN-INTENT
+67 'restart' 'fluid_variables' 'restart' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-69 'sq' 'fluid_variables' 'sq' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
+68 'sq' 'fluid_variables' 'sq' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN EXPLICIT-SAVE 0 0 DIMENSION) (REAL 8 0 0 REAL ()) 0 0 () (3
 EXPLICIT (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '0') (CONSTANT (INTEGER
 4 0 0 INTEGER ()) 0 '3') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '8') (CONSTANT (INTEGER 4 0 0
 INTEGER ()) 0 '1') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '8')) 0 () ()
 () 0 0)
-70 'sq2d' 'fluid_variables' 'sq2d' 1 ((VARIABLE UNKNOWN-INTENT
+69 'sq2d' 'fluid_variables' 'sq2d' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0 DIMENSION) (REAL 8 0 0 REAL ()) 0
 0 () (3 EXPLICIT (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '0') (CONSTANT (
 INTEGER 4 0 0 INTEGER ()) 0 '3') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0
 '1') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '8') (CONSTANT (INTEGER 4 0
 0 INTEGER ()) 0 '1') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '48')) 0 ()
 () () 0 0)
-71 'static' 'fluid_variables' 'static' 1 ((VARIABLE UNKNOWN-INTENT
+70 'static' 'fluid_variables' 'static' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (LOGICAL 4 0 0 LOGICAL ()) 0 0 ()
 () 0 () () () 0 0)
-72 'steady' 'fluid_variables' 'steady' 1 ((VARIABLE UNKNOWN-INTENT
+71 'steady' 'fluid_variables' 'steady' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (LOGICAL 4 0 0 LOGICAL ()) 0 0 ()
 () 0 () () () 0 0)
-73 'stokes' 'fluid_variables' 'stokes' 1 ((VARIABLE UNKNOWN-INTENT
+72 'stokes' 'fluid_variables' 'stokes' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (LOGICAL 4 0 0 LOGICAL ()) 0 0 ()
 () 0 () () () 0 0)
-74 't_start' 'fluid_variables' 't_start' 1 ((VARIABLE UNKNOWN-INTENT
+73 't_start' 'fluid_variables' 't_start' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-75 'taudt' 'fluid_variables' 'taudt' 1 ((VARIABLE UNKNOWN-INTENT
+74 'taudt' 'fluid_variables' 'taudt' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (LOGICAL 4 0 0 LOGICAL ()) 0 0 ()
 () 0 () () () 0 0)
-76 'tet' 'fluid_variables' 'tet' 1 ((PARAMETER UNKNOWN-INTENT
+75 'tet' 'fluid_variables' 'tet' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '3') () 0 () () () 0 0)
-77 'tets' 'fluid_variables' 'tets' 1 ((PARAMETER UNKNOWN-INTENT
+76 'tets' 'fluid_variables' 'tets' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '7') () 0 () () () 0 0)
-78 'tri' 'fluid_variables' 'tri' 1 ((PARAMETER UNKNOWN-INTENT
+77 'tri' 'fluid_variables' 'tri' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') () 0 () () () 0 0)
-79 'tris' 'fluid_variables' 'tris' 1 ((PARAMETER UNKNOWN-INTENT
+78 'tris' 'fluid_variables' 'tris' 1 ((PARAMETER UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '5') () 0 () () () 0 0)
-80 'turb_kappa' 'fluid_variables' 'turb_kappa' 1 ((VARIABLE
+79 'turb_kappa' 'fluid_variables' 'turb_kappa' 1 ((VARIABLE
 UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL
 ()) 0 0 () () 0 () () () 0 0)
-81 'twod' 'fluid_variables' 'twod' 1 ((VARIABLE UNKNOWN-INTENT
+80 'twod' 'fluid_variables' 'twod' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (LOGICAL 4 0 0 LOGICAL ()) 0 0 ()
 () 0 () () () 0 0)
-82 'udf' 'fluid_variables' 'udf' 1 ((VARIABLE UNKNOWN-INTENT
+81 'udf' 'fluid_variables' 'udf' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-83 'vdf' 'fluid_variables' 'vdf' 1 ((VARIABLE UNKNOWN-INTENT
+82 'vdf' 'fluid_variables' 'vdf' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-84 'vis_liq' 'fluid_variables' 'vis_liq' 1 ((VARIABLE UNKNOWN-INTENT
+83 'vis_liq' 'fluid_variables' 'vis_liq' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-85 'vmax' 'fluid_variables' 'vmax' 1 ((VARIABLE UNKNOWN-INTENT
+84 'vmax' 'fluid_variables' 'vmax' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-86 'vmin' 'fluid_variables' 'vmin' 1 ((VARIABLE UNKNOWN-INTENT
+85 'vmin' 'fluid_variables' 'vmin' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-87 'wdf' 'fluid_variables' 'wdf' 1 ((VARIABLE UNKNOWN-INTENT
+86 'wdf' 'fluid_variables' 'wdf' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
 () 0 () () () 0 0)
-88 'wq' 'fluid_variables' 'wq' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
+87 'wq' 'fluid_variables' 'wq' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN EXPLICIT-SAVE 0 0 DIMENSION) (REAL 8 0 0 REAL ()) 0 0 () (1
 EXPLICIT (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') (CONSTANT (INTEGER
 4 0 0 INTEGER ()) 0 '8')) 0 () () () 0 0)
-89 'wq2d' 'fluid_variables' 'wq2d' 1 ((VARIABLE UNKNOWN-INTENT
+88 'wq2d' 'fluid_variables' 'wq2d' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0 DIMENSION) (REAL 8 0 0 REAL ()) 0
 0 () (1 EXPLICIT (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') (CONSTANT (
 INTEGER 4 0 0 INTEGER ()) 0 '48')) 0 () () () 0 0)
-90 'xq' 'fluid_variables' 'xq' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
+89 'xq' 'fluid_variables' 'xq' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN EXPLICIT-SAVE 0 0 DIMENSION) (REAL 8 0 0 REAL ()) 0 0 () (2
 EXPLICIT (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') (CONSTANT (INTEGER
 4 0 0 INTEGER ()) 0 '3') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '8')) 0 () () () 0 0)
-91 'xq2d' 'fluid_variables' 'xq2d' 1 ((VARIABLE UNKNOWN-INTENT
+90 'xq2d' 'fluid_variables' 'xq2d' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0 DIMENSION) (REAL 8 0 0 REAL ()) 0
 0 () (2 EXPLICIT (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') (CONSTANT (
 INTEGER 4 0 0 INTEGER ()) 0 '3') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0
@@ -327,10 +324,10 @@ INTEGER 4 0 0 INTEGER ()) 0 '3') (CONSTANT (INTEGER 4 0 0 INTEGER ()) 0
 37 'maxnsurf' 0 38 'ndf' 0 39 'ndfpad' 0 40 'ne' 0 41 'ne_inflow' 0 42
 'neface' 0 43 'nen' 0 44 'nenpad' 0 45 'nit' 0 46 'nn' 0 47 'nnface' 0
 48 'nq' 0 49 'nquad' 0 50 'nquad2d' 0 51 'nquadpad' 0 52 'nrng' 0 53 'nsd'
-0 54 'nsdpad' 0 55 'outedge' 0 56 'outer' 0 57 'pdf' 0 58 'pin' 0 59
-'ptotflag' 0 60 'qud' 0 61 'quds' 0 62 'ref_den' 0 63 'ref_lgt' 0 64
-'ref_vel' 0 65 'res_g' 0 66 'res_l' 0 67 'restart' 0 68 'sq' 0 69 'sq2d'
-0 70 'static' 0 71 'steady' 0 72 'stokes' 0 73 't_start' 0 74 'taudt' 0
-75 'tet' 0 76 'tets' 0 77 'tri' 0 78 'tris' 0 79 'turb_kappa' 0 80 'twod'
-0 81 'udf' 0 82 'vdf' 0 83 'vis_liq' 0 84 'vmax' 0 85 'vmin' 0 86 'wdf'
-0 87 'wq' 0 88 'wq2d' 0 89 'xq' 0 90 'xq2d' 0 91)
+0 54 'nsdpad' 0 55 'outer' 0 56 'pdf' 0 57 'pin' 0 58 'ptotflag' 0 59
+'qud' 0 60 'quds' 0 61 'ref_den' 0 62 'ref_lgt' 0 63 'ref_vel' 0 64
+'res_g' 0 65 'res_l' 0 66 'restart' 0 67 'sq' 0 68 'sq2d' 0 69 'static'
+0 70 'steady' 0 71 'stokes' 0 72 't_start' 0 73 'taudt' 0 74 'tet' 0 75
+'tets' 0 76 'tri' 0 77 'tris' 0 78 'turb_kappa' 0 79 'twod' 0 80 'udf' 0
+81 'vdf' 0 82 'vis_liq' 0 83 'vmax' 0 84 'vmin' 0 85 'wdf' 0 86 'wq' 0
+87 'wq2d' 0 88 'xq' 0 89 'xq2d' 0 90)

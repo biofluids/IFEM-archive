@@ -3,13 +3,12 @@
 !c       modified for linear elastic equation, Lucy Zhang 4/22/99
 !c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine block_solid_res(xloc,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
-				x_pre1,x_pre2,solid_acc,pre,solid_bcvel,solid_bcvel_old,solid_vel)
+				x_pre1,x_pre2,solid_acc,pre,solid_bcvel,solid_accel_old,solid_vel)
 !	use fluid_variables, only: nsd,nen,ne,nn,nquad,wq,sq
 	use global_constants
 	use run_variables, only: dt
-	use r_common, only: group_young, Poisson, density_solid,vis_solid
-	use fluid_variables, only : den_liq, vis_liq,gravity
-	use mpi_variables,only: myid
+	use r_common, only: group_young, Poisson, density_solid
+	use fluid_variables, only : den_liq, vis_liq
 	implicit none
 
 	integer ien(ne,nen)
@@ -23,9 +22,8 @@
 	real(8) solid_acc(nsd,nn)
 	real(8) pre(nn)
 	real(8) solid_bcvel(nsd,nn)
-        real(8) solid_bcvel_old(nsd,nn)
+        real(8) solid_accel_old(nsd,nn)
 	real(8) solid_vel(nsd,nn)
-        real(8) g(1:nsd)
 !----------------------------------------
 	integer nsd
 	integer nen
@@ -68,40 +66,32 @@
 				! same as blockgmres_solid.f90
 !-----------------------------------
 
-	p(:,:) = 0.0d0
+!	p(:,:) = 0.0d0
 	w(:,:) = 0.0d0
 
 ! change E, \nv to \lammda and \mu (Lame parameters)
-	mu = group_young(1)/((1+Poisson)*(1-2*Poisson))
-	la = group_young(1)/(2*(1+Poisson))
+!	mu = group_young(1)/((1+Poisson)*(1-2*Poisson))
+!	la = group_young(1)/(2*(1+Poisson))
 ! set solid densitiy to be zero
 ! Here is the differenc between block_solid and blockgmres_solid, since now I do not consider 
 ! the density related terms in the FSI force which is the semi-implicit FSI algorithm
-!	rho_solid =  1.0d0
-	rho_solid=density_solid+den_liq
-if(myid==0)write(*,*)'rho_solid=',rho_solid,'den_liq=',den_liq,'vis_solid=',vis_solid
-g(1:nsd)=gravity(1:nsd)
+	rho_solid =  1.0d0
 !------------------------
 	mu = 0.0d0
 	la = 0.0d0
 
 !------------------------
         do ie=1,ne 
-
-        mu = group_young(1)/((1+Poisson)*(1-2*Poisson))
-        la = group_young(1)/(2*(1+Poisson))
-
 	   do inl=1,nen
 	      do isd=1,nsd
 		 x(isd,inl) = xloc(isd,ien(ie,inl))
 		 d(isd,inl) = dloc(isd,ien(ie,inl))
 		 d1(isd,inl) = x_pre1(isd,ien(ie,inl)) 
 		 d2(isd,inl) = x_pre2(isd,ien(ie,inl)) 
-!		 acc(isd,inl) = solid_acc(isd,ien(ie,inl)) - solid_accel_old(isd,ien(ie,inl))
-                 acc(isd,inl) = solid_acc(isd,ien(ie,inl))
+		 acc(isd,inl) = solid_acc(isd,ien(ie,inl)) - solid_accel_old(isd,ien(ie,inl))
+!                 acc(isd,inl) = solid_acc(isd,ien(ie,inl))
 
-!                 acc_fake(isd,inl) = (solid_bcvel(isd,ien(ie,inl)) - solid_bcvel_old(isd,ien(ie,inl))) / dt
-		acc_fake(isd,inl) = (solid_vel(isd,ien(ie,inl)) - solid_bcvel(isd,ien(ie,inl))) / dt
+                 acc_fake(isd,inl) = (solid_vel(isd,ien(ie,inl)) - solid_bcvel(isd,ien(ie,inl))) / dt
 		vel_s(isd,inl) = solid_vel(isd,ien(ie,inl))
 		vel_f(isd,inl) =solid_bcvel(isd,ien(ie,inl))
 	      enddo
@@ -227,52 +217,52 @@ g(1:nsd)=gravity(1:nsd)
 		 node=ien(ie,inl)
 !c.....Elastic Equation (calculate residual: r=kd=p)
 		 p(xsd,node) = p(xsd,node)  &
-		     -ph(xsd,inl) * ttt   &
-		     -ph(xsd,inl) * txx   &
-		     -ph(ysd,inl) * tyx   &
-		     -ph(zsd,inl) * tzx   &
+!		      ph(xsd,inl) * ttt + &
+!		      ph(xsd,inl) * txx + &
+!		      ph(ysd,inl) * tyx + &
+!		      ph(zsd,inl) * tzx   &
 		     -ph(0,inl) * ax	  &
-		     +ph(0,inl) * dpre(xsd) &
+!		     +ph(0,inl) * dpre(xsd) &
 !---------------------------------------------------------------------------------
                         +ph(0,inl) * a_fake(xsd)  &
-!                        +ph(0,inl) * (us(xsd)*dusdx(xsd,xsd) + us(ysd)*dusdx(xsd,ysd) + us(zsd)*dusdx(xsd,zsd)) &
-!                        -ph(0,inl) * (uf(xsd)*dufdx(xsd,xsd) + uf(ysd)*dufdx(xsd,ysd) + uf(zsd)*dufdx(xsd,zsd)) &
-!                        +ph(xsd,inl)*taus(xsd,xsd) + ph(ysd,inl)*taus(xsd,ysd) + ph(zsd,inl)*taus(xsd,zsd) &
-                        +(ph(xsd,inl)*tauf(xsd,xsd) + ph(ysd,inl)*tauf(xsd,ysd) + ph(zsd,inl)*tauf(xsd,zsd))
+                        +ph(0,inl) * (us(xsd)*dusdx(xsd,xsd) + us(ysd)*dusdx(xsd,ysd) + us(zsd)*dusdx(xsd,zsd)) &
+                        -ph(0,inl) * (uf(xsd)*dufdx(xsd,xsd) + uf(ysd)*dufdx(xsd,ysd) + uf(zsd)*dufdx(xsd,zsd)) &
+                        +ph(xsd,inl)*taus(xsd,xsd) + ph(ysd,inl)*taus(xsd,ysd) + ph(zsd,inl)*taus(xsd,zsd) &
+                        -(ph(xsd,inl)*tauf(xsd,xsd) + ph(ysd,inl)*tauf(xsd,ysd) + ph(zsd,inl)*tauf(xsd,zsd))
 !-----------------------------------------------------------------------------------
 
 
 
 		 p(ysd,node) = p(ysd,node)  &
-		      -ph(ysd,inl) * ttt  &
-		      -ph(xsd,inl) * txy  &
-		      -ph(ysd,inl) * tyy  &
-		      -ph(zsd,inl) * tzy   &
+!		      ph(ysd,inl) * ttt + &
+!		      ph(xsd,inl) * txy + &
+!		      ph(ysd,inl) * tyy + &
+!		      ph(zsd,inl) * tzy   &
 		     -ph(0,inl) * ay	  &
-                     +ph(0,inl) * dpre(ysd) &
+!                     +ph(0,inl) * dpre(ysd) &
 !---------------------------------------------------------------------------------
                         +ph(0,inl) * a_fake(ysd)  &
-!                        +ph(0,inl) * (us(xsd)*dusdx(ysd,xsd) + us(ysd)*dusdx(ysd,ysd) + us(zsd)*dusdx(ysd,zsd)) &
-!                        -ph(0,inl) * (uf(xsd)*dufdx(ysd,xsd) + uf(ysd)*dufdx(ysd,ysd) + uf(zsd)*dufdx(ysd,zsd)) &
-!                        +ph(xsd,inl)*taus(ysd,xsd) + ph(ysd,inl)*taus(ysd,ysd) + ph(zsd,inl)*taus(ysd,zsd) &
-                        +(ph(xsd,inl)*tauf(ysd,xsd) + ph(ysd,inl)*tauf(ysd,ysd) + ph(zsd,inl)*tauf(ysd,zsd))
+                        +ph(0,inl) * (us(xsd)*dusdx(ysd,xsd) + us(ysd)*dusdx(ysd,ysd) + us(zsd)*dusdx(ysd,zsd)) &
+                        -ph(0,inl) * (uf(xsd)*dufdx(ysd,xsd) + uf(ysd)*dufdx(ysd,ysd) + uf(zsd)*dufdx(ysd,zsd)) &
+                        +ph(xsd,inl)*taus(ysd,xsd) + ph(ysd,inl)*taus(ysd,ysd) + ph(zsd,inl)*taus(ysd,zsd) &
+                        -(ph(xsd,inl)*tauf(ysd,xsd) + ph(ysd,inl)*tauf(ysd,ysd) + ph(zsd,inl)*tauf(ysd,zsd))
 !-----------------------------------------------------------------------------------
 
 
 
 		 p(zsd,node) = p(zsd,node)  &
-		      -ph(zsd,inl) * ttt  &
-		      -ph(xsd,inl) * txz  &
-		      -ph(ysd,inl) * tyz  &
-		      -ph(zsd,inl) * tzz   &
+!		      ph(zsd,inl) * ttt + &
+!		      ph(xsd,inl) * txz + &
+!		      ph(ysd,inl) * tyz + &
+!		      ph(zsd,inl) * tzz   &
 		     -ph(0,inl) * az	  &
-                     +ph(0,inl) * dpre(zsd) &
+!                     +ph(0,inl) * dpre(zsd) &
 !---------------------------------------------------------------------------------
                         +ph(0,inl) * a_fake(zsd)  &
-!                        +ph(0,inl) * (us(xsd)*dusdx(zsd,xsd) + us(ysd)*dusdx(zsd,ysd) + us(zsd)*dusdx(zsd,zsd)) &
-!                        -ph(0,inl) * (uf(xsd)*dufdx(zsd,xsd) + uf(ysd)*dufdx(zsd,ysd) + uf(zsd)*dufdx(zsd,zsd)) &
-!                        +ph(xsd,inl)*taus(zsd,xsd) + ph(ysd,inl)*taus(zsd,ysd) + ph(zsd,inl)*taus(zsd,zsd) &
-                        +(ph(xsd,inl)*tauf(zsd,xsd) + ph(ysd,inl)*tauf(zsd,ysd) + ph(zsd,inl)*tauf(zsd,zsd))
+                        +ph(0,inl) * (us(xsd)*dusdx(zsd,xsd) + us(ysd)*dusdx(zsd,ysd) + us(zsd)*dusdx(zsd,zsd)) &
+                        -ph(0,inl) * (uf(xsd)*dufdx(zsd,xsd) + uf(ysd)*dufdx(zsd,ysd) + uf(zsd)*dufdx(zsd,zsd)) &
+                        +ph(xsd,inl)*taus(zsd,xsd) + ph(ysd,inl)*taus(zsd,ysd) + ph(zsd,inl)*taus(zsd,zsd) &
+                        -(ph(xsd,inl)*tauf(zsd,xsd) + ph(ysd,inl)*tauf(zsd,ysd) + ph(zsd,inl)*tauf(zsd,zsd))
 !-----------------------------------------------------------------------------------
 
 
@@ -286,36 +276,34 @@ g(1:nsd)=gravity(1:nsd)
 	   do inl=1,nen
 		node=ien(ie,inl)
 		p(xsd,node)=p(xsd,node)  &
-			-ph(xsd,inl)*(la+2*mu)*drx(xsd)  &
-			-ph(ysd,inl)*mu*dry(xsd)  &
-			-ph(xsd,inl)*la*dry(ysd)  &
-			-ph(ysd,inl)*mu*drx(ysd)  & 
-			-ph(0,inl) * ax    &  
-                        +ph(0,inl) * dpre(xsd)    &
+!			ph(xsd,inl)*(la+2*mu)*drx(xsd) + &
+!			ph(ysd,inl)*mu*dry(xsd) + &
+!			ph(xsd,inl)*la*dry(ysd) + &
+!			ph(ysd,inl)*mu*drx(ysd)   &
+			-ph(0,inl) * ax		  &
+!                        +ph(0,inl) * dpre(xsd)    &
 !---------------------------------------------------------------------------------
 			+ph(0,inl) * a_fake(xsd)  &
-!			+ph(0,inl) * (us(xsd)*dusdx(xsd,xsd) + us(ysd)*dusdx(xsd,ysd)) &
-!			+ph(0,inl) * (uf(xsd)*dufdx(xsd,xsd) + uf(ysd)*dufdx(xsd,ysd))*rho_solid &
-!			-ph(0,inl) * g(1)*rho_solid &
-!			-ph(xsd,inl)*taus(xsd,xsd) + ph(ysd,inl)*taus(xsd,ysd) &
-			+(ph(xsd,inl)*tauf(xsd,xsd) + ph(ysd,inl)*tauf(xsd,ysd))
+			+ph(0,inl) * (us(xsd)*dusdx(xsd,xsd) + us(ysd)*dusdx(xsd,ysd)) &
+			-ph(0,inl) * (uf(xsd)*dufdx(xsd,xsd) + uf(ysd)*dufdx(xsd,ysd)) &
+			+ph(xsd,inl)*taus(xsd,xsd) + ph(ysd,inl)*taus(xsd,ysd) &
+			-(ph(xsd,inl)*tauf(xsd,xsd) + ph(ysd,inl)*tauf(xsd,ysd))
 !-----------------------------------------------------------------------------------
 
 
 		p(ysd,node)=p(ysd,node)  &
-			-ph(ysd,inl)*la*drx(xsd)  &
-			-ph(xsd,inl)*mu*dry(xsd)  &
-			-ph(ysd,inl)*(la+2*mu)*dry(ysd)  &
-			-ph(xsd,inl)*mu*drx(ysd)  & 
-                        -ph(0,inl) * ay   &        
-                        +ph(0,inl) * dpre(ysd)    &
+!			ph(ysd,inl)*la*drx(xsd) + &
+!			ph(xsd,inl)*mu*dry(xsd) + &
+!			ph(ysd,inl)*(la+2*mu)*dry(ysd) + &
+!			ph(xsd,inl)*mu*drx(ysd)   &
+                        -ph(0,inl) * ay           &
+!                        +ph(0,inl) * dpre(ysd)    &
 !----------------------------------------------------------------------------------
                         +ph(0,inl) * a_fake(ysd)  &
-!                        +ph(0,inl) * (us(xsd)*dusdx(ysd,xsd) + us(ysd)*dusdx(ysd,ysd)) &
-!                        +ph(0,inl) * (uf(xsd)*dufdx(ysd,xsd) + uf(ysd)*dufdx(ysd,ysd))*rho_solid &
-!			-ph(0,inl) * g(2) * rho_solid &
-!                        -ph(xsd,inl)*taus(ysd,xsd) + ph(ysd,inl)*taus(ysd,ysd) &
-                        +(ph(xsd,inl)*tauf(ysd,xsd) + ph(ysd,inl)*tauf(ysd,ysd))
+                        +ph(0,inl) * (us(xsd)*dusdx(ysd,xsd) + us(ysd)*dusdx(ysd,ysd)) &
+                        -ph(0,inl) * (uf(xsd)*dufdx(ysd,xsd) + uf(ysd)*dufdx(ysd,ysd)) &
+                        +ph(xsd,inl)*taus(ysd,xsd) + ph(ysd,inl)*taus(ysd,ysd) &
+                        -(ph(xsd,inl)*tauf(ysd,xsd) + ph(ysd,inl)*tauf(ysd,ysd))
 !----------------------------------------------------------------------------------
 
 
