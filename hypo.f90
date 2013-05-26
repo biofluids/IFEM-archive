@@ -186,8 +186,8 @@ id_solidbc(:,:)=1
 call form_solidid12(id_solidbc,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ne_solid,solid_fem_con)
 call solve_solid_disp_pa(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_con,node_sbc, &
                         solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype,&
-	ne_intlocal_solid,ien_intlocal_solid,nn_local_solid,node_local_solid,send_address_solid,ad_length_solid,&
-	global_com_solid,nn_global_com_solid,local_com_solid,nn_local_com_solid)
+                        ne_intlocal_solid,ien_intlocal_solid,nn_local_solid,node_local_solid,send_address_solid,ad_length_solid,&
+                        global_com_solid,nn_global_com_solid,local_com_solid,nn_local_com_solid)
 
 !if (node_sfcon .ne. 0 ) then
 
