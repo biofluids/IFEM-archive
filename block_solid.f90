@@ -5,13 +5,12 @@
 !       Visco-linear elastic, I use Newmark method
 !c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	subroutine block_solid(xloc,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
-				x_pre1,solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
-				lambdacf)
+				x_pre1,solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype)
 !	use fluid_variables, only: nsd,nen,ne,nn,nquad,wq,sq
 	use global_constants
 	use run_variables, only: dt
 	use r_common, only: group_young, Poisson, density_solid
-	use fluid_variables, only: den_liq,gravity
+	use fluid_variables, only: den_liq
 	use solid_variables, only: damp_solid
 	implicit none
 !-----------------------------------------------
@@ -72,9 +71,6 @@
 !------------------------------------
 ! For viscoelastic model
 	real(8) dsdt(nsd,nsd) ! time derivative of strain and then times damping
-!------------------------------------
-real(8) lambdacf(nsd,nn)
-
 !------------------------------------
 p(:,:) = 0.0d0
 w(:,:) = 0.0d0
@@ -259,19 +255,19 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 		      ph(xsd,inl) * txx + &
 		      ph(ysd,inl) * tyx + &
 		      ph(zsd,inl) * tzx   &
-		     +ph(0,inl) * ax - ph(0,inl)*rho_solid*gravity(xsd)
+		     +ph(0,inl) * ax
 		 p(ysd,node) = p(ysd,node) + &
 		      ph(ysd,inl) * ttt + &
 		      ph(xsd,inl) * txy + &
 		      ph(ysd,inl) * tyy + &
 		      ph(zsd,inl) * tzy   &
-		     +ph(0,inl) * ay - ph(0,inl)*rho_solid*gravity(ysd)
+		     +ph(0,inl) * ay
 		 p(zsd,node) = p(zsd,node) + &
 		      ph(zsd,inl) * ttt + &
 		      ph(xsd,inl) * txz + &
 		      ph(ysd,inl) * tyz + &
 		      ph(zsd,inl) * tzz   &
-		     +ph(0,inl) * az - ph(0,inl)*rho_solid*gravity(zsd)
+		     +ph(0,inl) * az
 
 	      enddo
 	end if 
@@ -284,14 +280,14 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 			ph(ysd,inl)*mu*dry(xsd) + &
 			ph(xsd,inl)*la*dry(ysd) + &
 			ph(ysd,inl)*mu*drx(ysd)   &
-			+ph(0,inl) * ax - ph(0,inl)*rho_solid*gravity(xsd)
+			+ph(0,inl) * ax
 
 		p(ysd,node)=p(ysd,node) + &
 			ph(ysd,inl)*la*drx(xsd) + &
 			ph(xsd,inl)*mu*dry(xsd) + &
 			ph(ysd,inl)*(la+2*mu)*dry(ysd) + &
 			ph(xsd,inl)*mu*drx(ysd)   &
-                        +ph(0,inl) * ay - ph(0,inl)*rho_solid*gravity(ysd)
+                        +ph(0,inl) * ay
 
 	  end do
 	end if
@@ -315,7 +311,7 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 !======================================
 ! Apply 2nd type boundary
 	if (nsd ==  2) then 
-	call apply_2ndbc_solid2d(x_pre1,nsd,nn,ien_sbc,ne_sbc,nen,ien,ne,solid_bcforce,solid_stress,lambdacf)
+	call apply_2ndbc_solid2d(x_pre1,nsd,nn,ien_sbc,ne_sbc,nen,ien,ne,solid_bcforce,solid_stress)
 	p(:,:) = p(:,:) + solid_bcforce(:,:)
 	else
 	call apply_2ndbc_solid(x_pre1,nsd,nn,ien_sbc,ne_sbc,nen,ien,ne,solid_bcforce,solid_stress)

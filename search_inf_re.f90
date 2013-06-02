@@ -24,11 +24,11 @@ integer maxconn
 integer ien_solid_tmp(nen_solid,ne_solid)
 
 maxconn=30
-flag_fnode(:)=0
-flag_fnode_s(:)=0
+flag_fnode(1:nn_fluid)=0
+flag_fnode_s(1:nn_fluid)=0
 
 do i=1,ne_solid
-	ien_solid_tmp(:,i)=ien_solid(i,:)
+	ien_solid_tmp(1:nen_solid,i)=ien_solid(i,1:nen_solid)
 end do
 
 do i=1,nn_local
@@ -36,6 +36,8 @@ do i=1,nn_local
 	x=xyz_fluid(1:nsd,inn)
 	finf=0
 	call getinf_el_3d(finf,x,xyz_solid,nn_solid,nsd,ne_solid,nen_solid,ien_solid_tmp,maxconn)
+        ! commented by Jubiao Yang on 03/14/2013
+        ! the subroutine getinf_el_3d returns with finf= #element_s which contains the fluid node x
 	if (finf .ne. 0) then
 		flag_fnode_s(inn)=1
 	end if

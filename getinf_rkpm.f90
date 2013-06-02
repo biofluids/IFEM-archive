@@ -6,6 +6,10 @@ subroutine getinf_rkpm(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   real(8) r(nsd)
   integer inf(maxconn)
   integer i
+! comments by Jubiao Yang on 03/14/13
+! xna - coord. of all fluid nodes (nsd,nn)
+! x -   coord. of a solid node (nsd)
+
 
 !cccccccccccccccccc 
 !   x = the coordinate of the point to be calculated for
@@ -40,6 +44,7 @@ subroutine getinf_rkpm(inf,ninf,x,xna,adist,nn,nsd,maxconn)
   elseif (ninf.lt.4) then
      write (*,*) "Not enough influence nodes!"
      write (*,*) ninf
+     write (*,*) x(1), x(2)     ! added by Jubiao Yang on 03/14/2013 to see what solid node cannot find enough inf nodes
   endif
 
   return

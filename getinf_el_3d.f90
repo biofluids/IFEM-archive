@@ -41,26 +41,35 @@
 	   integer i
        
        ninf = 0 
+     !  write(*,*) 'nen', nen
+     !  write(*,*) '1000 el in get ', xna(:,124)
 	   do ie = 1, ne
 	      do inl = 1, nen
 
                      nnum=ien(inl,ie)
+              ! write(*,*) 'nnum=  ', nnum
+              ! write(*,*) 'ie=    ',ie
+              ! write(*,*) 'inl=   ',inl
 		         do isd = 1, nsd
+		!	write(*,*) '485 x', xna(1,485)
 			 xn(isd, inl) = xna(isd, nnum)
+                   !      write(*,*) 'ne=',ie, 'nnum=', xna(2,nnum)
 			 end do
 	      end do
 		 
 		  do isd = 1, nsd
 		  length_max(isd) = maxval(xn(isd,1:nen))
 		  length_min(isd) = minval(xn(isd,1:nen))
+		!  write(*,*) 'xna = ', xn(isd,1), xn(isd,2), xn(isd,3), xn(isd,4)
                   end do
 		
 		  if (nsd==2) then
 		     if (x(1)>length_min(1) .and. x(1)<length_max(1) .and. &
                          x(2)>length_min(2) .and. x(2)<length_max(2)) then
 				 ninf = ninf +1
-		if (ninf>maxconn) goto 2000
 		         inf(ninf) = ie
+                         !write(*,*) 'finf',ie
+                        ! write(*,*) 'x-y  ', length_min(2), length_max(2)
 			  end if
 		   end if
 		  
@@ -74,6 +83,10 @@
                         
 			  end if
 		   end if
+	  !write(*,*) 'x min' ,length_min(1) 
+         ! write(*,*) 'x max' , length_max(1)
+         ! write(*,*) 'x 4 nodal4', xn(1,1), xn(1,2), xn(1,3), xn(1,4) 
+          ! write(*,*) 'ie= ', ie 
            end do 
          !  write(*,*) 'ninf= ', ninf
                        

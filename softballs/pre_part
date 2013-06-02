@@ -1,6 +1,0 @@
-partdmesh mien.in 2 
-rm partele.in
-rm partnode.in
-mv mien.in.epart.2 partele.in
-mv mien.in.npart.2 partnode.in
-

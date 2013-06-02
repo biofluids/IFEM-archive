@@ -1,5 +1,5 @@
 subroutine apply_2ndbc_solid2d(x_solid,nsd,nn_solid,ien_sbc,ne_sbc,nen_solid,&
-			ien_solid,ne_solid,solid_bcforce,solid_stress,lambdacf)
+			ien_solid,ne_solid,solid_bcforce,solid_stress)
 !---------------------------------
 ! Calculate solid surface normal integral
 use solid_variables, only: wq_solid, nquad_solid, xq_solid
@@ -38,10 +38,6 @@ real(8) w
 real(8) tot_len
 integer snode
 real(8) stress_tmp(nsd,nsd)
-
-real(8) lambdacf(nsd,nn_solid)
-
-!-------------------------------------
 
 iq=1
 tot_len=0.0
@@ -130,9 +126,12 @@ end if
 
         call outnormal_2d(tmpx,tmp_ien,out_norm,nsd,nen_solid,w)
 
+!write(*,*) 'out_norm', ibs, out_norm(:), w
+
+
 	tot_len=tot_len+w
 
-if (ien_sbc(ibs,nen_solid+2) /= 999) then
+if (ien_sbc(ibs,nen_solid+2) == -999) then
 
 	snode=ien_solid(ine,bcnode1)
 
@@ -141,21 +140,12 @@ if (ien_sbc(ibs,nen_solid+2) /= 999) then
                 stress_tmp(1,2)=solid_stress(3,snode)  
                 stress_tmp(2,1)=solid_stress(3,snode)
 continue
-    do isd=1,nsd
-        do jsd=1,nsd
-            solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-            stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode1)
-        end do
-        solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-                                 lambdacf(isd,snode)*w*h(bcnode1)
-        !------
-        !if (isd==1) then
-        !solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-        !     lambdacf(snode)*(1)*w*h(bcnode1)
-        !endif
-        !    lambdacf(snode)*out_norm(isd)*w*h(bcnode1)
-        !------
-    end do
+	do isd=1,nsd	
+		do jsd=1,nsd
+		solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
+		stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode1)
+		end do
+	end do
 
         snode=ien_solid(ine,bcnode2)
 
@@ -164,21 +154,12 @@ continue
                 stress_tmp(1,2)=solid_stress(3,snode)         
                 stress_tmp(2,1)=solid_stress(3,snode)
 
-    do isd=1,nsd
-        do jsd = 1,nsd
-            solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-            stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode2)
+        do isd=1,nsd
+		do jsd = 1,nsd
+                solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
+		stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode2)
+		end do
         end do
-        solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-                                 lambdacf(isd,snode)*w*h(bcnode2)
-        !-------
-        !if (isd==1) then
-        !solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-        !     lambdacf(snode)*(1)*w*h(bcnode2)
-        !endif
-        !    lambdacf(snode)*out_norm(isd)*w*h(bcnode2)
-        !-------
-    end do
 	
 
 
