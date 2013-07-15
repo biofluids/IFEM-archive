@@ -73,7 +73,7 @@ subroutine hypo
   vis_solid=  1.0
   I_fluid(:)=0.0
   solid_pave(:)=0.0d0
-  damp_solid = 10.0
+  damp_solid = 0.0
   solid_vel(:,:) = 0.0
   solid_bcvel(:,:) = 0.0
   solid_bcvel_old(:,:) = 0.0
@@ -139,7 +139,8 @@ if (ndelta==1) then
 	solid_stress(:,:) = 0.0d0
 	do ie=1,nn_solid
 !                solid_pave(ie) = 200.0 * (solid_coor_init(2,ie) + 10 )
-!		solid_bcvel(1,ie) = 1.0 
+!		solid_bcvel(1,ie) = 1.0
+                solid_pave(ie)=0.0
 		solid_stress(1:nsd_solid,ie) = solid_pave(ie)
 	end do
 !        call apply_2ndbc_solid(solid_coor_curr,nsd_solid,nn_solid,ien_sbc,ne_sbc,&
@@ -148,24 +149,10 @@ if (ndelta==1) then
 !-------------------------------
 ! correct the curr solid coor by solving the solid mon equations
 
-!if (its .gt. 10) then
-!if (myid == 0) write(*,*) '=== Fluid solver have converged for', its,'time steps ==='
-
 id_solidbc(:,:)=1
 call form_solidid12(id_solidbc,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ne_solid,solid_fem_con)
 call solve_solid_disp(solid_coor_init,solid_coor_curr,id_solidbc,solid_fem_con,node_sbc, &
                         solid_coor_pre1,solid_vel,solid_accel,ien_sbc,solid_stress,solid_bcvel,mtype)
-
-!end if
-!call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
-!                        solid_coor_pre1,solid_coor_pre2,id_solidbc,solid_accel,solid_bcvel,solid_bcvel_old)
-!-----------------------------------------
-!call apply_2ndbc_solid(solid_coor_curr,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,&
-!	solid_fem_con,ne_solid,solid_force_FSI,solid_stress)
-!-------------------------------------------
-
-
-!if (0) then ! debug solid disp solver only
 
 
 !--------------------------------
@@ -197,15 +184,10 @@ if (myid == 0) then
 !=================================================================
 ! Solid solver
 
-!if (its .gt. 10) then
-
 	 write(*,*) 'starting my own litte solid solver'
 call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
               solid_coor_pre1,solid_coor_pre2,id_solidbc,solid_accel,solid_pave,solid_bcvel,solid_bcvel_old,solid_vel)
 
-!end if
-
-!solid_force_FSI(:,:) =  solid_force_FSI(:,:) + solid_bcforce(:,:)
 !=================================================================
 ! Set the FSI force for the solid nodes at fluid boundary to be zero
 	if (node_sfcon .ne. 0) then
@@ -213,7 +195,6 @@ call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
 	   solid_force_FSI(1:nsd,sfcon(inode_sf))=0.0
 	 end do
 	end if 
-
 
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
@@ -239,7 +220,7 @@ endif
 
 time=mpi_wtime()
 
-      include "hypo_fluid_solver.fi"
+!      include "hypo_fluid_solver.fi"
 
 time=mpi_wtime()-time
 if (myid == 0) write(*,*) '---Time for fluid solver---', time
@@ -271,23 +252,6 @@ stop
 
 end if
 
-
-!=================================================================
-!uPDAte solid domain
-! Already updated at the beginning of the time step
-	
-!    call solid_update(klok,solid_fem_con,solid_coor_init,solid_coor_curr,  &
-!                     solid_vel,solid_prevel,solid_accel)
-
-
-!	include "solid_update_new.fi"
-
-
-!----------------------------------------
-!---------------------------------------
-!end if ! debug solid disp solver only
-!----------------------------------------
-!---------------------------------------
 
 !=================================================================
 ! Write output file every ntsbout steps

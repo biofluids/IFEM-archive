@@ -69,7 +69,7 @@ real(8) maxgp
 ! contact parameters defined
 lambdacf(1:nn_solid)=0.0
 gpenetr(1:nn_solid)=0.0
-epsilongp=1.0d8
+epsilongp=2.0d11
 ! contact parameters initialized
 !----------------------------
 
@@ -197,11 +197,11 @@ do
     xcoortest(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) + &
                      (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
 
-    call evaluategp(xcoortest,gpenetr,lambdacf,ien_sbc,ien,x)
+    call evaluategp(xcoortest,gpenetr,lambdacf,ien_sbc,ien)
     maxgp = maxval(gpenetr)
 
     if (myid == 0) write(*,*) ' Maximum gPenetration ', maxgp
-    if (myid == 0) write(*,*) ' Maximum Coord-y ', maxval(xcoortest(2,:))
+    if (myid == 0) write(*,*) ' Maximum Coord-y ', maxval(xcoortest(1,:))
 
     if (maxgp<1.0e-4) then
 !    if (1==1) then
@@ -227,7 +227,7 @@ x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
                   (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )
 
-if (myid == 0) write(*,*) ' Maximum Coord-y, seriously ', maxval(x_curr(2,:))
+! if (myid == 0) write(*,*) ' Maximum Coord-y, seriously ', maxval(x_curr(2,:))
 
 solid_prevel(:,:) = solid_vel(:,:)
 solid_preacc(:,:) = solid_acc(:,:)

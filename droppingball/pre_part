@@ -1,0 +1,6 @@
+partdmesh mien.in 1024 
+rm partele.in
+rm partnode.in
+mv mien.in.epart.1024 partele.in
+mv mien.in.npart.1024 partnode.in
+

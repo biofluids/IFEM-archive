@@ -147,8 +147,11 @@ continue
             stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode1)
         end do
         !------
+        if (isd==1) then
         solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-            lambdacf(snode)*out_norm(isd)*w*h(bcnode1)
+             lambdacf(snode)*(1)*w*h(bcnode1)
+        endif
+        !    lambdacf(snode)*out_norm(isd)*w*h(bcnode1)
         !------
     end do
 
@@ -165,8 +168,11 @@ continue
             stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode2)
         end do
         !-------
+        if (isd==1) then
         solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
-            lambdacf(snode)*out_norm(isd)*w*h(bcnode2)
+             lambdacf(snode)*(1)*w*h(bcnode2)
+        endif
+        !    lambdacf(snode)*out_norm(isd)*w*h(bcnode2)
         !-------
     end do
 	
