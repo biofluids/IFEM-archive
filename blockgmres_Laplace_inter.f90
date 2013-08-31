@@ -3,7 +3,7 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  blockgmres_Laplace(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
+subroutine  blockgmres_Laplace_inter(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
   use global_constants
   use run_variables
   use fluid_variables
@@ -68,7 +68,7 @@ subroutine  blockgmres_Laplace(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
      do inl=1,nen
 	node=ien(inl,ie)
 	do isd=1,nsd
-	   p_inter(node)=p_inter(node)+ph(isd,inl)*dr(isd)
+	   p(node)=p(node)+ph(isd,inl)*dr(isd)
 	end do! residual
 !	do isd=1,nsd
 !	   w_inter(node)=w_inter(node)+ph(isd,inl)*sh(isd,inl)
@@ -78,7 +78,7 @@ subroutine  blockgmres_Laplace(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
      end do ! end of quad loop
 1111 continue
   end do ! end of ele loop
-end subroutine blockgmres_Laplace
+end subroutine blockgmres_Laplace_inter
 
 
 

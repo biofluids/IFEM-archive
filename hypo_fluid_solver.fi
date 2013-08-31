@@ -10,7 +10,6 @@
      call formid(id,rng,ien)
      call formd(d,rng,ien)
      call formid_spbc(id,nn_spbc,spbcnode)
-
 !===========================================================================
 if (edge_inflow .ne. 0) then
 ! Apply nature boundary condition
@@ -40,7 +39,7 @@ end if
 call mpi_barrier(mpi_comm_world,ierror)
 
 
-if(nn_pb.gt.0) then
+if(f_pb==1) then
         res_pb_temp(1:nsd,1:nn_pb)=p(1:nsd,pbnode(2,1:nn_pb))
 	res_pb_w_temp(1:nsd,1:nn_pb)=w(1:nsd,pbnode(2,1:nn_pb))
 	call mpi_barrier(mpi_comm_world,ierror)
@@ -52,7 +51,7 @@ if(nn_pb.gt.0) then
 end if
         call communicate_res_ad(p,ndf,nn,send_address,ad_length)
         call communicate_res_ad(w,ndf,nn,send_address,ad_length)
-if(nn_pb.gt.0) then
+if(f_pb==1) then
 	p(1:nsd,pbnode(1,1:nn_pb))=p(1:nsd,pbnode(1,1:nn_pb))+res_pb(1:nsd,1:nn_pb)
 	w(1:nsd,pbnode(1,1:nn_pb))=w(1:nsd,pbnode(1,1:nn_pb))+res_pb_w(1:nsd,1:nn_pb)
 	p(1:nsd,pbnode(2,1:nn_pb))=0.0
@@ -84,7 +83,7 @@ call mpi_barrier(mpi_comm_world,ierror)
 
          call update(p, d, dg, ndf)
 
-if(nn_pb.gt.0) then
+if(f_pb==1) then
 d(1:nsd,pbnode(2,1:nn_pb))=d(1:nsd,pbnode(1,1:nn_pb))
 end if
 

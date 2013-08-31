@@ -2,7 +2,7 @@
 
 subroutine res_rotation_reverse(p,norm_node,nn_spbc,spbcnode)
 
-  use fluid_variables, only:ndf,nn,nsd,ne,lambda
+  use fluid_variables, only:ndf,nn,nsd,ne,lambda,f_slip
   use mpi_variables
 
   real(8) p(ndf,nn)
@@ -14,7 +14,7 @@ subroutine res_rotation_reverse(p,norm_node,nn_spbc,spbcnode)
   integer i,j,node
   real(8) modmod
 
-if(lambda.lt.0.0) goto 2000
+if(f_slip==0) goto 2000
 if(nsd==2) then
   do i=1,nn_spbc
      node=spbcnode(i)

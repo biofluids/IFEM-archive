@@ -11,7 +11,8 @@ subroutine gmrescurv(x,w,bg,dg,hg,ien,id, &
 	integer,parameter :: ndf = 1
         integer,parameter :: inner=200
         integer,parameter :: outer=5
-	real* 8 x(nsd,nn),id(ndf,nn)
+	real* 8 x(nsd,nn)
+        integer id(ndf,nn)
 	real* 8 hg(ne)!,ien(nen,ne)
 	integer ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
@@ -24,7 +25,7 @@ subroutine gmrescurv(x,w,bg,dg,hg,ien,id, &
 !        real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
 !=========================================================
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8 e1(inner+1)
 	real* 8 x0(ndf*nn)
 	real* 8 beta(inner+1)
 	real* 8 eps

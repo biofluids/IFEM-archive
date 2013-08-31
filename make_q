@@ -1,5 +1,5 @@
 .SUFFIXES: .f90
-LIBS    = //bgsys/ibm_essl/prod/opt/ibmmath/essl/5.1/lib64/libesslbg.a
+LIBS    = /bgsys/ibm_essl/prod/opt/ibmmath/essl/5.1/lib64/libesslbg.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 interface_variables.o  allocate_variables.o\
@@ -22,29 +22,30 @@ givens.o \
 communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
 blockdiagstable.o gmresnew.o blockgmresnew.o \
 setnei_new.o communicate_res_ad.o setid_pa.o \
-scale_shift_inter.o get_submesh_info.o  find_domain_pa.o\
-search_inf_pa_inter.o get_inter_ele.o block_Laplace.o blockgmres_Laplace.o \
-gmres_Laplace.o indicator_denmesh.o  get_correction_mf.o\
+scale_shift_inter.o get_submesh_info.o  find_domain_pa.o find_domain_pa_larger.o\
+search_inf_pa_inter.o get_inter_ele.o\
+get_correction_mf.o\
 B_Spline.o get_normal_curvature.o get_curv_num_3D.o get_curv_num_2D.o \
 B_Spline_0order.o B_Spline_1order.o B_Spline_2order.o \
 get_fluid_property.o get_inter_vel.o  \
-points_removal.o get_indicator_derivative_2D_1st.o\
+get_indicator_derivative_2D_1st.o\
 get_indicator_derivative_3D.o get_indicator_derivative_2D.o get_indicator_derivative_3D_1st.o \
-set_center_after.o  B_Spline1.o find_fluid_domain_pa.o\
+set_center_after.o  B_Spline1.o find_fluid_domain_pa.o indicator_initialize.o\
 gmres_correction_mf.o get_sur_cf.o points_regeneration.o \
 blockgmres_correction.o regen_points_element_2D.o wall_connect.o\
 contactline.o find_ca.o solve_contact.o mass_conserve.o cal_mass.o cal_Length.o\
 regulate_points.o find_inter.o update_x_inter.o normal_node.o formid_spbc.o\
 res_rotation.o res_rotation_reverse.o res_rotation_precon.o res_slipbc.o\
 res_slipbc_precon.o regen_contact.o norm_contact_ele.o getinf_el_3d_con.o\
-set_Ifluidcenter.o find_domain_pa_V2.o res_slipbc_precon_3D.o shape_det_face.o res_slipbc_3D.o\
+res_slipbc_precon_3D.o shape_det_face.o res_slipbc_3D.o\
 points_on_contact_sur.o regen_points_element.o construct_contactline.o search_3d_con.o\
 generate_contactline.o generate_contactline_2D.o solve_curvature.o gmrescurv.o block_curv.o blockgmres_curv.o\
-set_center_after_contact.o get_indicator_2D.o get_indicator_3D.o update_center_indicator.o
+set_center_after_contact.o get_indicator_2D.o get_indicator_3D.o update_center_indicator.o\
+solve_indicator_laplace.o block_Laplace_inter.o blockgmres_Laplace_inter.o gmres_Laplace_inter.o
 
 IFEM: $(OBJ)
 	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpif90 -c -g $<
+	mpif90 -c -O2 -g $<
 clean:
 	rm -rf *.o *.mod IFEM

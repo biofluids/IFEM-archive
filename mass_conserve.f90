@@ -33,7 +33,11 @@ if(myid==0)write(*,*)'begin mass conserve'
      if(myid==0)write(*,*)'initial mass = ',mass0
       goto 100
   end if
-
+if(myid==0)write(*,*)'mass0=',mass0,'mass=',mass
+if(abs(mass0-mass)/mass0.gt.1.0e-4) then
+  mass=mass0+(mass-mass0)/abs(mass-mass0)*1.0e-4*mass0
+if(myid==0)write(*,*)'new mass=',mass
+end if
   call cal_Length(x_inter,mass,x,I_fluid,ien,Length)
 
   x_inter_temp(:,:)=0.0
@@ -61,10 +65,6 @@ if(myid==0)write(*,*)'begin mass conserve'
      x_inter_temp(:,i)=x_inter(:,i)+(mass0-mass)/Length*norm_a(:)
 
   end do
-if(myid==0) then
-write(*,*)'Length=',Length
-write(*,*)'mass0-mass=',mass0-mass
-end if
   x_inter(:,:)=0.0
   call mpi_barrier(mpi_comm_world,ierror)
   call mpi_allreduce(x_inter_temp(1,1),x_inter(1,1),nsd*maxmatrix,mpi_double_precision, &

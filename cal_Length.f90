@@ -124,7 +124,7 @@ subroutine cal_length(x_inter,dmass,x,I_fluid,ien,Length)
      Length0=Length0+sqrt((x_edge(1,1)-x_edge(1,2))**2+(x_edge(2,1)-x_edge(2,2))**2)
      end if
     if(nloc.ne.2) then
-       write(*,*)'ie=',ie,'I=',II(1:4)
+!       write(*,*)'ie=',ie,'I=',II(1:4)
      Length0=Length0+max_hg
     end if
 

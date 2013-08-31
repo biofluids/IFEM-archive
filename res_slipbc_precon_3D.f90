@@ -2,7 +2,7 @@
 
 subroutine res_slipbc_precon_3D(p,w,d,x,rngface,ien,spbcele,ne_local,ien_local,I_fluid)
 
-  use fluid_variables,only:nn,ndf,nsd,ne,nen,neface,mapping,etype,lambda,vis_liq,ne_spbc,nnface
+  use fluid_variables,only:nn,ndf,nsd,ne,nen,neface,mapping,etype,lambda,vis_liq,ne_spbc,nnface,f_slip
   use mpi_variables
   use interface_variables, only:vis_inter
   include 'mpif.h'
@@ -42,7 +42,7 @@ subroutine res_slipbc_precon_3D(p,w,d,x,rngface,ien,spbcele,ne_local,ien_local,I
   mu(:)=0.0
   I_node(:)=0.0
   res(:)=0.0
-  if(lambda.lt.0.0)goto 2000
+  if(f_slip==0)goto 2000
   bcindex(:)=0
   bcindex(1)=6
   num_slipbc=1

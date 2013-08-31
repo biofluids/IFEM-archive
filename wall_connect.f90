@@ -2,7 +2,7 @@
 subroutine wall_connect(x_inter,I_fluid_center,nn_con_ele,con_ele,infdomain_inter)
 
   use fluid_variables,only:nsd,nen,nn,ne
-  use interface_variables,only:nn_center,maxmatrix,nn_inter
+  use interface_variables,only:nn_center,maxmatrix,nn_inter,ele_refine
   use allocate_variables,only:inter_ele,ne_inter
   use mpi_variables
   include 'mpif.h'
@@ -16,7 +16,9 @@ subroutine wall_connect(x_inter,I_fluid_center,nn_con_ele,con_ele,infdomain_inte
   integer i,j,icount,jcount,isd,inl,node
   integer nn_inter_tmp,flag
   real(8) x_inter_tmp(nsd,maxmatrix)
+  integer nump
 
+  nump=ele_refine**nsd
 
   flag_con(:)=0
   nn_elelist=0
@@ -30,11 +32,11 @@ subroutine wall_connect(x_inter,I_fluid_center,nn_con_ele,con_ele,infdomain_inte
 
   do i=3,nn_con_ele-2
      if(flag_con(i-2)==1.and.flag_con(i+2)==1.and.flag_con(i)==1) then
-!        nn_elelist=nn_elelist+1
-!        elelist(nn_elelist)=con_ele(i)
  if(myid==0)write(*,*)'element to change=',con_ele(i)
-        do inl=1,4
-           I_fluid_center(nn_center-4*nn_con_ele+4*(i-1)+inl)=1.0
+        do inl=1,nump
+           I_fluid_center(nn_center-nump*nn_con_ele+nump*(i-1)+inl)=1.0
+I_fluid_center(nn_center-nump*nn_con_ele+nump*(i-2)+inl)=0.6
+I_fluid_center(nn_center-nump*nn_con_ele+nump*(i)+inl)=0.6
         end do
      end if
      if(flag_con(i-1)==1.and.flag_con(i+1)==1.and.flag_con(i)==1) then

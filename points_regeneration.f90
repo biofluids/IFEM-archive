@@ -115,17 +115,17 @@ subroutine points_regeneration(x,x_inter,x_center,x_inter_regen,nn_inter_regen,I
         end if
 
 	if(intflag==1) then
-          if( (abs(II-0.5).lt.0.08) .and. (abs(II-0.5).gt.0.02)) then
+          if( (abs(II-0.5).lt.0.1) .and. (abs(II-0.5).gt.0.01)) then
 	    nn_inter_regen=nn_inter_regen+1
 	    x_inter_regen(1:nsd,nn_inter_regen)=xlocan(1:nsd)
 	  end if
 	elseif(intflag==2) then
-	  if( (II.gt.0.5+0.02) .and. (II.lt.0.5+0.08)) then
+	  if( (II.gt.0.5+0.02) .and. (II.lt.0.5+0.1)) then
 	    nn_inter_regen=nn_inter_regen+1
 	    x_inter_regen(1:nsd,nn_inter_regen)=xlocan(1:nsd)
 	  end if
 	elseif(intflag==3) then
-	  if( (II.lt.0.5-0.02) .and. (II.gt.0.5-0.08)) then
+	  if( (II.lt.0.5-0.02) .and. (II.gt.0.5-0.1)) then
 	    nn_inter_regen=nn_inter_regen+1
 	    x_inter_regen(1:nsd,nn_inter_regen)=xlocan(1:nsd)
 	  end if

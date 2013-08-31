@@ -69,7 +69,7 @@ subroutine generate_contactline_2D(x_inter_regen,nn_inter_regen,x,x_inter,x_cent
   nn_contact_proc=0
   x_contact_proc(:,:)=0.0
   maxconn=30
-  interval=hg_sp/5.0
+  interval=hg_sp/9.0
 
   if(nn_inter_regen.le.ncpus) then
     if(myid+1.le.nn_inter_regen) then
@@ -117,8 +117,6 @@ subroutine generate_contactline_2D(x_inter_regen,nn_inter_regen,x,x_inter,x_cent
            tangx(1)=-norm_e(2)
            tangx(2)=norm_e(1)
 
-
-
 	   temp=dI(1)*tangx(1)+dI(2)*tangx(2)
 	  if(abs(temp).lt.1.0e-6)write(*,*)'something wrong in generate contactline'
 	   deltaa(:)=(0.5-II)*tangx(:)/temp
@@ -127,13 +125,12 @@ subroutine generate_contactline_2D(x_inter_regen,nn_inter_regen,x,x_inter,x_cent
 	end do
 	if(err_p.lt.1.0e-6) then
 	  call getinf_el_3d_con(finf,xlocan,x,nn,nsd,ne,nen,ien,maxconn,nn_con_ele,con_ele,index_con)
-!	  if(finf==0) goto 200
 	  
 	  icount=icount+1
 	  x_cor_regen(:,icount)=xlocan(:)
 	  NumRegen=icount
-          if((xlocan(1)-xc(1))*norm_e(1)+(xlocan(2)-xc(2))*norm_e(2).lt.0.5*hg_sp)x_vel(:)=xlocan(:)
-	  if( (xlocan(1)-xc(1))*norm_e(1)+(xlocan(2)-xc(2))*norm_e(2).lt.1.9*hg_sp) then
+!          if((xlocan(1)-xc(1))*norm_e(1)+(xlocan(2)-xc(2))*norm_e(2).lt.0.5*hg_sp)x_vel(:)=xlocan(:)
+	  if( (xlocan(1)-xc(1))*norm_e(1)+(xlocan(2)-xc(2))*norm_e(2).le.0.9*hg_sp) then
 	      IndexRef=icount
 	      norm_r(:)=norm_g(:)
 	      vec_contact(:)=tangx(:) !tangential direction of wall, used to cal contact vel
@@ -156,25 +153,24 @@ subroutine generate_contactline_2D(x_inter_regen,nn_inter_regen,x,x_inter,x_cent
 
 
       end do ! end of loop over j
-if( (xr(1)-xc(1))*norm_e(1)+(xr(2)-xc(2))*norm_e(2).lt.1.5*hg_sp) goto 200
+if( (xr(1)-xc(1))*norm_e(1)+(xr(2)-xc(2))*norm_e(2).lt.0.5*hg_sp) goto 200
 
 
-!           call get_indicator_derivative_3D(x_cor_regen(:,3),x_inter,x_center,hg,I_fluid_center,corr_Ip,II,dI,ddI,norm_g,curv_g)
 
       anglet=acos(norm_c(1)*norm_e(1)+norm_c(2)*norm_e(2))/3.14159*180.0
       if(abs(anglet-static_angle).lt.ad_re_angle) then
-!	 do jcount=1,NumRegen
-!	    nn_contact_proc=nn_contact_proc+1
-!	    x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
-!	 end do
+	 do jcount=1,NumRegen
+	    nn_contact_proc=nn_contact_proc+1
+	    x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
+	 end do
 	 thelta=anglet/180.0*3.14159
       else
 !	 write(*,*)'vec_contact=',vec_contact(:)
-	 call find_ca(x_vel,x,vel_fluid,vol_nn,ca,vec_contact,thelta,anglet,flag_ca)
+	 call find_ca(xr,x,vel_fluid,vol_nn,ca,vec_contact,thelta,anglet,flag_ca)
 
-      end if ! end of finding thelta
+!      end if ! end of finding thelta
 write(*,*)'angle=',anglet,'curv=',curv_c,'thelta=',thelta/3.14159*180.0
-	 if(flag_ca==-1) then
+	 if(flag_ca==0) then
 	    do jcount=1,NumRegen
 	       nn_contact_proc=nn_contact_proc+1
 	       x_contact_proc(:,nn_contact_proc)=x_cor_regen(:,jcount)
@@ -211,7 +207,7 @@ write(*,*)'angle=',anglet,'curv=',curv_c,'thelta=',thelta/3.14159*180.0
 	       x_contact_proc(:,nn_contact_proc)=x_contact_proc(:,nn_contact_proc)+xr(:)
 	    end do
 	 end if ! end if of flag=0
-!      end if!end if of abs(anglt-static)
+      end if!end if of abs(anglt-static)
 200 continue
 
   end do  ! end of loop over loc_index
@@ -309,7 +305,7 @@ write(*,*)'angle=',anglet,'curv=',curv_c,'thelta=',thelta/3.14159*180.0
 !     end do
 
 
-     if(x_inter(2,icount).le.2.0*max_hg) flag=1
+     if(x_inter(2,icount).le.1.0*max_hg) flag=1
 
 !     temp=sqrt(x_inter(1,icount)**2+(x_inter(2,icount)-1.5)**2)
 !     if( (temp.gt.1.5*1.414-2.0*hg_sp).and.(x_inter(2,icount).lt.0.0) ) flag=1

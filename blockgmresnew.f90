@@ -61,11 +61,11 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids, &
   ama   = 1.0 - oma
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
-do icount=1, nn_local
-        node=node_local(icount)
+!do icount=1, nn_local
+!        node=node_local(icount)
 !p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 ! p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
-end do
+!end do
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,

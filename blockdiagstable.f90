@@ -77,7 +77,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 !do icount=1, nn_local
-        node=node_local(icount)
+!        node=node_local(icount)
 !p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 ! p(1:nsd,node)=p(1:nsd,node)+sur_fluid(1:nsd,node)
 !end do

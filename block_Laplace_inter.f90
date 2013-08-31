@@ -3,13 +3,13 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  blockgmres_Laplace(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
+subroutine  block_Laplace_inter(xloc,p,w,ien,ne_local,ien_local,I_fluid,ele_id)
   use global_constants
   use run_variables
   use fluid_variables
   implicit none
 
-  real(8) xloc(nsd,nn),p(nn)
+  real(8) xloc(nsd,nn),p(nn),w(nn)
   integer ien(nen,ne),ne_local,ien_local(ne_local),ie_local
   real(8) I_fluid(nn)
   integer ele_id(ne)
@@ -34,7 +34,6 @@ subroutine  blockgmres_Laplace(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
 	x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 	d(inl) = I_fluid(ien(inl,ie))
      end do
-
 
      do iq=1,nquad  ! loop over the quadrature points in each element
 !!!!!!!!!!!!!!!!!!!!calculate shape function!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -68,17 +67,17 @@ subroutine  blockgmres_Laplace(xloc,p,ien,ne_local,ien_local,I_fluid,ele_id)
      do inl=1,nen
 	node=ien(inl,ie)
 	do isd=1,nsd
-	   p_inter(node)=p_inter(node)+ph(isd,inl)*dr(isd)
+	   p(node)=p(node)-ph(isd,inl)*dr(isd)
 	end do! residual
-!	do isd=1,nsd
-!	   w_inter(node)=w_inter(node)+ph(isd,inl)*sh(isd,inl)
-!	end do! diag
+	do isd=1,nsd
+	   w(node)=w(node)+ph(isd,inl)*sh(isd,inl)
+	end do! diag
      end do
 
      end do ! end of quad loop
 1111 continue
   end do ! end of ele loop
-end subroutine blockgmres_Laplace
+end subroutine block_Laplace_inter
 
 
 

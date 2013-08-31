@@ -1,35 +1,29 @@
 
 
-subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
+subroutine gmres_Laplace_inter(x,w,bg,dg,ien,node_id,ele_id, &
 		ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		sur_fluid,I_fluid,&
-		norm_node,spbcnode,spbcele,rngface,pbnode)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface,nn_spbc,ne_spbc,nn_pb,f_slip,f_pb
- 	use solid_variables, only: nn_solid
+		I_fluid)
+	use fluid_variables, only: nsd,nn,ne,nen!,inner,outer
         use mpi_variables
 	implicit none
       include 'mpif.h'
+	integer,parameter :: ndf = 1
+        integer,parameter :: inner=100
+        integer,parameter :: outer=5
 	real* 8 x(nsd,nn)
-        integer id(ndf,nn)
-	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn)!,ien(nen,ne)
+	integer node_id(ndf*nn),ele_id(ne)
 	integer ien(nen,ne)
 	real* 8 bg(ndf*nn), dg(ndf*nn), w(ndf*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
-	real* 8 sur_fluid(nsd,nn),I_fluid(nn)
-        real* 8 norm_node(nsd,nn)
-        integer spbcnode(nn_spbc)
-        integer spbcele(ne_spbc)
-        integer rngface(neface,ne)
-	integer pbnode(2,nn_pb)
-	real(8) res_pb(nsd,nn_pb),res_pb_temp(nsd,nn_pb)
+	real* 8 I_fluid(nn)
 !=========================================================
 ! reduce dimension to save memory
 	real* 8 Vm(ndf*nn_local, inner+1) ! Krylov space matrix
 !        real* 8 Vm(ndf*nn, inner+1) ! Krylov space matrix
 !=========================================================
 	integer i,j,iouter,icount,INFO
-	real(8) e1(inner+1)
+	real* 8 e1(inner+1)
 	real* 8 x0(ndf*nn)
 	real* 8 beta(inner+1)
 	real* 8 eps
@@ -77,21 +71,21 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 
 	eps = 1.0e-6
-	e1(:) = 0.0
-	e1(1) = 1.0
+	e1(:) = 0
+	e1(1) = 1
 	x0(:) = 0
 	iouter = 1
 	r0(:) = bg(:)
 	TRAN = 'N'
 	av_tmp(:,:) = 0
 	avloc(:) = 0
-!	w(:) = 1.0d-4
+!	w(:) = 1.0
         call getnorm_pa(r0,ndf,nn,node_local,nn_local,rnorm0)
         rnorm = sqrt(rnorm0)
         vloc(:,:)=0.0
 if(myid==0)write(*,*)'rnorm=',rnorm
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-5))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-6))
 
 !==============================
 	Vm(:,:) = 0.0d0
@@ -112,7 +106,7 @@ if(myid==0)write(*,*)'rnorm=',rnorm
 		 do icount=1, nn_local
 		    node=node_local(icount)
 		    do jcount=1,ndf
-		    	dv((node-1)*ndf+jcount) = eps/w((node-1)*ndf+jcount)*Vm((icount-1)*ndf+jcount,j)
+		    	dv((node-1)*ndf+jcount) = 1.0/w((node-1)*ndf+jcount)*Vm((icount-1)*ndf+jcount,j)
 		    end do
 		 end do!!!!!!!!!!calcule eps*inv(P)*V1
 		
@@ -136,33 +130,14 @@ if(myid==0)write(*,*)'rnorm=',rnorm
 		call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
 !============================
-		call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
-		do icount=1,nn_local
-			node=node_local(icount)
-			vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
-		end do
 
-! Let vloc=vloc+d first then communicate, and then it should same # of loop (avoiding loop at the whole domain)
+
 !=============================
 !		call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-!**************used of periodical************!
 
-if(f_pb==1) then
-res_pb_temp(:,:)=0.0
-res_pb(:,:)=0.0
-vloc(1:nsd,pbnode(2,1:nn_pb))=0.0
-res_pb_temp(1:nsd,1:nn_pb)=vloc(1:nsd,pbnode(1,1:nn_pb))
-call mpi_barrier(mpi_comm_world,ierror)
-call mpi_allreduce(res_pb_temp(1,1),res_pb(1,1),nsd*nn_pb,mpi_double_precision, &
-		mpi_sum,mpi_comm_world,ierror)
-call mpi_barrier(mpi_comm_world,ierror)
-end if
 
 	        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
 
-if(f_pb==1) then
-vloc(1:nsd,pbnode(2,1:nn_pb))=res_pb(1:nsd,1:nn_pb)
-end if
 !----------------------------------------------------------------------------------------------
 !vloc(:,:)=vloc(:,:)+d(:,:)
 
@@ -182,58 +157,24 @@ end if
 
 
 
-
-		call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
-				sur_fluid,I_fluid)
-
-if(nsd==2) then
-		call res_slipbc(av_tmp,vloc,x,rngface,ien,spbcnode,spbcele,ne_local,ien_local,I_fluid)
-else if(nsd==3) then
-                call res_slipbc_3D(av_tmp,vloc,x,rngface,ien,spbcele,ne_local,ien_local,I_fluid)
-end if
-!                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
+call blockgmres_Laplace_inter(x,av_tmp,ien,ne_local,ien_local,vloc,ele_id)
 
 
-!*****************periodical bc*************************!
-if(f_pb==1) then
-res_pb_temp(:,:)=0.0
-res_pb(:,:)=0.0
-res_pb_temp(1:nsd,1:nn_pb)=av_tmp(1:nsd,pbnode(2,1:nn_pb))
-call mpi_barrier(mpi_comm_world,ierror)
-call mpi_allreduce(res_pb_temp(1,1),res_pb(1,1),nsd*nn_pb,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
-call mpi_barrier(mpi_comm_world,ierror)
-end if
 
 	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 
 
-if(f_pb==1) then
-av_tmp(1:nsd,pbnode(1,1:nn_pb))=av_tmp(1:nsd,pbnode(1,1:nn_pb))+res_pb(1:nsd,1:nn_pb)
-av_tmp(1:nsd,pbnode(2,1:nn_pb))=0.0
-end if
 
-
-                call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
 !===================
 ! avloc(:)=0.0d0
 !==================
 		call equal_pa(av_tmp,avloc,ndf,nn,node_local,nn_local)
 
 
-		do icount=1, nn_local
-		node=node_local(icount)
-			do jcount=1,ndf
-				kcount=(node-1)*ndf+jcount
-				avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps ! get Av,bg=-r(u)
-			end do
-		end do
 
-
-		!call setid(avloc,id,ndf)
-                call setid_pa(avloc,ndf,nn,id,node_local,nn_local)
+                call setid_pa(avloc,ndf,nn,node_id,node_local,nn_local)
                 space1(:)=0.0d0
                 space2(:)=0.0d0
-end_time=mpi_wtime()
 	      do i=1,j
 		 do icount=1,nn_local
 			node=node_local(icount)
@@ -249,7 +190,6 @@ end_time=mpi_wtime()
                 call mpi_barrier(mpi_comm_world,ierror)
                 call mpi_allreduce(space1(1),space2(1),j,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 !                call mpi_bcast(space2(1),j,mpi_double_precision,0,mpi_comm_world,ierror)
-end_time=mpi_wtime()-end_time
 !if ((myid == 0) .and. (j==inner)) write(*,*) 'Time for get one hm vector', end_time
 
                 Hm(1:j,j)=space2(1:j)
@@ -317,7 +257,7 @@ temp=0.0d0
 	   node=node_local(icount)
 	   do jcount=1,ndf
 		kcount=(node-1)*ndf+jcount
-	   	dv(kcount) = eps/w(kcount)*x0(kcount)
+	   	dv(kcount) = 1.0/w(kcount)*x0(kcount)
 	   end do
 	end do
 
@@ -341,33 +281,9 @@ temp=0.0d0
 
 	call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
 
-	call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
-	do icount=1,nn_local
-		node=node_local(icount)
-		vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
-	end do
 
-!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-!********************periodical bc*****************!
-if(f_pb==1) then
-res_pb_temp(:,:)=0.0
-res_pb(:,:)=0.0
-!vloc(1:nsd,pbnode(2,1:nn_pb))=0.0
-res_pb_temp(1:nsd,1:nn_pb)=vloc(1:nsd,pbnode(1,1:nn_pb))
-vloc(1:nsd,pbnode(2,1:nn_pb))=0.0
-call mpi_barrier(mpi_comm_world,ierror)
-call mpi_allreduce(res_pb_temp(1,1),res_pb(1,1),nsd*nn_pb,mpi_double_precision, &
-                mpi_sum,mpi_comm_world,ierror)
-call mpi_barrier(mpi_comm_world,ierror)
-end if
         call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
-if(f_pb==1) then
-vloc(1:nsd,pbnode(2,1:nn_pb))=res_pb(1:nsd,1:nn_pb)
-end if
 
-!==============================
-!	vloc(:,:) = vloc(:,:)+d(:,:)
-!==============================
 !===============================
 ! Clear matrix local first interal then boundary processor nodes
                 do icount=1,nn_local
@@ -380,32 +296,9 @@ end if
                 end do
 !	av_tmp(:,:) = 0.0d0
 !================================
+call blockgmres_Laplace_inter(x,av_tmp,ien,ne_local,ien_local,vloc,ele_id)
 
-
-	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
-				sur_fluid,I_fluid)
-!        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-
-if(nsd==2) then
-	call res_slipbc(av_tmp,vloc,x,rngface,ien,spbcnode,spbcele,ne_local,ien_local,I_fluid)
-elseif(nsd==3) then
-        call res_slipbc_3D(av_tmp,vloc,x,rngface,ien,spbcele,ne_local,ien_local,I_fluid)
-end if
-
-if(f_pb==1)then
-res_pb_temp(:,:)=0.0
-res_pb(:,:)=0.0
-res_pb_temp(1:nsd,1:nn_pb)=av_tmp(1:nsd,pbnode(2,1:nn_pb))
-call mpi_barrier(mpi_comm_world,ierror)
-call mpi_allreduce(res_pb_temp(1,1),res_pb(1,1),nsd*nn_pb,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
-call mpi_barrier(mpi_comm_world,ierror)
-end if
         call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
-if(f_pb==1) then
-av_tmp(1:nsd,pbnode(1,1:nn_pb))=av_tmp(1:nsd,pbnode(1,1:nn_pb))+res_pb(1:nsd,1:nn_pb)
-av_tmp(1:nsd,pbnode(2,1:nn_pb))=0.0
-end if
-        call res_rotation(av_tmp,norm_node,nn_spbc,spbcnode)
 !==================
 !avloc(:)=0.0d0
 !==================
@@ -413,15 +306,8 @@ end if
        call equal_pa(av_tmp,avloc,ndf,nn,node_local,nn_local)
        
 !       call setid(avloc,id,ndf)
-       call setid_pa(avloc,ndf,nn,id,node_local,nn_local)
+       call setid_pa(avloc,ndf,nn,node_id,node_local,nn_local)
 
-                do icount=1, nn_local
-                node=node_local(icount)
-                        do jcount=1,ndf
-                                kcount=(node-1)*ndf+jcount
-                                avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps
-                        end do
-                end do
 
 
 !!!!!!!!!!calculate AXm
@@ -440,7 +326,11 @@ end if
 	iouter = iouter + 1        
 
 	if (myid == 0)	write(*,*) 'err=',err
-
+if(err.lt.10) then
+666 continue
+else
+stop
+end if
 
 111     continue  ! end outer loop
 
@@ -456,6 +346,7 @@ end if
 	dg(:)=0.0d0
 	call mpi_barrier(mpi_comm_world,ierror)
 	call mpi_allreduce(dg_sent(1),dg(1),ndf*nn,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
-	call res_rotation_reverse(dg,norm_node,nn_spbc,spbcnode)
+!	call mpi_bcast(dg(1),ndf*nn,mpi_double_precision,0,mpi_comm_world,ierror)
+!	call res_rotation_reverse(dg,norm_node,nn_spbc,spbcnode)
 	return
 	end

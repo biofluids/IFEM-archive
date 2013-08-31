@@ -1,6 +1,6 @@
 .SUFFIXES: .f90
-LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
-          /usr/opt/BLAS/blas_LINUX.a
+LIBS    = /bgsys/apps/CCNI/lapack/liblapack.a\
+          /bgsys/apps/CCNI/blas/blas.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o\
 interface_variables.o  allocate_variables.o\
@@ -45,8 +45,8 @@ set_center_after_contact.o get_indicator_2D.o get_indicator_3D.o update_center_i
 solve_indicator_laplace.o block_Laplace_inter.o blockgmres_Laplace_inter.o gmres_Laplace_inter.o
 
 IFEM: $(OBJ)
-	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
+	mpixlf90 -g -O2 -o IFEM $(OBJ) $(LIBS)
 .f90.o:
-	mpif90 -c -g -O2 $<
+	mpixlf90 -c -O2 -g -qflag=w -qmaxmem=-1 $<
 clean:
 	rm -rf *.o *.mod IFEM

@@ -34,4 +34,5 @@ module fluid_variables
   real(8) pin ! inflow pressure
   integer ne_spbc,nn_spbc,nn_pb
   real(8) lambda  !slip length
+  integer f_slip, f_pb
 end module fluid_variables

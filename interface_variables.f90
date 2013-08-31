@@ -26,5 +26,7 @@ module interface_variables
   real(8) :: Hoff_re
   integer :: nn_center
   real(8), dimension(:),allocatable :: c_w ! weight for the center points
+  integer :: f_con
+  integer :: ele_refine
 end module interface_variables
 

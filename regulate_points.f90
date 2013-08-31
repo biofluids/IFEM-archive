@@ -18,7 +18,7 @@ subroutine regulate_points(x_inter_regen,x,nn_inter_regen,ien,hg,ne_intlocal,ien
 
   integer nn_loc,base,top,loc_index
 
-  real(8) x_ele(nsd,50),tol,x_regen_temp(nsd,maxmatrix)
+  real(8) x_ele(nsd,200),tol,x_regen_temp(nsd,maxmatrix)
   integer nn_ele,index_nn(ncpus),index_nn_temp(ncpus)
   integer nn_local,nn_local_new,lower
   real(8) x_local(nsd,nn_inter_regen)
@@ -56,6 +56,7 @@ subroutine regulate_points(x_inter_regen,x,nn_inter_regen,ien,hg,ne_intlocal,ien
      do icount=1,nn_inter_regen
         if(inter_ele(i)==infdomain_regen(icount)) then
           nn_ele=nn_ele+1
+if(nn_ele.gt.200)write(*,*)'exceed matrix limit in regulate_points.f90'
           x_ele(:,nn_ele)=x_inter_regen(:,icount)
         end if
      end do

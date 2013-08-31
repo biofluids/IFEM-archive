@@ -18,9 +18,11 @@ subroutine res_slipbc(p,d,x,rngface,ien,spbcnode,spbcele,ne_local,ien_local,I_fl
   real(8) u(nsd,2),l,temp(nsd)
   integer flag
   real(8) sh(2,2),const,u1(nsd),u2(nsd)
-  real(8) mu(2),lam(2)
+  real(8) mu(2),lam(2),div_lam
 !  lamda=10.0  ! slip length
-if(lambda.lt.0.0) goto 2000
+div_lam=1.0/lambda
+if(lambda.gt.900) div_lam=0.0
+if(f_slip==0) goto 2000
   const=0.577350269
 !====================================!
 !two guass quad points               !
@@ -55,8 +57,8 @@ if(flag==1) then
 	   mu(2)=vis_liq+(vis_inter-vis_liq)*I_fluid(node(2))
 	   u(1:nsd,1)=(u2(1:nsd)-u1(1:nsd))*0.5*(-const)+(u1(1:nsd)+u2(1:nsd))*0.5
 	   u(1:nsd,2)=(u2(1:nsd)-u1(1:nsd))*0.5*(+const)+(u1(1:nsd)+u2(1:nsd))*0.5
-	   lam(1)=((mu(2)-mu(1))*0.5*(-const)+(mu(1)+mu(2))*0.5)/lambda
-	   lam(2)=((mu(2)-mu(1))*0.5*(+const)+(mu(1)+mu(2))*0.5)/lambda
+	   lam(1)=((mu(2)-mu(1))*0.5*(-const)+(mu(1)+mu(2))*0.5)*div_lam
+	   lam(2)=((mu(2)-mu(1))*0.5*(+const)+(mu(1)+mu(2))*0.5)*div_lam
 	   do inface=1,2
 	      temp(1:nsd)=sh(1,inface)*lam(1)*u(1:nsd,1)+sh(2,inface)*lam(2)*u(1:nsd,2)
 	      p(1:nsd,node(inface))=p(1:nsd,node(inface))-l*temp(1:nsd)*0.5      
