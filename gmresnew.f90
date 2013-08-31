@@ -3,8 +3,9 @@
 subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 		ne_local,ien_local,node_local,nn_local, &
 		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		fden,fvis,I_solid,rngface,I_fluid,sur_fluid)
-	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
+		fden,fvis,I_solid,rngface,I_fluid,sur_fluid, &
+		norm_node,spbcnode,spbcele,pbnode)
+	use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface,nn_spbc,ne_spbc,nn_pb,f_slip,f_pb
  	use solid_variables, only: nn_solid
         use mpi_variables
 	implicit none
@@ -30,7 +31,11 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
         real* 8 dv(ndf*nn)
 	real* 8 Vy(ndf*nn)
         real* 8 vloc(ndf,nn), avloc(ndf*nn)
-
+        real* 8 norm_node(nsd,nn)
+        integer spbcnode(nn_spbc)
+        integer spbcele(ne_spbc)
+        integer pbnode(2,nn_pb)
+        real(8) res_pb(nsd,nn_pb),res_pb_temp(nsd,nn_pb)
 !==============================
 ! reduce dimension save memory
 !	real* 8 temp(ndf*nn)
@@ -75,8 +80,8 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 
 
-	eps = 1.0e-6
-	linerr = 1.0e-6
+	eps = 1.0e-5
+	linerr = 1.0e-5
 	e1(:) = 0.0
 	e1(1) = 1.0
 	x0(:) = 0
@@ -135,7 +140,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 !===============================================
 		call equal_pa(dv,vloc,ndf,nn,node_local,nn_local)
-
+		call res_rotation_reverse(vloc,norm_node,nn_spbc,spbcnode)
 !============================
 		do icount=1,nn_local
 			node=node_local(icount)
@@ -144,7 +149,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 ! Let vloc=vloc+d first then communicate, and then it should same # of loop (avoiding loop at the whole domain)
 !=============================
 !		call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-	        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
 
 !----------------------------------------------------------------------------------------------
 !vloc(:,:)=vloc(:,:)+d(:,:)
@@ -170,7 +175,7 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id, &
 
 
 !                call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-	        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
+	        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 
 
 !===================
@@ -308,7 +313,7 @@ temp=0.0d0
 	end do
 
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,vloc,ndf,nn)
-        call communicate_res_ad_sub(vloc,ndf,nn,send_address,ad_length)
+        call communicate_res_ad(vloc,ndf,nn,send_address,ad_length)
 
 
 !==============================
@@ -331,7 +336,7 @@ temp=0.0d0
 	call blockgmresnew(x,vloc,dold,av_tmp,hg,ien,fext,ne_local,ien_local,node_local,nn_local,&
 			fden,fvis,I_solid,rngface,I_fluid,sur_fluid)
 !        call communicate_res(global_com,nn_global_com,local_com,nn_local_com,av_tmp,ndf,nn)
-        call communicate_res_ad_sub(av_tmp,ndf,nn,send_address,ad_length)
+        call communicate_res_ad(av_tmp,ndf,nn,send_address,ad_length)
 !==================
 !avloc(:)=0.0d0
 !==================

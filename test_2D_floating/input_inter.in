@@ -1,0 +1,15 @@
+nn_inter  =  1000                     !number of initial interfacial points
+surfacetension = 0.01                  !surface tension
+den_inter = 1.0d-2                       !density for I=1.0
+vis_inter = 0.0001                      !viscosity for phase I=1.0
+maxmatrix  = 9000                     !maximum number of interfacial points
+scale_inter = 0.999  0.999  1.0d0   
+shift_inter = 1.2d-4  1.03d-4  0.0d0
+rkpm_scale = 1.5                      !support length for rkpm
+max_dcurv = 10.0                      !maximum curvature derivative
+f_con = 0                             !flag for contactline 0 no ; 1 yes
+ele_refine = 1                        !element refinement for contact line element
+static_angle =90.0                    !static angle for contact line
+ad_re_angle = 30.0                    !advancing and receding contact angle 
+Hoff_ad = 0.1077076                   !Hoffman coef for advancing
+Hoff_re = 0.0144366                   !Hoffman coef for receding

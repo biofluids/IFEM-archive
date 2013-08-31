@@ -8,7 +8,7 @@
 
        subroutine getinf_el_3d(finf, x, xna, nn, nsd, ne, nen, ien, maxconn)
 	   implicit none
-	   integer :: ninf, nn, nsd, ne, nen, maxconn ! fluid variable from main
+	   integer :: ninf, nn, nsd, ne, nen, maxconn,inn ! fluid variable from main
 	   integer ien(nen,ne) ! transfer matrix connectted local information to global
 	   integer inf(maxconn) ! subroutine variable to store the index of element which contains the solid node
 	   real(8) x(nsd), xna(nsd, nn) ! x - coordinates of solid node   xna - coordinates of fluid nodes in global view
@@ -39,7 +39,6 @@
 	   integer inl
 	   integer isd  
 	   integer i
-       
        ninf = 0 
      !  write(*,*) 'nen', nen
      !  write(*,*) '1000 el in get ', xna(:,124)
@@ -91,7 +90,6 @@
          !  write(*,*) 'ninf= ', ninf
                        
          !  write(*,*) 'inf= ' , inf(1)
-         
 	  if(ninf == 0) goto 2000
 	   
 	   if (nsd==2 .and. nen==3) then

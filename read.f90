@@ -15,8 +15,9 @@ subroutine Read_Real(var,count)
       linelen = 133
  11   CONTINUE
       linelen = linelen - 1
+   if(linelen.gt.0) then
       IF (line(linelen:linelen) .EQ. ' ' .and. linelen .GT. 0) GOTO 11
-      
+   end if   
       IF (echo_out .GT. 0)WRITE(echo_out,15)(line(k:k),k=1,linelen)
  15 FORMAT(132a1)
         
@@ -74,7 +75,9 @@ subroutine Read_Int(ivar,count)
       linelen = 133
    11 CONTINUE
       linelen = linelen - 1
+  if(linelen>0) then
       IF (line(linelen:linelen) == ' ' .and.   linelen > 0) GOTO 11
+  end if
       IF (echo_out > 0)WRITE(echo_out,15)(line(k:k),k=1,linelen)
    15 FORMAT(132a1)
  

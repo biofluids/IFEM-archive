@@ -357,9 +357,11 @@ end if
 
   CALL Read_Real(turb_kappa,1)
 
+  CALL Read_Int(f_slip,1)
   CALL Read_Int(ne_spbc,1)
   CALL Read_Int(nn_spbc,1)
   CALL Read_Real(lambda,1)
+  CALL Read_Int(f_pb,1)
   CALL Read_Int(nn_pb,1)
 
 !       further defaults
@@ -424,10 +426,12 @@ end if
   call Read_Real(shift_inter,nsd)
   call Read_Real(rkpm_scale,1)
   call Read_Real(max_dcurv,1)
-!  call Read_Int(nbc,1)
+  call Read_Int(f_con,1)
+  call Read_Int(ele_refine,1)
   call Read_Real(static_angle,1)
   call Read_Real(ad_re_angle,1)
-  call Read_Real(Hoff,1)
+  call Read_Real(Hoff_ad,1)
+  call Read_Real(Hoff_re,1)
 if(myid==0) then
   write(*,*)'nn_inter=',nn_inter
   write(*,*)'surface tension = ', sur_tension
@@ -439,6 +443,5 @@ if(myid==0) then
 end if
   close(file_in)
 end subroutine parseinput_interface
-
 
 end module parseinput

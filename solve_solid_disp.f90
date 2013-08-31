@@ -45,8 +45,8 @@ integer iq
 !-------------------------------------------------
 integer inner
 integer outer
-parameter (inner = 100) ! solid equation inner 50 should be sufficient
-parameter (outer = 10)  ! solid equation outer 5 should be sufficient
+parameter (inner = 80) ! solid equation inner 50 should be sufficient
+parameter (outer = 5)  ! solid equation outer 5 should be sufficient
 !-------------------------------------------------
 real(8) dg(nsd_solid,nn_solid) ! disp correction
 real(8) w(nsd_solid,nn_solid)  ! pre-conditioner
@@ -167,15 +167,6 @@ call getnorm(p,p,nsd_solid*nn_solid,res)
 res=sqrt(res)
 if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 
-!if (myid == 0) then
-!        open(unit=30, file='solidres_se.out', status='unknown')
-!	do i=1, nn_solid
-!	write(30,*) 'node', i, p(1:nsd_solid,i)
-!	end do
-!	close(30)
-!end if
-
-
 !if ( res .gt. 1e-6) then  ! solid disp need to be solved
 
 !-----------------------
@@ -190,13 +181,14 @@ call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,ou
 
 call getnorm(dg,dg,nsd_solid*nn_solid,del)
  del = sqrt(del)
-if (myid == 0) write(*,*) '===serial solid displacement correction norm===', del
+if (myid == 0) write(*,*) '===solid displacement correction norm===', del
 
 !do i=1,nn_sbc
 !	write(*,*) 'dg', dg(:,node_sbc(i)), ' at node',node_sbc(i), disp(:,node_sbc(i))
 !        dg(:,node_sbc(i))=disp(:,node_sbc(i))
 !end do
 solid_acc(:,:) = solid_acc(:,:) + dg(:,:)
+
 x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
 		 (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )

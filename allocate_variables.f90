@@ -16,6 +16,7 @@ module allocate_variables
   integer,dimension(:),allocatable :: inter_ele
   integer,dimension(:),allocatable :: regen_ele
   integer :: ne_inter,ne_regen_ele
-  integer,dimension(:),allocatable :: regen_ele_loc
-  integer :: ne_regen_ele_loc
+  integer,dimension(:),allocatable :: flag_center_in_solid
+!  integer,dimension(:),allocatable :: regen_ele_loc
+!  integer :: ne_regen_ele_loc
 end module allocate_variables

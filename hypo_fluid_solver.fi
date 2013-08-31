@@ -7,13 +7,9 @@
 	end if
     !...store the variables from the previous time step,dold=d 
      dold = d
-    call formid(id,rng,ien)
-     !============================
-     ! time varying BC for velocity
-!     call formd_time(d,rng,ien)
-!     if (myid == 0) write(*,*) "********** Applied Time Changing BC ***************"
-     !============================
-
+     call formid(id,rng,ien)
+!     call formd(d,rng,ien)
+    call formid_spbc(id,nn_spbc,spbcnode)
 
 !===========================================================================
 if (edge_inflow .ne. 0) then
@@ -47,25 +43,49 @@ end if
 end if
 
      do iit=1,nit
+        res_pb(:,:)=0.0
+        res_pb_temp(:,:)=0.0
+        res_pb_w(:,:)=0.0
+        res_pb_w_temp(:,:)=0.
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
         time_com=mpi_wtime()
          call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,ne_intlocal,ien_intlocal,node_local,nn_local,&
 			fden,fvis,I_solid,I_fluid,sur_fluid)
         time_com=mpi_wtime()-time_com
-
         if (myid == 0) write(*,*) 'Time for evaluate block', time_com
 
-	time_com=mpi_wtime()
+if(nsd==2) then
+        call res_slipbc_precon(p,w,d,x,rng,ien,spbcnode,spbcele,ne_intlocal,ien_intlocal,I_fluid)
+elseif(nsd==3) then
+        call res_slipbc_precon_3D(p,w,d,x,rng,ien,spbcele,ne_intlocal,ien_intlocal,I_fluid)
+end if
+call mpi_barrier(mpi_comm_world,ierror)
+if(f_pb==1) then
+        res_pb_temp(1:nsd,1:nn_pb)=p(1:nsd,pbnode(2,1:nn_pb))
+        res_pb_w_temp(1:nsd,1:nn_pb)=w(1:nsd,pbnode(2,1:nn_pb))
+        call mpi_barrier(mpi_comm_world,ierror)
+        call mpi_allreduce(res_pb_temp(1,1),res_pb(1,1),nsd*nn_pb,mpi_double_precision, &
+                        mpi_sum,mpi_comm_world,ierror)
+        call mpi_allreduce(res_pb_w_temp(1,1),res_pb_w(1,1),nsd*nn_pb,mpi_double_precision, &
+                        mpi_sum,mpi_comm_world,ierror)
+        call mpi_barrier(mpi_comm_world,ierror)
+end if
 
-	call communicate_res_ad_sub(p,ndf,nn,send_address,ad_length)
-	call communicate_res_ad_sub(w,ndf,nn,send_address,ad_length)
+
+	call communicate_res_ad(p,ndf,nn,send_address,ad_length)
+	call communicate_res_ad(w,ndf,nn,send_address,ad_length)
 	
+if(f_pb==1) then
+        p(1:nsd,pbnode(1,1:nn_pb))=p(1:nsd,pbnode(1,1:nn_pb))+res_pb(1:nsd,1:nn_pb)
+        w(1:nsd,pbnode(1,1:nn_pb))=w(1:nsd,pbnode(1,1:nn_pb))+res_pb_w(1:nsd,1:nn_pb)
+        p(1:nsd,pbnode(2,1:nn_pb))=0.0
+end if
 
-	time_com=mpi_wtime()-time_com
+        call res_rotation(p,norm_node,nn_spbc,spbcnode)
+        call res_rotation_precon(w,norm_node,nn_spbc,spbcnode)
 
-	if (myid == 0) write(*,*) 'Time for communication twice', time_com
-
+call mpi_barrier(mpi_comm_world,ierror)
 
         !...apply boundary conditions, calculate residual with corrected BC
         !...i.e. where id=0 -> p=0
@@ -84,7 +104,8 @@ end if
         call gmres(x,d,dold,w,p,dg,hg,ien,f_fluids,id, &
 		   ne_intlocal,ien_intlocal,node_local,nn_local, &
 		   global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
-		   fden,fvis,I_solid,rng,I_fluid,sur_fluid) 	
+		   fden,fvis,I_solid,rng,I_fluid,sur_fluid, &
+		   norm_node,spbcnode,spbcele,pbnode) 	
         !...calculate the normalized increment, del_l
          call getnorm_pa(dg,ndf,nn,node_local,nn_local,del_l)
          del_l = sqrt(del_l)
@@ -101,3 +122,8 @@ end if
 	if (myid ==0) then
       write(*,'("  maximum fluid velocity (x dir) = ",f13.5)') maxval(d(1:nsd,:))
 	end if
+        if(abs(maxval(d(1:nsd,:))).lt.999.0) then
+555 continue
+        else
+	   stop
+        end if

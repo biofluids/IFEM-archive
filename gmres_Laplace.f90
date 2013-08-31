@@ -18,7 +18,7 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien,id,lp_el,n_el)
 	integer id(nn)
 !--------------------------------
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8 e1(inner+1)
 	real* 8 x0(nn)
 	real* 8 beta(inner+1)
 	real* 8 eps
@@ -43,7 +43,10 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien,id,lp_el,n_el)
         call getnorm(r0,r0,nn,rnorm0)
         rnorm = sqrt(rnorm0)
 
-write(*,*) 'rnorm0', rnorm0
+!do icount=1,nn
+!	write(*,*) 'node id',icount, id(icount)
+!end do
+
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
 	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))

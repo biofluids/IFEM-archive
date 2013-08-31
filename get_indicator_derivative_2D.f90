@@ -2,7 +2,7 @@
 !used to calculate the derivative of the indicator for a point
 !=================================================
 
-subroutine get_indicator_derivative_2D(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
+subroutine get_indicator_derivative_2D(x,xp,x_center,I_fluid_center,corr_Ip, &
 				  II,dI,ddI,&
 				  norm_p, curv_p)
 
@@ -11,9 +11,8 @@ subroutine get_indicator_derivative_2D(x,xp,x_center,hg,I_fluid_center,corr_Ip, 
   use allocate_variables, only:nn_center_domain,center_domain
   use mpi_variables
 
-  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,ne)
-  real(8) hg(ne)
-  real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
+  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,nn_center)
+  real(8) I_fluid_center(nn_center),corr_Ip(maxmatrix)
 !  real(8) sum_0d(2),sum_1d(2,nsd),sum_2d(2,3*(nsd-1))
   real(8) II,dI(nsd),ddI(3*(nsd-1))
   real(8) norm_p(nsd),curv_p
@@ -172,7 +171,7 @@ subroutine get_indicator_derivative_2D(x,xp,x_center,hg,I_fluid_center,corr_Ip, 
      vec(2:nsd+1,1)=x(1:nsd)-x_center(1:nsd,center_domain(j))
      vec(2,2)=1.0
      vec(3,3)=1.0
-     hsg=hg(center_domain(j))
+     hsg=c_w(center_domain(j))
 !=========================================================
      do icount=1,nsd+1
 	do jcount=1,nsd+1
@@ -302,7 +301,7 @@ end if
      vec(2,2)=1.0
      vec(3,3)=1.0
      dtemp(:)=0.0
-     hsg=hg(center_domain(j))
+     hsg=c_w(center_domain(j))
      do icount=1,nsd+1
 	dtemp(1)=dtemp(1)+vec(icount,1)*B(icount,1)
 	dtemp(2)=dtemp(2)+vec(icount,2)*B(icount,1)+vec(icount,1)*B(icount,2)

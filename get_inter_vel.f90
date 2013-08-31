@@ -2,7 +2,7 @@
 !get interface velocity
 !=================================
 
-subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,vol_nn)
+subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,vol_nn,I_solid)
 
   use fluid_variables, only:nsd,nn,ne,nen
   use interface_variables, only:hsp
@@ -11,7 +11,7 @@ subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,vol_nn)
 
   real(8) x(nsd,nn),x_inter(nsd)
   real(8) vel_fluid(nsd,nn),vel_inter(nsd)!,vel_inter_temp(nsd,maxmatrix)
-  real(8) vol_nn(nn)
+  real(8) vol_nn(nn),I_solid(nn)
 
   integer i,j,icount,jcount
   real(8) dx(nsd),Sp,hs,temp
@@ -61,6 +61,7 @@ subroutine get_inter_vel(x,x_inter,vel_fluid,vel_inter,vol_nn)
      do j=1,nn
 	dx(:)=abs(x_inter(:)-x(:,j))
 	call B_Spline1(dx,hsp,nsd,Sp,INFO)
+!	if(I_solid(j)>0.5)INFO=0
 	if(INFO==1) then
 	vec(2:nsd+1)=x_inter(:)-x(:,j)
         do icount=1,nsd+1

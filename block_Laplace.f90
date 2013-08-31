@@ -3,7 +3,7 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  block_Laplace(xloc,I_solid,p_inter,w_inter,ien,lp_el,count_el,source)
+subroutine  block_Laplace(xloc,I_fluid,p_inter,w_inter,ien,lp_el,count_el,source)
   use global_constants
   use run_variables
   use fluid_variables
@@ -11,7 +11,7 @@ subroutine  block_Laplace(xloc,I_solid,p_inter,w_inter,ien,lp_el,count_el,source
 
   integer ien(nen,ne)
   real(8) xloc(nsd,nn)
-  real(8) I_solid(nn)
+  real(8) I_fluid(nn)
   real(8) p_inter(nn)
   real(8) w_inter(nn)
 !----------------------------
@@ -38,7 +38,7 @@ subroutine  block_Laplace(xloc,I_solid,p_inter,w_inter,ien,lp_el,count_el,source
 !   do ie=1,ne
      do inl=1,nen
 	x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-	d(inl) = I_solid(ien(inl,ie))
+	d(inl) = I_fluid(ien(inl,ie))
 	local_source(1:nsd,inl)=source(1:nsd,ien(inl,ie))
      end do
 

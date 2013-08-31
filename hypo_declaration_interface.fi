@@ -2,19 +2,24 @@
 
   real(8) :: x_inter(nsd,maxmatrix)    !coordinates fo interface points
   real(8) :: Ic_inter                  !constant indicator along interface
+  real(8) :: norm_inter(nsd,maxmatrix)
+  real(8) :: curv_inter(maxmatrix) !normal and curvature for each interfacial point
   real(8) :: corr_Ip(maxmatrix)        !correction term
-!  integer :: nn_inter_ini
-!  real(8) :: x_inter_ini(nsd,maxmatrix)!inter points before regen
-  real(8) :: x_center(nsd,ne)          !coordinates for center point
+!  integer :: bcnode(nbc,2)       !boundary nodes for dense mesh
+  integer :: nn_inter_ini
+  real(8) :: x_inter_ini(nsd,maxmatrix)!inter points before regen
+  real(8) :: x_center(nsd,ne-ne_spbc+(ele_refine**nsd)*ne_spbc)          !coordinates for center point
   integer :: infdomain_inter(maxmatrix)
-  real(8) :: I_fluid_center(ne)
+  real(8) :: I_fluid_center(ne-ne_spbc+(ele_refine**nsd)*ne_spbc)
   real(8) :: I_fluid(nn)
   real(8) :: dcurv
   real(8) :: x_inter_regen(nsd,maxmatrix)
   integer :: nn_inter_regen
+  real(8) :: arc_inter(maxmatrix)
   real(8) :: sur_fluid(nsd,nn)
   real(8) :: vel_inter(nsd,maxmatrix)
-
+  integer :: flag_curv_domain(ne)
+!  integer :: nn_center
 
 
 

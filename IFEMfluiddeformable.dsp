@@ -1,406 +1,221 @@
-# Microsoft Developer Studio Project File - Name="IFEMfluiddeformable" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
-
-# TARGTYPE "Win32 (x86) Console Application" 0x0103
-
-CFG=IFEMfluiddeformable - Win32 Debug
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
-!MESSAGE 
-!MESSAGE NMAKE /f "IFEMfluiddeformable.mak".
-!MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
-!MESSAGE NMAKE /f "IFEMfluiddeformable.mak" CFG="IFEMfluiddeformable - Win32 Debug"
-!MESSAGE 
-!MESSAGE Possible choices for configuration are:
-!MESSAGE 
-!MESSAGE "IFEMfluiddeformable - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IFEMfluiddeformable - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE 
-
-# Begin Project
-# PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
-CPP=cl.exe
-F90=df.exe
-RSC=rc.exe
-
-!IF  "$(CFG)" == "IFEMfluiddeformable - Win32 Release"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "Release"
-# PROP BASE Intermediate_Dir "Release"
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
-# PROP Target_Dir ""
-# ADD BASE F90 /compile_only /nologo /warn:nofileopt
-# ADD F90 /compile_only /nologo /warn:nofileopt
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /d "NDEBUG"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib /nologo /subsystem:console /machine:I386
-
-!ELSEIF  "$(CFG)" == "IFEMfluiddeformable - Win32 Debug"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "Debug"
-# PROP BASE Intermediate_Dir "Debug"
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
-# PROP Intermediate_Dir "Debug"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE F90 /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt
-# ADD F90 /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /d "_DEBUG"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib /nologo /stack:0x20001ff4,0x10001005 /subsystem:console /incremental:no /debug /machine:I386 /pdbtype:sept
-
-!ENDIF 
-
-# Begin Target
-
-# Name "IFEMfluiddeformable - Win32 Release"
-# Name "IFEMfluiddeformable - Win32 Debug"
-# Begin Group "Source Files"
-
-# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;f90;for;f;fpp"
-# Begin Source File
-
-SOURCE=.\block.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\blockgmres.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\correct.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\delta_nonuniform.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\echoinput.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\ensight_output.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\equal.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\error.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\facemap.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\fluid_variables.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\form.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\gaussj.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\gjinv.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\global_constants.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\global_simulation_parameter.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\gmres.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\hg.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\initialize.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\length.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\main.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\meshgen_fluid.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\meshgen_solid.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\nondimension.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\norm.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\parseinput.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\quad2d3n.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\quad2d4n.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\quad3d4n.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\quad3d8n.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_bdpd_curr.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_bdpd_init.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_common.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_element.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_jacob.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_load.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_nodalf.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_sboc.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_sbpress.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_scal.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_scauchy.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_smaterj.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spiola.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spiola_elastic.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spiola_viscous.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_spress.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_sreadinit.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_sstif.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_sstrain.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_stang.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_stoxc.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\r_timefun.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\read.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\rkpmshape2d.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\rkpmshape3d.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\run_variables.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\set.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\shape.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\solid_solver.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\solid_update.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\solid_variables.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\update.f90
-# End Source File
-# Begin Source File
-
-SOURCE=.\vol.f90
-# End Source File
-# End Group
-# Begin Group "Header Files"
-
-# PROP Default_Filter "h;hpp;hxx;hm;inl;fi;fd"
-# Begin Source File
-
-SOURCE=.\hypo_declaration_fluid.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_declaration_solid.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_fluid_solver.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_prepare_fluid.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_prepare_solid.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_file_check.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_read.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_restart_write.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\hypo_write_output.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\vol2d3n.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\vol2d4n.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\vol3d4n.fi
-# End Source File
-# Begin Source File
-
-SOURCE=.\vol3d8n.fi
-# End Source File
-# End Group
-# Begin Group "Resource Files"
-
-# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# End Group
-# End Target
-# End Project
+an nan 0 0 0 
+103174 2 nan nan nan nan nan nan 0 0 0 
+103175 1 nan nan nan nan nan nan 0 0 0 
+103176 2 nan nan nan nan nan nan 0 0 0 
+103177 1 nan nan nan nan nan nan 0 0 0 
+103178 1 nan nan nan nan nan nan 0 0 0 
+103179 1 nan nan nan nan nan nan 0 0 0 
+103180 2 nan nan nan nan nan nan 0 0 0 
+103181 1 nan nan nan nan nan nan 0 0 0 
+103182 2 nan nan nan nan nan nan 0 0 0 
+103183 1 nan nan nan nan nan nan 0 0 0 
+103184 2 nan nan nan nan nan nan 0 0 0 
+103185 1 nan nan nan nan nan nan 0 0 0 
+103186 2 nan nan nan nan nan nan 0 0 0 
+103187 1 nan nan nan nan nan nan 0 0 0 
+103188 1 nan nan nan nan nan nan 0 0 0 
+103189 2 nan nan nan nan nan nan 0 0 0 
+103190 2 nan nan nan nan nan nan 0 0 0 
+103191 2 nan nan nan nan nan nan 0 0 0 
+103192 2 nan nan nan nan nan nan 0 0 0 
+103193 2 nan nan nan nan nan nan 0 0 0 
+103194 2 nan nan nan nan nan nan 0 0 0 
+103195 2 nan nan nan nan nan nan 0 0 0 
+103196 1 nan nan nan nan nan nan 0 0 0 
+103197 2 nan nan nan nan nan nan 0 0 0 
+103198 2 nan nan nan nan nan nan 0 0 0 
+103199 1 nan nan nan nan nan nan 0 0 0 
+103200 2 nan nan nan nan nan nan 0 0 0 
+103201 2 nan nan nan nan nan nan 0 0 0 
+103202 2 nan nan nan nan nan nan 0 0 0 
+103203 2 nan nan nan nan nan nan 0 0 0 
+103204 1 nan nan nan nan nan nan 0 0 0 
+103205 1 nan nan nan nan nan nan 0 0 0 
+103206 1 nan nan nan nan nan nan 0 0 0 
+103207 1 nan nan nan nan nan nan 0 0 0 
+103208 2 nan nan nan nan nan nan 0 0 0 
+103209 1 nan nan nan nan nan nan 0 0 0 
+103210 2 nan nan nan nan nan nan 0 0 0 
+103211 1 nan nan nan nan nan nan 0 0 0 
+103212 1 nan nan nan nan nan nan 0 0 0 
+103213 1 nan nan nan nan nan nan 0 0 0 
+103214 2 nan nan nan nan nan nan 0 0 0 
+103215 1 nan nan nan nan nan nan 0 0 0 
+103216 1 nan nan nan nan nan nan 0 0 0 
+103217 1 nan nan nan nan nan nan 0 0 0 
+103218 2 nan nan nan nan nan nan 0 0 0 
+103219 1 nan nan nan nan nan nan 0 0 0 
+103220 1 nan nan nan nan nan nan 0 0 0 
+103221 1 nan nan nan nan nan nan 0 0 0 
+103222 2 nan nan nan nan nan nan 0 0 0 
+103223 1 nan nan nan nan nan nan 0 0 0 
+103224 2 nan nan nan nan nan nan 0 0 0 
+103225 2 nan nan nan nan nan nan 0 0 0 
+103226 1 nan nan nan nan nan nan 0 0 0 
+103227 1 nan nan nan nan nan nan 0 0 0 
+103228 2 nan nan nan nan nan nan 0 0 0 
+103229 2 nan nan nan nan nan nan 0 0 0 
+103230 2 nan nan nan nan nan nan 0 0 0 
+103231 2 nan nan nan nan nan nan 0 0 0 
+103232 2 nan nan nan nan nan nan 0 0 0 
+103233 2 nan nan nan nan nan nan 0 0 0 
+103234 1 nan nan nan nan nan nan 0 0 0 
+103235 1 nan nan nan nan nan nan 0 0 0 
+103236 1 nan nan nan nan nan nan 0 0 0 
+103237 2 nan nan nan nan nan nan 0 0 0 
+103238 2 nan nan nan nan nan nan 0 0 0 
+103239 1 nan nan nan nan nan nan 0 0 0 
+103240 2 nan nan nan nan nan nan 0 0 0 
+103241 1 nan nan nan nan nan nan 0 0 0 
+103242 2 nan nan nan nan nan nan 0 0 0 
+103243 1 nan nan nan nan nan nan 0 0 0 
+103244 1 nan nan nan nan nan nan 0 0 0 
+103245 1 nan nan nan nan nan nan 0 0 0 
+103246 1 nan nan nan nan nan nan 0 0 0 
+103247 2 nan nan nan nan nan nan 0 0 0 
+103248 1 nan nan nan nan nan nan 0 0 0 
+103249 2 nan nan nan nan nan nan 0 0 0 
+103250 2 nan nan nan nan nan nan 0 0 0 
+103251 1 nan nan nan nan nan nan 0 0 0 
+103252 2 nan nan nan nan nan nan 0 0 0 
+103253 1 nan nan nan nan nan nan 0 0 0 
+103254 2 nan nan nan nan nan nan 0 0 0 
+103255 1 nan nan nan nan nan nan 0 0 0 
+103256 1 nan nan nan nan nan nan 0 0 0 
+103257 2 nan nan nan nan nan nan 0 0 0 
+103258 1 nan nan nan nan nan nan 0 0 0 
+103259 2 nan nan nan nan nan nan 0 0 0 
+103260 2 nan nan nan nan nan nan 0 0 0 
+103261 2 nan nan nan nan nan nan 0 0 0 
+103262 1 nan nan nan nan nan nan 0 0 0 
+103263 2 nan nan nan nan nan nan 0 0 0 
+103264 1 nan nan nan nan nan nan 0 0 0 
+103265 2 nan nan nan nan nan nan 0 0 0 
+103266 1 nan nan nan nan nan nan 0 0 0 
+103267 1 nan nan nan nan nan nan 0 0 0 
+103268 1 nan nan nan nan nan nan 0 0 0 
+103269 1 nan nan nan nan nan nan 0 0 0 
+103270 1 nan nan nan nan nan nan 0 0 0 
+103271 1 nan nan nan nan nan nan 0 0 0 
+103272 2 nan nan nan nan nan nan 0 0 0 
+103273 2 nan nan nan nan nan nan 0 0 0 
+103274 2 nan nan nan nan nan nan 0 0 0 
+103275 1 nan nan nan nan nan nan 0 0 0 
+103276 2 nan nan nan nan nan nan 0 0 0 
+103277 2 nan nan nan nan nan nan 0 0 0 
+103278 2 nan nan nan nan nan nan 0 0 0 
+103279 1 nan nan nan nan nan nan 0 0 0 
+103280 2 nan nan nan nan nan nan 0 0 0 
+103281 1 nan nan nan nan nan nan 0 0 0 
+103282 1 nan nan nan nan nan nan 0 0 0 
+103283 2 nan nan nan nan nan nan 0 0 0 
+103284 2 nan nan nan nan nan nan 0 0 0 
+103285 1 nan nan nan nan nan nan 0 0 0 
+103286 1 nan nan nan nan nan nan 0 0 0 
+103287 2 nan nan nan nan nan nan 0 0 0 
+103288 1 nan nan nan nan nan nan 0 0 0 
+103289 2 nan nan nan nan nan nan 0 0 0 
+103290 2 nan nan nan nan nan nan 0 0 0 
+103291 1 nan nan nan nan nan nan 0 0 0 
+103292 1 nan nan nan nan nan nan 0 0 0 
+103293 1 nan nan nan nan nan nan 0 0 0 
+103294 1 nan nan nan nan nan nan 0 0 0 
+103295 1 nan nan nan nan nan nan 0 0 0 
+103296 2 nan nan nan nan nan nan 0 0 0 
+103297 2 nan nan nan nan nan nan 0 0 0 
+103298 2 nan nan nan nan nan nan 0 0 0 
+103299 1 nan nan nan nan nan nan 0 0 0 
+103300 2 nan nan nan nan nan nan 0 0 0 
+103301 1 nan nan nan nan nan nan 0 0 0 
+103302 2 nan nan nan nan nan nan 0 0 0 
+103303 2 nan nan nan nan nan nan 0 0 0 
+103304 1 nan nan nan nan nan nan 0 0 0 
+103305 1 nan nan nan nan nan nan 0 0 0 
+103306 2 nan nan nan nan nan nan 0 0 0 
+103307 2 nan nan nan nan nan nan 0 0 0 
+103308 1 nan nan nan nan nan nan 0 0 0 
+103309 1 nan nan nan nan nan nan 0 0 0 
+103310 2 nan nan nan nan nan nan 0 0 0 
+103311 1 nan nan nan nan nan nan 0 0 0 
+103312 1 nan nan nan nan nan nan 0 0 0 
+103313 1 nan nan nan nan nan nan 0 0 0 
+103314 2 nan nan nan nan nan nan 0 0 0 
+103315 2 nan nan nan nan nan nan 0 0 0 
+103316 1 nan nan nan nan nan nan 0 0 0 
+103317 2 nan nan nan nan nan nan 0 0 0 
+103318 2 nan nan nan nan nan nan 0 0 0 
+103319 2 nan nan nan nan nan nan 0 0 0 
+103320 1 nan nan nan nan nan nan 0 0 0 
+103321 1 nan nan nan nan nan nan 0 0 0 
+103322 2 nan nan nan nan nan nan 0 0 0 
+103323 2 nan nan nan nan nan nan 0 0 0 
+103324 2 nan nan nan nan nan nan 0 0 0 
+103325 2 nan nan nan nan nan nan 0 0 0 
+103326 2 nan nan nan nan nan nan 0 0 0 
+103327 2 nan nan nan nan nan nan 0 0 0 
+103328 1 nan nan nan nan nan nan 0 0 0 
+103329 1 nan nan nan nan nan nan 0 0 0 
+103330 2 nan nan nan nan nan nan 0 0 0 
+103331 2 nan nan nan nan nan nan 0 0 0 
+103332 2 nan nan nan nan nan nan 0 0 0 
+103333 2 nan nan nan nan nan nan 0 0 0 
+103334 1 nan nan nan nan nan nan 0 0 0 
+103335 1 nan nan nan nan nan nan 0 0 0 
+103336 1 nan nan nan nan nan nan 0 0 0 
+103337 2 nan nan nan nan nan nan 0 0 0 
+103338 2 nan nan nan nan nan nan 0 0 0 
+103339 1 nan nan nan nan nan nan 0 0 0 
+103340 2 nan nan nan nan nan nan 0 0 0 
+103341 1 nan nan nan nan nan nan 0 0 0 
+103342 2 nan nan nan nan nan nan 0 0 0 
+103343 1 nan nan nan nan nan nan 0 0 0 
+103344 2 nan nan nan nan nan nan 0 0 0 
+103345 2 nan nan nan nan nan nan 0 0 0 
+103346 1 nan nan nan nan nan nan 0 0 0 
+103347 2 nan nan nan nan nan nan 0 0 0 
+103348 2 nan nan nan nan nan nan 0 0 0 
+103349 2 nan nan nan nan nan nan 0 0 0 
+103350 1 nan nan nan nan nan nan 0 0 0 
+103351 1 nan nan nan nan nan nan 0 0 0 
+103352 1 nan nan nan nan nan nan 0 0 0 
+103353 2 nan nan nan nan nan nan 0 0 0 
+103354 2 nan nan nan nan nan nan 0 0 0 
+103355 2 nan nan nan nan nan nan 0 0 0 
+103356 2 nan nan nan nan nan nan 0 0 0 
+103357 2 nan nan nan nan nan nan 0 0 0 
+103358 2 nan nan nan nan nan nan 0 0 0 
+103359 1 nan nan nan nan nan nan 0 0 0 
+103360 1 nan nan nan nan nan nan 0 0 0 
+103361 2 nan nan nan nan nan nan 0 0 0 
+103362 1 nan nan nan nan nan nan 0 0 0 
+103363 1 nan nan nan nan nan nan 0 0 0 
+103364 2 nan nan nan nan nan nan 0 0 0 
+103365 1 nan nan nan nan nan nan 0 0 0 
+103366 2 nan nan nan nan nan nan 0 0 0 
+103367 2 nan nan nan nan nan nan 0 0 0 
+103368 2 nan nan nan nan nan nan 0 0 0 
+103369 2 nan nan nan nan nan nan 0 0 0 
+103370 1 nan nan nan nan nan nan 0 0 0 
+103371 1 nan nan nan nan nan nan 0 0 0 
+103372 2 nan nan nan nan nan nan 0 0 0 
+103373 2 nan nan nan nan nan nan 0 0 0 
+103374 2 nan nan nan nan nan nan 0 0 0 
+103375 1 nan nan nan nan nan nan 0 0 0 
+103376 1 nan nan nan nan nan nan 0 0 0 
+103377 1 nan nan nan nan nan nan 0 0 0 
+103378 1 nan nan nan nan nan nan 0 0 0 
+103379 1 nan nan nan nan nan nan 0 0 0 
+103380 2 nan nan nan nan nan nan 0 0 0 
+103381 2 nan nan nan nan nan nan 0 0 0 
+103382 2 nan nan nan nan nan nan 0 0 0 
+103383 1 nan nan nan nan nan nan 0 0 0 
+103384 2 nan nan nan nan nan nan 0 0 0 
+103385 1 nan nan nan nan nan nan 0 0 0 
+103386 1 nan nan nan nan nan nan 0 0 0 
+103387 2 nan nan nan nan nan nan 0 0 0 
+103388 1 nan nan nan nan nan nan 0 0 0 
+103389 1 nan nan nan nan nan nan 0 0 0 
+103390 1 nan nan nan nan nan nan 0 0 0 
+103391 2 nan nan nan nan nan nan 0 0 0 
+103392 1 nan nan nan nan nan nan 0 0 0 
+103393 1 nan nan n

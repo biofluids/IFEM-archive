@@ -2,21 +2,17 @@
 ! get correction term
 !=====================================
 
-subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
+subroutine get_correction_mf(x_inter,x_center,corr_Ip,I_fluid_center)
 
   use interface_variables
   use fluid_variables, only:nn,ne,nsd
   use allocate_variables, only:center_domain,nn_center_domain
   use mpi_variables
-  use solid_bc_var
   include 'mpif.h'
   real(8) x_inter(nsd,maxmatrix)
-  real(8) x_center(nsd,ne)
-  real(8) hg(ne)
+  real(8) x_center(nsd,nn_center)
   real(8) corr_Ip(maxmatrix)
-  real(8) I_fluid_center(ne)
-!  real(8) x(nsd,nn),I_fluid(nn)
-!  integer,parameter :: length=5500
+  real(8) I_fluid_center(nn_center)
   integer i,j,ie,icount,jcount
   real(8) dx(nsd),hs,Sp
   real(8) BB(nn_inter), BB_temp(nn_inter)  !Ax=B
@@ -65,7 +61,7 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
      vec(1)=1.0
      do j=1,nn_center_domain
 	ie=center_domain(j)
-	hsg=hg(ie)
+	hsg=c_w(ie)
         dx(:)=abs(x_inter(:,i)-x_center(:,ie))
 	call B_Spline1(dx,hs,nsd,Sp,INFO)
 	if(INFO==1) then
@@ -86,7 +82,7 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
 
      do j=1,nn_center_domain
 	ie=center_domain(j)
-	hsg=hg(ie)
+	hsg=c_w(ie)
 	dx(:)=abs(x_inter(:,i)-x_center(:,ie))
 	call B_Spline1(dx,hs,nsd,Sp,INFO)
 	if(INFO==1) then
@@ -109,10 +105,7 @@ subroutine get_correction_mf(x_inter,x_center,hg,corr_Ip,I_fluid_center)
   call mpi_allreduce(RW_temp(1,1),RW(1,1),(nsd+1)*nn_inter,mpi_double_precision, &
 		mpi_sum,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
-!     BB(:)=0.5-BB(:)
-  BB(1:nn_inter)=0.5-BB(1:nn_inter)
-!  BB(nn_inter_ini+1:nn_inter)=0.5-BB(nn_inter_ini+1:nn_inter)
-
+     BB(:)=0.5-BB(:)
   call gmres_correction_mf(x_inter,BB,w,RW,nsd,nn_inter,nn_inter_loc)
   !   call DGESV(nn_inter,1,A,nn_inter,IPIV,BB,nn_inter,INFO)
 

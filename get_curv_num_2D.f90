@@ -4,16 +4,15 @@
 
 !==========================================
 
-subroutine get_curv_num_2D(x,xp,x_center,hg,I_fluid_center,corr_Ip,&
+subroutine get_curv_num_2D(x,xp,x_center,I_fluid_center,corr_Ip,&
 			curv_n,curv_inter,norm_inter)
 
   use interface_variables
   use fluid_variables, only:nsd,ne,nn
 
-  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,ne)
-  real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
+  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,nn_center)
+  real(8) I_fluid_center(nn_center),corr_Ip(maxmatrix)
   real(8) curv_n,curv_inter,norm_inter(nsd)
-  real(8) hg(ne)
 
   real(8) eps
   real(8) II,dI(nsd),ddI(3*(nsd-1))
@@ -26,13 +25,13 @@ subroutine get_curv_num_2D(x,xp,x_center,hg,I_fluid_center,corr_Ip,&
   eps=1.0e-5
   dI(:)=0.0
   x_c(1:nsd)=x(1:nsd)
-  call get_indicator_derivative_2D(x_c,xp,x_center,hg,I_fluid_center,corr_Ip,&
+  call get_indicator_derivative_2D(x_c,xp,x_center,I_fluid_center,corr_Ip,&
 				II,dI,ddI,norm_a,curv_a)
 curv_inter=curv_a
 norm_inter(1:nsd)=norm_a(1:nsd)
 !===================================
   x_c(1)=x_c(1)+eps
-  call get_indicator_derivative_2D(x_c,xp,x_center,hg,I_fluid_center,corr_Ip,&
+  call get_indicator_derivative_2D(x_c,xp,x_center,I_fluid_center,corr_Ip,&
                                 II,dI,ddI,norm_a,curv_x)
 
   dcurv_x=(curv_x-curv_a)/eps
@@ -40,7 +39,7 @@ norm_inter(1:nsd)=norm_a(1:nsd)
 !====================================
   x_c(1:nsd)=x(1:nsd)
   x_c(2)=x_c(2)+eps
-  call get_indicator_derivative_2D(x_c,xp,x_center,hg,I_fluid_center,corr_Ip,&
+  call get_indicator_derivative_2D(x_c,xp,x_center,I_fluid_center,corr_Ip,&
                                 II,dI,ddI,norm_a,curv_y)
 
   dcurv_y=(curv_y-curv_a)/eps

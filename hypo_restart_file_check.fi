@@ -3,7 +3,7 @@
      tt = t_start
      klok = 0
      restart_klok = 0
-  else if (restart .gt. 0) then
+  else
      write(*,*) "check restart files..."
      open(unit=restart_u1, file='restart1.bin', status='old', form='unformatted', iostat = ios1)
      open(unit=restart_u2, file='restart2.bin', status='old', form='unformatted', iostat = ios2)
@@ -32,44 +32,4 @@
         if (nts_test2 > 0) write(*,*) "                                        and: ",nts_test2
         stop
      endif
-   else if (restart == -999) then
-	if (myid == 0) then
-	write(*,*) 'running long jobs continously, clean up all the resart bin first!!!'
-	end if
-	open(unit=restart_u1, file='restart1.bin', status='old', form='unformatted', iostat = ios1)
-        open(unit=restart_u2, file='restart2.bin', status='old', form='unformatted', iostat = ios2)
-	if ((ios1 .ne. 0) .and. (ios2 .ne. 0)) then
-	        nts_start = 1
-	        tt = t_start
-  	        klok = 0
-   	        restart_klok = 0
-		restart = 0
-	end if
-	
-	if ((ios1 == 0) .and. (ios2 .ne. 0)) then
-        	read(unit=restart_u1) nts_test1
-        	close(restart_u1)
-		restart = nts_test1
-		if (myid ==0) write(*,*) 'Restart from time step', restart
-        endif
-	
-	if ((ios2 == 0) .and.( ios1 .ne. 0)) then
-       		 read(unit=restart_u2) nts_test2
-      		 close(restart_u2)
-		 restart = nts_test2
-                 if (myid ==0) write(*,*) 'Restart from time step', restart
-
-        endif
-
-	if ((ios1 == 0) .and. (ios2 == 0)) then
- 		 read(unit=restart_u1) nts_test1
-                 close(restart_u1)
-                 read(unit=restart_u2) nts_test2
-                 close(restart_u2)
-		 restart = MAX0(nts_test1,nts_test2)
-                 if (myid ==0) write(*,*) 'Restart from time step', restart
-	end if
-
-
-
   endif

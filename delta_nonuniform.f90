@@ -327,8 +327,8 @@ subroutine delta_exchange(data_solids,nn_solids,data_fluids,nn_fluids,ndelta,dv,
 !	force_solid = sqrt(force_solid)
 !	force_fluid = sqrt(force_fluid)
 
-       write(*,*) 'norm of force in solid', sum(data_solids(1,:))
-       write(*,*) 'norm of force in fluid', sum(data_fluids(1,:))
+       write(*,*) 'norm of force in solid', sum(data_solids(1,:)),sum(data_solids(2,:))
+       write(*,*) 'norm of force in fluid', sum(data_fluids(1,:)),sum(data_fluids(2,:))
 
      endif
   else

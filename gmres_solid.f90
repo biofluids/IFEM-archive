@@ -5,7 +5,8 @@ subroutine gmres_solid(x,w,bg,dg,ien,id,nsd,nn,ne,nen,inner,outer,nquad,wq,sq,x_
 	use mpi_variables, only: myid
 	implicit none
 ! use GMRES to solve mesh update equation  with diagonal preconditioner
-	real* 8 x(nsd,nn),id(nsd,nn)
+	real* 8 x(nsd,nn)
+        integer id(nsd,nn)
 	real* 8 ien(ne,nen)
 	real* 8 bg(nsd*nn), dg(nsd*nn), w(nsd*nn)
 	real* 8 Hm(inner+1,inner) !Henssenberg matrix
@@ -30,7 +31,7 @@ subroutine gmres_solid(x,w,bg,dg,ien,id,nsd,nn,ne,nen,inner,outer,nquad,wq,sq,x_
         real(8) sq(0:3,8,8)
 !---------------------------------------------
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8 e1(inner+1)
 	real* 8 x0(nsd*nn)
 	real* 8 beta(inner+1)
 	real* 8 eps
@@ -65,7 +66,7 @@ subroutine gmres_solid(x,w,bg,dg,ien,id,nsd,nn,ne,nen,inner,outer,nquad,wq,sq,x_
 
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
-	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))
+	do 111, while((iouter .le. outer) .and. (rnorm .ge. 1.0e-5))
 
 	Vm(:,:) = 0
 	do icount = 1, nsd*nn

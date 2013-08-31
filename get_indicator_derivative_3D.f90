@@ -2,22 +2,21 @@
 !used to calculate the derivative of the indicator for a point
 !=================================================
 
-subroutine get_indicator_derivative_3D(x,xp,x_center,hg,I_fluid_center,corr_Ip, &
+subroutine get_indicator_derivative_3D(x,xp,x_center,I_fluid_center,corr_Ip, &
 				  II,dI,ddI,&
 				  norm_p, curv_p)
 
   use interface_variables
   use fluid_variables,only:nsd,ne,nn
-!  use allocate_variables, only:nn_center_domain,center_domain
+  use allocate_variables, only:nn_center_domain,center_domain
   use mpi_variables
   implicit none
-  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,ne)
-  real(8) hg(ne)
-  real(8) I_fluid_center(ne),corr_Ip(maxmatrix)
+  real(8) x(nsd),xp(nsd,maxmatrix),x_center(nsd,nn_center)
+  real(8) I_fluid_center(nn_center),corr_Ip(maxmatrix)
 !  real(8) sum_0d(2),sum_1d(2,nsd),sum_2d(2,3*(nsd-1))
   real(8) II,dI(nsd),ddI(3*(nsd-1))
   real(8) norm_p(nsd),curv_p
-  integer nn_center_domain, center_domain(ne)
+!  integer nn_center_domain, center_domain(ne)
 
   integer i,j,isd,jsd
   real(8) hsg,S(nsd),Sp(nsd),Spp(nsd),temp,dx
@@ -30,22 +29,22 @@ subroutine get_indicator_derivative_3D(x,xp,x_center,hg,I_fluid_center,corr_Ip, 
   real(8) P(nsd+1)
   real(8) vec(nsd+1,nsd*4-2)     !vec,vec_x,vec_y,vec_xx,vec_yy,vec_xy
   integer IP(nsd+1), INFO
-  real(8) Phi(nsd*4-2,ne)           !Phi,Phix,Phiy,Phixx,Phiyy,Phixy
+  real(8) Phi(nsd*4-2,nn_center_domain)           !Phi,Phix,Phiy,Phixx,Phiyy,Phixy
   real(8) Phi_inter(nsd*4-2,nn_inter)
   integer icount
   real(8) dtemp(nsd*4-2)
   real(8) Mtemp(nsd+1,nsd+1)
 !=======================
 
-  integer index_center(ne,8),index_inter(nn_inter)
+  integer index_center(nn_center_domain,8),index_inter(nn_inter)
   integer inode
   real(8) wp
 !used to calculate the 1st&2nd derivative of indicator
 
-  nn_center_domain=ne
-  do icount=1,ne
-     center_domain(icount)=icount
-  end do
+!  nn_center_domain=ne
+!  do icount=1,ne
+!     center_domain(icount)=icount
+!  end do
   
   II=0.0
   dI(:)=0.0
@@ -151,7 +150,7 @@ subroutine get_indicator_derivative_3D(x,xp,x_center,hg,I_fluid_center,corr_Ip, 
      vec(2,2)=1.0
      vec(3,3)=1.0
      vec(4,4)=1.0
-     hsg=hg(center_domain(j))
+     hsg=c_w(center_domain(j))
      wp=hsg**nsd/hsp**nsd
 !=========================================================
      do icount=1,nsd+1
@@ -360,7 +359,7 @@ end if
      vec(3,3)=1.0
      vec(4,4)=1.0
      dtemp(:)=0.0
-     hsg=hg(center_domain(j))
+     hsg=c_w(center_domain(j))
      wp=(hsg**nsd)/(hsp**nsd)
      do icount=1,nsd+1
 	dtemp(1)=dtemp(1)+vec(icount,1)*B(icount,1)

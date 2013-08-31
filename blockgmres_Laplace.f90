@@ -3,7 +3,7 @@
 !!!!!!!residual for Laplace eqn!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine  blockgmres_Laplace(xloc,I_solid,p_inter,ien,lp_el,count_el)
+subroutine  blockgmres_Laplace(xloc,I_fluid,p_inter,ien,lp_el,count_el)
   use global_constants
   use run_variables
   use fluid_variables
@@ -11,12 +11,12 @@ subroutine  blockgmres_Laplace(xloc,I_solid,p_inter,ien,lp_el,count_el)
 
   integer ien(nen,ne)
   real(8) xloc(nsd,nn)
-  real(8) I_solid(nn)
+  real(8) I_fluid(nn)
   real(8) p_inter(nn)
 !  real(8) w_inter(nn)
 !---------------------
   integer count_el
-  integer lp_el(count_el)
+  integer lp_el(nn)
 !---------------------
   real(8) x(nsd,nen),d(nen)
   real(8) eft0,det,effd,effm,effc
@@ -33,7 +33,7 @@ subroutine  blockgmres_Laplace(xloc,I_solid,p_inter,ien,lp_el,count_el)
 !   do ie=1,ne
      do inl=1,nen
 	x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-	d(inl) = I_solid(ien(inl,ie))
+	d(inl) = I_fluid(ien(inl,ie))
      end do
 
 

@@ -1,0 +1,51 @@
+.SUFFIXES: .f90
+LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
+          /usr/opt/BLAS/blas_LINUX.a
+OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
+r_common.o fluid_variables.o solid_variables.o mpi_variables.o ale_variables.o \
+interface_variables.o allocate_variables.o\
+delta_nonuniform.o \
+ensight_output.o form.o \
+meshgen_interface.o meshgen_solid.o meshgen_fluid.o \
+read.o parseinput.o correct.o  echoinput.o equal.o error.o \
+facemap.o gaussj.o gjinv.o hg.o hypo.o initialize.o length.o main.o \
+nondimension.o norm.o quad3d4n.o quad3d8n.o quad2d3n.o quad2d4n.o \
+r_bdpd_curr.o r_bdpd_init.o r_element.o r_sbpress.o r_jacob.o r_load.o \
+r_nodalf.o r_sboc.o r_scal.o r_scauchy.o r_smaterj.o  r_spiola.o \
+r_spiola_viscous.o r_spiola_elastic.o r_spress.o r_sreadinit.o r_sstif.o \
+r_sstrain.o r_stang.o r_stoxc.o r_timefun.o rkpmshape2d.o rkpmshape3d.o \
+set.o shape.o solid_solver.o solid_update.o update.o vol.o \
+data_exchange_FEM.o getinf_el_3d.o determinant.o inverse.o search_3d.o \
+migs.o search_inf.o shx_tets.o energy_solid.o energy_fluid.o volcorr.o \
+cg.o mergefinf.o readpart.o setnqloc.o search_inf_pa.o getinf_el_3d_pa.o \
+edgeele.o nature_pre.o nature_pre_3d.o nature_totpre.o nature_totpre_3d.o \
+givens.o \
+communicate_res.o getnorm_pa.o equal_pa.o vector_dot_pa.o \
+blockdiagstable.o gmresnew.o blockgmresnew.o \
+setnei_new.o communicate_res_nei.o communicate_res_ad.o setid_pa.o \
+solid_node_volume.o  source_laplace.o read_solidbc.o read_solidnodebc.o \
+solid_normint.o outnormal_2d.o solid_normint_3d.o outnormal_tet.o outnormal_hex.o \
+gmres_Laplace.o solve_laplace.o block_Laplace.o blockgmres_Laplace.o \
+rkpm_nodevolume.o rkpm_init.o getinf_rkpm.o search_inf_re.o \
+solve_solid_disp.o block_solid.o gmres_solid.o blockgmres_solid.o form_solidid.o \
+setsolid_id.o res_solid.o block_solid_res.o apply_2ndbc_solid.o apply_2ndbc_solid2d.o\
+pre_process_interface.o pts_regen.o\
+scale_shift_inter.o normal_node.o get_submesh_info.o norm_contact_ele.o\
+find_fluid_domain_pa.o find_domain_pa.o search_inf_pa_inter.o get_inter_ele.o\
+indicator_initialize.o mass_conserve.o get_correction_mf.o get_fluid_property.o\
+cal_mass.o cal_Length.o gmres_correction_mf.o set_center_after.o gmrescurv.o\
+points_regeneration.o regulate_points.o find_inter.o get_sur_cf.o solve_curvature.o\
+block_curv.o blockgmres_curv.o res_rotation_reverse.o res_slipbc_precon_3D.o res_slipbc_3D.o\
+formid_spbc.o res_slipbc_precon.o res_slipbc.o res_rotation_precon.o res_rotation.o\
+shape_det_face.o update_center_indicator.o update_x_inter.o get_inter_vel.o\
+block_Laplace_inter.o blockgmres_Laplace_inter.o gmres_Laplace_inter.o solve_indicator_laplace.o\
+B_Spline1.o B_Spline_0order.o B_Spline_1order.o B_Spline_2order.o\
+get_indicator_derivative_2D_1st.o get_indicator_derivative_3D_1st.o get_indicator_2D.o get_indicator_3D.o\
+get_curv_num_2D.o get_curv_num_3D.o get_indicator_derivative_2D.o get_indicator_derivative_3D.o
+
+IFEM: $(OBJ)
+	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)
+.f90.o:
+	mpif90 -c -g $<
+clean:
+	rm -rf *.o *.mod IFEM

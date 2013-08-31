@@ -14,9 +14,9 @@
      read(restart_unit) solid_fem_con,solid_surface,solid_coor_init,solid_coor_curr, &
                         solid_vel, solid_prevel, solid_accel,                        &
                         nn_solid, ne_solid, nn_solid_1, ne_solid_1, nsd_solid,       &
-                        n_solid, nen_solid, iquad_solid, solid_coor_pre1, solid_coor_pre2, &
-                        solid_pave, solid_bcvel, &
-			I_fluid_center,nn_inter,x_inter,I_fluid
+                        n_solid, nen_solid, iquad_solid,solid_coor_pre1,solid_coor_pre2,&
+		        solid_pave,solid_bcvel,&
+			I_fluid_center,nn_inter,x_inter,I_fluid		
      close(restart_unit)
 
      write(*,*) " "

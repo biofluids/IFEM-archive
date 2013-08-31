@@ -122,7 +122,7 @@ disp2(:,:)=xpre2(:,:) - x(:,:)
 
 
 w(:,:)=0.0d0
-!p(:,:)=0.0d0
+p(:,:)=0.0d0
 
 call block_solid_res(x_curr,disp,w,p,ien,nsd_solid,nen_solid,ne_solid,&
 		nn_solid,nquad_solid,wq_solid,sq_solid,disp1,disp2,solid_acc,pre,solid_bcvel,solid_bcvel_old,solid_vel)

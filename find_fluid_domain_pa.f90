@@ -2,30 +2,19 @@
 !find center & den calculation domain pa
 !=====================================
 
-subroutine find_fluid_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,nn_local,node_local,I_solid)
+subroutine find_fluid_domain_pa(x,x_inter,nn_local,node_local)
 
   use interface_variables, only:nn_inter,maxmatrix,hsp,max_hg
   use fluid_variables,only:nsd,ne,nn
-!  use denmesh_variables, only:nn_den,ne_den,nen_den
   use allocate_variables, only:fluid_domain,nn_fluid_domain
   use mpi_variables
   include 'mpif.h'
 
-  real(8) x_center(nsd,ne),x(nsd,nn)
-!  real(8) x_den(nsd,nn_den)
+  real(8) x(nsd,nn)
   real(8) x_inter(nsd,maxmatrix)
-  integer ne_intlocal
-  integer ien_intlocal(ne_intlocal)
   integer nn_domain_local
-!  integer domain_local(ne_intlocal)
-  integer domain_local(ne_intlocal)
   integer domain_nlocal(nn_local)
-   real(8) hg(ne)
   integer nn_local,node_local(nn_local)
-  real(8) I_solid(nn)
-!  integer ne_local_den
-!  integer ien_local_den(ne_local_den)
-!  integer ien_den(nen_den,ne_den)
 
   integer i,j,icount,jcount,ie,isd,inl
   real(8) temp,support,den_center(nsd)
@@ -34,10 +23,9 @@ subroutine find_fluid_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,n
   integer index_local_temp(ncpus),index_local(ncpus)
   integer lower
   integer,dimension(:),allocatable :: domain_temp
-!  support=4.0*maxval(hg(:))
 
 !**********************************************!
-  support=4.0*hsp  !4*hg is enough for the regenration part
+  support=6.0*hsp  !4*hg is enough for the regenration part
   nn_domain_local=0
   index_local_temp(:)=0
   index_local(:)=0
@@ -57,10 +45,8 @@ subroutine find_fluid_domain_pa(x,x_center,x_inter,ne_intlocal,ien_intlocal,hg,n
      end do
 300 continue
     if(flag==1) then
-!       if(I_solid(ie).lt.0.5) then 
         nn_domain_local=nn_domain_local+1
         domain_nlocal(nn_domain_local)=ie
-!       end if
     end if
   end do
   index_local_temp(myid+1)=nn_domain_local

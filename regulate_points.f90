@@ -1,6 +1,6 @@
 
 
-subroutine regulate_points(x_inter_regen,x,nn_inter_regen,ien,hg,ne_intlocal,ien_intlocal)
+subroutine regulate_points(x_inter_regen,x,nn_inter_regen,ien,ne_intlocal,ien_intlocal)
 
   use fluid_variables, only:nsd,ne,nen,nn
   use interface_variables
@@ -11,19 +11,17 @@ subroutine regulate_points(x_inter_regen,x,nn_inter_regen,ien,hg,ne_intlocal,ien
   real(8) x_inter_regen(nsd,maxmatrix),x(nsd,nn)
   integer nn_inter_regen,ien(nen,ne)
   integer ne_intlocal,ien_intlocal(ne_intlocal)
-  real(8) hg(ne)
 
   integer infdomain_regen(maxmatrix)
   integer i,j,icount,jcount,inl,node,ie,isd,ncount,mcount
 
   integer nn_loc,base,top,loc_index
 
-  real(8) x_ele(nsd,50),tol,x_regen_temp(nsd,maxmatrix)
+  real(8) x_ele(nsd,200),tol,x_regen_temp(nsd,maxmatrix)
   integer nn_ele,index_nn(ncpus),index_nn_temp(ncpus)
   integer nn_local,nn_local_new,lower
   real(8) x_local(nsd,nn_inter_regen)
 
-if(myid==0)write(*,*)'begin points regulation'
   infdomain_regen(:)=0
   x_local(:,:)=0.0
   
@@ -51,11 +49,13 @@ if(myid==0)write(*,*)'begin points regulation'
   nn_local_new=0
   do loc_index=1,nn_loc
      i=myid+1+(loc_index-1)*ncpus
-     tol=hg(inter_ele(i))/10.0    
+!     tol=hg(inter_ele(i))/8.0    
+     tol=max_hg/5.0
      nn_ele=0
      do icount=1,nn_inter_regen
         if(inter_ele(i)==infdomain_regen(icount)) then
           nn_ele=nn_ele+1
+if(nn_ele.gt.200)write(*,*)'exceed matrix limit in regulate_points.f90'
           x_ele(:,nn_ele)=x_inter_regen(:,icount)
         end if
      end do
@@ -88,7 +88,6 @@ if(myid==0)write(*,*)'begin points regulation'
   call mpi_allreduce(x_regen_temp(1,1),x_inter_regen(1,1),nsd*maxmatrix,mpi_double_precision, &
 			mpi_sum,mpi_comm_world,ierror)
   call mpi_barrier(mpi_comm_world,ierror)
-if(myid==0)write(*,*)'nn_regen_after_regulation',nn_inter_regen
 
 end subroutine regulate_points
 

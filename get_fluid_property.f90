@@ -2,18 +2,18 @@
 !find out arclength ,surface tension, indicator for fluid field
 !==========================================!
 
-subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
-		I_fluid,I_solid)
+subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip, &
+		I_fluid)
 
   use interface_variables
-  use fluid_variables, only:nn,ne,nsd,den_liq
+  use fluid_variables, only:nn,ne,nsd,den_liq,nen
   use mpi_variables
   use allocate_variables,only:nn_fluid_domain,fluid_domain
   include 'mpif.h'
-  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,ne)
-  real(8) I_fluid_center(ne),corr_Ip(maxmatrix),hg(ne)
+  real(8) x(nsd,nn),x_inter(nsd,maxmatrix),x_center(nsd,nn_center)
+  real(8) I_fluid_center(nn_center),corr_Ip(maxmatrix)
   real(8) I_fluid(nn),II_fluid_temp(nn_fluid_domain),II_fluid(nn_fluid_domain)
-  real(8) I_solid(nn)
+
   integer i,j,icount,jcount,ie,inl,node,isd,ii
   real(8) dx(nsd),hsg,Sp
   real(8) dcurv,temp,Bsum
@@ -54,8 +54,8 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
      P(:)=0.0
      P(1)=1.0
      vec(1)=1.0
-     do j=1,ne
-	hsg=hg(j)
+     do j=1,nn_center
+	hsg=c_w(j)
 	dx(:)=abs(x(:,i)-x_center(:,j))
 	call B_Spline1(dx,hsp,nsd,Sp,INFO)
 	if(INFO==1) then
@@ -69,8 +69,8 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
      end do
      call DGESV(nsd+1,1,M,nsd+1,IP,P,nsd+1,INFO)
      B(:)=P(:)
-     do j=1,ne
-	hsg=hg(j)
+     do j=1,nn_center
+	hsg=c_w(j)
         dx(:)=abs(x(:,i)-x_center(:,j))
         call B_Spline1(dx,hsp,nsd,Sp,INFO)
 	if(INFO==1) then
@@ -110,8 +110,8 @@ subroutine get_fluid_property(x,x_inter,x_center,I_fluid_center,corr_Ip,hg, &
 do icount=1,nn_fluid_domain
    node=fluid_domain(icount)
    I_fluid(node)=II_fluid(icount)
-!   if(I_solid(node).ge.0.49999) I_fluid(node)=0.5
 end do
+
 
 end subroutine get_fluid_property
 

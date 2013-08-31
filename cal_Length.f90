@@ -91,7 +91,16 @@ subroutine cal_length(x_inter,dmass,x,I_fluid,ien,Length)
        end if
        xloc(1,nloc)=-1.0
      end if
-if(nloc.ne.2)write(*,*)'in cal length somehting is wrong, no I is greater than 0.5'
+!if(myid==0) then
+!  write(*,*)'xloc1=',xloc(1:2,1)
+!  write(*,*)'xloc2=',xloc(1:2,2)
+!end if
+!     if(nloc.ne.2) then
+!       write(*,*)'exceedd points in edge'
+!       write(*,*)'ie=',ie
+!       write(*,*)'II=',II(1:4)
+!       stop
+!     end if
      if(nloc==2) then
 
      x_edge(:,:)=0.0
@@ -104,9 +113,24 @@ if(nloc.ne.2)write(*,*)'in cal length somehting is wrong, no I is greater than 0
            x_edge(:,i)=x_edge(:,i)+sh(inl)*x(:,ien(inl,ie))
 	end do
      end do
+!     if(myid==0) then
+!     write(*,*)'x1=',x(:,ien(1,ie))
+!     write(*,*)'x2=',x(:,ien(2,ie))
+!     write(*,*)'x3=',x(:,ien(3,ie))
+!     write(*,*)'x4=',x(:,ien(4,ie))
+!     write(*,*)'x_edge1=',x_edge(:,1)
+!     write(*,*)'x_edge2=',x_edge(:,2)
+!     end if
      Length0=Length0+sqrt((x_edge(1,1)-x_edge(1,2))**2+(x_edge(2,1)-x_edge(2,2))**2)
      end if
+    if(nloc.ne.2) then
+       write(*,*)'ie=',ie,'I=',II(1:4)
+     Length0=Length0+max_hg
+    end if
+
+
   end do
+!write(*,*)'myid=',myid,'Length0=',Length0
      call mpi_barrier(mpi_comm_world,ierror)
      call mpi_allreduce(Length0,Length,1,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
      call mpi_barrier(mpi_comm_world,ierror)
