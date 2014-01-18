@@ -15,7 +15,6 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   character(len=13) :: file_name
   character(len=13) :: pre_name
   character(len=13) :: vel_name
-  character(len=13) :: acc_name
   character(len=13) :: FSI_name
   character(len=16) :: stress
   character(len=16) :: strain     
@@ -44,7 +43,6 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   file_name = 'fem.geo******'
   pre_name  = 'fem.pre******'
   vel_name  = 'fem.vel******'
-  acc_name  = 'fem.acc******'
   fsi_name  = 'fem.fsi******'
   stress    = 'fem.stress******'
   strain    = 'fem.strain******'
@@ -64,7 +62,6 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   write(20, '(A8)') 'VARIABLE'
   write(20, 5002) 'scalar per node:', ts, 'pressure', pre_name 
   write(20, 5002) 'vector per node:', ts, 'velocity', vel_name
-  write(20, 5002) 'vector per node:', ts, 'accelera', acc_name
   write(20, 5002) 'vector per node:', ts, 'forceFSI', FSI_name
   write(20, 5002) 'scalar per node:', ts, 'Indicator',Indicator
 
@@ -335,18 +332,14 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(dt,d,dg,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,solid_accel &
-                         ,klok,f_stress,I_fluid)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress,I_fluid)
   use solid_variables
   use fluid_variables, only: nn,ndf,nsd,vis_liq
   use run_variables, only: its
   implicit none
 
-  real(8) dt
   real(8) :: d(ndf,nn)
-  real(8) :: dg(ndf,nn)
   real(8) :: f_fluids(nsd,nn)
-  real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_accel
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
   real(8),dimension (nsd,nsd,nn) :: f_stress
@@ -364,7 +357,6 @@ subroutine zfem_ensFluid(dt,d,dg,f_fluids,solid_force_FSI,solid_vel,solid_pave,s
   character(len=17) :: name_file4
   character(len=14) :: name_file5
   character(len=14) :: name_file6
-  character(len=14) :: name_file7
   integer,parameter :: ifileunit = 16
 
   ! Fluid stress and strain rate, Voigt notation
@@ -421,7 +413,6 @@ subroutine zfem_ensFluid(dt,d,dg,f_fluids,solid_force_FSI,solid_vel,solid_pave,s
 
 
   write(name_file1,'(A7,  A6)')  'fem.vel', fileroot
-  write(name_file7,'(A7,  A6)')  'fem.acc', fileroot
   write(name_file2,'(A7,  A6)')  'fem.pre', fileroot
   write(name_file3,'(A10, A6)')  'fem.stress', fileroot
   write(name_file4,'(A10, A6)')  'fem.strain', fileroot
@@ -439,14 +430,6 @@ if (nsd==3) then
   write(ifileunit, '(A)')   'structure and fluid field: velocity vector'
   write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),solid_vel(3,in),in=1,nn_solid), &
                        (d(1,in),d(2,in),d(3,in),in=1,nn)
-  close(ifileunit)
-
-!...Write velocity output in ens_movie.vel*
-  write(*,*) 'writing... ', name_file7
-  open(ifileunit, file=name_file7, form='formatted')
-  write(ifileunit, '(A)')   'structure and fluid field: acceleration vector'
-  write(ifileunit,110) (solid_accel(1,in),solid_accel(2,in),solid_accel(3,in),in=1,nn_solid), &
-                       (dg(1,in)/dt,dg(2,in)/dt,dg(3,in)/dt,in=1,nn)
   close(ifileunit)
 
  !...Write Interaction force output in ens_movie.fsi*
@@ -504,14 +487,6 @@ elseif (nsd==2) then
   write(ifileunit, '(A)')   'structure and fluid field: velocity vector'
   write(ifileunit,110) (solid_vel(1,in),solid_vel(2,in),0.0,in=1,nn_solid), &
                        (d(1,in),d(2,in),0.0,in=1,nn)
-  close(ifileunit)
-
- !...Write acceleration output in ens_movie.acc*
-  write(*,*) 'writing... ', name_file7
-  open(ifileunit, file=name_file7, form='formatted')
-  write(ifileunit, '(A)')   'structure and fluid field: acceleration vector'
-  write(ifileunit,110) (solid_accel(1,in),solid_accel(2,in),0.0,in=1,nn_solid), &
-                       (dg(1,in)/dt,dg(2,in)/dt,0.0,in=1,nn)
   close(ifileunit)
 
  !...Write Interaction force output in ens_movie.fsi*

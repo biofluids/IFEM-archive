@@ -1,4 +1,3 @@
-if(restart /= -888) then
      if (nts_test1 == restart) then
         restart_unit = restart_u1
         open(unit=restart_unit, file='restart1.bin', status='old', form='unformatted')
@@ -6,11 +5,6 @@ if(restart /= -888) then
         restart_unit = restart_u2
         open(unit=restart_unit, file='restart2.bin', status='old', form='unformatted')
      endif
-
-elseif(restart == -888) then
-    restart_unit=restart_u1
-    open(unit=restart_unit, file=resfilename, status='old', form='unformatted')
-endif
 
     !...simulation data
      read(restart_unit) nts_start,tt,klok,restart_klok
@@ -26,5 +20,3 @@ endif
 
      write(*,*) " "
      write(*,*) " restart information succesfully read"
-
-

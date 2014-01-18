@@ -3,8 +3,7 @@
 subroutine gmres_solid(x,w,bg,dg,ien,id,nsd,nn,ne,nen,inner,outer,nquad,wq,sq,x_pre1,&
 			solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype)
 	use mpi_variables, only: myid
-include 'mpif.h'
-!	implicit none
+	implicit none
 ! use GMRES to solve mesh update equation  with diagonal preconditioner
 	real* 8 x(nsd,nn),id(nsd,nn)
 	real* 8 ien(ne,nen)
@@ -29,7 +28,6 @@ include 'mpif.h'
 	integer nquad
         real(8) wq(8)
         real(8) sq(0:3,8,8)
-real(8) time
 !---------------------------------------------
 	integer i,j,iouter,icount,INFO
 	integer e1(inner+1)
@@ -77,7 +75,7 @@ real(8) time
 	   beta(:) = rnorm*e1(:) ! get beta*e1
 	   Hm(:,:) = 0
 !!!!!!!!!!!!!!!!start inner loop!!!!!!!!!!!!!
-!        call date_and_time(values=time_arrary_0)  
+        call date_and_time(values=time_arrary_0)  
 	   do j=1,inner
 	  
 
@@ -87,11 +85,8 @@ real(8) time
 		vloc(:,:) = 0.0d0
 		call equal(dv,vloc,nsd*nn)
 		av_tmp(:,:) = 0.0d0
-!time=mpi_wtime()
 		call blockgmres_solid(x,vloc,av_tmp,ien,nsd,nen,ne,nn,nquad,wq,sq,x_pre1,&
 		solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype)
-!time=mpi_wtime()-time
-!if (myid==0) write(*,*) 'blockgmres_solid cost time', time
 		call equal(av_tmp,avloc,nsd*nn)
 		call setsolid_id(avloc,id,nsd)
 	      do i=1,j
@@ -121,22 +116,22 @@ real(8) time
  		 Vm(icount,j+1)=Vm(icount,j+1)/Hm(j+1,j)
 	      end do
 	  end do  ! end inner loop
-!	call date_and_time(values=time_arrary_1)
-!	start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
-!        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
+	call date_and_time(values=time_arrary_1)
+	start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
+        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
 !        write(*,*) 'Inner loop time', end_time-start_time
 
 
-!	call date_and_time(values=time_arrary_0)
+	call date_and_time(values=time_arrary_0)
 !	write(*,*) 'hm-hgivens', Hm(:,:)
 	call givens(Hm,inner,beta)
 !	call DGELS(TRAN,inner+1,inner,1,Hm,inner+1,beta,inner+1,workls,2*inner,INFO)
 	
 !	err_givens=maxval(abs(beta(1:inner)-x_givens(1:inner)))
 !	write(*,*) 'givens error', err_givens
-!        call date_and_time(values=time_arrary_1)
-!        start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
-!        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
+        call date_and_time(values=time_arrary_1)
+        start_time=time_arrary_0(5)*3600+time_arrary_0(6)*60+time_arrary_0(7)+time_arrary_0(8)*0.001
+        end_time=time_arrary_1(5)*3600+time_arrary_1(6)*60+time_arrary_1(7)+time_arrary_1(8)*0.001
 !	write(*,*) 'LS time by lapack', end_time-start_time
 !!!!!!!!!!!!beta(1:inner) is ym, the solution!!!!!!!!!!!!!!!!!!!!!!!!!
 	Vy(:) = 0

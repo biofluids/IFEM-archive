@@ -1,5 +1,7 @@
-subroutine solve_solid_disp(x,x_curr,kid,ien,node_sbc,xpre1,solid_prevel,solid_preacc,ien_sbc,&
-			solid_stress,solid_bcvel,mtype)
+subroutine solve_solid_disp_pa(x,x_curr,kid,ien,node_sbc,xpre1,solid_prevel,solid_preacc,ien_sbc,&
+			solid_stress,solid_bcvel,mtype,&
+			ne_local,ien_local,nn_local,node_local,send_address,ad_length,&
+			global_com,nn_global_com,local_com,nn_local_com)
 ! subroutine to solve the solid displacement at every time step
 ! x  -- initial solid configuration
 ! x_curr --- current solid configuration
@@ -15,10 +17,11 @@ subroutine solve_solid_disp(x,x_curr,kid,ien,node_sbc,xpre1,solid_prevel,solid_p
 ! solid_stress --- solid traction B.C.
 ! solid_bcvel --- solid velocity B.C.
 
-use mpi_variables, only: myid
+use mpi_variables
 use solid_variables
 use run_variables, only: dt
 implicit none
+include 'mpif.h'
 
 real(8) x(nsd_solid,nn_solid)
 real(8) x_curr(nsd_solid,nn_solid)
@@ -45,7 +48,7 @@ integer iq
 !-------------------------------------------------
 integer inner
 integer outer
-parameter (inner = 100) ! solid equation inner 50 should be sufficient
+parameter (inner = 200) ! solid equation inner 50 should be sufficient
 parameter (outer = 10)  ! solid equation outer 5 should be sufficient
 !-------------------------------------------------
 real(8) dg(nsd_solid,nn_solid) ! disp correction
@@ -54,11 +57,26 @@ real(8) p(nsd_solid,nn_solid)  ! residual vector
 real(8) res
 real(8) del
 integer i
+integer node
 !----------------------------
         real(8) alpha
         real(8) beta
         real(8) gama
 !----------------------------
+! MPI mesh partition variables
+integer ne_local
+integer ien_local(ne_local)
+integer nn_local
+integer node_local(nn_local)
+integer ad_length
+integer send_address(ad_length,2)
+integer nn_global_com
+integer global_com(nn_global_com)  ! global node index for communication
+integer nn_local_com
+integer local_com(nn_local_com)  ! local index in the communication region on each processor
+
+
+real(8) solid_bcforce(nsd_solid,nn_solid)
 ! define the numerical parameters
 alpha = -0.05 ! -1/3 < alpha < 0 and alpha == 0 is Newmark method
 gama = (1.0 - 2.0 * alpha) * 0.5
@@ -155,28 +173,42 @@ solid_acc(:,:) = solid_preacc(:,:)
 w(:,:)=0.0d0
 p(:,:)=0.0d0
 dg(:,:)=0.0d0 
+!p_rec(:,:) = 0.0
 
-call block_solid(x,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
+! Evaluate residual for solid equations in parallel
+call block_solid_pa(x,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
 		nn_solid,nquad_solid,wq_solid,sq_solid,xpre1,&
-		solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype)
-!do i=1,nn_sbc     
-!        p(1,node_sbc(i))=p(1,node_sbc(i)) + x(1,node_sbc(i))*0.01
-!end do
-call setsolid_id(p,kid,nsd_solid)
-call getnorm(p,p,nsd_solid*nn_solid,res)
+		solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
+		ne_local,ien_local)
+
+! commute residual for each processor
+
+call communicate_res_ad_subsolid(p,nsd_solid,nn_solid,send_address,ad_length)
+call communicate_res_ad_subsolid(w,nsd_solid,nn_solid,send_address,ad_length)
+
+
+
+!======================================
+! Apply 2nd type boundary
+! The MPI version the 2nd type BC has to be applied here
+        if (nsd_solid ==  2) then
+	call apply_2ndbc_solid2d(xpre1,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ien,ne_solid,solid_bcforce,solid_stress)
+	do i=1,nn_local
+	node=node_local(i)
+	p(1:nsd_solid,node) = p(1:nsd_solid,node) + solid_bcforce(1:nsd_solid,node)
+	end do
+	else
+	call apply_2ndbc_solid(xpre1,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ien,ne_solid,solid_bcforce,solid_stress)
+	p(:,:) = p(:,:) + solid_bcforce(:,:)
+	end if
+
+! Set 1st B.C. 
+call setid_pa(p,nsd_solid,nn_solid,kid,node_local,nn_local)
+call getnorm_pa(p,nsd_solid,nn_solid,node_local,nn_local,res)
 res=sqrt(res)
+
+
 if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
-
-!if (myid == 0) then
-!        open(unit=30, file='solidres_se.out', status='unknown')
-!	do i=1, nn_solid
-!	write(30,*) 'node', i, p(1:nsd_solid,i)
-!	end do
-!	close(30)
-!end if
-
-
-!if ( res .gt. 1e-6) then  ! solid disp need to be solved
 
 !-----------------------
 ! Take the invese of w as the preconditioner
@@ -184,27 +216,20 @@ if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 !w(:,:)=1.0d0/w(:,:)
 !----------------------
 
-call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,outer,&
+call gmres_solid_pa(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,outer,&
 		nquad_solid,wq_solid,sq_solid,xpre1,&
-		solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype)
+		solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype,&
+		ne_local,ien_local,node_local,nn_local,&
+		global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,nsd_solid)
 
-call getnorm(dg,dg,nsd_solid*nn_solid,del)
+call getnorm_pa(dg,nsd_solid,nn_solid,node_local,nn_local,del)
  del = sqrt(del)
-if (myid == 0) write(*,*) '===serial solid displacement correction norm===', del
+if (myid == 0) write(*,*) '===solid displacement correction norm===', del
 
-!do i=1,nn_sbc
-!	write(*,*) 'dg', dg(:,node_sbc(i)), ' at node',node_sbc(i), disp(:,node_sbc(i))
-!        dg(:,node_sbc(i))=disp(:,node_sbc(i))
-!end do
 solid_acc(:,:) = solid_acc(:,:) + dg(:,:)
 x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
 		 (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )
-
-!do i=1,nn_sbc
-!        solid_vel(:,node_sbc(i))=solid_bcvel(:,node_sbc(i))
-!end do
-
 
 solid_prevel(:,:) = solid_vel(:,:)
 solid_preacc(:,:) = solid_acc(:,:)

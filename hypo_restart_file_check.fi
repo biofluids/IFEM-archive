@@ -70,26 +70,6 @@
                  if (myid ==0) write(*,*) 'Restart from time step', restart
 	end if
 
-  elseif (restart==-888) then
-    if (myid == 0) then
-      write(*,*) 'running long jobs continuously, please specify restart step HERE'
-    endif
-    write(resfilename,'(A7,A6)') 'restart', '000021'
-    open(unit=restart_u1, file=resfilename, status='old', form='unformatted', iostat=ios1)
-    if (ios1 .ne. 0) then
-      nts_start=1
-      tt=t_start
-      klok=0
-      restart_klok=0
-      restart=0
-    else
-      read(unit=restart_u1) nts_test1
-      close(restart_u1)
-      if (myid==0) write(*,*) 'Restart from time step', restart
-    endif
-      
+
 
   endif
-
-
-

@@ -193,6 +193,7 @@ end do
 
 !....  calculate liquid constant and gravity
 		g(1:nsd)  = gravity(1:nsd)  ! gravatitional force
+       ! the above statement has been changed from "g = gravity" to ensure dimensions match, by Jubiao Yang on 03/15/2013
 
 	! believe nu is calculated only for turbulent model
 		if (nsd==2) then

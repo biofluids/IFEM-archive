@@ -77,7 +77,7 @@ continue
 
 end do
 
-write(*,*) 'tot surface area', tot_area
+!write(*,*) 'tot surface area', tot_area
 
 deallocate(x)
 
