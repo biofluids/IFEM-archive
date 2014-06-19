@@ -264,22 +264,16 @@ end if
   CALL Read_Int(nen,1)
   CALL Read_Int(ndf,1)
   CALL Read_Int(nsd,1)
-  if (nsd==2) then
-    udf=1
-	vdf=2
-	pdf=3
-  elseif (nsd==3) then
-    udf=1
-	vdf=2
-	wdf=3
-	pdf=4
-  endif
-
-!write(*,*) 'nn', nn
-!write(*,*) 'ne', ne
-!write(*,*) 'nrng', nrng
-!write(*,*) 'ndf', ndf
-!write(*,*) 'nsd', nsd
+    if (nsd==2) then
+        udf=1
+        vdf=2
+        pdf=3
+    elseif (nsd==3) then
+        udf=1
+        vdf=2
+        wdf=3
+        pdf=4
+    endif
 
   CALL Read_Int(iquad,1)
   CALL Read_Int(nit,1)
@@ -295,19 +289,37 @@ end if
   CALL Read_Real(t_start,1)
   CALL Read_Real(alpha,1)
 
-  do i=1,nrng
-                do idf=1,ndf+1
-        CALL Read_Real(fix(idf),1)
-                end do
+    flagPML(:) = 0
+    sumNbcPML = 0
+    xyzcPML(:) = 0.0
+    do i=1,nrng
+        do idf=1,ndf+1
+            CALL Read_Real(fix(idf),1)
+        enddo
 !        write(*,*) 'fix', fix(:)
-     ibc=int(fix(1))
-     do idf=1,ndf
-        bv(idf,ibc) = fix(idf+1)
-        if(abs(bv(idf,ibc)+999.0).gt.1.0e-6) bc(idf,ibc) = 1
-     enddo
-  enddo
+        ibc=int(fix(1))
+        do idf=1,ndf
+            bv(idf,ibc) = fix(idf+1)
+            if (bv(idf,ibc) .lt. -90000.0) then
+!--------------------------------------------------------------------------
+! if bv(.,.) is less than -9e4, then this boundary has PML in corresponding
+! direction; flagPML indicates the direction: 0-->none, 1-->x, 2-->y
+! corresponding coordinate is xyzcPML
+                xyzcPML(ibc) = -bv(idf,ibc)-90000.0
+                flagPML(ibc) = idf
+                sumNbcPML = sumNbcPML + 1
+!-----
+                !bc(idf,ibc) = 1
+                !bv(idf,ibc) = 0.0
+!--------------------------------------------------------------------------
+            elseif (abs(bv(idf,ibc)+999.0).gt.1.0e-8) then
+                bc(idf,ibc) = 1
+            endif
+        enddo
+    enddo
 
-! Read in the nature boundary condition
+! Read in the natural boundary condition
+! aka, here's where the "Pressure BC" is defined
   call Read_Int(edge_inflow,1)
   call Read_Int(ne_inflow,1)
   call Read_Real(pin,1)

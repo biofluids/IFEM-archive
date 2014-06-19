@@ -30,8 +30,11 @@ module fluid_variables
   integer,parameter :: tri=1,qud=2,tet=3,hex=4,tris=5,quds=6,tets=7,hexs=8
   integer :: udf,vdf,wdf,pdf
   real(8),parameter :: epsilon = 1.0e-12
-  integer :: ne_inflow, edge_inflow ! nature boundary condition
-  real(8) pin ! inflow pressure
-  integer ptotflag ! flag for use total pressure b.c or not 1---> yest, 0 ---> no
-  integer outedge 
+  integer :: ne_inflow, edge_inflow ! Neumann "pressure" boundary condition
+  real(8) pin                       ! inflow pressure
+  integer ptotflag ! flag for use total pressure BC or not 1---> yes, 0 ---> no
+  integer outedge
+  integer :: flagPML(maxnsurf)      ! flag if PML is defined on this boundary
+  integer :: sumNbcPML
+  real(8) :: xyzcPML(maxnsurf)      ! coordinate of the maximum coordinate
 end module fluid_variables

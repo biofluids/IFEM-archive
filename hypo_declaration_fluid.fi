@@ -31,3 +31,9 @@
      real(8) fvis(nn)
      real(8) sp_radius(nsd,nn)
      integer flag_fnode(nn)
+!-----------------------------------
+! Jack 05/20/2014
+! PML auxiliary variable "q"
+    real(8) qv(ndf,nn)
+    real(8) sigmaPML(nsd,nn)
+

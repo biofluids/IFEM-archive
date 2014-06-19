@@ -1,4 +1,4 @@
-! this module is used to apply boundary conditions
+! this module is used to apply Dirichlet(velocity) boundary conditions
 module form
   implicit none
 
@@ -17,49 +17,47 @@ subroutine formd(ds,rngface,ien)
   real(8) :: eps1,eps2
   real(8) :: hs(nrng+1,nn), h(nrng+1,nn)
 
-  eps1 = -1000000.0 
-  eps2 = -10000.0 
-  h(:,:) = 0.0d0
-  ds(:,:) = eps1
+    eps1 = -1000000.0 
+    eps2 = -10000.0 
+    h(:,:) = 0.0d0
+    ds(:,:) = eps1
   
-  do ieface=1,neface
-     do inface=1,nnface
-        inl = mapping(ieface,inface,etype)
-        do iec=1,ne
-           irng = rngface(ieface,iec)
-           if (irng.ne.0) h(irng,ien(inl,iec)) = h(irng,ien(inl,iec)) + 1.0
+    do ieface=1,neface
+        do inface=1,nnface
+            inl = mapping(ieface,inface,etype)
+            do iec=1,ne
+                irng = rngface(ieface,iec)
+                if (irng.ne.0) h(irng,ien(inl,iec)) = h(irng,ien(inl,iec)) + 1.0
+            enddo
         enddo
-     enddo
-  enddo
+    enddo
 
-  hs = h
+    hs = h
 
-  do irng=1,nrng
-     do inn=1,nn
+    do irng=1,nrng
+        do inn=1,nn
+            do idf=1,ndf
+                if (hs(irng,inn).gt.1.0e-8) then
+                    if (bc(idf,irng) .gt. 0) then
+                        ds(idf,inn) = bv(idf,irng)
+                    endif
+                endif
+            enddo
+        enddo
+    enddo
+
+    do inn=1,nn
         do idf=1,ndf
-           if (hs(irng,inn).gt.1.0e-8) then
-              if (bc(idf,irng) .gt. 0) then
-                ds(idf,inn) = bv(idf,irng)
-			  endif
-           endif
+            if(ds(idf,inn).lt.eps2) then
+                ds(idf,inn) = ic(idf)
+            endif
         enddo
-     enddo
-  enddo
+    enddo
 
+    if(static) ds(:,:)=0.0
 
-  do inn=1,nn
-     do idf=1,ndf
-        if(ds(idf,inn).lt.eps2) then
-			ds(idf,inn) = ic(idf)
-		endif
-     enddo
-  enddo
-
-  if(static) ds(:,:)=0.0
-
-  return
+return
 end subroutine formd
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine formid(ids, rngface, ien)
@@ -77,22 +75,21 @@ subroutine formid(ids, rngface, ien)
   epsr = 0.0001
   epsl = 0.000001
 
-  do ieface=1,neface
-     do inface=1,nnface
-        inl = mapping(ieface,inface,etype)
-        do iec=1,ne
-           irng = rngface(ieface,iec)
-           if(irng.ne.0) then
-              do idf = 1,ndf
-                 if(d(idf,ien(inl,iec)).lt.epsr) then
-					d(idf,ien(inl,iec)) = bc(idf,irng)+epsl
-					
-				  endif
-              enddo
-           endif
+    do ieface=1,neface
+        do inface=1,nnface
+            inl = mapping(ieface,inface,etype)
+            do iec=1,ne
+                irng = rngface(ieface,iec)
+                if(irng.ne.0) then
+                    do idf = 1,ndf
+                        if(d(idf,ien(inl,iec)).lt.epsr) then
+                            d(idf,ien(inl,iec)) = bc(idf,irng)+epsl
+                        endif
+                    enddo
+                endif
+            enddo
         enddo
-     enddo
-  enddo
+    enddo
 
   ds = d
   ids = ds

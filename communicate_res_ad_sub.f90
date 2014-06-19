@@ -14,7 +14,7 @@ real(8) recv_tmp(ndf*ad_length)
 real(8) send_tmp(ndf*ad_length)
 integer icount
 integer tag
-! integer size            ! commented out by Jubiao Yang on 03/15/2013
+integer size
 integer reqr(countrow)
 integer reqs(countrow)
 integer status(mpi_status_size,countrow)

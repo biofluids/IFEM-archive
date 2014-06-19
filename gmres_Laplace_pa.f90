@@ -20,7 +20,7 @@ subroutine gmres_Laplace_pa(x,d,w,bg,dg,ien,id,&
 	integer id(nn)
 !--------------------------------
 	integer i,j,iouter,icount,INFO
-	integer e1(inner+1)
+	real* 8  e1(inner+1)
 	real* 8 x0(nn)
 	real* 8 beta(inner+1)
 	real* 8 eps

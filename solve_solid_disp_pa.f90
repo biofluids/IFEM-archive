@@ -48,7 +48,7 @@ integer iq
 !-------------------------------------------------
 integer inner
 integer outer
-parameter (inner = 200) ! solid equation inner 50 should be sufficient
+parameter (inner = 300) ! solid equation inner 50 should be sufficient
 parameter (outer = 10)  ! solid equation outer 5 should be sufficient
 !-------------------------------------------------
 real(8) dg(nsd_solid,nn_solid) ! disp correction
@@ -229,7 +229,20 @@ if (myid == 0) write(*,*) '===solid displacement correction norm===', del
 solid_acc(:,:) = solid_acc(:,:) + dg(:,:)
 x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
 		 (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
+
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )
+
+
+
+!================================
+! Just for testing - pure explicit 2nd order
+!x_curr(:,:) = xpre1(:,:) + dt*solid_vel(:,:) 
+!================================
+!if (myid == 0) then
+!write(*,*) "===============", x_curr(1,1), "%%%%%%%%%%%%%%%%%%%%%%%"
+!write(*,*) "===============", solid_vel(1,1)*dt, "%%%%%%%%%%%%%%%%%%%%%%%"
+!end if
+
 
 solid_prevel(:,:) = solid_vel(:,:)
 solid_preacc(:,:) = solid_acc(:,:)

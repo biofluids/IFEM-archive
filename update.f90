@@ -5,7 +5,7 @@ subroutine update(dinc, d, dg, mn)
   use fluid_variables
   implicit none
 
-  integer,intent(in) :: mn
+  integer,intent(in) :: mn          ! ndf -> mn
   real(8) :: d(mn,nn),dg(mn,nn)
   real(8),intent(out) :: dinc(mn,nn)
 
@@ -13,5 +13,5 @@ subroutine update(dinc, d, dg, mn)
 
   d = d + dinc
 
-  return
+return
 end subroutine update
