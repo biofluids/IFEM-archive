@@ -28,9 +28,9 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
 
-  real* 8 drt(ndf),drs(ndf)
-  real* 8 dr(nsd,ndf)
-  real* 8 u,v,w,pp,ug
+  real* 8 drt(ndf),drs(ndf),drtavg(ndf),drsavg(ndf)
+  real* 8 dr(nsd,ndf),dravg(nsd,ndf)
+  real* 8 u,v,w,pp,ug,uavg,vavg,ppavg,muavg
   real* 8 tau(nsd,nsd)
   real* 8 hg,taum,tauc,vel,ree, taul
   real* 8 res_c,res_a(nsd),res_t(nsd)
@@ -56,7 +56,7 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   real(8) kappa
   integer rngface(neface,ne)
   integer flagincv(nen),nodecv(2)
-  real(8) vol,MomTerm(nsd,4),EneTerm(4)
+  real(8) vol,MomTerm(nsd,4),EneTerm(5)
   real(8) normvec(nsd),edgelen
 !============================
 ! MPI varibalbes
@@ -76,7 +76,7 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
   MomTerm(1:nsd,1:4)=0.0
-  EneTerm(1:4)=0.0
+  EneTerm(1:5)=0.0
 !===================================================
 do ie=1,ne     ! loop over elements
     flagincv(1:nen)=0
@@ -84,7 +84,7 @@ do ie=1,ne     ! loop over elements
     do inl=1,nen
         node=ien(inl,ie)
         x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-        if (x(1,inl)>=12.0 .and. x(1,inl)<=15.0 .and. I_fluid(node)==0.0) then
+        if (x(1,inl)>=3.0 .and. x(1,inl)<=6.0 .and. I_fluid(node)==0.0) then
             flagincv(inl)=1
         endif
         fnode(:,inl)=0.0
@@ -98,6 +98,12 @@ do ie=1,ne     ! loop over elements
 
     hg = hk(ie)
     vol=0.0
+    drtavg(:)=0.0
+    drsavg(:)=0.0
+    dravg(:,:)=0.0
+    uavg=0.0
+    vavg=0.0
+    ppavg=0.0
   if (sum(flagincv(1:nen)) .ge. 1) then
     do iq=1,nquad  ! loop over the quadrature points in each element 
 !...  calculate the shape function and the weight at quad point
@@ -139,10 +145,9 @@ do ie=1,ne     ! loop over elements
         mu=0.0
 !... calculate dvi/dt, p, dp/dxi
         do inl=1,nen
-            drt(1:nsd)=drt(1:nsd)+sh(0,inl)*(d(1:nsd,inl)-d_old(1:nsd,inl))*dtinv
+            drt(1:ndf)=drt(1:ndf)+sh(0,inl)*(d(1:ndf,inl)-d_old(1:ndf,inl))*dtinv
             drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)
             dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)      
-!----------------------------------------------------------------------------------------                   
             ro=ro+sh(0,inl)*local_den(inl) 
             mu=mu+sh(0,inl)*local_vis(inl)
         enddo
@@ -159,6 +164,16 @@ do ie=1,ne     ! loop over elements
         endif
         pp = drs(pdf)
 
+!----------------------------------------------------------------------------------------                   
+        drtavg(1:ndf)=drtavg(1:ndf)+drt(1:ndf)
+        drsavg(1:ndf)=drsavg(1:ndf)+drs(1:ndf)
+        dravg(1:nsd,1:ndf)=dravg(1:nsd,1:ndf)+dr(1:nsd,1:ndf)
+        uavg=uavg+u
+        vavg=vavg+v
+        ppavg=ppavg+pp
+        muavg=muavg+mu
+!---------------------------------------------------------------------------------------- 
+
       if (sum(flagincv(1:nen))==nen) then       ! only calculate volume integral when in CV
         do isd = 1, nsd
             if (nsd==2) then
@@ -172,18 +187,30 @@ do ie=1,ne     ! loop over elements
 
         EneTerm(1)=EneTerm(1)+ro*(drt(xsd)*u+drt(ysd)*v)*eft0
         EneTerm(2)=EneTerm(2)+ro*((u*dr(1,1)+v*dr(2,1))*u+(u*dr(1,2)+v*dr(2,2))*v)*eft0
+        EneTerm(3)=EneTerm(3)+(dr(1,pdf)*u+dr(2,pdf)*v)*eft0
+        EneTerm(5)=EneTerm(5)+mu*(0.5*((dr(1,1)+dr(1,1))**2+(dr(1,2)+dr(2,1))**2+(dr(2,1)+dr(1,2))**2+(dr(2,2)+dr(2,2))**2)- &
+                                   (dr(1,1)+dr(2,2))**2*2.0/3.0)*eft0
       endif                        ! endif only volume integral in CV
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     enddo ! end of qudrature pts loop
 
-      if ( (sum(flagincv(1:nen))>1 .and. sum(flagincv(1:nen))<nen) .or. sum(rngface(:,ie))/=0) then
+!----------------------------------------------------------------------------------------                   
+        drtavg(1:ndf)=drtavg(1:ndf)/nquad
+        drsavg(1:ndf)=drsavg(1:ndf)/nquad
+        dravg(1:nsd,1:ndf)=dravg(1:nsd,1:ndf)/nquad
+        uavg=uavg/nquad
+        vavg=vavg/nquad
+        ppavg=ppavg/nquad
+        muavg=1.8e-4
+!----------------------------------------------------------------------------------------                   
+      if ((sum(flagincv(1:nen))>1 .and. sum(flagincv(1:nen))<nen) .or. sum(rngface(:,ie))/=0 ) then
 !      if ( sum(flagincv(1:nen))==nen ) then
         do isd = 1,nsd
             do jsd = 1,nsd
-                tau(isd,jsd) = mu*(dr(isd,jsd) + dr(jsd,isd))
+                tau(isd,jsd) = muavg*(dravg(isd,jsd) + dravg(jsd,isd))
             enddo
-            tau(isd,isd)=tau(isd,isd)-mu*dr(isd,isd)*2.0/3.0
+            tau(isd,isd)=tau(isd,isd)-muavg*dravg(isd,isd)*2.0/3.0
         enddo
 
             do irng=1,nen
@@ -214,16 +241,15 @@ do ie=1,ne     ! loop over elements
                         endif
                     endif
 
-                if (rngface(irng,ie)/=0) then
+                if (sum(flagincv(1:nen))==nen .and. rngface(irng,ie)/=0) then
 !                if (.true.) then
                     call normal2d_gen(x,nodecv(1),nodecv(2),normvec,nsd,nen,edgelen)
                     do isd=1,nsd
                         MomTerm(isd,4)=MomTerm(isd,4)+&
                                    (tau(isd,1)*normvec(1)+tau(isd,2)*normvec(2))*edgelen
                     enddo
-                    EneTerm(3)=EneTerm(3)+(ph(xsd,inl)*u+ph(ysd,inl)*v)*pp
-                    EneTerm(4)=EneTerm(4)+ph(1,inl)*(tau(1,xsd)*u+tau(1,ysd)*v) + ph(2,inl)*(tau(2,xsd)*u+tau(2,ysd)*v) &
-                                      - mu*(ph(xsd,inl)*u+ph(ysd,inl)*v)*(dr(1,1)+dr(2,2))*2.0/3.0
+                    EneTerm(4)=EneTerm(4)+ (tau(1,1)*normvec(1)+tau(1,2)*normvec(2))*edgelen*uavg +&
+                                           (tau(2,1)*normvec(1)+tau(2,2)*normvec(2))*edgelen*vavg
                 elseif (sum(flagincv(1:nen))<nen .and. flagincv(nodecv(1))==1 .and. flagincv(nodecv(2))==1) then
                     call normal2d_gen(x,nodecv(1),nodecv(2),normvec,nsd,nen,edgelen)
                     normvec(1:nsd)=-normvec(1:nsd)
@@ -231,9 +257,8 @@ do ie=1,ne     ! loop over elements
                         MomTerm(isd,4)=MomTerm(isd,4)+&
                                    (tau(isd,1)*normvec(1)+tau(isd,2)*normvec(2))*edgelen
                     enddo
-                    EneTerm(3)=EneTerm(3)+(ph(xsd,inl)*u+ph(ysd,inl)*v)*pp
-                    EneTerm(4)=EneTerm(4)+ph(1,inl)*(tau(1,xsd)*u+tau(1,ysd)*v) + ph(2,inl)*(tau(2,xsd)*u+tau(2,ysd)*v) &
-                                      - mu*(ph(xsd,inl)*u+ph(ysd,inl)*v)*(dr(1,1)+dr(2,2))*2.0/3.0
+                    EneTerm(4)=EneTerm(4)+ (tau(1,1)*normvec(1)+tau(1,2)*normvec(2))*edgelen*uavg +&
+                                           (tau(2,1)*normvec(1)+tau(2,2)*normvec(2))*edgelen*vavg
                 endif
             enddo
 
@@ -243,6 +268,7 @@ do ie=1,ne     ! loop over elements
 enddo ! end of element loop
 
 5007 format(6e14.5)
+5008 format(7e14.5)
 
 open(unit=28, file = 'poa.momentumX',status='unknown',position='append')
 write(28,5007) tt, MomTerm(1,1), MomTerm(1,2), MomTerm(1,3), MomTerm(1,4), &
@@ -251,8 +277,8 @@ close(28)
 
 
 open(unit=29, file = 'poa.energy',status='unknown',position='append')
-write(29,5007) tt, EneTerm(1), EneTerm(2), EneTerm(3), EneTerm(4), &
-                   EneTerm(1)+ EneTerm(2)+ EneTerm(3)+ EneTerm(4)
+write(29,5008) tt, EneTerm(1), EneTerm(2), EneTerm(3), EneTerm(4), EneTerm(5), &
+                   EneTerm(1)+ EneTerm(2)+ EneTerm(3)- EneTerm(4)+EneTerm(5)
 close(29)
 
 
