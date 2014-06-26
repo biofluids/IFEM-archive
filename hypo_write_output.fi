@@ -18,7 +18,7 @@
 
              call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2)
              call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress&
-				,I_fluid)
+				,I_fluid,dold)
              call zfem_ensCase(dt,its,ntsbout)
 
           endif
@@ -31,7 +31,7 @@
 
              call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2)
              call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress&
-		,I_fluid)
+		,I_fluid,dold)
              call zfem_ensCase(dt,its,ntsbout)
 
           endif

@@ -30,10 +30,10 @@ res_bc(:,:)=0.0d0
   do ie_inflow=1,ne_inflow            ! loop over elements on the inflow boundary
      ie=bdel(ie_inflow)               ! global element index
         
-	do inl=1,nen
+        do inl=1,nen
              x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
              d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
-        end do
+        enddo
 !===========================================================
      do iface=1,neface
         ! decide the knowns and unknows based on iface

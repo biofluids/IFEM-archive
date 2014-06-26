@@ -3,7 +3,6 @@ subroutine source_laplace(x_fluid,nn_fluid,nsd,x_solid,nn_solid,ien_solid,&
 ! get source term on fluid node for laplace equation
 use delta_nonuniform, only: cnn, ncnn, shrknode
 use fluid_variables, only: maxconn
-use mpi_variables
 implicit none
 !--------------------------
 real(8) x_fluid(nsd,nn_fluid)
@@ -46,7 +45,7 @@ if (nsd == 2) then
 call solid_normint(x_solid,nsd,nn_solid,ien_sbc,ne_sbc,nen_solid,&
 			ien_solid,ne_solid,data_solid)
 else
-if(myid == 0) write(*,*) 'call 3D outward norm calculation'
+write(*,*) 'call 3D outward norm calculation'
 call solid_normint_3d(x_solid,nsd,nn_solid,ien_sbc,ne_sbc,nen_solid,&
                         ien_solid,ne_solid,data_solid)
 
@@ -61,5 +60,7 @@ end if
               data_fluid(1:nsd,pt) = data_fluid(1:nsd,pt) + data_solid(1:nsd,inn) * shrknode(icnn,inn)
               enddo
         enddo
+	write(*,*) 'area of solid', sum(data_solid(2,:))
+	write(*,*) 'area of solid in fluid'
 return
 end 
