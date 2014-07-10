@@ -42,7 +42,7 @@ end if
 
 end if
 
-     do iit=1,nit
+do iit=1,nit
         p(:,:) = 0.0d0
         w(:,:) = 0.0d0
         time_com=mpi_wtime()

@@ -14,6 +14,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   use fluid_variables
   use solid_variables, only: nn_solid
   use r_common, only: density_solid, vis_solid
+  use lumpedmass
   implicit none
 
   integer ien(nen,ne)
@@ -78,6 +79,8 @@ do icount=1, nn_local
         node=node_local(icount)
 p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 end do
+
+include "reconstruct_tauij.f90"
 
 !=================================================
 !===================================================
@@ -224,6 +227,9 @@ do ie_local=1,ne_local     ! loop over elements
         enddo
 
         res_t(1:nsd) = dr(1:nsd,pdf) + res_a(1:nsd)
+
+        include "add_tauijcj_resmomentum.f90"
+       
 !  ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! Mickael 02/01/2005
         ! TAUm, TAUc and TAUl (l for  lsic), See Tezduyar and Sathe, 2003

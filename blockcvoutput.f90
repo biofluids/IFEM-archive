@@ -1,12 +1,6 @@
-!  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!  L. Zhang
-!  Northwestern University
-!  This subroutine solves for the residual for all degrees of freedom
-!____________________________________________________________________
-!  L. Zhang, 06/24/2004
-!  Tulane University
-!  Revised the subroutine to array
-!  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+! Jack Yang, Rensselaer Polytechnic Institute
+! June 2014
+! this subroutine evaluates the control volume analysis terms
 subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,node_local,nn_local, &
                          fden,fvis,I_fluid,rngface)
   use global_constants

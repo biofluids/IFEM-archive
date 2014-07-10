@@ -18,6 +18,7 @@ subroutine hypo
   use form
   use ensight_output
   use mpi_variables ! call mpi variable module
+  use lumpedmass
   implicit none
   include 'mpif.h'
 !==============================	  
@@ -103,6 +104,9 @@ if (restart == 0) then
   else
      include "hypo_restart_read.fi"
   endif
+
+call lumpmassmatrix(x,d,dold,p,hg,ien,f_fluids,ne_intlocal,ien_intlocal,&
+                    node_local,nn_local,fden,fvis,I_fluid,rng)
 
 !=================================================================
 !						 time loop	
