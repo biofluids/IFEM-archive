@@ -7,6 +7,7 @@
 	end if
     !...store the variables from the previous time step,dold=d 
      dold = d
+     I_fluid_old(1:nn) = I_fluid(1:nn)
      call formid(id,rng,ien)
      call formd(d,rng,ien)
 
@@ -91,6 +92,6 @@ do iit=1,nit
 enddo
 if (myid ==0) then
     write(*,'("  maximum fluid velocity (x dir) = ",f13.5)') maxval(d(1:nsd,:))
-    call blockcvoutput(x,d,dold,p,hg,ien,f_fluids,ne_intlocal,ien_intlocal,node_local,nn_local,fden,fvis,I_fluid,rng)
+    call blockcvoutput(x,d,dold,p,hg,ien,f_fluids,ne_intlocal,ien_intlocal,node_local,nn_local,fden,fvis,I_fluid,I_fluid_old,rng)
 !    call blockcvoutput(x,d,dold,p,?,?,f_fluids,?,)
 end if

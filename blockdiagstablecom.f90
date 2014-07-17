@@ -285,14 +285,22 @@ include "reconstruct_tauij.f90"
 !c.....   Galerkin Terms (Look at notes)
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c....   Calculate stress tau(ij) and pressure
+!        tau(:,:)=0.0
         do isd = 1,nsd
             do jsd = 1,nsd
-                tau(isd,jsd) = mu*(dr(isd,jsd) + dr(jsd,isd))
+                tau(isd,jsd)=mu*(dr(isd,jsd) + dr(jsd,isd))
+!                do inl=1,nen
+!                    node=ien(inl,ie)
+!                    tau(isd,jsd) = tau(isd,jsd) + sh(0,inl)*hattauij(isd,jsd,node)
+!                enddo
                 do inl=1,nen
                 ! Compute fluid stress
                     f_stress(isd,jsd,ien(inl,ie))= f_stress(isd,jsd,ien(inl,ie)) + tau(isd,jsd)
                 enddo
             enddo
+            if (nsd==2) then
+                tau(isd,isd)=tau(isd,isd)-2.0*mu*(dr(1,1)+dr(2,2))/3.0
+            endif
         enddo
         prs_t(1:nsd) = res_t(1:nsd)*taum
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -325,7 +333,7 @@ include "reconstruct_tauij.f90"
                     p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
                                               ph(1,inl)*tau(1,isd) -  &
                                               ph(2,inl)*tau(2,isd)
-                    p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
+!                    p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
                 enddo
                 q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*q_d(1,inl)*(2.0-2.0/3.0))+&
                                         ph(2,inl)*mu*sh(2,inl)*q_d(1,inl)
@@ -337,7 +345,7 @@ include "reconstruct_tauij.f90"
                                               ph(1,inl)*tau(1,isd) -  &
                                               ph(2,inl)*tau(2,isd) -  &
                                               ph(3,inl)*tau(3,isd)
-                    p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
+!                    p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
                 enddo
                 q_p(1,node)=q_p(1,node)+ph(1,inl)*mu*(sh(1,inl)*(2.0 - 2.0/3.0))+&
                                         ph(2,inl)*mu*sh(2,inl)+ph(3,inl)*mu*sh(3,inl)

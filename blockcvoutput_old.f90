@@ -2,13 +2,12 @@
 ! June 2014
 ! this subroutine evaluates the control volume analysis terms
 subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,node_local,nn_local, &
-                         fden,fvis,I_fluid,I_fluid_old,rngface)
+                         fden,fvis,I_fluid,rngface)
   use global_constants
   use run_variables
   use fluid_variables
   use solid_variables, only: nn_solid
   use r_common, only: density_solid, vis_solid
-  use lumpedmass
   implicit none
 
   integer ien(nen,ne)
@@ -48,13 +47,11 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
 !---------------------------------------------
   real(8) TC,ZC,RC,P0,dens0
   real(8) I_fluid(nn)
-  real(8) I_fluid_old(nn)
   real(8) kappa
   integer rngface(neface,ne)
   integer flagincv(nen),nodecv(2)
-  real(8) vol,MomTerm(nsd,5),EneTerm(6)
+  real(8) vol,MomTerm(nsd,4),EneTerm(5)
   real(8) normvec(nsd),edgelen
-  real(8) hattauijcj(nsd)
 !============================
 ! MPI varibalbes
   integer ne_local ! # of element on each processor
@@ -72,11 +69,8 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
-  MomTerm(1:nsd,1:5)=0.0
-  EneTerm(1:6)=0.0
-
-  include "reconstruct_tauij_global.f90"
-
+  MomTerm(1:nsd,1:4)=0.0
+  EneTerm(1:5)=0.0
 !===================================================
 do ie=1,ne     ! loop over elements
     flagincv(1:nen)=0
@@ -84,7 +78,7 @@ do ie=1,ne     ! loop over elements
     do inl=1,nen
         node=ien(inl,ie)
         x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-        if (x(1,inl)>=12.0 .and. x(1,inl)<=15.0 .and. I_fluid(node)==0.0 .and. I_fluid_old(node)==0.0) then
+        if (x(1,inl)>=3.0 .and. x(1,inl)<=6.0 .and. I_fluid(node)==0.0) then
             flagincv(inl)=1
         endif
         fnode(:,inl)=0.0
@@ -173,41 +167,23 @@ do ie=1,ne     ! loop over elements
         ppavg=ppavg+pp
         muavg=muavg+mu
 !---------------------------------------------------------------------------------------- 
-      hattauijcj(1:nsd)=0.0
-
-      do inl=1,nen
-          node=ien(inl,ie)
-          do isd=1,nsd
-              do jsd=1,nsd
-                  hattauijcj(isd) = hattauijcj(isd)+&
-                                    sh(jsd,inl)*hattauij(isd,jsd,node)
-              enddo
-          enddo
-      enddo
-!----------------------------------------------------------------------------------------
 
       if (sum(flagincv(1:nen))==nen) then       ! only calculate volume integral when in CV
-          do isd = 1, nsd
-              if (nsd==2) then
-                  MomTerm(isd,1)=MomTerm(isd,1)+ro*drt(isd)*eft0
-                  MomTerm(isd,2)=MomTerm(isd,2)+ro*(u*dr(1,isd)+v*dr(2,isd))*eft0
-                  MomTerm(isd,3)=MomTerm(isd,3)+dr(isd,pdf)*eft0
-                  MomTerm(isd,5)=MomTerm(isd,5)+hattauijcj(isd)*eft0
-              elseif (nsd==3) then
-                  write(*,*) 'under work'
-              endif
-          enddo
-  
-          if (nsd==2) then
-              EneTerm(1)=EneTerm(1)+ro*(drt(xsd)*u+drt(ysd)*v)*eft0
-              EneTerm(2)=EneTerm(2)+ro*((u*dr(1,1)+v*dr(2,1))*u+(u*dr(1,2)+v*dr(2,2))*v)*eft0
-              EneTerm(3)=EneTerm(3)+(dr(1,pdf)*u+dr(2,pdf)*v)*eft0
-              EneTerm(5)=EneTerm(5)+mu*(0.5*((dr(1,1)+dr(1,1))**2+(dr(1,2)+dr(2,1))**2+(dr(2,1)+dr(1,2))**2+(dr(2,2)+dr(2,2))**2)- &
-                                         (dr(1,1)+dr(2,2))**2*2.0/3.0)*eft0
-              EneTerm(6)=EneTerm(6)+(hattauijcj(1)*u+hattauijcj(2)*v)*eft0
-          elseif (nsd==3) then
-              write(*,*) 'under work'
-          endif
+        do isd = 1, nsd
+            if (nsd==2) then
+                MomTerm(isd,1)=MomTerm(isd,1)+ro*drt(isd)*eft0
+                MomTerm(isd,2)=MomTerm(isd,2)+ro*(u*dr(1,isd)+v*dr(2,isd))*eft0
+                MomTerm(isd,3)=MomTerm(isd,3)+dr(isd,pdf)*eft0
+            elseif (nsd==3) then
+                write(*,*) 'under work'
+            endif
+        enddo
+
+        EneTerm(1)=EneTerm(1)+ro*(drt(xsd)*u+drt(ysd)*v)*eft0
+        EneTerm(2)=EneTerm(2)+ro*((u*dr(1,1)+v*dr(2,1))*u+(u*dr(1,2)+v*dr(2,2))*v)*eft0
+        EneTerm(3)=EneTerm(3)+(dr(1,pdf)*u+dr(2,pdf)*v)*eft0
+        EneTerm(5)=EneTerm(5)+mu*(0.5*((dr(1,1)+dr(1,1))**2+(dr(1,2)+dr(2,1))**2+(dr(2,1)+dr(1,2))**2+(dr(2,2)+dr(2,2))**2)- &
+                                   (dr(1,1)+dr(2,2))**2*2.0/3.0)*eft0
       endif                        ! endif only volume integral in CV
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -285,20 +261,18 @@ do ie=1,ne     ! loop over elements
   endif
 enddo ! end of element loop
 
-5007 format(7e14.5)
-5008 format(8e14.5)
+5007 format(6e14.5)
+5008 format(7e14.5)
 
 open(unit=28, file = 'poa.momentumX',status='unknown',position='append')
 write(28,5007) tt, MomTerm(1,1), MomTerm(1,2), MomTerm(1,3), MomTerm(1,4), &
-                   MomTerm(1,1)+ MomTerm(1,2)+ MomTerm(1,3)- MomTerm(1,4), &
-                   MomTerm(1,5)
+                   MomTerm(1,1)+ MomTerm(1,2)+ MomTerm(1,3)- MomTerm(1,4)
 close(28)
 
 
 open(unit=29, file = 'poa.energy',status='unknown',position='append')
 write(29,5008) tt, EneTerm(1), EneTerm(2), EneTerm(3), EneTerm(4), EneTerm(5), &
-                   EneTerm(1)+ EneTerm(2)+ EneTerm(3)- EneTerm(4)+ EneTerm(5), &
-                   EneTerm(6)
+                   EneTerm(1)+ EneTerm(2)+ EneTerm(3)- EneTerm(4)+EneTerm(5)
 close(29)
 
 

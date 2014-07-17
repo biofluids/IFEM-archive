@@ -2,6 +2,7 @@
 
 !================================================
 hattauij(1:nsd,1:nsd,1:nn)=0.0
+mu=1.8e-4
 do ie_local=1,ne_local     ! loop over elements
     ie=ien_local(ie_local)
     do inl=1,nen
@@ -26,14 +27,10 @@ do ie_local=1,ne_local     ! loop over elements
         eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 
         dr(1:nsd,1:ndf)=0.0    ! dd/dxi
-        mu=0.0
-
         do inl=1,nen
-            mu = mu+sh(0,inl)*fvis(ien(inl,ie))
+            tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
             do isd=1,nsd
-                do jsd=1,nsd
-                    dr(isd,jsd) = dr(isd,jsd)+sh(isd,inl)*d(jsd,inl)
-                enddo
+                dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
             enddo
         enddo
 
@@ -57,7 +54,6 @@ do ie_local=1,ne_local     ! loop over elements
                 enddo
             enddo
         enddo
-
     enddo ! end of qudrature pts loop
 enddo ! end of element loop
 ! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -257,11 +257,25 @@ do ie_local=1,ne_local     ! loop over elements
 !c.....   Galerkin Terms (Look at notes)
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c....   Calculate stress tau(ij) and pressure
-        do isd = 1,nsd
-            do jsd = 1,nsd
-                tau(isd,jsd) = mu*(dr(isd,jsd) + dr(jsd,isd))
+!        tau(:,:)=0.0
+!        do isd = 1,nsd
+!            do jsd = 1,nsd
+!                do inl=1,nen
+!                    node=ien(inl,ie)
+!                    tau(isd,jsd) = tau(isd,jsd)+sh(0,inl)*hattauij(isd,jsd,node)
+!                enddo
+!            enddo
+!        enddo
+
+        do isd=1,nsd
+            do jsd=1,nsd
+                tau(isd,jsd)=mu*(dr(isd,jsd) + dr(jsd,isd))
             enddo
+            if (nsd==2) then
+                tau(isd,isd)=tau(isd,isd)-2.0*mu*(dr(1,1)+dr(2,2))/3.0
+            endif
         enddo
+
         prs_t(1:nsd) = res_t(1:nsd)*taum
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! Mickael 02/01/2005
@@ -292,7 +306,7 @@ do ie_local=1,ne_local     ! loop over elements
                 p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
                             ph(1,inl)*tau(1,isd) -  &
                             ph(2,inl)*tau(2,isd)
-                            p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
+!                            p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
 
             enddo
         elseif (nsd==3) then
@@ -301,7 +315,7 @@ do ie_local=1,ne_local     ! loop over elements
                             ph(1,inl)*tau(1,isd) -  &
                             ph(2,inl)*tau(2,isd) -  &
                             ph(3,inl)*tau(3,isd)
-                            p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
+!                            p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
             enddo
         endif
 ! Stablization with Tau_moment

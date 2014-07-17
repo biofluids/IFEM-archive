@@ -1,4 +1,4 @@
-tempc(1:nsd)=res_t(1:nsd)
+! tempc(1:nsd)=res_t(1:nsd)
 do inl=1,nen
     node=ien(inl,ie)
     do isd=1,nsd
