@@ -8,33 +8,35 @@
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,node_local,nn_local, &
-                         fden,fvis,I_fluid,rngface,qv,sigmaPML)
+                         fden,fvis,I_fluid,rngface)
   use global_constants
   use run_variables
   use fluid_variables
   use solid_variables, only: nn_solid
   use r_common, only: density_solid, vis_solid
+  use pml_variables
   implicit none
 
   integer ien(nen,ne)
   real* 8 xloc(nsd,nn)                      ! geometry(nodes' locations)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)        ! unknowns(current/previous)
-  real* 8 p(ndf,nn),hk(ne)                  ! p: residual; hk: element characteristic length
-  real* 8 qv(ndf,nn), sigmaPML(nsd,nn)
+  real* 8 p(ndf,nn+nn_PML),hk(ne)                  ! p: residual; hk: element characteristic length
+  integer flagpmlelm
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
+  real* 8 qvel(ndf,nen),qvoldel(ndf,nen)
 
   real* 8 eft0,det,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
 
-  real* 8 qrs(ndf), dqdx(nsd,ndf)
+  real* 8 qrs(ndf),qrt(ndf)      ! interpolation and derivatives of qv
   real* 8 drt(ndf),drs(ndf)
   real* 8 dr(nsd,ndf)
   real* 8 u,v,w,pp,ug
   real* 8 tau(nsd,nsd)
-  real* 8 hg,taum,tauc,vel,ree, taul
+  real* 8 hg,taum,tauc,vel,ree,taul
   real* 8 res_c,res_a(nsd),res_t(nsd)
   real* 8 prs_c,prs_t(nsd),p_vec(3),prs_cc(nsd)
   real* 8 mu,nu,ro,g(nsd), sigmaPe(nsd)
@@ -82,9 +84,9 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 do icount=1, nn_local
-        node=node_local(icount)
-p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
-end do
+    node=node_local(icount)
+    p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
+enddo
 
 !=================================================
 !===================================================
@@ -97,6 +99,7 @@ end do
 !===================================================
 do ie_local=1,ne_local     ! loop over elements
     ie=ien_local(ie_local)
+    flagpmlelm=0
     do inl=1,nen
         x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
@@ -111,25 +114,28 @@ do ie_local=1,ne_local     ! loop over elements
         local_den(inl)=(1.0+dloc(ndf,node)/(ZC*P0))*dens0*(1.0-I_fluid(node))+&
                                 (density_solid+den_liq)*I_fluid(node)
         local_vis(inl)=fvis(ien(inl,ie))
+        !------------------- check PML nodes ----------------------------------
+        if (seqcPML(node) .ne. 0) flagpmlelm=flagpmlelm+1
+        !----------------------------------------------------------------------
     enddo
     hg = hk(ie)
     do iq=1,nquad  ! loop over the quadrature points in each element 
 !...  calculate the shape function and the weight at quad point
-    if (nsd==2) then
-        if (nen.eq.3) then !calculate shape function at quad point
-            include "sh2d3n.h"
-        elseif (nen.eq.4) then
-            include "sh2d4n.h"
+        if (nsd==2) then
+            if (nen.eq.3) then !calculate shape function at quad point
+                include "sh2d3n.h"
+            elseif (nen.eq.4) then
+                include "sh2d4n.h"
+            endif
+        elseif (nsd==3) then
+            if (nen.eq.4) then !calculate shape function at quad point
+                include "sh3d4n.h"
+            elseif (nen.eq.8) then
+                include "sh3d8n.h"
+            endif
         endif
-    elseif (nsd==3) then
-        if (nen.eq.4) then !calculate shape function at quad point
-            include "sh3d4n.h"
-        elseif (nen.eq.8) then
-            include "sh3d8n.h"
-        endif
-    endif
 !	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
-    eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
+        eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
 
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
         drs(:) = 0.0           ! d
@@ -137,7 +143,7 @@ do ie_local=1,ne_local     ! loop over elements
         dr(1:nsd,1:ndf)=0.0    ! dd/dxi
         !------------PML--------------------
         qrs(:) = 0.0
-        dqdx(1:nsd,1:ndf) =0.0
+        qrt(:) = 0.0
         !---------------------
         fq(:)=0.0              ! node force
 
@@ -146,15 +152,9 @@ do ie_local=1,ne_local     ! loop over elements
             node=ien(inl,ie)
             tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
             drs(1:nsd) = drs(1:nsd)+sh(0,inl)*tempc(1:nsd)
-            !------PML---------
-            qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*qv(1:ndf,node)
-            !------------------
-                do isd=1,nsd
-                    dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
-                    !--------------PML----------------
-                    dqdx(isd,1:ndf) = dqdx(isd,1:ndf)+sh(isd,inl)*qv(1:ndf,node)
-                    !---------------------------------
-                enddo
+            do isd=1,nsd
+                dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
+            enddo
             fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
         enddo
 
@@ -165,12 +165,18 @@ do ie_local=1,ne_local     ! loop over elements
         do inl=1,nen
             node=ien(inl,ie)
             drt(1:ndf)=drt(1:ndf)+sh(0,inl)*(d(1:ndf,inl)-d_old(1:ndf,inl))*dtinv
+            !------PML---------
+            if (flagpmlelm > 0) then
+                qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*qv(1:ndf,node)
+                qrt(1:ndf) = qrt(1:ndf)+sh(0,inl)*(qv(1:ndf,node)-qvold(1:ndf,node))*dtinv
+            endif
+            sigmaPe(1:nsd)=sigmaPe(1:nsd)+sh(0,inl)*sigmaPML(1:nsd,node)
+            !------------------
             drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)
             dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)      
 !----------------------------------------------------------------------------------------                   
             ro=ro+sh(0,inl)*local_den(inl) 
             mu=mu+sh(0,inl)*local_vis(inl)
-            sigmaPe(1:nsd)=sigmaPe(1:nsd)+sh(0,inl)*sigmaPML(1:nsd,node)
         enddo
 
 !... define u=v1, v=v2, w=v3, pp=p
@@ -183,7 +189,7 @@ do ie_local=1,ne_local     ! loop over elements
             v = drs(vdf)
             w = drs(wdf)
         endif
-            pp= drs(pdf)
+        pp= drs(pdf)
 
         if(stokes) then ! if stokes flow
             u = 0.0
@@ -248,15 +254,39 @@ do ie_local=1,ne_local     ! loop over elements
         enddo
 
 !--------------- PML terms in the Momentum eqn --------------------------
-        if (sumNbcPML .ne. 0) then
+        if (flagpmlelm == nen) then
+            !------------ residual correction for NS eqns ----------------------
             if (nsd==2) then
-                res_pml_c=res_pml_c +&
-                              sigmaPe(udf)*pp/P0
-                res_pml_a(xsd)=sigmaPe(udf)*ro*u
-                res_pml_a(ysd)=sigmaPe(udf)*ro*v
+                res_pml_c=( sigmaPe(xsd)*qrs(pdf) + sigmaPe(ysd)*(pp-qrs(pdf)) )/P0
+                res_pml_a(xsd)=ro*( sigmaPe(xsd)*qrs(udf)+sigmaPe(ysd)*(u-qrs(udf)) )
+                res_pml_a(ysd)=ro*( sigmaPe(xsd)*qrs(vdf)+sigmaPe(ysd)*(v-qrs(vdf)) )
             endif
             res_c=res_c+res_pml_c
             res_a(1:nsd)=res_a(1:nsd)+res_pml_a(1:nsd)
+            !------------ residual for auxiliary variables ----------------------
+            ! res_pml_a & res_pml_c have been recycled to calculate dq/dt+\sigma*q+dF1/dx
+            res_pml_c=0.0
+            res_pml_a(:)=0.0
+            if (nsd==2) then
+                res_pml_c = qrt(pdf) + sigmaPe(xsd)*qrs(pdf) + (ZC*P0+pp)*dr(xsd,udf) + u*dr(xsd,pdf)
+                res_pml_c = res_pml_c/P0
+            endif
+        
+            if (nsd==2) then
+                do isd = 1, nsd
+                    res_pml_a(isd) = ro*( qrt(isd) + sigmaPe(xsd)*qrs(isd) + u*dr(1,isd) + drs(isd)*dr(1,1) ) + &
+                                     ( drs(isd)*u*dr(1,pdf) + qrt(pdf)*drs(isd) )*dens0/(ZC*P0)
+                enddo
+            endif
+
+            do inl=1,nen
+                node = ien(inl,ie)
+                if (seqcPML(node) > 0) then
+                    p(pdf,nn+seqcPML(node)) = p(pdf,nn+seqcPML(node)) - ph(0,inl)*res_pml_c
+                    p(1:nsd,nn+seqcPML(node)) = p(1:nsd,nn+seqcPML(node)) - ph(0,inl)*res_pml_a(1:nsd)
+                    p(xsd,nn+seqcPML(node)) = p(xsd,nn+seqcPML(node)) + ph(xsd,inl)*pp
+                endif
+            enddo
         endif
 !------------------------------------------------------------------------
 
@@ -347,12 +377,9 @@ do ie_local=1,ne_local     ! loop over elements
     enddo ! end of qudrature pts loop
   enddo ! end of element loop
 continue  
-
 !=====================================
 ! Apply boundary condition du/dx=0 on outedge
 !call out2d4n(rngface,dloc,ien,xloc,p)
 !======================================
-
 return
 end subroutine blockgmresnew
-

@@ -13,14 +13,14 @@ integer i
 integer j
 integer k
 
-k=0
-do i=1,ne
-	do j=1,neface
-	if(mrng(j,i) == edge) then
-	k=k+1
-	bcel(k)=i
-	end if
-	end do
-end do
+    k=0
+    do i=1,ne
+    	do j=1,neface
+    	    if(mrng(j,i) == edge) then
+    	        k=k+1
+    	        bcel(k)=i
+    	    endif
+    	enddo
+    enddo
 
 end

@@ -8,30 +8,32 @@
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,&
-                 ne_local,ien_local,node_local,nn_local,fden,fvis,I_fluid,qv,sigmaPML)
+                 ne_local,ien_local,node_local,nn_local,fden,fvis,I_fluid)
   use global_constants
   use run_variables
   use fluid_variables
   use solid_variables, only: nn_solid
   use r_common, only: density_solid, vis_solid
   use mpi_variables
+  use pml_variables
   implicit none
 
   integer ien(nen,ne)
   real* 8 xloc(nsd,nn)
   real* 8 dloc(ndf,nn),doloc(ndf,nn)
-  real* 8 p(ndf,nn),q(ndf,nn),hk(ne)
-  real* 8 qv(ndf,nn), sigmaPML(nsd,nn)
+  real* 8 p(ndf,nn+nn_PML),q(ndf,nn),hk(ne)
+  integer flagpmlelm
 
   real* 8 x(nsd,nen)
   real* 8 d(ndf,nen),d_old(ndf,nen)
+  real* 8 qvel(ndf,nen),qvoldel(ndf,nen)
 
   real* 8 eft0,det,effd,effm,effc
   real* 8 sh(0:nsd,nen),ph(0:nsd,nen)
   real* 8 xr(nsd,nsd),cf(nsd,nsd),sx(nsd,nsd)
   real* 8 f_stress(nsd,nsd,nn)
 
-  real* 8 qrs(ndf), dqdx(nsd,ndf)  ! derivatives of qv
+  real* 8 qrs(ndf), qrt(ndf)  ! interpolation and derivatives of qv
   real* 8 drt(ndf),drs(ndf)
   real* 8 dr(nsd,ndf)
   real* 8 u,v,w,pp,ug
@@ -44,7 +46,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   real* 8 dtinv,oma,ama
   integer inl, ie, isd, iq, node,jsd
   integer ieface,irng, rngface(neface,ne)
-  real* 8 res_pml_c, res_pml_a(nsd)
+  real* 8 res_pml_c, res_pml_a(nsd), res_pml_t(nsd)
 
   real* 8 f_fluids(nsd,nn)
   real* 8 I_fluid(nn)
@@ -56,7 +58,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
 ! updated by Jack, 05/29/2014, for PML
   real* 8 q_d(ndf,nen)
   real* 8 q_res_c(nen), q_pml_c(nen)
-  real* 8 q_p(ndf,nn)
+  real* 8 q_p(ndf,nn+nn_PML)
   real* 8 q_res_a(nsd,nen), q_pml_a(nsd,nen)
   real* 8 diag(12)
 !======================================
@@ -77,7 +79,7 @@ subroutine block(xloc, dloc, doloc, p, q_p, hk, ien, f_fluids,rngface, f_stress,
   real*8 kappa !compressibility for artificial fluids
 !==================================================
   q_res_a(1:nsd,1:nen) = 0
-  q_p(1:ndf,1:nn) = 0
+  q_p(1:ndf,1:nn+nn_PML) = 0
   q_d(1:ndf,1:nen) = 1 !set each ndf for each node as 1
   q_res_c(1:nen) = 0
 !---------------------------------------------------
@@ -113,12 +115,11 @@ end do
 !===================================================
     do ie_local=1,ne_local              ! loop over subregion elements
         ie=ien_local(ie_local)
+        flagpmlelm=0
         do inl=1,nen
             x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-!============================================================================
 !		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
             fnode(:,inl)=0.0
-!============================================================================
             d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
             d_old(1:ndf,inl) = doloc(1:ndf,ien(inl,ie))
             f_stress(1:nsd,1:nsd,ien(inl,ie)) = 0.0
@@ -128,10 +129,14 @@ end do
                            (density_solid+den_liq)*I_fluid(node)
 !              local_den(inl)=fden(ien(inl,ie))
             local_vis(inl)=fvis(ien(inl,ie))
+            !------------------- check PML nodes ------------------------------
+            if (seqcPML(node) .ne. 0) flagpmlelm=flagpmlelm+1
+            !------------------------------------------------------------------
         enddo
 
         hg = hk(ie)
 
+    !======================= LOOP THRU QUADRATURE POINTS ==========================
     do iq=1,nquad  ! loop over the quadrature points in each element 
 !...  calculate the shape function and the weight at quad point
         if (nsd==2) then
@@ -148,13 +153,14 @@ end do
             endif
         endif
         eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
+        ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0      
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
         drs(:) = 0.0
         drt(:) = 0.0
         dr(1:nsd,1:ndf)=0.0
         !-----PML-------------
         qrs(1:ndf) = 0.0
-        dqdx(1:nsd,1:ndf) = 0.0
+        qrt(1:ndf) = 0.0
         !---------------------
         fq(:)=0.0
 
@@ -163,14 +169,8 @@ end do
             node=ien(inl,ie)
             tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
             drs(1:nsd) = drs(1:nsd)+sh(0,inl)*tempc(1:nsd)
-            !------PML---------
-            qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*qv(1:ndf,node)
-            !------------------
             do isd=1,nsd
                 dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
-                !--------------PML----------------
-                dqdx(isd,1:ndf) = dqdx(isd,1:ndf)+sh(isd,inl)*qv(1:ndf,node)
-                !---------------------------------
             enddo
             fq(:) = fq(:) + sh(0,inl)*fnode(:,inl)        
         enddo
@@ -182,12 +182,18 @@ end do
         do inl=1,nen
             node=ien(inl,ie)
             drt(1:ndf)=drt(1:ndf)+sh(0,inl)*(d(1:ndf,inl)-d_old(1:ndf,inl))*dtinv
+            !------PML---------
+            if (flagpmlelm > 0) then
+                qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*qv(1:ndf,node)
+                qrt(1:ndf) = qrt(1:ndf)+sh(0,inl)*(qv(1:ndf,node)-qvold(1:ndf,node))*dtinv
+            endif
+            sigmaPe(1:nsd)=sigmaPe(1:nsd)+sh(0,inl)*sigmaPML(1:nsd,node)
+            !------------------
             drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)
-            dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)       
+            dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl) 
 !----------------------------------------------------------------------------------------                   
             ro=ro+sh(0,inl)*local_den(inl)  ! local fluid density
             mu=mu+sh(0,inl)*local_vis(inl)  ! local fluid viscosity
-            sigmaPe(1:nsd)=sigmaPe(1:nsd)+sh(0,inl)*sigmaPML(1:nsd,node)
         enddo
 !... define u=v1, v=v2, w=v3, pp=p
         if (nsd==2) then
@@ -248,12 +254,6 @@ end do
             enddo
         endif
 
-        temp=0.0
-        do inl=1,nen
-            node=ien(inl,ie)
-            temp=temp+sh(0,inl)*( (d(ndf,inl)+P0)*(1.0-I_fluid(node)) + kappa*I_fluid(node) )
-        enddo
-
         do inl=1,nen
             node=ien(inl,ie)
             res_c=res_c+sh(0,inl)*( d(ndf,inl)-d_old(ndf,inl) )*dtinv* &
@@ -279,22 +279,60 @@ end do
             endif
         enddo
 
-!--------------- PML terms in Continuity and Momentum eqns --------------------------
-        if (sumNbcPML .ne. 0) then
+!--------------- PML terms in Continuity/Momentum eqns --------------------------
+        if (flagpmlelm == nen) then
+            !------------ residual correction for NS eqns ----------------------
             if (nsd==2) then
                 do inl=1,nen
                     node=ien(inl,ie)
-                    q_pml_a(xsd,inl)=sigmaPe(udf)*ro*sh(0,inl)
-                    q_pml_a(ysd,inl)=sigmaPe(udf)*ro*sh(0,inl)
+                    q_pml_a(xsd,inl)=(sigmaPe(xsd)+sigmaPe(ysd))*ro*sh(0,inl)
+                    q_pml_a(ysd,inl)=(sigmaPe(xsd)+sigmaPe(ysd))*ro*sh(0,inl)
                 enddo
-                res_pml_c=res_pml_c +&
-                              sigmaPe(udf)*pp/P0
-                res_pml_a(xsd)=sigmaPe(udf)*ro*u
-                res_pml_a(ysd)=sigmaPe(udf)*ro*v
+                res_pml_c=( sigmaPe(xsd)*qrs(pdf) + sigmaPe(ysd)*(pp-qrs(pdf)) )/P0
+                res_pml_a(xsd)=ro*( sigmaPe(xsd)*qrs(udf)+sigmaPe(ysd)*(u-qrs(udf)) )
+                res_pml_a(ysd)=ro*( sigmaPe(xsd)*qrs(vdf)+sigmaPe(ysd)*(v-qrs(vdf)) )
             endif
             res_c=res_c+res_pml_c
             res_a(1:nsd)=res_a(1:nsd)+res_pml_a(1:nsd)
             q_res_a(1:nsd,1:nen)=q_res_a(1:nsd,1:nen)+q_pml_a(1:nsd,1:nen)
+            !------------ residual for auxiliary variables ----------------------
+            ! res_pml_a & res_pml_c have been recycled to calculate dq/dt+\sigma*q+dF1/dx
+            res_pml_c=0.0
+            res_pml_a(:)=0.0
+            q_pml_a(:,:)=0.0
+            q_pml_c(:)=0.0
+            if (nsd==2) then
+                res_pml_c = qrt(pdf) + sigmaPe(xsd)*qrs(pdf) + (ZC*P0+pp)*dr(xsd,udf) + u*dr(xsd,pdf)
+                res_pml_c = res_pml_c/P0
+                do inl=1,nen
+                    node=ien(inl,ie)
+                    q_pml_c(inl) = (sh(0,inl)*dtinv+(ZC+pp/P0)*(u*sh(xsd,inl)))/P0
+                enddo
+            endif
+
+            if (nsd==2) then
+                do isd = 1, nsd
+                    res_pml_a(isd) = ro*( qrt(isd) + sigmaPe(xsd)*qrs(isd) + u*dr(1,isd) + drs(isd)*dr(1,1) ) + &
+                                    ( drs(isd)*u*dr(1,pdf) + qrt(pdf)*drs(isd) )*dens0/(ZC*P0)
+                    do inl = 1, nen
+                        q_pml_a(isd,inl)=ro*(sh(0,inl)*q_d(isd,inl)*dtinv+u*sh(1,inl)*q_d(isd,inl) &
+                                             + q_d(isd,inl)*dr(1,1) ) &
+                                         + q_d(isd,inl)*(u*dr(1,pdf) + qrt(pdf))*dens0/(ZC*P0)
+                    enddo ! get res_a for u and v for momentum equation
+                enddo
+            endif
+            
+            do inl=1,nen
+                node = ien(inl,ie)
+                if (seqcPML(node) > 0) then
+                    p(pdf,nn+seqcPML(node)) = p(pdf,nn+seqcPML(node)) - ph(0,inl)*res_pml_c
+                    q_p(pdf,nn+seqcPML(node)) = q_p(pdf,nn+seqcPML(node)) - ph(0,inl)*q_pml_c(inl)
+                    p(1:nsd,nn+seqcPML(node)) = p(1:nsd,nn+seqcPML(node)) - ph(0,inl)*res_pml_a(1:nsd)
+                    q_p(1:nsd,nn+seqcPML(node)) = q_p(1:nsd,nn+seqcPML(node)) - ph(0,inl)*q_pml_a(1:nsd,inl)
+                    p(xsd,nn+seqcPML(node)) = p(xsd,nn+seqcPML(node)) + ph(xsd,inl)*pp
+                endif
+            enddo
+            !--------------------------------------------------------------------
         endif
 !---------------------------------------------------------------------------------------
 
@@ -317,9 +355,6 @@ end do
         else
             taul = hg*vel/2.0
         endif
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!.....   Density optimization
-        ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0      
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c.....   Galerkin Terms (Look at notes)
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

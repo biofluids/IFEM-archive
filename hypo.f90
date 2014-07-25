@@ -17,7 +17,8 @@ subroutine hypo
   use meshgen_solid
   use form
   use ensight_output
-  use mpi_variables ! call mpi variable module
+  use mpi_variables
+  use pml_variables
   implicit none
   include 'mpif.h'
 !==============================	  
@@ -45,8 +46,8 @@ subroutine hypo
   real(8) time_com
   real(8) pin_s
 ! solid 1st type bc temp varaibles
- real(8) omega_tmp
- real(8) theta_tmp
+  real(8) omega_tmp
+  real(8) theta_tmp
 
 !============================
 ! Define local variables
@@ -77,9 +78,8 @@ subroutine hypo
  ! integer infdomain(nn_solid)
       call mpi_barrier(mpi_comm_world,ierror)
 !  write(*,*) 'myid', myid, 'nn_local', nn_local, 'ne_local', ne_local !id for debuger
-
 !=============================
-!  vis_solid= - vis_liq 
+  !vis_solid= - vis_liq 
   vis_solid=  1.0
   I_fluid(:)=0.0
   solid_pave(:)=0.0d0
@@ -94,7 +94,12 @@ subroutine hypo
 !-----------------------------
 ! PML auxiliary variable initialization
 ! DON'T forget putting this in the restart file!!!!!!!
-  qv(:,:)=0.0
+!  qv(:,:)=0.0
+!-----------------------------------------------------------------
+! calculate \sigma_x and \sigma_y for PML... and, other things lol
+call initializePMLparam(x,node_local,nn_local,send_address,ad_length)
+include "reallocateVarPML.f90"
+!-----------------------------------------------------------------
 !=============================
 
 if (edge_inflow .ne. 0) then
@@ -119,11 +124,6 @@ if (restart == 0) then
 else
     include "hypo_restart_read.fi"
 endif
-
-!-----------------------------------------------------------------
-! calculate \sigma_x and \sigma_y for PML
-call initializePMLparam(x,sigmaPML)
-!-----------------------------------------------------------------
 
 !=================================================================
 !                          Time Loop
@@ -248,7 +248,6 @@ time_loop: do its = nts_start,nts !.....count from 1 or restart-timestep to numb
             f_fluids(:,:) = 0.0
         endif
         !=================================================================
-        ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)
         call mpi_barrier(mpi_comm_world,ierror)
         call mpi_bcast(f_fluids(1,1),nsd*nn,mpi_double_precision,0,mpi_comm_world,ierror)
 !        call mpi_bcast(fden(1),nn,mpi_double_precision,0,mpi_comm_world,ierror)

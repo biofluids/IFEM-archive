@@ -86,8 +86,8 @@ end do
 ! Xingshi 09/15/2008
 !===================================================
   do ie_local=1,ne_local		! loop over elements
-        ie=ien_local(ie_local)
-     do inl=1,nen	
+      ie=ien_local(ie_local)
+      do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
 !		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
@@ -147,7 +147,7 @@ end do
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
 		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)      
 !----------------------------------------------------------------------------------------                   
-                   ro=ro+sh(0,inl)*local_den(inl) 
+           ro=ro+sh(0,inl)*local_den(inl) 
 		   mu=mu+sh(0,inl)*local_vis(inl)
 	    enddo
 
@@ -198,13 +198,11 @@ end do
 		  enddo
 		endif
 
-                do inl=1,nen
+        do inl=1,nen
 		   node=ien(inl,ie)
 		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
 		   (1.0/kappa*I_fluid(node))
-		end do  ! add dp/dt term for artificial fluid
-
-
+		enddo  ! add dp/dt term for artificial fluid
 
 	    do isd = 1, nsd
 			if (nsd==2) then
@@ -238,7 +236,6 @@ end do
             taul = hg*vel/2.0
         endif
         !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 !.....   Density optimization
 
 		ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
@@ -254,7 +251,6 @@ end do
 		enddo
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
-
 
 		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! Mickael 02/01/2005
@@ -279,7 +275,7 @@ end do
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
 		! Momentum Equation (Euler Residual)
-!===========================================================
+!===========================================================
 ! why originally it is minus?
 		   p(1:nsd,node) = p(1:nsd,node)-ph(0,inl)*res_a(1:nsd)
 !=============================================================
@@ -320,4 +316,3 @@ end do
 continue
   return
 end subroutine blockgmresnew
-

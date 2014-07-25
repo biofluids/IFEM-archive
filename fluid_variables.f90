@@ -34,7 +34,7 @@ module fluid_variables
   real(8) pin                       ! inflow pressure
   integer ptotflag ! flag for use total pressure BC or not 1---> yes, 0 ---> no
   integer outedge
-  integer :: flagPML(maxnsurf)      ! flag if PML is defined on this boundary
-  integer :: sumNbcPML
-  real(8) :: xyzcPML(maxnsurf)      ! coordinate of the maximum coordinate
+!  integer :: flagPML(maxnsurf)      ! flag if PML is defined on this boundary
+!  integer :: sumNbcPML
+!  real(8) :: xyzcPML(maxnsurf)      ! coordinate of the maximum coordinate
 end module fluid_variables

@@ -189,6 +189,7 @@ subroutine parseinput_fluid
   use run_variables
   use fluid_variables
   use mpi_variables ! call mpi variable module
+  use pml_variables
   implicit none
 
   integer :: restart_onoff, steady_onoff,hg_vol_onoff, taudt_onoff
@@ -300,7 +301,7 @@ end if
         ibc=int(fix(1))
         do idf=1,ndf
             bv(idf,ibc) = fix(idf+1)
-            if (bv(idf,ibc) .lt. -90000.0) then
+            if (bv(idf,ibc) .lt. -80000.0) then
 !--------------------------------------------------------------------------
 ! if bv(.,.) is less than -9e4, then this boundary has PML in corresponding
 ! direction; flagPML indicates the direction: 0-->none, 1-->x, 2-->y

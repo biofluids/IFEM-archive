@@ -1,3 +1,10 @@
+!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+if (.not. allocated(p)) allocate(p(ndf,nn))
+if (.not. allocated(w)) allocate(w(ndf,nn))
+if (.not. allocated(dg)) allocate(dg(ndf,nn))
+!AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+
 if (myid == 0) then
    call error("local shape functions",-999,.false.)
 end if 

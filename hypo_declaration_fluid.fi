@@ -4,24 +4,16 @@
     integer :: rng(neface,ne)  !...surface information
     real(8) :: x(nsd,nn)       !...current fluid mesh nodal position  chi = psi(chi_0,t)
     real(8) :: xref(nsd,nn)    !...initial fluid mesh nodal position   X = chi_0
-!    real(8) :: disp(nsd,nn)    !...displacment of fluid mesh nodes u^hat = x - chi
     real(8) :: hg(ne)
     integer :: id(ndf,nn)     !...tells whether or not to update a value in the iteration  fluid / mesh
     real(8) :: d(ndf,nn),dold(ndf,nn)    !...unknown vector for current and previous time step
-    real(8) :: dg(ndf,nn)  
-    real(8) :: p(ndf,nn)   
-    real(8) :: w(ndf,nn)   
+    !-------------------------------------
+    real(8),allocatable :: p(:,:)
+    real(8),allocatable :: w(:,:)
+    real(8),allocatable :: dg(:,:)
+    !-------------------------------------
     real(8) :: f_stress(nsd,nsd,nn)
-!    real(8),dimension(nquad,ne) :: jac 
     real(8) :: f_fluids(nsd,nn)   !...interaction force as fluid body force
-!    real(8) :: z(ndf*nn,inner)  
-!    real(8) :: v(ndf*nn,inner+1) 
-!    real(8) :: zg(ndf*nn), avg(ndf*nn), sm(ndf*nn)
-!    real(8) :: vloc(ndf,nn)
-!    real(8) :: avloc(ndf,nn)
-!    real(8) :: h_gmres(inner+1,inner)  
-!    real(8) :: y_gmres(inner+1) 
-!    real(8) :: cc(inner), ss(inner)   
     integer :: nts_test1,nts_test2,ios1,ios2
      real(8) :: dvolume(nn)
 !-----------------------------------
@@ -34,6 +26,5 @@
 !-----------------------------------
 ! Jack 05/20/2014
 ! PML auxiliary variable "q"
-    real(8) qv(ndf,nn)
-    real(8) sigmaPML(nsd,nn)
-
+!    real(8) qv(ndf,nn)
+!    real(8) sigmaPML(nsd,nn)
