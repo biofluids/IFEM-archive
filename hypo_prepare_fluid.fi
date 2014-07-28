@@ -50,4 +50,5 @@ end if
    f_fluids(1:nsd,1:nn) = 0.0d0
 !   disp = 0.0d0
 
- 102  format("Iteration",i3,':  ',4e14.7)
+102  format("Iteration",i3,':  ',4e14.7)
+1023 format("Iteration",i3,':  ||res||=',1e14.7,'; ||d_inc||=',1e14.7)

@@ -19,7 +19,7 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
 
   integer ien(nen,ne)
   real* 8 xloc(nsd,nn)                      ! geometry(nodes' locations)
-  real* 8 dloc(ndf,nn),doloc(ndf,nn)        ! unknowns(current/previous)
+  real* 8 dloc(ndf,nn+nn_PML),doloc(ndf,nn)        ! unknowns(current/previous)
   real* 8 p(ndf,nn+nn_PML),hk(ne)                  ! p: residual; hk: element characteristic length
   integer flagpmlelm
 
@@ -87,7 +87,6 @@ do icount=1, nn_local
     node=node_local(icount)
     p(1:nsd,node)=p(1:nsd,node)+f_fluids(1:nsd,node)
 enddo
-
 !=================================================
 !===================================================
 ! f_fluids is actually the FSI force at fluid nodes,
@@ -136,6 +135,7 @@ do ie_local=1,ne_local     ! loop over elements
         endif
 !	write(*,*) 'shape functions=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
         eft0 = abs(det) * wq(iq) ! calculate the weight at each quad pt
+        ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
 
 !...  initialize d, dd/dx, dd/dy, dd/dz, dd/dt
         drs(:) = 0.0           ! d
@@ -167,8 +167,10 @@ do ie_local=1,ne_local     ! loop over elements
             drt(1:ndf)=drt(1:ndf)+sh(0,inl)*(d(1:ndf,inl)-d_old(1:ndf,inl))*dtinv
             !------PML---------
             if (flagpmlelm > 0) then
-                qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*qv(1:ndf,node)
-                qrt(1:ndf) = qrt(1:ndf)+sh(0,inl)*(qv(1:ndf,node)-qvold(1:ndf,node))*dtinv
+                qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*dloc(1:ndf,nn+seqcPML(node))
+                qrt(1:ndf) = qrt(1:ndf)+sh(0,inl)*( dloc(1:ndf,nn+seqcPML(node)) - qvold(1:ndf,node) )*dtinv
+                !qrs(1:ndf) = qrs(1:ndf)+sh(0,inl)*qv(1:ndf,node)
+                !qrt(1:ndf) = qrt(1:ndf)+sh(0,inl)*( qv(1:ndf,node) - qvold(1:ndf,node) )*dtinv
             endif
             sigmaPe(1:nsd)=sigmaPe(1:nsd)+sh(0,inl)*sigmaPML(1:nsd,node)
             !------------------
@@ -258,8 +260,8 @@ do ie_local=1,ne_local     ! loop over elements
             !------------ residual correction for NS eqns ----------------------
             if (nsd==2) then
                 res_pml_c=( sigmaPe(xsd)*qrs(pdf) + sigmaPe(ysd)*(pp-qrs(pdf)) )/P0
-                res_pml_a(xsd)=ro*( sigmaPe(xsd)*qrs(udf)+sigmaPe(ysd)*(u-qrs(udf)) )
-                res_pml_a(ysd)=ro*( sigmaPe(xsd)*qrs(vdf)+sigmaPe(ysd)*(v-qrs(vdf)) )
+                res_pml_a(xsd)=ro*( sigmaPe(xsd)*qrs(udf) + sigmaPe(ysd)*(u-qrs(udf)) )
+                res_pml_a(ysd)=ro*( sigmaPe(xsd)*qrs(vdf) + sigmaPe(ysd)*(v-qrs(vdf)) )
             endif
             res_c=res_c+res_pml_c
             res_a(1:nsd)=res_a(1:nsd)+res_pml_a(1:nsd)
@@ -289,9 +291,7 @@ do ie_local=1,ne_local     ! loop over elements
             enddo
         endif
 !------------------------------------------------------------------------
-
         res_t(1:nsd) = dr(1:nsd,pdf) + res_a(1:nsd)
-
 !  ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! Mickael 02/01/2005
         ! TAUm, TAUc and TAUl (l for  lsic), See Tezduyar and Sathe, 2003
@@ -312,9 +312,7 @@ do ie_local=1,ne_local     ! loop over elements
             taul = hg*vel/2.0
         endif
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-!.....   Density optimization
-        ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0      
+              
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c.....   Galerkin Terms (Look at notes)
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

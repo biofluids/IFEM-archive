@@ -48,19 +48,19 @@ do iit=1,nit
     call block(x,d,dold,p,w,hg,ien,f_fluids,rng,f_stress,ne_intlocal,ien_intlocal,node_local,nn_local,&
                fden,fvis,I_fluid)
     time_com=mpi_wtime()-time_com
-    if (myid == 0) write(*,*) 'Time for evaluate block', time_com
+    !if (myid == 0) write(*,*) 'Time for evaluate block', time_com
 
     time_com=mpi_wtime()
     call communicate_respml_ad_sub(p,ndf,nn,send_address,ad_length)
     call communicate_respml_ad_sub(w,ndf,nn,send_address,ad_length)
     time_com=mpi_wtime()-time_com
-    if (myid == 0) write(*,*) 'Time for communication twice', time_com
+    !if (myid == 0) write(*,*) 'Time for communication twice', time_com
 
     !...apply boundary conditions, calculate residual with corrected BC, i.e. where id=0 -> p=0
     time_com=mpi_wtime()
     call setidpml_pa(p,ndf,nn,nn_PML,id,node_local,nn_local)
     time_com=mpi_wtime()-time_com
-    if (myid == 0) write(*,*) 'Time for set BC', time_com
+    !if (myid == 0) write(*,*) 'Time for set BC', time_com
 
     !...calculate the normalized error, res_l
     call getnormpml_pa(p,ndf,nn,node_local,nn_local,res_l)
@@ -76,14 +76,15 @@ do iit=1,nit
     del_l = sqrt(del_l)
     !...update the calculated variables, d=d+dg
     call mpi_barrier(mpi_comm_world,ierror)
-
     call updatePML(p, d, dg, ndf)
+
     if (myid == 0) then
         !...output the errors in each iteration
-        write(6,102) iit,res_l,del_l
-        write(7,102) iit,res_l,del_l
+        !write(6,102) iit,res_l,del_l
+        !write(7,102) iit,res_l,del_l
+        write(*,1023) iit, res_l, del_l
     endif
-enddo
+enddo ! end of loop over iterations
 
 if (myid ==0) then
     write(*,'("maximum fluid velocity = ",f13.5)') maxval(d(1:nsd,:))

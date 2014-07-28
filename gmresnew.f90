@@ -69,9 +69,9 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id,&
 !---------------------------------------------
   eps = 1.0e-6
   linerr = 1.0e-6
-  e1(:) = 0
-  e1(1) = 1
-  x0(:) = 0
+  e1(:) = 0.0
+  e1(1) = 1.0
+  x0(:) = 0.0
   iouter = 1
   r0(:) = bg(:)
   TRAN = 'N'
@@ -101,7 +101,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
     enddo ! get V1
 
     beta(:) = rnorm*e1(:) ! get beta*e1
-    Hm(:,:) = 0
+    Hm(:,:) = 0.0
 !!!!!!!!!!!!!!!!start inner loop!!!!!!!!!!!!!
     do j=1,inner
         do icount=1, nn_local
@@ -109,7 +109,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
             do jcount=1,ndf
                 dv((node-1)*ndf+jcount) = eps/w((node-1)*ndf+jcount)*Vm((icount-1)*ndf+jcount,j)
             enddo
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 do jcount=1,ndf
                     dv((nn+seqcPML(node)-1)*ndf+jcount) = eps*Vm((nn_local+seqcPMLlocal(icount)-1)*ndf+jcount,j) &
                                                           /w((nn+seqcPML(node)-1)*ndf+jcount)
@@ -122,7 +122,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
         do icount=1,nn_local
             node=node_local(icount)
             vloc(1:ndf,node)=0.0d0
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 vloc(1:ndf,nn+seqcPML(node))=0.0d0
             endif
         enddo
@@ -130,7 +130,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
         do icount=1,nn_local_com
             node=global_com(local_com(icount))
             vloc(1:ndf,node)=0.0d0
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 vloc(1:ndf,nn+seqcPML(node))=0.0d0
             endif
         enddo
@@ -141,7 +141,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
         do icount=1,nn_local
             node=node_local(icount)
             vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 vloc(1:ndf,nn+seqcPML(node))=vloc(1:ndf,nn+seqcPML(node))+qv(1:ndf,node)
             endif
         enddo
@@ -256,7 +256,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
                 kcount=(icount-1)*ndf+jcount
                 Vm(kcount,j+1)=Vm(kcount,j+1)/Hm(j+1,j)
             enddo
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 do jcount=1,ndf
                     kcount=(nn_local+seqcPMLlocal(icount)-1)*ndf+jcount
                     Vm(kcount,j+1)=Vm(kcount,j+1)/Hm(j+1,j)
@@ -310,7 +310,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
     do icount=1,nn_local
         node=node_local(icount)
         vloc(1:ndf,node)=0.0d0
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             vloc(1:ndf,nn+seqcPML(node))=0.0d0
         endif
     enddo
@@ -318,7 +318,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
     do icount=1,nn_local_com
         node=global_com(local_com(icount))
         vloc(1:ndf,node)=0.0d0
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             vloc(1:ndf,nn+seqcPML(node))=0.0d0
         endif
     enddo
@@ -329,7 +329,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
     do icount=1,nn_local
         node=node_local(icount)
         vloc(1:ndf,node)=vloc(1:ndf,node)+d(1:ndf,node)
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             vloc(1:ndf,nn+seqcPML(node))=vloc(1:ndf,nn+seqcPML(node))+qv(1:ndf,node)
         endif
     enddo
@@ -341,14 +341,14 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
     do icount=1,nn_local
         node=node_local(icount)
         av_tmp(1:ndf,node)=0.0d0
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             av_tmp(1:ndf,nn+seqcPML(node))=0.0d0
         endif
     enddo
     do icount=1,nn_local_com
         node=global_com(local_com(icount))
         av_tmp(1:ndf,node)=0.0d0
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             av_tmp(1:ndf,nn+seqcPML(node))=0.0d0
         endif
     enddo
@@ -368,7 +368,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
             kcount=(node-1)*ndf+jcount
             avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps
         enddo
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             do jcount=1,ndf
                 kcount=(nn+seqcPML(node)-1)*ndf+jcount
                 avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps
@@ -382,7 +382,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
             kcount=(node-1)*ndf+jcount
             r0(kcount) = bg(kcount)-avloc(kcount)
         enddo
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             do jcount=1,ndf
                 kcount=(nn+seqcPML(node)-1)*ndf+jcount
                 r0(kcount) = bg(kcount)-avloc(kcount)
@@ -394,7 +394,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
     err = sqrt(rnorm0)
     rnorm = sqrt(rnorm0)
     iouter = iouter + 1        
-    if (myid == 0) write(*,*) 'err=',err
+    if (myid == 0) write(*,*) '||r0||=||f-AX0||=',err
 
 111 continue  ! end outer loop
 
