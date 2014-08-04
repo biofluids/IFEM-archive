@@ -11,8 +11,8 @@ dold = d
 qvold = qv
 !----------------------------------------------------
 call formid(id,rng,ien)
-call formd_time(d,rng,ien)
-!call formd(d,rng,ien)
+!call formd_time(d,rng,ien)
+call formd(d,rng,ien)
 if (myid == 0) write(*,*) "********** Applied Time Changing BC ***************"
 !===========================================================================
 ! Applying natural(pressure) BC
@@ -77,6 +77,7 @@ do iit=1,nit
     !...update the calculated variables, d=d+dg
     call mpi_barrier(mpi_comm_world,ierror)
     call updatePML(p, d, dg, ndf)
+    !if (myid==0) write(*,*) "dg_qv(2734)=", dg(:,nn+seqcPML(2734)), "; seqcPML(2734)=", seqcPML(2734)
 
     if (myid == 0) then
         !...output the errors in each iteration

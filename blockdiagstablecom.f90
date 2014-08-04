@@ -280,7 +280,7 @@ end do
         enddo
 
 !--------------- PML terms in Continuity/Momentum eqns --------------------------
-        if (flagpmlelm == nen) then
+        if (flagpmlelm > 0) then
             !------------ residual correction for NS eqns ----------------------
             if (nsd==2) then
                 do inl=1,nen

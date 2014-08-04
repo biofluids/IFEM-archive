@@ -16,18 +16,11 @@ logical DebugWait
 	call mpi_comm_size(mpi_comm_world,ncpus,ierror)
 	call mpi_comm_rank(mpi_comm_world,myid,ierror)
 
-
-
 DebugWait=.false.
 !DebugWait=.true.
-        do 10 while(DebugWait)
-       write(*,*) 'I am waiting'
-10 end do
-
-
-
-
-
+  do 10 while(DebugWait)
+      write(*,*) 'I am waiting'
+  10 enddo
 
  !...set standard values 
   call initialize  ! for fluids
@@ -39,8 +32,8 @@ DebugWait=.false.
  !...echos input data
   call echoinput
   
-
  !...switch to main routine  
   call hypo
-call mpi_finalize(ierror)
+  call mpi_finalize(ierror)
+  
 end program main

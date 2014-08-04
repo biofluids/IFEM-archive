@@ -91,10 +91,6 @@ subroutine hypo
   outedge=2
   fden(:)=0.0
   fvis(:)=0.0
-!-----------------------------
-! PML auxiliary variable initialization
-! DON'T forget putting this in the restart file!!!!!!!
-!  qv(:,:)=0.0
 !-----------------------------------------------------------------
 ! calculate \sigma_x and \sigma_y for PML... and, other things lol
 call initializePMLparam(x,node_local,nn_local,send_address,ad_length)

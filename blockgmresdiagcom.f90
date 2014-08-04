@@ -256,7 +256,7 @@ do ie_local=1,ne_local     ! loop over elements
         enddo
 
 !--------------- PML terms in the Momentum eqn --------------------------
-        if (flagpmlelm == nen) then
+        if (flagpmlelm > 0) then
             !------------ residual correction for NS eqns ----------------------
             if (nsd==2) then
                 res_pml_c=( sigmaPe(xsd)*qrs(pdf) + sigmaPe(ysd)*(pp-qrs(pdf)) )/P0

@@ -163,7 +163,7 @@ subroutine initializePMLparam(xloc,node_local,nn_local,send_adress,ad_length)
             subpml_addrs(countrowpml,1)=b
             subpml_addrs(countrowpml,2)=count
             !-------------------------------------------------------
-            !if (myid==11) then
+            !if (myid==5) then
             !    write(*,*) "myid=", myid, ", sendpml_addrs=", sendpml_addrs
             !    write(*,*) "myid=", myid, ", subpml_addrs=", subpml_addrs
             !endif

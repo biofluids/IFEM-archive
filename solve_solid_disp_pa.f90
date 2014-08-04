@@ -186,8 +186,6 @@ call block_solid_pa(x,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
 call communicate_res_ad_subsolid(p,nsd_solid,nn_solid,send_address,ad_length)
 call communicate_res_ad_subsolid(w,nsd_solid,nn_solid,send_address,ad_length)
 
-
-
 !======================================
 ! Apply 2nd type boundary
 ! The MPI version the 2nd type BC has to be applied here
@@ -206,7 +204,6 @@ call communicate_res_ad_subsolid(w,nsd_solid,nn_solid,send_address,ad_length)
 call setid_pa(p,nsd_solid,nn_solid,kid,node_local,nn_local)
 call getnorm_pa(p,nsd_solid,nn_solid,node_local,nn_local,res)
 res=sqrt(res)
-
 
 if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 
@@ -232,8 +229,6 @@ x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
 
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )
 
-
-
 !================================
 ! Just for testing - pure explicit 2nd order
 !x_curr(:,:) = xpre1(:,:) + dt*solid_vel(:,:) 
@@ -243,10 +238,8 @@ solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*soli
 !write(*,*) "===============", solid_vel(1,1)*dt, "%%%%%%%%%%%%%%%%%%%%%%%"
 !end if
 
-
 solid_prevel(:,:) = solid_vel(:,:)
 solid_preacc(:,:) = solid_acc(:,:)
 
-
 return
-end 
+end subroutine solve_solid_disp_pa
