@@ -43,10 +43,7 @@ subroutine gmres_Laplace(x,d,w,bg,dg,ien,id,lp_el,n_el)
         call getnorm(r0,r0,nn,rnorm0)
         rnorm = sqrt(rnorm0)
 
-!do icount=1,nn
-!	write(*,*) 'node id',icount, id(icount)
-!end do
-
+write(*,*) 'rnorm0', rnorm0
 
 !!!!!!!!!!!!!!!start outer loop!!!!!!!!!
 	do 111, while((iouter .le. outer) .and. (rnorm .ge. eps))

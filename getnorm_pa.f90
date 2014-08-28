@@ -16,16 +16,15 @@ integer j
 integer node
 
 norm=0.0d0
-tmp=0.d0
+tmp=0.0d0
 do i=1,nn_local
 	node=node_local(i)
 	do j=1,ndf
 		tmp=tmp+x(j+(node-1)*ndf)**2
-	end do
-end do
+	enddo
+enddo
 
-           call mpi_barrier(mpi_comm_world,ierror)
-           call mpi_allreduce(tmp,norm,1,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
-!           call mpi_bcast(norm,1,mpi_double_precision,0,mpi_comm_world,ierror)
+call mpi_barrier(mpi_comm_world,ierror)
+call mpi_allreduce(tmp,norm,1,mpi_double_precision,mpi_sum,mpi_comm_world,ierror)
 
 end subroutine getnorm_pa

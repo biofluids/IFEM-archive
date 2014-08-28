@@ -34,6 +34,6 @@
 	sh(2,4)= sq(1,4,iq) * sx(2,1) + sq(2,4,iq) * sx(2,2) 
 
  !write(*,*) 'shape=',sh(0,1),sh(0,2),sh(0,3),sh(0,4)
- !write(*,*) 'shape derivatives=', sh(1,1),sh(1,2),sh(1,3), sh(1,4)
- ! write(*,*) '2nd shape derivatives=', sh(2,1),sh(2,2),sh(2,3), sh(2,4)
+ !write(*,*) 'x-shape derivatives=', sh(1,1),sh(1,2),sh(1,3), sh(1,4)
+ !write(*,*) 'y-shape derivatives=', sh(2,1),sh(2,2),sh(2,3), sh(2,4)
  !stop

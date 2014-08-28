@@ -10,7 +10,7 @@
 	use global_constants
 	use run_variables, only: dt
 	use r_common, only: group_young, Poisson, density_solid
-	use fluid_variables, only: den_liq,gravity
+	use fluid_variables, only: den_liq
 	use solid_variables, only: damp_solid
 	implicit none
 !-----------------------------------------------
@@ -255,19 +255,19 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 		      ph(xsd,inl) * txx + &
 		      ph(ysd,inl) * tyx + &
 		      ph(zsd,inl) * tzx   &
-		     +ph(0,inl) * ax - ph(0,inl)*rho_solid*gravity(xsd)
+		     +ph(0,inl) * ax
 		 p(ysd,node) = p(ysd,node) + &
 		      ph(ysd,inl) * ttt + &
 		      ph(xsd,inl) * txy + &
 		      ph(ysd,inl) * tyy + &
 		      ph(zsd,inl) * tzy   &
-		     +ph(0,inl) * ay - ph(0,inl)*rho_solid*gravity(ysd)
+		     +ph(0,inl) * ay
 		 p(zsd,node) = p(zsd,node) + &
 		      ph(zsd,inl) * ttt + &
 		      ph(xsd,inl) * txz + &
 		      ph(ysd,inl) * tyz + &
 		      ph(zsd,inl) * tzz   &
-		     +ph(0,inl) * az - ph(0,inl)*rho_solid*gravity(zsd)
+		     +ph(0,inl) * az
 
 	      enddo
 	end if 
@@ -280,14 +280,14 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 			ph(ysd,inl)*mu*dry(xsd) + &
 			ph(xsd,inl)*la*dry(ysd) + &
 			ph(ysd,inl)*mu*drx(ysd)   &
-			+ph(0,inl) * ax - ph(0,inl)*rho_solid*gravity(xsd)
+			+ph(0,inl) * ax
 
 		p(ysd,node)=p(ysd,node) + &
 			ph(ysd,inl)*la*drx(xsd) + &
 			ph(xsd,inl)*mu*dry(xsd) + &
 			ph(ysd,inl)*(la+2*mu)*dry(ysd) + &
 			ph(xsd,inl)*mu*drx(ysd)   &
-                        +ph(0,inl) * ay - ph(0,inl)*rho_solid*gravity(ysd)
+                        +ph(0,inl) * ay
 
 	  end do
 	end if

@@ -12,7 +12,3 @@ enddo
 !                write (*,*) tempc(1:nsd)
 !                write (*,*) "residual", res_t(1:nsd)
 !            endif
-
-
-
-

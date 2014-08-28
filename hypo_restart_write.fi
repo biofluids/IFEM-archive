@@ -1,5 +1,5 @@
      if (mod(its,restart_freq) == 0) then
-
+        
         if (mod(restart_klok,2) == 0) then
            restart_unit = restart_u1
            open(unit=restart_unit, file='restart1.bin', status='replace', form='unformatted')
@@ -8,18 +8,10 @@
            open(unit=restart_unit, file='restart2.bin', status='replace', form='unformatted')
         endif
 
-!--------------------------------------------------
-! added by Jubiao Yang on 03/24/2013
-!      if (restart_unit==0) then
-!          restart_unit=restart_u1
-!      endif
-!--------------------------------------------------
-
-
        !...simulation data
         write(restart_unit) its,tt,klok,restart_klok
        !...fluid data
-        write(restart_unit) ien,rng,x,xref,hg,id,d
+        write(restart_unit) ien,rng,x,xref,hg,id,d,qv
        !...solid data
         write(restart_unit) solid_fem_con,solid_surface,solid_coor_init,solid_coor_curr, &
                             solid_vel, solid_prevel, solid_accel,                        &

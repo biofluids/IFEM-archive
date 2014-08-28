@@ -29,19 +29,19 @@ subroutine length(xloc,ien,hg)
 
      evol = 0.0
      do iq=1,nquad
-	   if (nsd==2) then
-		 if (nen==3) then 
-		    include "sh2d3n.h"
-		 elseif (nen==4) then
-		    include "sh2d4n.h"
-	     endif
-	   elseif (nsd==3) then
+     if (nsd==2) then
+         if (nen==3) then 
+             include "sh2d3n.h"
+         elseif (nen==4) then
+             include "sh2d4n.h"
+         endif
+     elseif (nsd==3) then
          if (nen.eq.4) then
            include "sh3d4n.h"
          else if (nen.eq.8) then
            include "sh3d8n.h"
          end if
-	   endif
+     endif
 
         eft0 = abs(det) * wq(iq)  
         evol = evol + eft0
@@ -52,11 +52,11 @@ subroutine length(xloc,ien,hg)
 
      if(hg_vol) then
         if (nsd==3) then
-			hg(ie) = evol**(1.0/3.0)
-			if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
-		elseif (nsd==2) then
-		    hg(ie) = sqrt(evol)
-		endif
+            hg(ie) = evol**(1.0/3.0)
+            if(nen == 4) hg(ie) = (8.0*evol)**(1.0/3.0)
+        elseif (nsd==2) then
+            hg(ie) = sqrt(evol)
+        endif
      else
         call get_hg(x, hg(ie))
      endif

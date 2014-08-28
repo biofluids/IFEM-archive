@@ -27,11 +27,6 @@
   call read_solidbc(ien_sbc_1)
   call read_solidnodebc(node_sbc_1)
 ! read in solid interface elements and nodes
-
-
-
-
-
 !---------------------------------------------------------
 ! read in the nodes at the fluid bourdary and the number of them
  !...read node connected with fluid boundary
@@ -47,9 +42,9 @@ end if
  !...copy the one structure to multiple (n_solid) identical structures
   do i=1,n_solid
       do j=1,nsd_solid
-	  solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
-	enddo
-    solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
+	        solid_coor_init(j,nn_solid_1*(i-1)+1:nn_solid_1*i) = coor_1(1:nn_solid_1,j) + shift(j,i)
+	    enddo
+      solid_fem_con(ne_solid_1*(i-1)+1:ne_solid_1*i,1:nen_solid) = solid_fem_con_1(1:ne_solid_1,1:nen_solid) + (i-1)*nn_solid_1
   enddo
 !------------------------------------------------------------
 do i=1,n_solid
