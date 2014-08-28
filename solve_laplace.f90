@@ -3,8 +3,6 @@ subroutine solve_laplace(source,nsd,nn,nn_solid,ien,ne,nen,x_fluid,node_sbc,nn_s
 ! 2 set id matrix for laplace equation
 ! 3 sovle for laplace equation
 use delta_nonuniform, only: cnn, ncnn
-implicit none
-include 'mpif.h'
 real(8) source(nsd,nn)
 integer nsd
 integer nn
@@ -31,7 +29,6 @@ integer lp_id(nn)
 real(8) p_inter(nn)
 real(8) w_inter(nn)
 integer icount
-real(8) time
 
 flag_node(:)=0 ! set out node
 flag_el(:)=0
@@ -61,12 +58,12 @@ do i=1,nn_sbc
 end do
 !------------------------
 ! reset inside boundary based on fnode
-do i=1,nn
-        if (flag_fnode(i) == 1) then
-                I_fluid(i)=1.0
-                flag_node(i)=1
-        end if
-end do
+!do i=1,nn
+!        if (flag_fnode(i) == 1) then
+!                I_fluid(i)=1.0
+!                flag_node(i)=1
+!        end if
+!end do
 
 
 count_el=0
@@ -108,13 +105,9 @@ end do
 !close(8406)
 !source(:,:)=0.0
 
-write(*,*) 'cout_el', count_el
-time = mpi_wtime()
 call block_Laplace(x_fluid,I_fluid,p_inter,w_inter,ien,lp_el,count_el,source)
 continue
 call setid(p_inter,lp_id,1)
-time = mpi_wtime() - time
-write(*,*) 'Laplace block time', time
 
 !open(unit=8406, file='source.txt', status='unknown')
 !do i=1,nn

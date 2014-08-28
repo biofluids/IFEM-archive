@@ -8,7 +8,7 @@
 !  Revised the subroutine to array
 !  cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_local,node_local,nn_local, &
-			fden,fvis,I_fluid,rngface)
+			fden,fvis,I_fluid)
   use global_constants
   use run_variables
   use fluid_variables
@@ -52,8 +52,6 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   real(8) fvis(nn)
   real(8) local_vis(nen)
   real(8) I_fluid(nn)
-  real(8) kappa
-  integer rngface(neface,ne)
 !---------------------------------------------
 !============================
 ! MPI varibalbes
@@ -67,7 +65,6 @@ subroutine blockgmresnew(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
   if(steady) dtinv = 0.0
   oma   = 1.0 - alpha
   ama   = 1.0 - oma
-  kappa = 1.0e4
  !=================================================
 !f_fluids(:,:)=f_fluids(:,:)/(0.0625/6.0)
 !dloc(ndf,:)=(1.0 - I_fluid(:)) * dloc(ndf,:)
@@ -86,8 +83,8 @@ end do
 ! Xingshi 09/15/2008
 !===================================================
   do ie_local=1,ne_local		! loop over elements
-      ie=ien_local(ie_local)
-      do inl=1,nen	
+        ie=ien_local(ie_local)
+     do inl=1,nen	
 	     x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
 !============================================================================
 !		 fnode(1:nsd,inl) = f_fluids(1:nsd,ien(inl,ie))	
@@ -147,7 +144,7 @@ end do
 		   drs(pdf)=drs(pdf)+sh(0,inl)*d(pdf,inl)    		   
 		   dr(1:nsd,pdf)=dr(1:nsd,pdf)+sh(1:nsd,inl)*d(pdf,inl)      
 !----------------------------------------------------------------------------------------                   
-           ro=ro+sh(0,inl)*local_den(inl) 
+                   ro=ro+sh(0,inl)*local_den(inl) 
 		   mu=mu+sh(0,inl)*local_vis(inl)
 	    enddo
 
@@ -198,12 +195,6 @@ end do
 		  enddo
 		endif
 
-        do inl=1,nen
-		   node=ien(inl,ie)
-		   res_c=res_c+sh(0,inl)*(d(ndf,inl)-d_old(ndf,inl))*dtinv* &
-		   (1.0/kappa*I_fluid(node))
-		enddo  ! add dp/dt term for artificial fluid
-
 	    do isd = 1, nsd
 			if (nsd==2) then
 			   res_a(isd)=ro*(drt(isd)+u*dr(1,isd)+v*dr(2,isd)-g(isd))-fq(isd)
@@ -236,6 +227,7 @@ end do
             taul = hg*vel/2.0
         endif
         !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 !.....   Density optimization
 
 		ph(0:nsd,1:nen) = sh(0:nsd,1:nen)*eft0
@@ -251,6 +243,7 @@ end do
 		enddo
 
 		prs_t(1:nsd) = res_t(1:nsd)*taum
+
 
 		!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! Mickael 02/01/2005
@@ -275,7 +268,7 @@ end do
 		   p(pdf,node) = p(pdf,node)-ph(0,inl)*res_c
 
 		! Momentum Equation (Euler Residual)
-!===========================================================
+!===========================================================
 ! why originally it is minus?
 		   p(1:nsd,node) = p(1:nsd,node)-ph(0,inl)*res_a(1:nsd)
 !=============================================================
@@ -285,7 +278,6 @@ end do
 				p(isd,node)=p(isd,node) + ph(isd,inl)*pp -   &
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd)
-				p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2))*2.0/3.0
 			  enddo
 			elseif (nsd==3) then
 			  do isd=1,nsd
@@ -293,7 +285,6 @@ end do
 										  ph(1,inl)*tau(1,isd) -  &
 										  ph(2,inl)*tau(2,isd) -  &
 										  ph(3,inl)*tau(3,isd)
-				p(isd,node)=p(isd,node)+mu*ph(isd,inl)*(dr(1,1)+dr(2,2)+dr(3,3))*2.0/3.0
 			  enddo
 			endif
 
@@ -316,3 +307,4 @@ end do
 continue
   return
 end subroutine blockgmresnew
+

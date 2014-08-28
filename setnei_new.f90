@@ -44,32 +44,33 @@ do inn=1,nn_global_com
 	flag=-999
 	kcount=2
 
-    loop: do while((icount .le. nn_local_com) .and. (flag .lt. 0))
+loop:	do while((icount .le. nn_local_com) .and. (flag .lt. 0))
 		if (inn == local_com(icount)) then
 			flag = myid
-		endif
+		end if
 		icount=icount+1
 		continue
-	enddo loop 
+	end do loop 
 
-    if (flag .ne. -999) then
-	    nei(myid+1)=1 ! before communication just record the information in a huge matrix
-    endif
+if (flag .ne. -999) then
+	nei(myid+1)=1 ! before communication just record the information in a huge matrix
+end if
 
-    call mpi_barrier(mpi_comm_world,ierror)
-    call mpi_allreduce(nei(1),nei_rec(1),ncpus,mpi_integer,mpi_sum,mpi_comm_world,ierror)
+           call mpi_barrier(mpi_comm_world,ierror)
+           call mpi_allreduce(nei(1),nei_rec(1),ncpus,mpi_integer,mpi_sum,mpi_comm_world,ierror)
 ! Collect the information all onto master processor
-    jcount=1
-    do icount=1,ncpus
-        if (nei_rec(icount) == 1) then
-            nei_global(inn,jcount)=icount-1
-            jcount=jcount+1
-        endif
-    enddo
-	nei(:)=0
-	nei_rec(:)=0
+		jcount=1
+                do icount=1,ncpus
+                if (nei_rec(icount) == 1) then
+                nei_global(inn,jcount)=icount-1
+                jcount=jcount+1
+                end if
+                end do
+		nei(:)=0
+		nei_rec(:)=0
 ! Reduce this matrix to nei_global on every processor
-enddo
+end do
+
 
 ad_length=0
 
@@ -79,9 +80,20 @@ do icount=1,nn_local_com
 	do jcount=2,nei_max+1
 		if ((local_nei(icount,jcount) .ne. myid) .and. (local_nei(icount,jcount) .ne. -999 )) & 
 		ad_length=ad_length+1
-	enddo
-enddo
+	end do
+end do
 
-call mpi_barrier(mpi_comm_world,ierror)
+!if (myid == 3) then
+!do icount=1,nn_local_com
+!write(*,*) 'local_nei', local_nei(icount,:)
+!end do
+!end if
+
+!write(*,*) 'ad_length', ad_length, 'myid', myid
+           call mpi_barrier(mpi_comm_world,ierror)
+
+
+
+
 
 end subroutine setnei_new

@@ -15,7 +15,6 @@ subroutine Read_Real(var,count)
       linelen = 133
  11   CONTINUE
       linelen = linelen - 1
-!      if (linelen .le. 0) goto 11
       IF (line(linelen:linelen) .EQ. ' ' .and. linelen .GT. 0) GOTO 11
       
       IF (echo_out .GT. 0)WRITE(echo_out,15)(line(k:k),k=1,linelen)

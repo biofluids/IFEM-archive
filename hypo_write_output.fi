@@ -8,19 +8,34 @@
 !
 ! n_tec_ens =1  :  tecplot output
 ! n_tec_ens =0  :  ensight output
+!
 
-if (its == 0) then
-    write(*,*) "generating the output"
-    if( n_tec_ens == 0) then   !ensight output
-        call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2)
-        call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,klok,I_fluid,qv,sigmaPML)
-        call zfem_ensCase(dt,its,ntsbout)
-    endif
-elseif (mod(its,ntsbout) == 0) then
-    write(*,*) "generating the output"
-    if( n_tec_ens == 0) then   !ensight output
-        call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2)
-        call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,klok,I_fluid,qv,sigmaPML)
-        call zfem_ensCase(dt,its,ntsbout)
-    endif
-endif
+       if (its == 0) then
+
+          write(*,*) "generating the output"
+
+          if( n_tec_ens == 0) then   !ensight output
+
+             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress&
+				,I_fluid,dold)
+             call zfem_ensCase(dt,its,ntsbout)
+
+          endif
+
+       elseif (mod(its,ntsbout) == 0) then
+
+          write(*,*) "generating the output"
+
+          if( n_tec_ens == 0) then   !ensight output
+
+             call zfem_ensGeo(klok,ien,x,solid_fem_con,solid_coor_curr,mtype,nep1,nep2)
+             call zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress&
+		,I_fluid,dold)
+             call zfem_ensCase(dt,its,ntsbout)
+
+          endif
+
+       endif
+
+

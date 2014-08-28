@@ -1,5 +1,5 @@
 subroutine solve_solid_disp(x,x_curr,kid,ien,node_sbc,xpre1,solid_prevel,solid_preacc,ien_sbc,&
-			solid_stress,solid_bcvel,mtype)
+                            solid_stress,solid_bcvel,mtype)
 ! subroutine to solve the solid displacement at every time step
 ! x  -- initial solid configuration
 ! x_curr --- current solid configuration
@@ -19,6 +19,7 @@ use mpi_variables, only: myid
 use solid_variables
 use run_variables, only: dt
 implicit none
+include 'mpif.h'
 
 real(8) x(nsd_solid,nn_solid)
 real(8) x_curr(nsd_solid,nn_solid)
@@ -54,6 +55,7 @@ real(8) p(nsd_solid,nn_solid)  ! residual vector
 real(8) res
 real(8) del
 integer i
+real(8) time
 !----------------------------
         real(8) alpha
         real(8) beta
@@ -68,12 +70,12 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 
 ! Get sq for solid mesh to calculate sh in block_solid.f90
 if (nsd_solid == 3) then
-    do iq=1,nquad_solid
-        if(nen_solid.eq.4) then
-            sq_solid(0,1,iq) = xq_solid(1,iq)
-            sq_solid(0,2,iq) = xq_solid(2,iq)
-            sq_solid(0,3,iq) = xq_solid(3,iq)
-            sq_solid(0,4,iq) = 1 - xq_solid(1,iq) - xq_solid(2,iq) - xq_solid(3,iq)
+     do iq=1,nquad_solid
+                if(nen_solid.eq.4) then
+                  sq_solid(0,1,iq) = xq_solid(1,iq)
+                  sq_solid(0,2,iq) = xq_solid(2,iq)
+                  sq_solid(0,3,iq) = xq_solid(3,iq)
+                  sq_solid(0,4,iq) = 1 - xq_solid(1,iq) - xq_solid(2,iq) - xq_solid(3,iq)
         else
                   sq_solid(0,1,iq) = (1 - xq_solid(1,iq))   &
                            * (1 - xq_solid(2,iq)) * (1 - xq_solid(3,iq)) / 8
@@ -116,31 +118,33 @@ if (nsd_solid == 3) then
                   sq_solid(3,7,iq) = + (1 + xq_solid(1,iq)) * (1 + xq_solid(2,iq)) / 8
                   sq_solid(3,8,iq) = + (1 - xq_solid(1,iq)) * (1 + xq_solid(2,iq)) / 8
         endif
-    enddo
+          enddo
 elseif (nsd_solid == 2) then
-    do iq=1,nquad_solid
-        if(nen_solid==3) then
-              sq_solid(0,1,iq) = xq_solid(1,iq)
-              sq_solid(0,2,iq) = xq_solid(2,iq)
-              sq_solid(0,3,iq) = 1 - xq_solid(1,iq) - xq_solid(2,iq) 
-        elseif (nen_solid==4) then 
-              sq_solid(0,1,iq) = (1 - xq_solid(1,iq)) * (1 - xq_solid(2,iq)) / 4
-              sq_solid(0,2,iq) = (1 + xq_solid(1,iq)) * (1 - xq_solid(2,iq)) / 4
-              sq_solid(0,3,iq) = (1 + xq_solid(1,iq)) * (1 + xq_solid(2,iq)) / 4
-              sq_solid(0,4,iq) = (1 - xq_solid(1,iq)) * (1 + xq_solid(2,iq)) / 4
-        
-              sq_solid(1,1,iq) = - (1 - xq_solid(2,iq)) / 4
-              sq_solid(1,2,iq) = + (1 - xq_solid(2,iq)) / 4
-              sq_solid(1,3,iq) = + (1 + xq_solid(2,iq)) / 4
-              sq_solid(1,4,iq) = - (1 + xq_solid(2,iq)) / 4
                   
-              sq_solid(2,1,iq) = - (1 - xq_solid(1,iq)) / 4
-              sq_solid(2,2,iq) = - (1 + xq_solid(1,iq)) / 4
-              sq_solid(2,3,iq) = + (1 + xq_solid(1,iq)) / 4
-              sq_solid(2,4,iq) = + (1 - xq_solid(1,iq)) / 4    
+      do iq=1,nquad_solid
+                if(nen_solid==3) then
+                  sq_solid(0,1,iq) = xq_solid(1,iq)
+                  sq_solid(0,2,iq) = xq_solid(2,iq)
+                  sq_solid(0,3,iq) = 1 - xq_solid(1,iq) - xq_solid(2,iq) 
+        elseif (nen_solid==4) then 
+                  sq_solid(0,1,iq) = (1 - xq_solid(1,iq)) * (1 - xq_solid(2,iq)) / 4
+                  sq_solid(0,2,iq) = (1 + xq_solid(1,iq)) * (1 - xq_solid(2,iq)) / 4
+                  sq_solid(0,3,iq) = (1 + xq_solid(1,iq)) * (1 + xq_solid(2,iq)) / 4
+                  sq_solid(0,4,iq) = (1 - xq_solid(1,iq)) * (1 + xq_solid(2,iq)) / 4
+                           
+                  sq_solid(1,1,iq) = - (1 - xq_solid(2,iq)) / 4
+                  sq_solid(1,2,iq) = + (1 - xq_solid(2,iq)) / 4
+                  sq_solid(1,3,iq) = + (1 + xq_solid(2,iq)) / 4
+                  sq_solid(1,4,iq) = - (1 + xq_solid(2,iq)) / 4
+                  
+                  sq_solid(2,1,iq) = - (1 - xq_solid(1,iq)) / 4
+                  sq_solid(2,2,iq) = - (1 + xq_solid(1,iq)) / 4
+                  sq_solid(2,3,iq) = + (1 + xq_solid(1,iq)) / 4
+                  sq_solid(2,4,iq) = + (1 - xq_solid(1,iq)) / 4
+                  
         endif     
-    enddo  
-endif
+          enddo  
+end if
 !------------------------------------------------------------------
 solid_acc(:,:) = 0.0d0
 solid_vel(:,:) = 0.0d0
@@ -165,14 +169,6 @@ call getnorm(p,p,nsd_solid*nn_solid,res)
 res=sqrt(res)
 if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 
-!if (myid == 0) then
-!        open(unit=30, file='solidres_se.out', status='unknown')
-!	do i=1, nn_solid
-!	write(30,*) 'node', i, p(1:nsd_solid,i)
-!	end do
-!	close(30)
-!end if
-
 !if ( res .gt. 1e-6) then  ! solid disp need to be solved
 
 !-----------------------
@@ -180,14 +176,16 @@ if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
 ! Help a lot!!!! However, have not figured out why ...
 !w(:,:)=1.0d0/w(:,:)
 !----------------------
-
+!time=mpi_wtime()
 call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,outer,&
 		nquad_solid,wq_solid,sq_solid,xpre1,&
 		solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype)
+!time=mpi_wtime()-time
+!if (myid==0) write(*,*) '*****COSTING TIME********', time
 
 call getnorm(dg,dg,nsd_solid*nn_solid,del)
  del = sqrt(del)
-if (myid == 0) write(*,*) '===serial solid displacement correction norm===', del
+if (myid == 0) write(*,*) '===solid displacement correction norm===', del
 
 !do i=1,nn_sbc
 !	write(*,*) 'dg', dg(:,node_sbc(i)), ' at node',node_sbc(i), disp(:,node_sbc(i))
@@ -195,15 +193,17 @@ if (myid == 0) write(*,*) '===serial solid displacement correction norm===', del
 !end do
 solid_acc(:,:) = solid_acc(:,:) + dg(:,:)
 x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
-		          (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
+		 (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )
 
 !do i=1,nn_sbc
 !        solid_vel(:,node_sbc(i))=solid_bcvel(:,node_sbc(i))
 !end do
 
+
 solid_prevel(:,:) = solid_vel(:,:)
 solid_preacc(:,:) = solid_acc(:,:)
 
+
 return
-end subroutine solve_solid_disp
+end 

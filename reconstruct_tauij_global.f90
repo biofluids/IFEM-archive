@@ -2,8 +2,7 @@
 
 !================================================
 hattauij(1:nsd,1:nsd,1:nn)=0.0
-do ie_local=1,ne_local     ! loop over elements
-    ie=ien_local(ie_local)
+do ie=1,ne     ! loop over elements
     do inl=1,nen
         x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
         d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
@@ -29,13 +28,13 @@ do ie_local=1,ne_local     ! loop over elements
         mu=0.0
 
         do inl=1,nen
+            tempc(1:nsd) = ama*d(1:nsd,inl)+oma*d_old(1:nsd,inl)
             mu = mu+sh(0,inl)*fvis(ien(inl,ie))
             do isd=1,nsd
-                do jsd=1,nsd
-                    dr(isd,jsd) = dr(isd,jsd)+sh(isd,inl)*d(jsd,inl)
-                enddo
+                dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
             enddo
         enddo
+        !mu=1.8e-4
 
         do isd = 1,nsd
             do jsd = 1,nsd
@@ -56,8 +55,11 @@ do ie_local=1,ne_local     ! loop over elements
                                            eft0*sh(0,inl)*tau(isd,jsd)
                 enddo
             enddo
+            if (abs(xloc(ysd,node)-1.397) < 1e-5) then
+                hattauij(1,2,node)=0.0
+                hattauij(2,1,node)=0.0
+            endif
         enddo
-
     enddo ! end of qudrature pts loop
 enddo ! end of element loop
 ! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,8 +70,7 @@ enddo ! end of element loop
 ! ||||||||||||||||||||||||||||||||||||||||||||||||
 ! vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 flagdivision(1:nn)=0
-do ie_local=1,ne_local
-    ie=ien_local(ie_local)
+do ie=1,ne
     do inl=1,nen
         node=ien(inl,ie)
         if (flagdivision(node)==0) then

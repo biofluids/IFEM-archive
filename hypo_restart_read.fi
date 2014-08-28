@@ -1,3 +1,4 @@
+if(restart /= -888) then
      if (nts_test1 == restart) then
         restart_unit = restart_u1
         open(unit=restart_unit, file='restart1.bin', status='old', form='unformatted')
@@ -6,10 +7,15 @@
         open(unit=restart_unit, file='restart2.bin', status='old', form='unformatted')
      endif
 
+elseif(restart == -888) then
+    restart_unit=restart_u1
+    open(unit=restart_unit, file=resfilename, status='old', form='unformatted')
+endif
+
     !...simulation data
      read(restart_unit) nts_start,tt,klok,restart_klok
     !...fluid data
-     read(restart_unit) ien,rng,x,xref,hg,id,d,qv
+     read(restart_unit) ien,rng,x,xref,hg,id,d
     !...solid data
      read(restart_unit) solid_fem_con,solid_surface,solid_coor_init,solid_coor_curr, &
                         solid_vel, solid_prevel, solid_accel,                        &
@@ -20,3 +26,5 @@
 
      write(*,*) " "
      write(*,*) " restart information succesfully read"
+
+
