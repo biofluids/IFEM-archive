@@ -34,6 +34,7 @@ do ie=1,ne     ! loop over elements
                 dr(isd,1:nsd) = dr(isd,1:nsd)+sh(isd,inl)*tempc(1:nsd)
             enddo
         enddo
+        !mu=1.8e-4
 
         do isd = 1,nsd
             do jsd = 1,nsd
@@ -54,6 +55,10 @@ do ie=1,ne     ! loop over elements
                                            eft0*sh(0,inl)*tau(isd,jsd)
                 enddo
             enddo
+            if (abs(xloc(ysd,node)-1.397) < 1e-5) then
+                hattauij(1,2,node)=0.0
+                hattauij(2,1,node)=0.0
+            endif
         enddo
     enddo ! end of qudrature pts loop
 enddo ! end of element loop
