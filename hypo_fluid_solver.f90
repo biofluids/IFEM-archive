@@ -1,7 +1,7 @@
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !   FEM Navier Stokes fluid solver
 !     compressible, implicit
-! Latest update: Jack, 07/16/2014
+! Latest update: Jack Yang, 09/02/2014
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 if (myid == 0) then
     write(*,*) "*** Solving Fluids: calculate fluid field ***"
@@ -11,14 +11,14 @@ dold = d
 qvold = qv
 !----------------------------------------------------
 call formid(id,rng,ien)
-!call formd_time(d,rng,ien)
-call formd(d,rng,ien)
+call formd_time(d,rng,ien)
+!call formd(d,rng,ien)
 if (myid == 0) write(*,*) "********** Applied Time Changing BC ***************"
 !===========================================================================
 ! Applying natural(pressure) BC
 if (edge_inflow .ne. 0) then
     if (myid == 0) then
-        write (*,*) '********** Apply nature BC ***********'
+        write (*,*) '********** Apply natural BC ***********'
         if (ptotflag == 1) write(*,*) '======== Total Pressure B.C. is used ==========='
     endif
     if (nsd == 2) then
@@ -77,7 +77,6 @@ do iit=1,nit
     !...update the calculated variables, d=d+dg
     call mpi_barrier(mpi_comm_world,ierror)
     call updatePML(p, d, dg, ndf)
-    !if (myid==0) write(*,*) "dg_qv(2734)=", dg(:,nn+seqcPML(2734)), "; seqcPML(2734)=", seqcPML(2734)
 
     if (myid == 0) then
         !...output the errors in each iteration
@@ -88,5 +87,6 @@ do iit=1,nit
 enddo ! end of loop over iterations
 
 if (myid ==0) then
-    write(*,'("maximum fluid velocity = ",f13.5)') maxval(d(1:nsd,:))
+    write(*,'("maximum fluid velocity component = ",f13.6)') maxval( d(1:nsd,1:nn) )
+    write(*,'("maximum PML qv component = ",f13.6)') maxval( qv(1:nsd,1:nn) )
 endif

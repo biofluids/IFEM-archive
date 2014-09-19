@@ -3,7 +3,7 @@ LIBS    = /usr/opt/lapack-3.3.1/lapack_LINUX.a \
           /usr/opt/BLAS/blas_LINUX.a
 OBJ= global_constants.o global_simulation_parameter.o run_variables.o \
 r_common.o fluid_variables.o solid_variables.o mpi_variables.o ale_variables.o \
-pml_variables.o delta_nonuniform.o \
+pml_variables.o delta_nonuniform.o lumpedmass.o \
 ensight_output.o form.o \
 meshgen_solid.o meshgen_fluid.o \
 read.o parseinput.o correct.o  echoinput.o equal.o error.o \
@@ -32,7 +32,8 @@ readpart_solid.o solve_solid_disp_pa.o block_solid_pa.o gmres_solid_pa.o blockgm
 solve_laplace_pa.o gmres_Laplace_pa.o \
 bubblesort.o communicate_res_ad_sub.o communicate_respml_ad_sub.o \
 bubblesort_solid.o communicate_res_ad_subsolid.o \
-formd_time.o initializePMLparam.o
+formd_time.o initializePMLparam.o lumpmassmatrix.o
+
 IFEM: $(OBJ)
 #	mpif90 -g -O2  -fbounds-check -fcheck-array-temporaries -fbacktrace -o IFEM $(OBJ) $(LIBS)
 	mpif90 -g -O2 -o IFEM $(OBJ) $(LIBS)

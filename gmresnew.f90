@@ -2,12 +2,12 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id,&
                  ne_local,ien_local,node_local,nn_local,&
                  global_com,nn_global_com,local_com,nn_local_com,send_address,ad_length,&
                  fden,fvis,I_fluid,rngface)
-  use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
-  use solid_variables, only: nn_solid
-  use mpi_variables
-  use pml_variables
-  implicit none
-  include 'mpif.h'
+    use fluid_variables, only: nsd,nn,ne,nen,ndf,inner,outer,neface
+    use solid_variables, only: nn_solid
+    use mpi_variables
+    use pml_variables
+    implicit none
+    include 'mpif.h'
 	real* 8 x(nsd,nn)
     integer id(ndf,nn)
 	real* 8 d(ndf,nn), dold(ndf,nn),hg(ne),fext(ndf,nn)
@@ -67,16 +67,16 @@ subroutine gmres(x,d,dold,w,bg,dg,hg,ien,fext,id,&
     real(8) end_time
     real(8) linerr
 !---------------------------------------------
-  eps = 1.0e-6
-  linerr = 1.0e-6
-  e1(:) = 0.0
-  e1(1) = 1.0
-  x0(:) = 0.0
-  iouter = 1
-  r0(:) = bg(:)
-  TRAN = 'N'
-  av_tmp(:,:) = 0
-  avloc(:) = 0
+    eps = 1.0e-6
+    linerr = 1.0e-6
+    e1(:) = 0.0
+    e1(1) = 1.0
+    x0(:) = 0.0
+    iouter = 1
+    r0(:) = bg(:)
+    TRAN = 'N'
+    av_tmp(:,:) = 0
+    avloc(:) = 0
 !	w(:) = 1
     call getnormpml_pa(r0,ndf,nn,node_local,nn_local,rnorm0)
     rnorm = sqrt(rnorm0)
@@ -155,14 +155,14 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
         do icount=1,nn_local
             node=node_local(icount)
             av_tmp(1:ndf,node)=0.0d0
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 av_tmp(1:ndf,nn+seqcPML(node))=0.0d0
             endif
         enddo
         do icount=1,nn_local_com
             node=global_com(local_com(icount))
             av_tmp(1:ndf,node)=0.0d0
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 av_tmp(1:ndf,nn+seqcPML(node))=0.0d0
             endif
         enddo
@@ -182,7 +182,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
                 kcount=(node-1)*ndf+jcount
                 avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps ! get Av,bg=-r(u)
             enddo
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 do jcount=1,ndf
                     kcount=(nn+seqcPML(node)-1)*ndf+jcount
                     avloc(kcount) = (-avloc(kcount)+bg(kcount))/eps ! get Av,bg=-r(u)
@@ -200,7 +200,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
                     kcount=(node-1)*ndf+jcount
                     space1(i)=space1(i)+avloc(kcount)*Vm((icount-1)*ndf+jcount,i)
                 enddo
-                if (seqcPML(node) .ne. 0) then
+                if (seqcPML(node) > 0) then
                     do jcount=1,ndf
                         kcount=(nn+seqcPML(node)-1)*ndf+jcount
                         space1(i)=space1(i)+avloc(kcount)*Vm((nn_local+seqcPMLlocal(icount)-1)*ndf+jcount,i)
@@ -222,7 +222,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
                 enddo
                 Vm(kcount,j+1)=Vm(kcount,j+1)+avloc((node-1)*ndf+jcount)
             enddo
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 do jcount=1,ndf
                     kcount=(nn_local+seqcPMLlocal(icount)-1)*ndf+jcount
                     do i=1,j
@@ -239,7 +239,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
                 kcount=(icount-1)*ndf+jcount
                 temp=temp+Vm(kcount,j+1)*Vm(kcount,j+1)
             enddo
-            if (seqcPML(node) .ne. 0) then
+            if (seqcPML(node) > 0) then
                 do jcount=1,ndf
                     kcount=(nn_local+seqcPMLlocal(icount)-1)*ndf+jcount
                     temp=temp+Vm(kcount,j+1)*Vm(kcount,j+1)
@@ -282,7 +282,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
             enddo
             x0(kcount)=x0(kcount)+Vy(kcount)
         enddo
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             do jcount=1,ndf
                 kcount=(nn+seqcPML(node)-1)*ndf+jcount
                 do i=1,inner
@@ -298,7 +298,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
             kcount=(node-1)*ndf+jcount
             dv(kcount) = eps/w(kcount)*x0(kcount)
         enddo
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             do jcount=1,ndf
                 kcount=(nn+seqcPML(node)-1)*ndf+jcount
                 dv(kcount) = eps/w(kcount)*x0(kcount)
@@ -405,7 +405,7 @@ do 111, while((iouter .le. outer) .and. (rnorm .ge. linerr))
             kcount=(node-1)*ndf+jcount
             dg_sent(kcount) = 1/w(kcount)*x0(kcount) ! unscaled x0
         enddo
-        if (seqcPML(node) .ne. 0) then
+        if (seqcPML(node) > 0) then
             do jcount=1,ndf
                 kcount=(nn+seqcPML(node)-1)*ndf+jcount
                 dg_sent(kcount) = 1/w(kcount)*x0(kcount) ! unscaled x0

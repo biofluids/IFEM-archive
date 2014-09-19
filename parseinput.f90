@@ -302,18 +302,23 @@ end if
         do idf=1,ndf
             bv(idf,ibc) = fix(idf+1)
             if (bv(idf,ibc) .lt. -80000.0) then
-!--------------------------------------------------------------------------
-! if bv(.,.) is less than -9e4, then this boundary has PML in corresponding
-! direction; flagPML indicates the direction: 0-->none, 1-->x, 2-->y
-! corresponding coordinate is xyzcPML
+                ! Jack Yang, 06/20/2014
+                ! if bv(.,.) is less than -8e4, then this boundary has PML in corresponding
+                ! direction; flagPML indicates the direction: 0-->none, 1-->x, 2-->y
+                ! corresponding coordinate is xyzcPML
                 xyzcPML(ibc) = -bv(idf,ibc)-90000.0
                 flagPML(ibc) = idf
                 sumNbcPML = sumNbcPML + 1
-!-----
+                !-----
                 !bc(idf,ibc) = 1
                 !bv(idf,ibc) = 0.0
-!--------------------------------------------------------------------------
-            elseif (abs(bv(idf,ibc)+999.0).gt.1.0e-8) then
+            elseif (abs(bv(idf,ibc)+3.1415926535897932384626e4) .le. 0.1) then
+                ! Jack Yang, 09/02/2014
+                ! time-varying BC: |bc-(-3.14159e4)|<=1e-1
+                nbcTimeVar = ibc
+                ndfTimeVar = idf
+                bc(idf,ibc) = 1
+            elseif (abs(bv(idf,ibc)+999.0) .gt. 1.0e-8) then
                 bc(idf,ibc) = 1
             endif
         enddo

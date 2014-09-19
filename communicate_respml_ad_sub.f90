@@ -1,32 +1,32 @@
 subroutine communicate_respml_ad_sub(res,ndf,nn,send_address,ad_length)
-use mpi_variables
-use pml_variables
-implicit none
-include 'mpif.h'
-! inputs
-integer ndf
-integer nn
-real(8) res(ndf,nn+nn_PML)
-integer ad_length
-integer send_address(ad_length,2)
-! inside variables
-real(8) recv_tmp(ndf*ad_length)
-real(8) send_tmp(ndf*ad_length)
-integer icount
-integer tag
-integer size
-integer reqr(countrow)
-integer reqs(countrow)
-integer status(mpi_status_size,countrow)
-integer stat(mpi_status_size)
-integer node
-integer i,j,k1,k2
-integer des
-!------------------ PML local variables ----------------
-real(8) recv_pml(ndf*adpml_length), send_pml(ndf*adpml_length)
-integer reqrpml(countrowpml), reqspml(countrowpml)
-integer statuspml(mpi_status_size,countrowpml)
-!-------------------------------------------------------
+    use mpi_variables
+    use pml_variables
+    implicit none
+    include 'mpif.h'
+    ! input variables
+    integer ndf
+    integer nn
+    real(8) res(ndf,nn+nn_PML)
+    integer ad_length
+    integer send_address(ad_length,2)
+    ! internal variables
+    real(8) recv_tmp(ndf*ad_length)
+    real(8) send_tmp(ndf*ad_length)
+    integer icount
+    integer tag
+    integer size
+    integer reqr(countrow)
+    integer reqs(countrow)
+    integer status(mpi_status_size,countrow)
+    integer stat(mpi_status_size)
+    integer node
+    integer i,j,k1,k2
+    integer des
+    !------------------ PML local variables ----------------
+    real(8) recv_pml(ndf*adpml_length), send_pml(ndf*adpml_length)
+    integer reqrpml(countrowpml), reqspml(countrowpml)
+    integer statuspml(mpi_status_size,countrowpml)
+    !-------------------------------------------------------
 
     tag=1
     call mpi_barrier(mpi_comm_world,ierror)

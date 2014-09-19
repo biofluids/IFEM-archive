@@ -189,7 +189,7 @@ call communicate_res_ad_subsolid(w,nsd_solid,nn_solid,send_address,ad_length)
 !======================================
 ! Apply 2nd type boundary
 ! The MPI version the 2nd type BC has to be applied here
-        if (nsd_solid ==  2) then
+    if (nsd_solid ==  2) then
 	call apply_2ndbc_solid2d(xpre1,nsd_solid,nn_solid,ien_sbc,ne_sbc,nen_solid,ien,ne_solid,solid_bcforce,solid_stress)
 	do i=1,nn_local
 	node=node_local(i)

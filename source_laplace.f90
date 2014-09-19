@@ -39,7 +39,6 @@ integer pt
 integer snode
 integer fnode
 
-
 data_fluid(:,:)=0.0
 !data_solid(:,:)=0.0
 if (nsd == 2) then
@@ -49,17 +48,15 @@ else
 if(myid == 0) write(*,*) 'call 3D outward norm calculation'
 call solid_normint_3d(x_solid,nsd,nn_solid,ien_sbc,ne_sbc,nen_solid,&
                         ien_solid,ne_solid,data_solid)
-
 end if
 
 !call solid_node_volume(x_solid,nsd,nn_solid,ien_solid,ne_solid,nen_solid,snvolume,adist)
-
-        do imm=1,nn_sbc
+do imm=1,nn_sbc
 		inn=node_sbc(imm)
-           do icnn=1,ncnn(inn)
-              pt=cnn(icnn,inn)
-              data_fluid(1:nsd,pt) = data_fluid(1:nsd,pt) + data_solid(1:nsd,inn) * shrknode(icnn,inn)
-              enddo
-        enddo
+    do icnn=1,ncnn(inn)
+        pt=cnn(icnn,inn)
+        data_fluid(1:nsd,pt) = data_fluid(1:nsd,pt) + data_solid(1:nsd,inn) * shrknode(icnn,inn)
+    enddo
+enddo
 return
 end 

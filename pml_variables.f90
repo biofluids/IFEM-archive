@@ -1,3 +1,9 @@
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+! Jack Jubiao Yang, 07/10/2014
+! Rensselaer Polytechnic Institute
+! This module defines most variables used by PML algorithm
+! This module doesn't affect the standard fluid features even though PML is not applied to any BC
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 module pml_variables
     implicit none
     save

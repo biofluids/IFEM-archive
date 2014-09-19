@@ -87,7 +87,4 @@ subroutine nature_pre(xloc,dloc,ien,rng,bdel,ne_inflow,bdindex,pin,res_bc)
 !=========================
     enddo
 return
-end
-       
-
-
+end subroutine nature_pre

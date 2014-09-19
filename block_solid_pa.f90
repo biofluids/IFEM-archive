@@ -4,7 +4,7 @@
 !	Only linear elastic, I use \alpha - method
 !       Visco-linear elastic, I use Newmark method
 !c       cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	subroutine block_solid_pa(xloc,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
+subroutine block_solid_pa(xloc,dloc, w, p, ien,nsd,nen,ne,nn,nquad,wq,sq,&
 				x_pre1,solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
 				ne_local,ien_local)
 !	use fluid_variables, only: nsd,nen,ne,nn,nquad,wq,sq
@@ -77,42 +77,36 @@
 	integer ne_local
 	integer ien_local(ne_local)
 	integer ie_local
-p(:,:) = 0.0d0
-w(:,:) = 0.0d0
 
+	p(:,:) = 0.0d0
+	w(:,:) = 0.0d0
 !---------------------------------
 ! define the numerical parameters
-alpha = -0.05 ! -1/3 < alpha < 0 and alpha == 0 is Newmark method
-gama = (1.0 - 2.0 * alpha) * 0.5
-beta = ( (1.0 - alpha)**2 ) * 0.25
+	alpha = -0.05 ! -1/3 < alpha < 0 and alpha == 0 is Newmark method
+	gama = (1.0 - 2.0 * alpha) * 0.5
+	beta = ( (1.0 - alpha)**2 ) * 0.25
 !beta = (1.0 - alpha **2) * 0.25
 !----------------------------------
-
-
 ! set solid densitiy
 	rho_solid = density_solid + den_liq
 
 !	rho_solid = 0.0
-        do ie_local=1,ne_local
-	ie=ien_local(ie_local)
+    do ie_local=1,ne_local
+		ie=ien_local(ie_local)
 ! change E, \nv to \lammda and \mu (Lame parameters)
         mu = group_young(mtype(ie))/((1+Poisson)*(1-2*Poisson))
         la = group_young(mtype(ie))/(2*(1+Poisson))
-
-
-	   do inl=1,nen
-	      do isd=1,nsd
-		 x(isd,inl) = xloc(isd,ien(ie,inl)) ! local initial configuration
-		 acc(isd,inl) = dloc(isd,ien(ie,inl)) ! local acc to be solved at n+1
-		 acc_pre(isd,inl) = solid_preacc(isd,ien(ie,inl)) ! local acc at n passed in
-		 vel_pre(isd,inl) = solid_prevel(isd,ien(ie,inl)) ! local vel at n
-		 d1(isd,inl) = x_pre1(isd,ien(ie,inl)) - x(isd,inl) ! displacement at n
-
+	    do inl=1,nen
+	      	do isd=1,nsd
+		 	x(isd,inl) = xloc(isd,ien(ie,inl)) ! local initial configuration
+		 	acc(isd,inl) = dloc(isd,ien(ie,inl)) ! local acc to be solved at n+1
+		 	acc_pre(isd,inl) = solid_preacc(isd,ien(ie,inl)) ! local acc at n passed in
+		 	vel_pre(isd,inl) = solid_prevel(isd,ien(ie,inl)) ! local vel at n
+		 	d1(isd,inl) = x_pre1(isd,ien(ie,inl)) - x(isd,inl) ! displacement at n
 !                vel(isd,inl) = solid_vel(isd,ien(ie,inl))        ! local vel at n+1
 !                d2(isd,inl) = x_pre2(isd,ien(ie,inl)) - x(isd,inl) ! displacement at n-1
-
-	      enddo
-	   enddo
+	     	 enddo
+	   	enddo
 !-------------------------------------------------
 ! solid displacement at n+1 to be solved
 	d(:,:) = d1(:,:) + dt*vel_pre(:,:) + (dt**2)*0.5*( (1.0-2.0*beta)*acc_pre(:,:) + 2.0*beta*acc(:,:) )
@@ -123,59 +117,55 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 	vel(:,:) = (1 + alpha)*vel(:,:) - alpha*vel_pre(:,:)
 ! adding damping term to displacement for viscoelastic model just comment it out
 !	d(:,:) = d(:,:) + damp_solid * vel(:,:) 
-
 !-------------------------------------------------
-	   do iq=1,nquad
-	if (nsd == 3) then ! 3-D case
-	      if (nen.eq.4) then
-		 include "sh3d4n.h"
-	      else if (nen.eq.8) then
-		 include "sh3d8n.h"
-	      end if
-	end if
-	if (nsd == 2) then ! 2-D case
-	      if (nen.eq.3) then !calculate shape function at quad point
-                 include "sh2d3n.h"
-              elseif (nen.eq.4) then
-                 include "sh2d4n.h"
-              endif
-	end if
-	      eft0 = abs(det) * wq(iq)
-
+	   	do iq=1,nquad
+			if (nsd == 3) then ! 3-D case
+	      		if (nen.eq.4) then
+		 			include "sh3d4n.h"
+                elseif (nen.eq.8) then
+    				include "sh3d8n.h"
+    			endif
+			endif
+			if (nsd == 2) then ! 2-D case
+	      		if (nen.eq.3) then !calculate shape function at quad point
+                 	include "sh2d3n.h"
+              	elseif (nen.eq.4) then
+                 	include "sh2d4n.h"
+              	endif
+			endif
+	      	eft0 = abs(det) * wq(iq)
 !=============================================
 !c.... no jacobian
 !c	      eft0 = wq(iq)   
 !c............ Calculate local Stiffness Matrix k (kd=f)
 ! Use the diagonal to be the pre-conditioner, see nodes
-	      do inl=1,nen
-	if (nsd == 3) then ! 3-D case
-		 txx = sh(1,inl)**2
-		 tyy = sh(2,inl)**2
-		 tzz = sh(3,inl)**2
-		 ttt = txx + tyy + tzz 
-		 node = ien(ie,inl)
-		 w(xsd,node)=w(xsd,node)+mu*(ttt+txx)*eft0
-		 w(ysd,node)=w(ysd,node)+mu*(ttt+tyy)*eft0
-		 w(zsd,node)=w(zsd,node)+mu*(ttt+tzz)*eft0 
-		 
-		 w(xsd,node)=w(xsd,node)+la*txx*eft0
-		 w(ysd,node)=w(ysd,node)+la*tyy*eft0
-		 w(zsd,node)=w(zsd,node)+la*tzz*eft0 
+	      	do inl=1,nen
+				if (nsd == 3) then ! 3-D case
+		 			txx = sh(1,inl)**2
+		 			tyy = sh(2,inl)**2
+		 			tzz = sh(3,inl)**2
+		 			ttt = txx + tyy + tzz 
+		 			node = ien(ie,inl)
+		 			w(xsd,node)=w(xsd,node)+mu*(ttt+txx)*eft0
+		 			w(ysd,node)=w(ysd,node)+mu*(ttt+tyy)*eft0
+		 			w(zsd,node)=w(zsd,node)+mu*(ttt+tzz)*eft0 
+		 			
+		 			w(xsd,node)=w(xsd,node)+la*txx*eft0
+		 			w(ysd,node)=w(ysd,node)+la*tyy*eft0
+		 			w(zsd,node)=w(zsd,node)+la*tzz*eft0 
 
-		 w(xsd,node)=w(xsd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
-                 w(ysd,node)=w(ysd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
-                 w(zsd,node)=w(zsd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
-
-	end if
-
-	if (nsd == 2) then ! 2-D case
-		node = ien(ie,inl)
-		w(xsd,node)=w(xsd,node)+(sh(1,inl)**2)*(la+2*mu)+(sh(2,inl)**2)*mu
-		w(ysd,node)=w(ysd,node)+(sh(1,inl)**2)*mu+(sh(2,inl)**2)*(la+2*mu) 
-
-                 w(xsd,node)=w(xsd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
-                 w(ysd,node)=w(ysd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
-	end if                
+		 			w(xsd,node)=w(xsd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
+                 	w(ysd,node)=w(ysd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
+                 	w(zsd,node)=w(zsd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
+				endif
+				if (nsd == 2) then ! 2-D case
+					node = ien(ie,inl)
+					w(xsd,node)=w(xsd,node)+(sh(1,inl)**2)*(la+2*mu)+(sh(2,inl)**2)*mu
+					w(ysd,node)=w(ysd,node)+(sh(1,inl)**2)*mu+(sh(2,inl)**2)*(la+2*mu) 
+			
+    			    w(xsd,node)=w(xsd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
+    			    w(ysd,node)=w(ysd,node)*(dt**2)*beta+rho_solid*eft0*sh(0,inl)
+				endif                
 	      enddo
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c        CALCULATE kd-f
@@ -195,12 +185,10 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 	end if 
 	      enddo
 
-
 ! Accerlearation at G point
 		ax = 0.0
 		ay = 0.0
 		az = 0.0
-
 
 	      do inl=1,nen
 		 ax = ax + sh(0,inl)*acc(1,inl)*rho_solid

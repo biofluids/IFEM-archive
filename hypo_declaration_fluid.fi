@@ -1,4 +1,4 @@
-!   Definition for fluid field variables   
+!   Definition for fluid field variables
 
     integer :: ien(nen,ne)     !...fluid connectivity
     integer :: rng(neface,ne)  !...surface information

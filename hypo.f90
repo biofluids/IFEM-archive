@@ -19,6 +19,7 @@ subroutine hypo
   use ensight_output
   use mpi_variables
   use pml_variables
+  use lumpedmass
   implicit none
   include 'mpif.h'
 !==============================	  
@@ -121,6 +122,9 @@ else
     include "hypo_restart_read.fi"
 endif
 
+call lumpmassmatrix(x,d,dold,p,hg,ien,f_fluids,ne_intlocal,ien_intlocal,&
+                    node_local,nn_local,fden,fvis,I_fluid,rng)
+
 !=================================================================
 !                          Time Loop
 !=================================================================
@@ -158,7 +162,7 @@ time_loop: do its = nts_start,nts !.....count from 1 or restart-timestep to numb
         if (node_sfcon .ne. 0 ) then
             do inode_sf=1,node_sfcon
                 solid_accel(1,sfcon(inode_sf))= - 2.0*10.0*pi*cos(2.0*pi*10.0*tt)*10.0
-                solid_accel(2,sfcon(inode_sf))= 0
+                solid_accel(2,sfcon(inode_sf))= 0.0
             enddo
         endif
         !-------------------------------
@@ -179,7 +183,7 @@ time_loop: do its = nts_start,nts !.....count from 1 or restart-timestep to numb
                                          global_com_solid,nn_global_com_solid,local_com_solid,nn_local_com_solid)
                 if (node_sfcon .ne. 0 ) then
                     do inode_sf=1,node_sfcon
-                        solid_coor_curr(1,sfcon(inode_sf))= solid_coor_init(1,sfcon(inode_sf)) - sin(2.0*pi*10.0*tt)*dt 
+                        solid_coor_curr(1,sfcon(inode_sf))= solid_coor_init(1,sfcon(inode_sf)) - sin(2.0*pi*10.0*tt)*dt
                         solid_coor_curr(2,sfcon(inode_sf))= solid_coor_init(2,sfcon(inode_sf)) + 0.0d0
                     enddo
                 endif
