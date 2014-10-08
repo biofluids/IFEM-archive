@@ -27,11 +27,6 @@
   call read_solidbc(ien_sbc_1)
   call read_solidnodebc(node_sbc_1)
 ! read in solid interface elements and nodes
-
-
-
-
-
 !---------------------------------------------------------
 ! read in the nodes at the fluid bourdary and the number of them
  !...read node connected with fluid boundary

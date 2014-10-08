@@ -171,42 +171,39 @@ if (myid == 0) write(*,*) '---Time for initiate RKPM interpolation function---',
 !==================================================================
 ! Solve Laplace equation get indicatior field
 if (myid == 0) then
-	time=mpi_wtime()
-	lp_source(:,:)=0.0
-        call source_laplace(x,nn,nsd,solid_coor_curr,nn_solid,solid_fem_con,ne_solid,nen_solid,&
-			ien_sbc,ne_sbc,node_sbc,nn_sbc,lp_source)
-	call solve_laplace(lp_source,nsd,nn,nn_solid,ien,ne,nen,x,node_sbc,nn_sbc,I_fluid,flag_fnode)
+    time=mpi_wtime()
+    lp_source(:,:)=0.0
+    call source_laplace(x,nn,nsd,solid_coor_curr,nn_solid,solid_fem_con,ne_solid,nen_solid,&
+		                  	ien_sbc,ne_sbc,node_sbc,nn_sbc,lp_source)
+    call solve_laplace(lp_source,nsd,nn,nn_solid,ien,ne,nen,x,node_sbc,nn_sbc,I_fluid,flag_fnode)
 ! Update density and viscosity field for fluid 
 !I_fluid(:)=0.0
-	fden(:)=den_liq+density_solid*I_fluid(:)
-	fvis(:)=vis_liq+vis_solid*I_fluid(:)
-	time=mpi_wtime()-time
-	if (myid == 0) write(*,*) '---Time for update indicator field---', time
+    fden(:)=den_liq+density_solid*I_fluid(:)
+    fvis(:)=vis_liq+vis_solid*I_fluid(:)
+    time=mpi_wtime()-time
+    if (myid == 0) write(*,*) '---Time for update indicator field---', time
 !=================================================================
 ! Solid solver
-
-	 write(*,*) 'starting my own litte solid solver'
-call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
-              solid_coor_pre1,solid_coor_pre2,id_solidbc,solid_accel,solid_pave,solid_bcvel,solid_bcvel_old,solid_vel)
+    write(*,*) 'starting my own litte solid solver'
+    call res_solid(solid_coor_init,solid_coor_curr,solid_fem_con, solid_force_FSI,&
+                  solid_coor_pre1,solid_coor_pre2,id_solidbc,solid_accel,solid_pave,solid_bcvel,solid_bcvel_old,solid_vel)
 !=================================================================
 ! Set the FSI force for the solid nodes at fluid boundary to be zero
-	if (node_sfcon .ne. 0) then
-	 do inode_sf=1,node_sfcon
-	   solid_force_FSI(1:nsd,sfcon(inode_sf))=0.0
-	 end do
-	end if 
+    if (node_sfcon .ne. 0) then
+        do inode_sf=1,node_sfcon
+            solid_force_FSI(1:nsd,sfcon(inode_sf))=0.0
+        enddo
+    endif 
 !=================================================================
 ! Distribution of the solid forces to the fluid domain
 !   f^fsi(t)  ->  f(t)
-	 write(*,*) 'calculating delta'
-	     call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,nsd,  &
+    write(*,*) 'calculating delta'
+    call delta_exchange(solid_force_FSI,nn_solid,f_fluids,nn,ndelta,dvolume,nsd,  &
 	                         delta_exchange_solid_to_fluid,solid_pave,d(ndf,:))
-
-do ie = 1, nn
-f_fluids(:,ie) = f_fluids(:,ie) * fden(ie)
-end do
+    do ie = 1, nn
+        f_fluids(:,ie) = f_fluids(:,ie) * fden(ie)
+    enddo
 !f_fluids=0.0
-
 endif
 !=================================================================
 ! FEM Navier-Stokes Solver (GMRES) - calculates v(t+dt),p(t+dt)

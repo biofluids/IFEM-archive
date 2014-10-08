@@ -23,6 +23,9 @@ include 'mpif.h'
 
 real(8) x(nsd_solid,nn_solid)
 real(8) x_curr(nsd_solid,nn_solid)
+
+real(8) xcoortest(nsd_solid,nn_solid)
+
 real(8) disp(nsd_solid,nn_solid)
 integer kid(nsd_solid,nn_solid)
 integer ien(ne_solid,nen_solid)
@@ -61,6 +64,17 @@ real(8) time
         real(8) beta
         real(8) gama
 !----------------------------
+real(8) lambdacf(nn_solid)
+real(8) gpenetr(nn_solid)
+real(8) epsilongp
+real(8) maxgp
+! contact parameters defined
+lambdacf(1:nn_solid)=0.0
+gpenetr(1:nn_solid)=0.0
+epsilongp=1.0d8
+! contact parameters initialized
+!----------------------------
+
 ! define the numerical parameters
 alpha = -0.05 ! -1/3 < alpha < 0 and alpha == 0 is Newmark method
 gama = (1.0 - 2.0 * alpha) * 0.5
@@ -144,66 +158,77 @@ elseif (nsd_solid == 2) then
                   
         endif     
           enddo  
-end if
+endif
 !------------------------------------------------------------------
-solid_acc(:,:) = 0.0d0
-solid_vel(:,:) = 0.0d0
+
+do
+
+    solid_acc(:,:) = 0.0d0
+    solid_vel(:,:) = 0.0d0
+    solid_acc(:,:) = solid_preacc(:,:)
+    
+    w(:,:)=0.0d0
+    p(:,:)=0.0d0
+    dg(:,:)=0.0d0 
+    
+    call block_solid(x,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
+    		             nn_solid,nquad_solid,wq_solid,sq_solid,xpre1,&
+    		             solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype,&
+                     lambdacf)
+    
+    call setsolid_id(p,kid,nsd_solid)
+    call getnorm(p,p,nsd_solid*nn_solid,res)
+    res=sqrt(res)
+    if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
+    
+    
+    call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,outer,&
+    		             nquad_solid,wq_solid,sq_solid,xpre1,&
+    		             solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype)
+    
+    call getnorm(dg,dg,nsd_solid*nn_solid,del)
+    del = sqrt(del)
+    if (myid == 0) write(*,*) '===solid displacement correction norm===', del
+
+    !++++++++++++++++++++++++++++++++++++
+    solid_acc(:,:) = solid_acc(:,:) + dg(:,:)
+    xcoortest(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) + &
+                     (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
+
+    call evaluategp(xcoortest,gpenetr,lambdacf,ien_sbc,ien,x)
+    maxgp = maxval(gpenetr)
+
+    if (myid == 0) write(*,*) ' Maximum gPenetration ', maxgp
+    if (myid == 0) write(*,*) ' Maximum Coord-y ', maxval(xcoortest(2,:))
+
+    if (maxgp<1.0e-4) then
+!    if (1==1) then
+        goto 888
+    else
+        lambdacf(:) = lambdacf(:) + epsilongp*gpenetr(:)
+    endif
+
+    !++++++++++++++++++++++++++++++++++++++
+
+enddo
+
+888 continue
+!--------------------------------------
+! have to reinitialize solid_acc
 solid_acc(:,:) = solid_preacc(:,:)
+!--------------------------------------
 
-!do i=1,nn_sbc     
-!        solid_acc(:,node_sbc(i))=(solid_bcvel(:,node_sbc(i)) - solid_prevel(:,node_sbc(i))) / dt
-!end do
 
-w(:,:)=0.0d0
-p(:,:)=0.0d0
-dg(:,:)=0.0d0 
-
-call block_solid(x,solid_acc,w,p,ien,nsd_solid,nen_solid,ne_solid,&
-		nn_solid,nquad_solid,wq_solid,sq_solid,xpre1,&
-		solid_prevel,solid_preacc,ien_sbc,ne_sbc,solid_stress,mtype)
-!do i=1,nn_sbc     
-!        p(1,node_sbc(i))=p(1,node_sbc(i)) + x(1,node_sbc(i))*0.01
-!end do
-call setsolid_id(p,kid,nsd_solid)
-call getnorm(p,p,nsd_solid*nn_solid,res)
-res=sqrt(res)
-if (myid == 0) write(*,*) '===Initial error for solid displacement===', res
-
-!if ( res .gt. 1e-6) then  ! solid disp need to be solved
-
-!-----------------------
-! Take the invese of w as the preconditioner
-! Help a lot!!!! However, have not figured out why ...
-!w(:,:)=1.0d0/w(:,:)
-!----------------------
-!time=mpi_wtime()
-call gmres_solid(x,w,p,dg,ien,kid,nsd_solid,nn_solid,ne_solid,nen_solid,inner,outer,&
-		nquad_solid,wq_solid,sq_solid,xpre1,&
-		solid_prevel,solid_preacc,solid_stress,ne_sbc,ien_sbc,mtype)
-!time=mpi_wtime()-time
-!if (myid==0) write(*,*) '*****COSTING TIME********', time
-
-call getnorm(dg,dg,nsd_solid*nn_solid,del)
- del = sqrt(del)
-if (myid == 0) write(*,*) '===solid displacement correction norm===', del
-
-!do i=1,nn_sbc
-!	write(*,*) 'dg', dg(:,node_sbc(i)), ' at node',node_sbc(i), disp(:,node_sbc(i))
-!        dg(:,node_sbc(i))=disp(:,node_sbc(i))
-!end do
 solid_acc(:,:) = solid_acc(:,:) + dg(:,:)
 x_curr(:,:) = xpre1(:,:) + dt*solid_prevel(:,:) +&
-		 (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
+		              (dt**2)*0.5*( (1.0-2.0*beta)*solid_preacc(:,:) + 2.0*beta*solid_acc(:,:) )
 solid_vel(:,:) = solid_prevel(:,:) + dt*( (1-gama)*solid_preacc(:,:) + gama*solid_acc(:,:) )
 
-!do i=1,nn_sbc
-!        solid_vel(:,node_sbc(i))=solid_bcvel(:,node_sbc(i))
-!end do
-
+if (myid == 0) write(*,*) ' Maximum Coord-y, seriously ', maxval(x_curr(2,:))
 
 solid_prevel(:,:) = solid_vel(:,:)
 solid_preacc(:,:) = solid_acc(:,:)
 
 
 return
-end 
+end subroutine solve_solid_disp

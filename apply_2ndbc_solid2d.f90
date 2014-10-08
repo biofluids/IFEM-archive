@@ -1,5 +1,5 @@
 subroutine apply_2ndbc_solid2d(x_solid,nsd,nn_solid,ien_sbc,ne_sbc,nen_solid,&
-			ien_solid,ne_solid,solid_bcforce,solid_stress)
+			ien_solid,ne_solid,solid_bcforce,solid_stress,lambdacf)
 !---------------------------------
 ! Calculate solid surface normal integral
 use solid_variables, only: wq_solid, nquad_solid, xq_solid
@@ -38,6 +38,10 @@ real(8) w
 real(8) tot_len
 integer snode
 real(8) stress_tmp(nsd,nsd)
+
+real(8) lambdacf(nn_solid)
+
+!-------------------------------------
 
 iq=1
 tot_len=0.0
@@ -145,6 +149,10 @@ continue
 		solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
 		stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode1)
 		end do
+                !------
+                solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
+                lambdacf(snode)*out_norm(isd)*w*h(bcnode1)
+                !------
 	end do
 
         snode=ien_solid(ine,bcnode2)
@@ -158,8 +166,12 @@ continue
 		do jsd = 1,nsd
                 solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
 		stress_tmp(isd,jsd)*out_norm(jsd)*w*h(bcnode2)
-		end do
-        end do
+		enddo
+                !-------
+                solid_bcforce(isd,snode)=solid_bcforce(isd,snode)+&
+                lambdacf(snode)*out_norm(isd)*w*h(bcnode2)
+                !-------
+        enddo
 	
 
 
