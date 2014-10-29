@@ -274,7 +274,7 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 		     +ph(0,inl) * az - ph(0,inl)*rho_solid*gravity(zsd)
 
 	      enddo
-	end if 
+	endif 
 
 	if (nsd == 2) then ! 2-D case, plain strain model
 	   do inl=1,nen
@@ -293,19 +293,19 @@ beta = ( (1.0 - alpha)**2 ) * 0.25
 			ph(xsd,inl)*mu*drx(ysd)   &
                         +ph(0,inl) * ay - ph(0,inl)*rho_solid*gravity(ysd)
 
-	  end do
-	end if
+	  enddo
+	endif
 
 !---------------------------------
 ! Adding damping term for viscoelastic model
 	do inl=1,nen
 	node = ien(ie,inl)
-	do isd = 1, nsd
-		do jsd = 1,nsd
-		p(isd,node) = p(isd,node) + ph(jsd,inl) * dsdt(isd,jsd)
-		end do
-	end do
-	end do
+		do isd = 1, nsd
+			do jsd = 1,nsd
+			p(isd,node) = p(isd,node) + ph(jsd,inl) * dsdt(isd,jsd)
+			enddo
+		enddo
+	enddo
 !----------------------------------
 
 

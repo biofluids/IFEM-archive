@@ -70,15 +70,15 @@
 	w(:,:) = 0.0d0
 
 ! change E, \nv to \lammda and \mu (Lame parameters)
-!	mu = group_young(1)/((1+Poisson)*(1-2*Poisson))
-!	la = group_young(1)/(2*(1+Poisson))
+	mu = group_young(1)/((1+Poisson)*(1-2*Poisson))
+	la = group_young(1)/(2*(1+Poisson))
 ! set solid densitiy to be zero
 ! Here is the differenc between block_solid and blockgmres_solid, since now I do not consider 
 ! the density related terms in the FSI force which is the semi-implicit FSI algorithm
 	rho_solid =  1.0d0
 !------------------------
-	mu = 0.0d0
-	la = 0.0d0
+!	mu = 0.0d0
+!	la = 0.0d0
 
 !------------------------
         do ie=1,ne 
@@ -216,11 +216,11 @@
 	      do inl=1,nen
 		 node=ien(ie,inl)
 !c.....Elastic Equation (calculate residual: r=kd=p)
-		 p(xsd,node) = p(xsd,node)  &
-!		      ph(xsd,inl) * ttt + &
-!		      ph(xsd,inl) * txx + &
-!		      ph(ysd,inl) * tyx + &
-!		      ph(zsd,inl) * tzx   &
+		 p(xsd,node) = p(xsd,node) + &
+		      ph(xsd,inl) * ttt + &
+		      ph(xsd,inl) * txx + &
+		      ph(ysd,inl) * tyx + &
+		      ph(zsd,inl) * tzx   &
 		     -ph(0,inl) * ax	  &
 !		     +ph(0,inl) * dpre(xsd) &
 !---------------------------------------------------------------------------------
@@ -233,11 +233,11 @@
 
 
 
-		 p(ysd,node) = p(ysd,node)  &
-!		      ph(ysd,inl) * ttt + &
-!		      ph(xsd,inl) * txy + &
-!		      ph(ysd,inl) * tyy + &
-!		      ph(zsd,inl) * tzy   &
+		 p(ysd,node) = p(ysd,node) + &
+		      ph(ysd,inl) * ttt + &
+		      ph(xsd,inl) * txy + &
+		      ph(ysd,inl) * tyy + &
+		      ph(zsd,inl) * tzy   &
 		     -ph(0,inl) * ay	  &
 !                     +ph(0,inl) * dpre(ysd) &
 !---------------------------------------------------------------------------------
@@ -250,11 +250,11 @@
 
 
 
-		 p(zsd,node) = p(zsd,node)  &
-!		      ph(zsd,inl) * ttt + &
-!		      ph(xsd,inl) * txz + &
-!		      ph(ysd,inl) * tyz + &
-!		      ph(zsd,inl) * tzz   &
+		 p(zsd,node) = p(zsd,node) + &
+		      ph(zsd,inl) * ttt + &
+		      ph(xsd,inl) * txz + &
+		      ph(ysd,inl) * tyz + &
+		      ph(zsd,inl) * tzz   &
 		     -ph(0,inl) * az	  &
 !                     +ph(0,inl) * dpre(zsd) &
 !---------------------------------------------------------------------------------

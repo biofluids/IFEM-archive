@@ -24,8 +24,9 @@ tag=1
       call mpi_barrier(mpi_comm_world,ierror)
 
 do icount=1,ad_length
-    call mpi_irecv(recv_tmp(1,icount),ndf+1,mpi_double_precision,&
-    mpi_any_source,mpi_any_tag,mpi_comm_world,req(icount),ierror)
+	call mpi_irecv(recv_tmp(1,icount),ndf+1,mpi_double_precision,&
+		mpi_any_source,mpi_any_tag,mpi_comm_world,req(icount),ierror)
+	
 !	sendbuf(1:ndf)=res(1:ndf,send_address(icount,2))
 !	sendbuf(ndf+1)=send_address(icount,2)
 !       call mpi_isend(sendbuf,ndf+1,mpi_double_precision,&
@@ -34,22 +35,24 @@ end do
 
 do icount=1,ad_length
 !       write(*,*) 'send buf',res(1,send_address(icount,2))
-    sendbuf(1:ndf)=res(1:ndf,send_address(icount,2))
-    sendbuf(ndf+1)=send_address(icount,2)
-    call mpi_rsend(sendbuf(1),ndf+1,mpi_double_precision,&
+        sendbuf(1:ndf)=res(1:ndf,send_address(icount,2))
+        sendbuf(ndf+1)=send_address(icount,2)
+       call mpi_rsend(sendbuf(1),ndf+1,mpi_double_precision,&
                  send_address(icount,1), tag, mpi_comm_world,ierror)
-enddo
+end do
 
 call mpi_waitall(ad_length,req,status,ierror)
+
+
 
 !write(*,*) 'ierror', ierror, 'myid', myid
 
 do icount=1,ad_length
-    node=nint(recv_tmp(ndf+1,icount))
-    res(1:ndf,node)=res(1:ndf,node)+recv_tmp(1:ndf,icount)
-enddo
+	node=nint(recv_tmp(ndf+1,icount))
+	res(1:ndf,node)=res(1:ndf,node)+recv_tmp(1:ndf,icount)
+end do
 
-call mpi_barrier(mpi_comm_world,ierror)
+      call mpi_barrier(mpi_comm_world,ierror)
 
 !if (myid ==0) then
 !write(*,*) 'recv_tmp', res(1:ndf,:)

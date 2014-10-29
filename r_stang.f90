@@ -118,7 +118,7 @@ end if
       endif
 !==========================================================
 ! Linear elastic Cauchy stress - sigma
-	elseif (material_type==2) then
+	elseif (material_type==2 .or. material_type==12) then
 !     strain
         call r_sstrain(toc,xto,iq,ine,ge)
 !	  Calculate cauchy stress then transform to 1st PK stress

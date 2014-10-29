@@ -1,0 +1,86 @@
+if (material_type /= 12) then
+    allocate (partele(ne_solid))
+    allocate (partnode(nn_solid))
+    allocate (tmp_index(ne_solid))
+    
+    ! Read in partition information for connectivity matrix
+    call readpartele_solid(partele)
+    ! Read in partition information for nodes
+    call readpartnode_solid(partnode)
+    
+    nn_local_solid=0
+    ne_local_solid=0
+    ne_intlocal_solid=0
+    
+    ! Get subregion-->wholeregion element index for FEM interpolation
+    do count = 1,ne_solid
+        if (partele(count) == myid) then
+            ne_intlocal_solid=ne_intlocal_solid+1
+        endif
+    enddo
+    
+    allocate(ien_intlocal_solid(ne_intlocal_solid))
+    
+    ne_intlocal_solid=0
+    
+    do count = 1,ne_solid
+        if (partele(count) == myid) then
+            ne_intlocal_solid=ne_intlocal_solid+1
+            ien_intlocal_solid(ne_intlocal_solid)=count
+        endif
+    enddo
+    ! Get subregion-->wholeregion node index
+    do count = 1,nn_solid
+        if (partnode(count) == myid) then
+            nn_local_solid=nn_local_solid+1
+        endif
+    enddo
+    
+    allocate(node_local_solid(nn_local_solid))
+    nn_local_solid=0
+    
+    do count = 1,nn_solid
+        if (partnode(count) == myid) then
+            nn_local_solid=nn_local_solid+1
+            node_local_solid(nn_local_solid)=count
+        endif
+    enddo
+    
+    ! Based on node partition, get subregion-->wholeregion element index, used by solid solver 
+    tmp_index(:)=0
+    do ie=1,ne_solid
+        do inen=1,nen_solid
+            if (partnode(solid_fem_con(ie,inen)) == myid) then
+                tmp_index(ie) = 1
+            endif
+        enddo
+    enddo
+    
+    do ie=1,ne_solid
+        if (tmp_index(ie)==1) then
+            ne_local_solid=ne_local_solid+1
+        endif
+    enddo
+    
+    allocate(ien_local_solid(ne_local_solid))
+    ne_local_solid=0
+    
+    do ie=1,ne_solid
+        if (tmp_index(ie)==1) then
+            ne_local_solid=ne_local_solid+1
+            ien_local_solid(ne_local_solid)=ie
+        endif
+    enddo
+    
+    write(*,*) 'myid', myid, 'nn_local_solid',nn_local_solid, 'ne_intlocal_solid', ne_intlocal_solid
+    
+    node_global_solid(:)=0
+    
+    do count = 1,nn_local_solid
+        node_global_solid(node_local_solid(count))=count
+    enddo
+    
+    deallocate(partele)
+    deallocate(partnode)
+    deallocate(tmp_index)
+endif

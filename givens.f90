@@ -51,5 +51,4 @@ end do
 beta(:)=x(:)
 
 return
-
 end

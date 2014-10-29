@@ -1,3 +1,10 @@
+!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+if (.not. allocated(p)) allocate(p(ndf,nn))
+if (.not. allocated(w)) allocate(w(ndf,nn))
+if (.not. allocated(dg)) allocate(dg(ndf,nn))
+!AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+
 if (myid == 0) then
    call error("local shape functions",-999,.false.)
 end if 
@@ -43,4 +50,5 @@ end if
    f_fluids(1:nsd,1:nn) = 0.0d0
 !   disp = 0.0d0
 
- 102  format("Iteration",i3,':  ',4e14.7)
+102  format("Iteration",i3,':  ',4e14.7)
+1023 format("Iteration",i3,':  ||res||=',1e14.7,'; ||d_inc||=',1e14.7)

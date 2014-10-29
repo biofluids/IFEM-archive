@@ -116,13 +116,13 @@ call setid(p_inter,lp_id,1)
 !end do
 !close(8406)
 
-        write(*,*) 'w_inter', minval( w_inter(:)), maxval(w_inter(:))
+!write(*,*) 'w_inter', minval( w_inter(:)), maxval(w_inter(:))
 
 
 call gmres_Laplace(x_fluid,I_fluid,w_inter,p_inter,dg,ien,lp_id,lp_el,count_el)
 
 !do i=1,nn
-	write(*,*) 'dg', maxval(dg(:)), minval(dg(:))
+	!write(*,*) 'dg', maxval(dg(:)), minval(dg(:))
 !end do
 
 dg(:) = abs(dg(:)) / maxval(dg(:))

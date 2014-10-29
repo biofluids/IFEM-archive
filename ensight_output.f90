@@ -15,10 +15,9 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   character(len=13) :: file_name
   character(len=13) :: pre_name
   character(len=13) :: vel_name
-  character(len=13) :: acc_name
   character(len=13) :: FSI_name
-!  character(len=16) :: stress
-!  character(len=16) :: strain     
+  character(len=12) :: qv_name
+  character(len=13) :: sigmaPML_name    
   character(len=13) :: Indicator
   integer :: ts 
   integer :: file_start_no, file_incre
@@ -44,10 +43,9 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   file_name = 'fem.geo******'
   pre_name  = 'fem.pre******'
   vel_name  = 'fem.vel******'
-  acc_name  = 'fem.acc******'
   fsi_name  = 'fem.fsi******'
-!  stress    = 'fem.stress******'
-!  strain    = 'fem.strain******'
+  qv_name   = 'fem.qv******'
+  sigmaPML_name  = 'fem.sig******'
   Indicator = 'fem.ind******'
 
  5002 format(A16, 1x, I2, 1x, A8, 1x, A)
@@ -64,14 +62,15 @@ subroutine zfem_ensCase(dt, currentStep,ntsbout)
   write(20, '(A8)') 'VARIABLE'
   write(20, 5002) 'scalar per node:', ts, 'pressure', pre_name 
   write(20, 5002) 'vector per node:', ts, 'velocity', vel_name
-  write(20, 5002) 'vector per node:', ts, 'accelera', acc_name
   write(20, 5002) 'vector per node:', ts, 'forceFSI', FSI_name
   write(20, 5002) 'scalar per node:', ts, 'Indicator',Indicator
+  write(20, 5002) 'vector per node:', ts, 'qv', qv_name
+  write(20, 5002) 'vector per node:', ts, 'sigmaPML', sigmaPML_name
 
 !  write(20, 5003) ts, stress
 !  write(20, 5004) ts, strain 
-! 5003 format('tensor symm per node: ',I2, 1x,'stress ', A)
-! 5004 format('tensor symm per node: ',I2, 1x,'strain ', A)
+!  5003 format('tensor symm per node: ',I2, 1x,'stress ', A)
+!  5004 format('tensor symm per node: ',I2, 1x,'strain ', A)
 
   write(20, *)
   write(20, *)
@@ -292,35 +291,35 @@ if (nsd_solid == 0) then
   write(i_file_unit, *) 'part 3'
   write(i_file_unit, *) ' Fluid Model'
   if (nsd==3) then
-	  select case (nen)
-	  case (4)
-		 write(i_file_unit, *) ' tetra4'  ! element type
-		 write(i_file_unit, '(i8)')  ne   ! number of elements
-		 do i=1, ne
-			write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-		 enddo
-	  case (8)
-		 write(i_file_unit, *) 'hexa8'    ! element type
-		 write(i_file_unit, '(I8)')  ne   ! number of elements
-		 do i=1, ne
-			write(i_file_unit,'(9i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-		 enddo
-	  end select
+      select case (nen)
+          case (4)
+              write(i_file_unit, *) ' tetra4'  ! element type
+              write(i_file_unit, '(i8)')  ne   ! number of elements
+              do i=1, ne
+                  write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+              enddo
+          case (8)
+              write(i_file_unit, *) 'hexa8'    ! element type
+              write(i_file_unit, '(I8)')  ne   ! number of elements
+              do i=1, ne
+                  write(i_file_unit,'(9i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+              enddo
+      end select
   elseif (nsd==2) then
-	  select case (nen)
-	  case (3)
-		 write(i_file_unit, *) ' tria3'  ! element type
-		 write(i_file_unit, '(i8)')  ne   ! number of elements
-		 do i=1, ne
-			write(i_file_unit,'(4i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-		 enddo
-	  case (4)
-		 write(i_file_unit, *) 'quad4'    ! element type
-		 write(i_file_unit, '(I8)')  ne   ! number of elements
-		 do i=1, ne
-			write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
-		 enddo
-	  end select
+      select case (nen)
+          case (3)
+              write(i_file_unit, *) ' tria3'  ! element type
+              write(i_file_unit, '(i8)')  ne   ! number of elements
+              do i=1, ne
+                  write(i_file_unit,'(4i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+              enddo
+          case (4)
+              write(i_file_unit, *) 'quad4'    ! element type
+              write(i_file_unit, '(I8)')  ne   ! number of elements
+              do i=1, ne
+                  write(i_file_unit,'(5i8)') i, (ien(j,i)+nn_solid,j=1,nen) !element connectivity
+              enddo
+      end select
   endif
 
   close(i_file_unit)
@@ -335,30 +334,31 @@ end subroutine zfem_ensGeo
 ! modified form io11.f file to generate 
 ! ensight fluid field file
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_stress,solid_strain,klok,f_stress,I_fluid,dold)
+subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,klok,I_fluid,qv,sigmaPML)
   use solid_variables
   use fluid_variables, only: nn,ndf,nsd,vis_liq
-  use run_variables, only: its, dt
+  use run_variables, only: its
   implicit none
 
-  real(8) :: d(ndf,nn),dold(ndf,nn), acc(ndf,nn)
+  real(8) :: d(ndf,nn)
   real(8) :: f_fluids(nsd,nn)
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_force_FSI   !...fluid structure interaction force
   real(8),dimension(1:nsd_solid,1:nn_solid) :: solid_vel         !...velocity
-  real(8),dimension (nsd,nsd,nn) :: f_stress
+!  real(8),dimension (nsd,nsd,nn) :: f_stress
   real(8),dimension(nn_solid)   :: solid_pave  !...averaged solid pressure (from mixed formulation -> ???)
-  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
-  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
+!  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_stress  !...solid stress (Voigt notation)
+!  real(8),dimension(1:nsd_solid*2,nn_solid) :: solid_strain  !...solid strain (Voigt notation)
   real(8) I_fluid(nn)
+  real(8) qv(ndf,nn),sigmaPML(nsd,nn)
   integer :: klok
-  real(8) :: fluid_stress(1:nsd*2,nn),fluid_strain(1:nsd*2,nn)              !...fluid stress and strain (not used) empty matrix needed for Ensight input format
+!  real(8) :: fluid_stress(1:nsd*2,nn),fluid_strain(1:nsd*2,nn) &
+   !...fluid stress and strain (not used) empty matrix needed for Ensight input format
   integer :: in,i
   character(len=7 ) :: fileroot
   character(len=14) :: name_file1
   character(len=14) :: name_file2
-  character(len=14) :: name_file3
-!  character(len=17) :: name_file3
-!  character(len=17) :: name_file4
+  character(len=13) :: name_file3
+  character(len=14) :: name_file4
   character(len=14) :: name_file5
   character(len=14) :: name_file6
   integer,parameter :: ifileunit = 16
@@ -394,8 +394,6 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
 !	fluid_strain(6,1:nn)=f_stress(2,3,1:nn)/(2*vis_liq)
 !  endif
 
-  acc(1:ndf,1:nn)=(d(1:ndf,1:nn)-dold(1:ndf,1:nn))/dt
-
   if (klok .eq. 0) then
      write(fileroot, '(a6)') '000000'
   elseif (klok .lt. 10) then
@@ -418,9 +416,8 @@ subroutine zfem_ensFluid(d,f_fluids,solid_force_FSI,solid_vel,solid_pave,solid_s
 
   write(name_file1,'(A7,  A6)')  'fem.vel', fileroot
   write(name_file2,'(A7,  A6)')  'fem.pre', fileroot
-  write(name_file3,'(A7, A6)')  'fem.acc', fileroot
-!  write(name_file3,'(A10, A6)')  'fem.stress', fileroot
-!  write(name_file4,'(A10, A6)')  'fem.strain', fileroot
+  write(name_file3,'(A6,  A6)')  'fem.qv', fileroot
+  write(name_file4,'(A7,  A6)')  'fem.sig', fileroot
   write(name_file5,'(A7,  A6)')  'fem.fsi', fileroot
   write(name_file6,'(A7,  A6)')  'fem.ind', fileroot
 !===========================================================================
@@ -437,15 +434,7 @@ if (nsd==3) then
                        (d(1,in),d(2,in),d(3,in),in=1,nn)
   close(ifileunit)
 
- !...Write velocity output in ens_movie.acc*
-  write(*,*) 'writing... ', name_file3
-  open(ifileunit, file=name_file3, form='formatted')
-  write(ifileunit, '(A)')   'structure and fluid field: accleration vector'
-  write(ifileunit,110) (0.0,0.0,0.0,in=1,nn_solid), &
-                       (acc(1,in),acc(2,in),acc(3,in),in=1,nn)
-  close(ifileunit)
-
-!...Write Interaction force output in ens_movie.fsi*
+ !...Write Interaction force output in ens_movie.fsi*
   write(*,*) 'writing... ', name_file5
   open(ifileunit, file=name_file5, form='formatted')
   write(ifileunit, '(A)')   'structure and fluid field: force_FSI vector'
@@ -464,8 +453,8 @@ if (nsd==3) then
 !  write(*,*) 'writing... ', name_file3
 !  open(ifileunit, file=name_file3, form='formatted')
 !  write(ifileunit, '(A)') 'structure field: stress'  
-  ! Solid solver tensor order: 1->11,2->22,3->33,4->23,5->13,6->12
-  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
+!  ! Solid solver tensor order: 1->11,2->22,3->33,4->23,5->13,6->12
+!  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
 !  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),solid_stress(3,in),                 &
 !                        solid_stress(6,in),solid_stress(5,in),solid_stress(4,in),in=1,nn_solid),  &
 !                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),                 &
@@ -476,8 +465,8 @@ if (nsd==3) then
 !  write(*,*) 'writing... ', name_file4
 !  open(ifileunit, file=name_file4, form='formatted')
 !  write(ifileunit, '(A)') 'structure field: strain'  
-  ! Solid solver tensor order: 1->11,2->22,3->33,4->23,5->13,6->12
-  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
+!  ! Solid solver tensor order: 1->11,2->22,3->33,4->23,5->13,6->12
+!  ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
 !  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),solid_strain(3,in),                 &
 !                        solid_strain(6,in),solid_strain(5,in),solid_strain(4,in),in=1,nn_solid),  &
 !                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
@@ -502,14 +491,6 @@ elseif (nsd==2) then
                        (d(1,in),d(2,in),0.0,in=1,nn)
   close(ifileunit)
 
-  !...Write velocity output in ens_movie.acc*
-  write(*,*) 'writing... ', name_file3
-  open(ifileunit, file=name_file3, form='formatted')
-  write(ifileunit, '(A)')   'structure and fluid field: acceleration vector'
-  write(ifileunit,110) (0.0,0.0,0.0,in=1,nn_solid), &
-                       (acc(1,in),acc(2,in),0.0,in=1,nn)
-  close(ifileunit)
-
  !...Write Interaction force output in ens_movie.fsi*
   write(*,*) 'writing... ', name_file5
   open(ifileunit, file=name_file5, form='formatted')
@@ -525,27 +506,23 @@ elseif (nsd==2) then
   write(ifileunit,110) (solid_pave(in),in=1,nn_solid),(d(3,in),in=1,nn)
   close(ifileunit)
 
- !...Write stress output in ens_movie.stress*
-!  write(*,*) 'writing... ', name_file3
-!  open(ifileunit, file=name_file3, form='formatted')
-!  write(ifileunit, '(A)') 'structure field: stress'  
+!...Write stress output in ens_movie.qv*
+  write(*,*) 'writing... ', name_file3
+  open(ifileunit, file=name_file3, form='formatted')
+  write(ifileunit, '(A)') 'fluid field: qv'  
   ! Solid solver tensor order: 1->11,2->22,3->12,4->33
   ! Ensight tensor order: 1->11,2->22,3->33,4->12,5->13,6->23
-!  write(ifileunit,110) (solid_stress(1,in),solid_stress(2,in),0.0,solid_stress(3,in), &
-!	                    0.0, 0.0,in=1,nn_solid),  &
-!                       (fluid_stress(1,in),fluid_stress(2,in),fluid_stress(3,in),fluid_stress(4,in),                 &
-!                         0.0, 0.0,in=1,nn)
-!  close(ifileunit)
+  write(ifileunit,110) (0.0,0.0, 0.0,in=1,nn_solid),  &
+                       (qv(1,in),qv(2,in),qv(3,in),in=1,nn)
+  close(ifileunit)
 
- !...Write strain output in ens_movie.strain*
-!  write(*,*) 'writing... ', name_file4
-!  open(ifileunit, file=name_file4, form='formatted')
-!  write(ifileunit, '(A)') 'structure field: strain'  
-!  write(ifileunit,110) (solid_strain(1,in),solid_strain(2,in),0.0,solid_strain(3,in),  &
-!                        0.0, 0.0,in=1,nn_solid),  &
-!                       (fluid_strain(1,in),fluid_strain(2,in),fluid_strain(3,in),                 &
-!                        fluid_strain(4,in), 0.0, 0.0,in=1,nn)
-!  close(ifileunit)
+!...Write strain output in ens_movie.sig*
+  write(*,*) 'writing... ', name_file4
+  open(ifileunit, file=name_file4, form='formatted')
+  write(ifileunit, '(A)') 'fluid field: sigmaPML'  
+  write(ifileunit,110) (0.0,0.0, 0.0,in=1,nn_solid),  &
+                       (sigmaPML(1,in),sigmaPML(2,in),0.0,in=1,nn)
+  close(ifileunit)
 
   write(*,*) 'writing... ', name_file6
   open(ifileunit, file=name_file6, form='formatted')

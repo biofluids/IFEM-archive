@@ -6,7 +6,7 @@ do ie_local=1,ne_local     ! loop over elements
     ie=ien_local(ie_local)
     do inl=1,nen
         x(1:nsd,inl) = xloc(1:nsd,ien(inl,ie))
-        d(1:ndf,inl) =  dloc(1:ndf,ien(inl,ie))
+        d(1:ndf,inl) = dloc(1:ndf,ien(inl,ie))
     enddo
 
     do iq=1,nquad  ! loop over the quadrature points in each element 
@@ -78,7 +78,3 @@ do ie_local=1,ne_local
         endif
     enddo
 enddo
-
-
-
-

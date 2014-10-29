@@ -50,7 +50,7 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
     real(8) fvis(nn)
     real(8) local_vis(nen)
 !---------------------------------------------
-    real(8) TC,ZC,RC,P0,dens0
+    !real(8) TC,ZC,RC,P0,dens0
     real(8) I_fluid(nn)
     real(8) I_fluid_old(nn)
     real(8) kappa
@@ -67,11 +67,11 @@ subroutine blockcvoutput(xloc, dloc, doloc, p, hk, ien, f_fluids,ne_local,ien_lo
     integer ie_local ! loop parameter
     integer icount
 !---------------------------------------------
-    TC=273.15
-    ZC=1.4
-    RC=2.87058e6
-    P0=1.01325e6
-    dens0=1.2922e-3
+    !TC=273.15
+    !ZC=1.4
+    !RC=2.87058e6
+    !P0=1.01325e6
+    !dens0=1.2922e-3
     kappa=1.0e4
     dtinv = 1.0/dt
     if(steady) dtinv = 0.0

@@ -27,7 +27,7 @@ integer ibs
 integer ine
 integer ntem
 integer nos
-real(8), allocatable :: x(:,:)
+real(8), allocatable, dimension(:,:) :: x
 real(8) p(nsd)
 real(8) w
 real(8) norm(nsd)
@@ -35,6 +35,7 @@ real(8) area
 integer isd
 integer jsd
 real(8) stress_tmp(nsd,nsd)
+integer error_id
 
 solid_bcforce(:,:)=0.0d0
 
@@ -51,6 +52,7 @@ end if
 
 
 do ibs=1,ne_sbc
+
 	ine=ien_sbc(ibs,1)
 	count=1
 		do nos=1,nen_solid
@@ -63,12 +65,12 @@ do ibs=1,ne_sbc
 		end if
 		end do
 		! find the local nodes on the 2nd type BC surface
-
-		if (nen_solid == 4) then
-			call outnormal_tet(x,nsd,p,norm,area)
-		else if (nen_solid == 8) then
-			call outnormal_hex(x,nsd,p,norm,area)
-		end if
+        if (count .ne. 4) write(*,*) 'Wrong !!!!!',ibs
+            if (nen_solid == 4) then
+                call outnormal_tet(x,nsd,p,norm,area)
+            elseif (nen_solid == 8) then
+                call outnormal_hex(x,nsd,p,norm,area)
+            endif
 		! get the ourward norm
 
                 do nos=1,nen_solid
@@ -102,4 +104,6 @@ end do
 
 deallocate(x)
 
+continue
+return
 end 

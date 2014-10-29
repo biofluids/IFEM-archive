@@ -8,9 +8,9 @@ node_test(:)=0
 
 do icount=1,ne_intlocal
 	do jcount=1,nen
-	node_test(ien(jcount,ien_intlocal(icount)))=1
-	end do
-end do
+	    node_test(ien(jcount,ien_intlocal(icount)))=1
+	enddo
+enddo
 ! set nodes included by the elements in each processor to be 1
 call mpi_reduce(node_test(1),node_test_g(1),nn,mpi_integer,mpi_sum,0,mpi_comm_world,ierror)
 call mpi_bcast(node_test_g(1),nn,mpi_integer,0,mpi_comm_world,ierror)
@@ -20,9 +20,9 @@ count=0
 !write(*,*) 'I am here', 'myid', myid
 do icount=1,nn
 	if (node_test_g(icount) .gt. 1) then
-	count=count+1
-	end if
-end do
+	    count=count+1
+	endif
+enddo
 nn_global_com=count
 ! # of nodes needs communication globally
 
@@ -33,34 +33,32 @@ allocate(global_com(nn_global_com))
 nei_max = maxval(node_test_g(:))
 if (myid == 0) write(*,*) 'nei_max', nei_max
 
-
 count=0
 do icount=1,nn
-        if (node_test_g(icount) .gt. 1) then
+    if (node_test_g(icount) .gt. 1) then
         count=count+1
         global_com(count)=icount
-        end if
-end do
+    endif
+enddo
 ! global node index for communication
 call mpi_barrier(mpi_comm_world,ierror)
 
 write(*,*) 'myid', myid, 'nn_global_com',nn_global_com
-
 
 count=0
 node_test(:)=0
 do icount=1,ne_intlocal
 	jcount=ien_intlocal(icount)
 	do kcount=1,nen
-	node_test(ien(kcount,jcount))=1
-	end do
-end do
+	    node_test(ien(kcount,jcount))=1
+	enddo
+enddo
 
 do icount=1,nn_global_com
         if (node_test(global_com(icount)) == 1) then
-        count=count+1
-        end if
-end do
+            count=count+1
+        endif
+enddo
 nn_local_com=count
 ! # of nodes needs communication locally on each processor
 
@@ -69,44 +67,42 @@ write(*,*) 'myid', myid, 'nn_local_com',nn_local_com
 
 allocate(local_com(nn_local_com))
 
-
 count=0
 do icount=1,nn_global_com
 	if (node_test(global_com(icount)) == 1) then
-	count=count+1
-	local_com(count)=icount
-	end if
-end do
+	    count=count+1
+	    local_com(count)=icount
+	endif
+enddo
 ! local index in the communication region on each processor
-
 
 !==========================================
 ! Give the dimenstion of local_nei matrix
 allocate(local_nei(nn_local_com,nei_max+1))
 !allocate(global_nei(nn_global_com,nei_max))
 
-
 local_nei(:,:)=-999
 
 call mpi_barrier(mpi_comm_world,ierror)
 
 call setnei_new(global_com,nn_global_com,local_com,nn_local_com, &
-            local_nei,nei_max,ad_length)
+                local_nei,nei_max,ad_length)
 
 allocate(send_address(ad_length,2))
-
 
 kcount=0
 do icount=1,nn_local_com
 	do jcount=2,nei_max+1
 		if ((local_nei(icount,jcount) .ne. myid) .and. (local_nei(icount,jcount) .ne. -999 )) then
-		kcount=kcount+1
-		send_address(kcount,1)=local_nei(icount,jcount)
-		send_address(kcount,2)=local_nei(icount,1)
-		end if
-	end do
-end do
+            kcount=kcount+1
+            send_address(kcount,1)=local_nei(icount,jcount)
+            send_address(kcount,2)=local_nei(icount,1)
+		endif
+	enddo
+enddo
 
+call bubblesort(send_address,ad_length,2,1) ! sort the address book
+!row 1 of send_address is the proc id sharing the edge nodes
 
 !-------------
 ! Deallocate variables
